@@ -1,0 +1,13 @@
+Package: PCMBase
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Venelin Mitov & Krzysztof Bartoszek
+Maintainer: Who to complain to <venelin.mitov@gmail.com>
+Description: This package provides likelihood cacluation and optimization of a
+    growing collection of Phylogenetic Comparative Models. Currently the following
+    models have been implemented: Phylogenetic Mixed Model (PMM), the Phylogenetic
+    Ornstein-Uhlenbeck Mixec Model (POUMM).
+License: This package is under the GNU General Public Licence Version 3
+LazyData: TRUE
+RoxygenNote: 5.0.1

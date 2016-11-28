@@ -1,0 +1,266 @@
+---
+title: "Phylogenetic Comparative Methods Base"
+author: "Venelin Mitov"
+date: "17 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(phytools)
+library(abind)
+library(patherit)
+library(mvtnorm)
+library(Rphylopars)
+library(data.table)
+```
+
+## A phylogenetic tree with two evolutionary regimes
+
+```{r phylo}
+set.seed(1)
+
+library(phytools)
+
+# number of tips
+N <- 2000
+# number of regimes
+R <- 2
+# number of traits
+k <- 2
+
+tree. <- phytools::pbtree(n=N, scale=1)
+
+Q <- matrix(c(-1, 1, 1, -1), R, R)
+colnames(Q) <- rownames(Q) <- letters[1:R]
+tree.ab <- phytools::sim.history(tree., Q, anc='a')
+
+
+#plotSimmap(tree.ab, lwd=2, pts=TRUE)
+
+# convert the simmap tree to a normal phylo object with singleton nodes at the
+# within-branch regime changes. The regimes are encoded as names of the edge.length
+# vector
+tree.ab <- map.to.singleton(tree.ab)
+
+#plotTree.singletons(tree.ab)
+```
+
+## Specifying a bivariate OU process for each regime
+First, specify the A, theta, Sigma and sigmae2 parameters for each regime. Then 
+we use the abind function to stack the parameters into arrays which's first 
+dimension is the regime 
+```{r}
+# regimes
+
+# in regime 'a' the two traits evolve according to two independent OU processes
+a.A <- matrix(c(2, 0, 0, .2), 2, 2)
+a.theta <- c(10, 1)
+a.Sigma <- matrix(c(1.6, 0, 0, .1), 2, 2)
+a.sigmae2 <- matrix(c(0, 0, 0, 0), 2, 2)
+
+# in regime 'b' there is correlation between the two traits
+b.A <- matrix(c(2, 1, 1, .1), 2, 2)
+b.theta <- c(5, .5)
+b.Sigma <- matrix(c(1.6, .1, .1, .1), 2, 2)
+b.sigmae2 <- matrix(c(0, 0, 0, 0), 2, 2)
+
+
+A <- abind::abind(a.A, b.A, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Theta <- abind::abind(a.theta, b.theta, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
+Sigma <- abind::abind(a.Sigma, b.Sigma, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Sigmae <- abind::abind(a.sigmae2, b.sigmae2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+```
+
+## Simulations of trait data
+```{r}
+# regime 'a', trait 1
+params.a.1 <- list(tree=tree., A=A['a',1,1,drop=FALSE], 
+                            Theta=Theta['a',1,drop=FALSE], 
+                                   Sigma=Sigma['a',1,1,drop=FALSE],
+                                   Sigmae=Sigmae['a',1,1,drop=FALSE])
+
+# regime 'a', trait 2
+params.a.2 <- list(tree=tree., A=A['a',2,2,drop=FALSE], 
+                            Theta=Theta['a',2,drop=FALSE], 
+                                   Sigma=Sigma['a',2,2,drop=FALSE],
+                                   Sigmae=Sigmae['a',2,2,drop=FALSE])
+
+# regime 'a', traits 1 and 2
+params.a.12 <- list(tree=tree., A=A['a',,,drop=FALSE], 
+                            Theta=Theta['a',,drop=FALSE], 
+                                   Sigma=Sigma['a',,,drop=FALSE],
+                                   Sigmae=Sigmae['a',,,drop=FALSE])
+
+
+# regime 'b', traits 1 and 2
+params.b.12 <- list(tree=tree., A=A['b',,,drop=FALSE], 
+                            Theta=Theta['b',,drop=FALSE], 
+                                   Sigma=Sigma['b',,,drop=FALSE],
+                                   Sigmae=Sigmae['b',,,drop=FALSE])
+
+
+# regimes 'a' and 'b', traits 1 and 2
+params.ab.12 <- list(tree=tree.ab, A=A[,,,drop=FALSE], 
+                            Theta=Theta[,,drop=FALSE], 
+                                   Sigma=Sigma[,,,drop=FALSE],
+                                   Sigmae=Sigmae[,,,drop=FALSE])
+
+
+
+# generate traits
+traits.a.1 <- generateMVTrait.OU(0, params.a.1)
+traits.a.2 <- generateMVTrait.OU(0, params.a.2)
+traits.a.12 <- generateMVTrait.OU(c(0,0), params.a.12)
+
+traits.b.12 <- generateMVTrait.OU(c(0,0), params.b.12)
+
+traits.ab.12 <- generateMVTrait.OU(c(0,0), params.ab.12)
+```
+
+## Calculate likelihood
+```{r}
+.likDebug <- NULL
+.likVTreeOUDebug <- NULL
+
+pruneI <- pruneTree(tree.)
+metaI <- validateParameters.OU(params.a.1)
+
+#Rprof(interval=0.002, line.profiling=TRUE)
+lik(traits.a.1$values, params.a.1, metaI=metaI, pruneI=pruneI, verbose=TRUE, debug=TRUE)
+#Rprof(NULL)
+#summaryRprof(lines='show')
+
+lik.poumm(traits.a.1$values[,1], 
+          params.a.1$tree, 
+          params.a.1$A[1,1,1], 
+          params.a.1$Theta[1,1], 
+          sqrt(params.a.1$Sigma[1,1,1]),
+          sqrt(params.a.1$Sigmae[1,1,1]), 
+          distgr='maxlik', usempfr=0, debug=TRUE)
+
+cbind(.likDebug$L[[1]],
+.likDebug$m[[1]],
+.likDebug$r[[1]])
+
+.likVTreeOUDebug$pif[[1]]
+```
+
+phylopars(data.table(species=tree.$tip.label,
+                     z=traits.a.1$values[,1]), 
+          tree., model='OU', pheno_error=FALSE, REML=FALSE)
+
+alpha <- params.a.1$A[1,1,1]
+theta <- params.a.1$Theta[1,1]
+sigma <- sqrt(params.a.1$Sigma[1,1,1])
+ti <- 1
+xi <- traits.a.1$values[2,1]
+          
+
+ri <- ti*alpha+0.5*log(-alpha/(1-exp(2*ti*alpha)))-0.5*log(pi)-log(sigma)+
+  (exp(ti*alpha)*(xi-theta)+theta)^2*alpha/((1-exp(2*ti*alpha))*sigma^2)
+
+
+
+
+dist.mvOU <- mvCond.OU(as.matrix(params.a.1$A[1,,]), 
+          params.a.1$Theta[1,1],
+          as.matrix(params.a.1$Sigma[1,,]))
+
+dist.mvOU$A
+dist.mvOU$theta
+dist.mvOU$Sigma
+
+dist.mvOU$dmv(traits.a.1$values[1,], 0, 1, log=TRUE)
+
+dCondOU(traits.a.1$values[1,], 0, 1, 
+        alpha=A[1,1,1], theta=Theta[1,1], sigma=sqrt(Sigma[1,1,1]),
+        log=TRUE)
+```
+
+```{r}
+set.seed(1)
+
+N <- 5
+tree <- rtree(N)
+
+xy0 <- c(5, 6)
+A <- rbind(c(24, 0),
+           c(0, 12))
+theta <- c(0, 3)
+Sigma <- rbind(c(3, 0),
+               c(0, 6))
+
+sigmae2 <- 0
+
+x <- generateTraitOU(tree, xy0[1], A[1,1], theta[1], sqrt(Sigma[1,1]))
+y <- generateTraitOU(tree, xy0[2], A[2,2], theta[2], sqrt(Sigma[2,2]))
+names(y) <- names(x) <- tree$tip.label
+
+ADash <- A
+thetaDash <- theta
+SigmaDash <- Sigma
+
+lik.x <- lik.poumm(x, tree, ADash[1,1], thetaDash[1], sqrt(SigmaDash[1,1]), 0, distgr=5, usempfr = 2)
+lik.y <- lik.poumm(y, tree, ADash[2,2], thetaDash[2], sqrt(SigmaDash[2,2]), 0, distgr=6, usempfr = 2)
+
+xy0Dash <- c(attr(lik.x, 'grmax'), attr(lik.y, 'grmax'))
+
+lik.xy <- lik.x+lik.y
+
+phyltree<-ape2ouch(tree)
+
+### Correct the names of the internal node labels.
+phyltree@nodelabels[1:(phyltree@nnodes-phyltree@nterm)]<-as.character(
+  1:(phyltree@nnodes-phyltree@nterm))
+
+### Define a vector of regimes.
+regimes<- rep('small', 2*N-1) #c("small","small","small","small","small","small","small","small","small")
+
+mPsi <- matrix(thetaDash, nrow=2, ncol=1)
+colnames(mPsi) <- 'small'
+
+mPsi0 <- matrix(0, nrow=2, ncol=1)
+colnames(mPsi0) <- 'small'
+
+### Define the SDE parameters to be able to simulate data under the OUOU model.
+OUOUparameters<-list(vY0=matrix(xy0Dash,nrow=2,ncol=1),
+                     A=ADash,mPsi=mPsi, mPsi0=mPsi0,
+                     Syy=sqrt(SigmaDash))
+
+### Now simulate the data and remove the values corresponding to the internal nodes.
+
+OUOUdata<-simulOUCHProcPhylTree(phyltree,OUOUparameters,regimes,NULL)
+OUOUdata<-OUOUdata[-(1:(phyltree@nnodes-phyltree@nterm)),]
+
+
+OUOUdata <- cbind(x, y)[rownames(OUOUdata), ]
+
+### And summarize them.
+OUOU.summary<-SummarizeOUCH(phyltree,OUOUdata,OUOUparameters,
+                            regimes,t=max(nodeTimes(tree)),
+                            dof=6,calcCI=FALSE)
+
+
+
+
+
+# test with the Rphylopars package
+
+ <- phylopars(data.table(species=tree$tip.label, z=z), tree, model='OU', pheno_error=FALSE, REML=FALSE)
+
+c(OUOU.summary[[1]]$LogLik, lik.xy)
+
+
+metaInfo <- validateParameters.OU(list(tree=tree, A=A[1,1,1,drop=FALSE], 
+                                       Theta=Theta[1,1,drop=FALSE], 
+                                       Sigma=Sigma[1,1,1,drop=FALSE],
+                                       Sigmae=Sigmae[1,1,1,drop=FALSE]))
+
+
+```
+
+```{r}
+
+```
