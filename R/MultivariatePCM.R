@@ -179,10 +179,9 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
 #' process with one or several regimes
 #'
 #' @param tree a phylo object
-#' @param root.value numeric vector of length k indicating the root value
-#' @param A numeric k x k matrix specifying the selection strengths of the OU
-#' process
-#' @param Theta numeric k-vector specifying the long-term mean of the OU process
+#' @param model a list containing the following elements (parameters of the model).
+#' A: numeric k x k matrix specifying the selection strengths of the OU process;
+#' Theta numeric k-vector specifying the long-term mean of the OU process
 #' @param Sigma numeric k x k matrix specifying the stochastic time-unit variance of the
 #' OU process;
 #'
@@ -197,35 +196,38 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
 #' Sigmae: a R x k matrix, each Sigmae[r, ] containing the environmental
 #' variances for the k traits in regime r
 #'
+#' @param X0 numeric vector of length k indicating the root value
+#'
 #' @return a numeric M x k matrix of values at all nodes of the tree (root,
 #' internal and tip), where M is the number such nodes: M=dim(tree$edge)[1]+1,
 #' with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
 #' corresponding to the root and bigger than N+1 corresponding to internal nodes.
 #'
-generateMVTrait <- function(params, root.value,
-                            metaI=validateParameters(params, verbose=verbose),
+#' @export
+mvsim <- function(tree, model, X0,
+                            metaI=validateModel(tree, model, verbose=verbose),
                             verbose=FALSE) {
-  if(length(root.value)!=metaI$k) {
-    stop(paste('root.value must be of length', metaI$k, '.'))
+  if(length(X0)!=metaI$k) {
+    stop(paste('X0 must be of length', metaI$k, '.'))
   }
 
-  values <- errors <- matrix(0, nrow=dim(params$tree$edge)[1]+1, ncol=metaI$k)
-  values[metaI$N+1,] <- root.value
+  values <- errors <- matrix(0, nrow=dim(tree$edge)[1]+1, ncol=metaI$k)
+  values[metaI$N+1,] <- X0
 
-  ordBF <- orderBreadthFirst(params$tree)
+  ordBF <- orderBreadthFirst(tree)
 
   # create random generator function
   funMVCond <- lapply(1:metaI$R, function(r) {
-    mvCond(params=params, r=r, verbose=verbose)$rmv
+    mvcond(model=model, r=r, verbose=verbose)$mvr
   })
 
   for(e in ordBF) {
-    values[params$tree$edge[e, 2],] <-
-      funMVCond[[metaI$regimes[e]]](n=1, x0=values[params$tree$edge[e,1],],
-                                      params$tree$edge.length[e])
-    if(!is.null(params$Sigmae)) {
-      errors[params$tree$edge[e, 2],] <-
-        mvtnorm::rmvnorm(1, rep(0, metaI$k), as.matrix(params$Sigmae[metaI$regimes[e],,]))
+    values[tree$edge[e, 2],] <-
+      funMVCond[[metaI$regimes[e]]](n=1, x0=values[tree$edge[e,1],],
+                                      tree$edge.length[e])
+    if(!is.null(model$Sigmae)) {
+      errors[tree$edge[e, 2],] <-
+        mvtnorm::rmvnorm(1, rep(0, metaI$k), as.matrix(model$Sigmae[metaI$regimes[e],,]))
     }
   }
 
@@ -236,34 +238,42 @@ generateMVTrait <- function(params, root.value,
 # The specifics of every model are programmed in specifications of a few
 # S3 generic functions:
 
-validateParameters <- function(params, verbose=FALSE) {
-  UseMethod("validateParameters", params)
+validateModel <- function(tree, model, verbose=FALSE) {
+  UseMethod("validateModel", model)
 }
 
-mvCond <- function(params, r=1, verbose=FALSE) {
-  UseMethod("mvCond", params)
+mvcond <- function(model, r=1, verbose=FALSE) {
+  UseMethod("mvcond", model)
 }
 
-AbCdEf <- function(params,
-                   metaI=validateParameters(params, verbose=verbose),
+AbCdEf <- function(tree, model,
+                   metaI=validateModel(tree, model, verbose=verbose),
                    pc, verbose=FALSE) {
-  UseMethod("AbCdEf", params)
+  UseMethod("AbCdEf", model)
 }
 
-lik <- function(X, params,
-                metaI=validateParameters(params, verbose=verbose),
-                pruneI=pruneTree(params$tree),
-                pc=presentCoordinates(X, params$tree),
+
+#' @export
+mvlik <- function(X, tree, model,
+                metaI=validateModel(tree, model, verbose=verbose),
+                pruneI=pruneTree(tree),
+                pc=presentCoordinates(X, tree),
                 log=TRUE,
                 verbose=FALSE,
                 debug=FALSE) {
-  edge <- params$tree$edge
+  edge <- tree$edge
   endingAt <- pruneI$endingAt
   nodesVector <- pruneI$nodesVector
   nodesIndex <- pruneI$nodesIndex
   nLevels <- pruneI$nLevels
   unVector <- pruneI$unVector
   unIndex <- pruneI$unIndex
+
+  # support regimes as names of edge.length vector or as a member edge.regime in tree
+  if(is.null(tree$edge.regime)) {
+    tree$edge.regime <- names(tree$edge.length)
+  }
+
   unJ <- 1
 
   N <- metaI$N; M <- metaI$M; k <- metaI$k;
@@ -272,7 +282,7 @@ lik <- function(X, params,
   m <- array(0, dim=c(M, k))
   r <- array(0, dim=c(M))
 
-  AbCdEf <- AbCdEf(params=params, metaI=metaI, pc=pc, verbose=verbose)
+  AbCdEf <- AbCdEf(tree, model=model, metaI=metaI, pc=pc, verbose=verbose)
 
   # avoid redundant calculation
   log2pi <- log(2*pi)
@@ -334,18 +344,23 @@ lik <- function(X, params,
     }
   }
 
-  # set the root value to the one that maximizes the likelihood
-  X.root <- solve(a=L[N+1,,]+t(L[N+1,,]), b=-m[N+1,])
-  loglik <- X.root %*% L[N+1,,] %*% X.root + m[N+1,] %*% X.root + r[N+1]
+  if(is.null(model$X0)) {
+    # set the root value to the one that maximizes the likelihood
+    X0 <- solve(a=L[N+1,,]+t(L[N+1,,]), b=-m[N+1,])
+  } else {
+    X0 <- model$X0
+  }
+
+  loglik <- X0 %*% L[N+1,,] %*% X0 + m[N+1,] %*% X0 + r[N+1]
 
   value <- as.vector(if(log) loglik else exp(loglik))
-  if(exists('X.root'))
-    attr(value, 'X.root') <- X.root
+  if(exists('X0'))
+    attr(value, 'X0') <- X0
 
   if(debug) {
-    debugdata <- data.table::data.table(params=list(params), AbCdEf=list(AbCdEf),
+    debugdata <- data.table::data.table(model=list(model), AbCdEf=list(AbCdEf),
                                         L=list(L), m=list(m), r=list(r),
-                                        loglik=list(loglik), X.root=list(X.root))
+                                        loglik=list(loglik), X0=list(X0))
     if(!exists('.likDebug')) {
       .likDebug <<- debugdata
     } else {

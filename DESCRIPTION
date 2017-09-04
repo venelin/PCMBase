@@ -1,7 +1,7 @@
 Package: PCMBase
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.0
+Version: 0.1.1
 Author: Venelin Mitov & Krzysztof Bartoszek
 Maintainer: Who to complain to <venelin.mitov@gmail.com>
 Description: This package provides likelihood cacluation and optimization of a
