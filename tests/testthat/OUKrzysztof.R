@@ -89,7 +89,7 @@ OUOU.summary<-SummarizeOUCH(phyltree,OUOUdata,OUOUparameters,
 
 # test with the Rphylopars package
 
- <- phylopars(data.table(species=tree$tip.label, z=z), tree, model='OU', pheno_error=FALSE, REML=FALSE)
+ <- Rphylopars::phylopars(data.table(species=tree$tip.label, z=z), tree, model='OU', pheno_error=FALSE, REML=FALSE)
 
 c(OUOU.summary[[1]]$LogLik, lik.xy)
 
