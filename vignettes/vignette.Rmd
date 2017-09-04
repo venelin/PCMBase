@@ -23,7 +23,7 @@ library(POUMM)
 
 # Data 
 
-The input data for the phylogenetic comparative methods coverred in the PCMBase package consists of a phylogenetic tree of $N$ tips and a $N\times k$ matrix, $X$ of observed trait-values, where $k$ is the number of traits. The matrix $X$ can contain ```NA```s corresponding to missing values.
+The input data for the phylogenetic comparative methods covered in the PCMBase package consists of a phylogenetic tree of $N$ tips and a $N\times k$ matrix, $X$ of observed trait-values, where $k$ is the number of traits. The matrix $X$ can contain ```NA```s corresponding to missing values.
 
 # Models
 A *model* is defined by a set of parameters and a rule stating how these parameters should be fit to the data. For example, a multivariate phylogenetic Ornstein-Uhlenbeck mixed model has the following parameters:
