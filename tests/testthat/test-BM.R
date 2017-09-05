@@ -55,8 +55,6 @@ model.a.123 <- list(X0 = a.X0,
                     Sigmae=Sigmae['a',,,drop=FALSE])
 class(model.a.123) <- 'BM'
 
-#print (dimnames(model.b.123.OU$Alpha)[[1]])
-
 ################ 1st Validation ######################################################
 
 context(ctx <- "R=1/k=3/N=2")
@@ -166,16 +164,6 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 
 ################ 2nd Validation ######################################################
 
-#EPS <- 10^-8
-
-#b.X0 <- c(12, 4, 3)
-#b.Sigma <- rbind(c(1.6, .3, .3),
-#                 c(.3, 0.3, .4),
-#                 c(.3, .4, 2))
-#b.Sigmae2 <- rbind(c(0, 0, 0),
-#                   c(0, 0, 0),
-#                   c(0, 0, 0))
-
 b.OU.Alpha <- rbind(c(EPS, 0, 0),
                     c(0, EPS, 0),
                     c(0, 0, EPS))
@@ -199,7 +187,7 @@ model.b.123.OU <- list(X0 = b.X0,
                        Sigmae=Sigmae['b.OU',,,drop=FALSE])
 class(model.b.123.OU) <- 'OU'
 
-context(ctx <- "R=1/k=3/N=2")
+context(ctx <- "R=1/k=3/N=400")
 
 N=400
 
@@ -249,16 +237,3 @@ cat('POUMM likelihood=',POUMMlik,'\n')
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime b"),{
   expect_true( abs(lik.BM - lik.OU ) < EPS)
   })
-
-#############################################################################
-
-tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
-
-# convert the simmap tree to a normal phylo object with singleton nodes at the
-# within-branch regime changes. The regimes are encoded as names of the edge.length
-# vector
-tree.ab.singles <- map.to.singleton(tree.ab)
-
-
-traits.ab.123 <- mvsim(tree.ab, model.ab.123, c(0,0,0), verbose=TRUE)
-
