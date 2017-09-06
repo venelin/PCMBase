@@ -235,3 +235,27 @@ AbCdEf.BM <- function(tree, model,
 
   list(A=A, b=b, C=C, d=d, E=E, f=f,V=V)
 }
+
+
+#' Convert a the model OU object to a numerical vector
+#'
+#' @param model parameters of the BM process. This must be a
+#' named list with the following elements:
+#' X0: initial k-vector of values
+#' Sigma: a R x k x k array, each Sigma[r,,] containing the
+#' matrix Sigma for regime r;
+#' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
+#' with elements on the diagona corresponding to the environmental variances for
+#' the k traits in regime r
+#'
+#' @details The dimnames
+#'
+#' @return a named
+
+
+toVector.BM <- function(model) {
+  if(is.null(class(model)) | class(model) != 'BM') {
+    stop("Expecting an object of S3 class 'BM'.")
+  }
+  return (c(model$X0,as.vector(model$Sigma),as.vector(model$Sigmae)))
+}
