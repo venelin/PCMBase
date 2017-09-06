@@ -24,7 +24,7 @@ Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
 with elements on the diagona corresponding to the environmental variances for
 the k traits in regime r}
 
-\item{presentCoords}{a M x k logical matrix representing the present coordinates at each
+\item{pc}{a M x k logical matrix representing the present coordinates at each
 node}
 }
 \value{

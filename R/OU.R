@@ -212,7 +212,7 @@ mvcond.OU <- function(model, r=1, verbose=FALSE) {
 #' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
 #' with elements on the diagona corresponding to the environmental variances for
 #' the k traits in regime r
-#' @param presentCoords a M x k logical matrix representing the present coordinates at each
+#' @param pc a M x k logical matrix representing the present coordinates at each
 #' node
 #'
 #' @details The dimnames
@@ -321,4 +321,12 @@ AbCdEf.OU <- function(tree, model,
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)
+}
+
+
+toVector.OU <- function(model) {
+  if(is.null(class(object)) | class(object) != 'OU') {
+    stop("Expecting an object of S3 class 'OU'.")
+  }
+
 }

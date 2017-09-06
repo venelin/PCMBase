@@ -246,13 +246,14 @@ mvcond <- function(model, r=1, verbose=FALSE) {
   UseMethod("mvcond", model)
 }
 
+#' Quadratic polynomial parameters
 AbCdEf <- function(tree, model,
                    metaI=validateModel(tree, model, verbose=verbose),
                    pc, verbose=FALSE) {
   UseMethod("AbCdEf", model)
 }
 
-
+#' Multivariate likelihood calculation
 #' @export
 mvlik <- function(X, tree, model,
                 metaI=validateModel(tree, model, verbose=verbose),
@@ -368,4 +369,16 @@ mvlik <- function(X, tree, model,
     }
   }
   value
+}
+
+
+#' Convert a model object to a numerical vector
+#'
+#' @description Usually this concatenates
+#'
+#' @param model A named list of the model parameters for the specific model
+#'
+#' @return A numerical vector
+toVector <- function(model) {
+  UseMethod("toVector", model)
 }
