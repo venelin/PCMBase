@@ -22,10 +22,13 @@ for (iter in 1:replications){
 
   model = generate.model(param.m)
 
-  nodes = 100
-  data = generate.data(nodes,model)
-  tree = data$tree
-  traits = data$traits
+  if (iter==1){
+    nodes = 100
+    data = generate.data(nodes,model)
+    tree = data$tree
+    traits = data$traits
+  }
+
 
   param.l = c(Alpha[1,1],Alpha[2,2],Theta,Sigma[1,1],Sigma[1,2],Sigma[2,2],Sigmae[1,1],Sigmae[2,2])
 
