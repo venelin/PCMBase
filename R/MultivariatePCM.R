@@ -225,10 +225,11 @@ mvsim <- function(tree, model, X0,
   for(e in ordBF) {
     values[tree$edge[e, 2],] <-
       funMVCond[[metaI$regimes[e]]](
-        n=1, x0=values[tree$edge[e,1],], tree$edge.length[e], e)
+        n=1, x0=values[tree$edge[e,1],], t = tree$edge.length[e], e = e)
     if(!is.null(model$Sigmae)) {
       errors[tree$edge[e, 2],] <-
-        rmvnorm(1, rep(0, metaI$k), as.matrix(model$Sigmae[metaI$regimes[e],,]), e)
+        rmvnorm(1, rep(0, metaI$k),
+                as.matrix(model$Sigmae[metaI$regimes[e],,]))
     }
   }
 
@@ -238,7 +239,6 @@ mvsim <- function(tree, model, X0,
 
 # The specifics of every model are programmed in specifications of a few
 # S3 generic functions:
-
 validateModel <- function(tree, model, verbose=FALSE) {
   UseMethod("validateModel", model)
 }
