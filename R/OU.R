@@ -159,6 +159,9 @@ V.OU <- function(lambda, P, P_1, Sigma, threshold0=0) {
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
+#' @importFrom mvtnorm rmvnorm dmvnorm
+#' @importFrom expm expm
+#'
 mvcond.OU <- function(model, r=1, verbose=FALSE) {
   with(model, {
     Alpha <- as.matrix(model$Alpha[r,,])
@@ -175,19 +178,15 @@ mvcond.OU <- function(model, r=1, verbose=FALSE) {
   PLP_1 <- PLambdaP_1.OU(Alpha)
   fV <- V.OU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
-  mvr <- function(n=1, x0, t) {
+  mvr <- function(n=1, x0, t, e) {
     e_At <- expm::expm(-t*Alpha)
     I <- diag(nrow(Alpha))
-    mvtnorm::rmvnorm(n=n,
-                     mean=e_At%*%x0 + (I-e_At)%*%Theta,
-                     sigma=fV(t))
+    rmvnorm(n=n, mean=e_At%*%x0 + (I-e_At) %*% Theta, sigma=fV(t))
   }
-  mvd <- function(x, x0, t, log=FALSE) {
+  mvd <- function(x, x0, t, e, log=FALSE) {
     e_At <- expm::expm(-t*Alpha)
     I <- diag(nrow(Alpha))
-    dmvnorm(x,
-            mean=e_At%*%x0 + (I-e_At)%*%Theta,
-            sigma=fV(t), log=log)
+    dmvnorm(x, mean=e_At%*%x0 + (I-e_At) %*% Theta, sigma=fV(t), log=log)
   }
 
   list(Alpha=Alpha, Theta=Theta, Sigma=Sigma, mvr=mvr, mvd=mvd, vcov=fV)

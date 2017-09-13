@@ -203,10 +203,11 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
 #' with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
 #' corresponding to the root and bigger than N+1 corresponding to internal nodes.
 #'
+#' @importFrom mvtnorm rmvnorm
 #' @export
 mvsim <- function(tree, model, X0,
-                            metaI=validateModel(tree, model, verbose=verbose),
-                            verbose=FALSE) {
+                  metaI=validateModel(tree, model, verbose=verbose),
+                  verbose=FALSE) {
   if(length(X0)!=metaI$k) {
     stop(paste('X0 must be of length', metaI$k, '.'))
   }
@@ -216,18 +217,20 @@ mvsim <- function(tree, model, X0,
 
   ordBF <- orderBreadthFirst(tree)
 
-  # create random generator function
+  # create a list of random generator functions for each regime
   funMVCond <- lapply(1:metaI$R, function(r) {
     mvcond(model=model, r=r, verbose=verbose)$mvr
   })
 
   for(e in ordBF) {
     values[tree$edge[e, 2],] <-
-      funMVCond[[metaI$regimes[e]]](n=1, x0=values[tree$edge[e,1],],
-                                      tree$edge.length[e])
+      funMVCond[[metaI$regimes[e]]](
+        n=1, x0=values[tree$edge[e,1],], t = tree$edge.length[e], e = e)
+
     if(!is.null(model$Sigmae)) {
       errors[tree$edge[e, 2],] <-
-        mvtnorm::rmvnorm(1, rep(0, metaI$k), as.matrix(model$Sigmae[metaI$regimes[e],,]))
+        rmvnorm(1, rep(0, metaI$k),
+                as.matrix(model$Sigmae[metaI$regimes[e],,]), e)
     }
   }
 
@@ -237,7 +240,6 @@ mvsim <- function(tree, model, X0,
 
 # The specifics of every model are programmed in specifications of a few
 # S3 generic functions:
-
 validateModel <- function(tree, model, verbose=FALSE) {
   UseMethod("validateModel", model)
 }
