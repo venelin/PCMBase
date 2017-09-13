@@ -79,7 +79,9 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
 #' Generate a multivariate (MV) BM variance-covariance function
 #' @param Sigma the matrix Sigma of a MV BM process.
 #' @param threshold0
-#' @return Sigma.
+#' @return a function of one numerical argument (time), which calculates the
+#' expected variance covariance matrix of a MV-BM process after time, given
+#' the specified arguments.
 
 V.BM <- function(Sigma, threshold0=0) {
 
@@ -110,12 +112,12 @@ mvcond.BM <- function(model, r=1, verbose=FALSE) {
 
     fV <- V.BM(Sigma)
 
-    mvr <- function(n=1, x0, t) {
+    mvr <- function(n=1, x0, e, t) {
       mvtnorm::rmvnorm(n=n,
                        mean=x0,
                        sigma=fV(t))
     }
-    mvd <- function(x, x0, t, log=FALSE) {
+    mvd <- function(x, x0, t, e, log=FALSE) {
       dmvnorm(x,
               mean=x0,
               sigma=fV(t), log=log)
@@ -234,28 +236,4 @@ AbCdEf.BM <- function(tree, model,
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f,V=V)
-}
-
-
-#' Convert a the model OU object to a numerical vector
-#'
-#' @param model parameters of the BM process. This must be a
-#' named list with the following elements:
-#' X0: initial k-vector of values
-#' Sigma: a R x k x k array, each Sigma[r,,] containing the
-#' matrix Sigma for regime r;
-#' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
-#' with elements on the diagona corresponding to the environmental variances for
-#' the k traits in regime r
-#'
-#' @details The dimnames
-#'
-#' @return a named
-
-
-toVector.BM <- function(model) {
-  if(is.null(class(model)) | class(model) != 'BM') {
-    stop("Expecting an object of S3 class 'BM'.")
-  }
-  return (c(model$X0,as.vector(model$Sigma),as.vector(model$Sigmae)))
 }
