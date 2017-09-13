@@ -226,11 +226,10 @@ mvsim <- function(tree, model, X0,
     values[tree$edge[e, 2],] <-
       funMVCond[[metaI$regimes[e]]](
         n=1, x0=values[tree$edge[e,1],], t = tree$edge.length[e], e = e)
-
     if(!is.null(model$Sigmae)) {
       errors[tree$edge[e, 2],] <-
         rmvnorm(1, rep(0, metaI$k),
-                as.matrix(model$Sigmae[metaI$regimes[e],,]), e)
+                as.matrix(model$Sigmae[metaI$regimes[e],,]))
     }
   }
 
