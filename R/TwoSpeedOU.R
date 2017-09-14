@@ -185,14 +185,14 @@ mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
     PLP_1 <- PLambdaP_1.2SpOU(Alpha2)
     fV <- V.2SpOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
-    mvr <- function(n=1, x0, t) {
+    mvr <- function(n=1, x0, t, e) {
       e_A1t <- expm::expm(-t*Alpha1)
       I <- diag(nrow(Alpha1))
       mvtnorm::rmvnorm(n=n,
                        mean=e_A1t%*%x0 + (I-e_A1t)%*%Theta,
                        sigma=fV(t))
     }
-    mvd <- function(x, x0, t, log=FALSE) {
+    mvd <- function(x, x0, t, e, log=FALSE) {
       e_A1t <- expm::expm(-t*Alpha1)
       I <- diag(nrow(Alpha1))
       dmvnorm(x,

@@ -112,7 +112,7 @@ mvcond.BM <- function(model, r=1, verbose=FALSE) {
 
     fV <- V.BM(Sigma)
 
-    mvr <- function(n=1, x0, e, t) {
+    mvr <- function(n=1, x0, t, e) {
       mvtnorm::rmvnorm(n=n,
                        mean=x0,
                        sigma=fV(t))
