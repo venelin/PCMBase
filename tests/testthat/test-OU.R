@@ -302,4 +302,4 @@ tree.ab.singles <- map.to.singleton(tree.ab)
 
 traits.ab.123 <- mvsim(tree.ab, model.ab.123, c(0,0,0), verbose=TRUE)
 
-
+mvlik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
