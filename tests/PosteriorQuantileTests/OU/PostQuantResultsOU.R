@@ -34,8 +34,8 @@ for (j in 1:num.param){
 
   x[[j]] = sapply(1:replications, function(i) (c(post.quant_red[[i]][j])))
 
-  #val[j] = (ks.test(x[[j]], runif(replications)))$p.value
-  val[j] = (ks.test(x[[j]], "punif"))$p.value
+  val[j] = (ks.test(x[[j]], runif(replications)))$p.value
+  #val[j] = (ks.test(x[[j]], "punif"))$p.value
 
   filename = paste("~/Documents/LabRotation1/VC/Figures/NoBurnIn/",param.names[j],"histOU.png",sep="")
   png(filename)
