@@ -1,0 +1,144 @@
+library(phytools)
+library(testthat)
+library(mvtnorm)
+
+
+set.seed(1)
+
+
+#numerical zero:
+EPS <- 10^-9
+
+# number of regimes
+R <- 2
+# number of traits
+k <- 3
+
+
+# rate mtrix of transition from one regime to another
+Q <- matrix(c(-1, 1, 1, -1), R, R)
+colnames(Q) <- rownames(Q) <- letters[1:R]
+
+## Specifying a bivariate OU process for each regime
+# First, specify the A, theta, Sigma and sigmae2 parameters for each regime.
+# Then we use the abind function to stack the parameters into arrays which's first
+# dimension is the regime
+
+# regimes
+
+# in regime 'a' the three traits evolve according to three independent OU processes
+a.X0 <- c(5, 2, 1)
+a.Alpha <- rbind(c(0, 0, 0),
+                 c(0, 2, 0),
+                 c(0, 0, 3))
+a.Theta <- c(10, 6, 2)
+a.Sigma <- rbind(c(1.6, 0, 0),
+                 c(0, 2.4, 0),
+                 c(0, 0, 2))
+a.Sigmae2 <- rbind(c(0, 0, 0),
+                   c(0, 0, 0),
+                   c(0, 0, 0))
+a.Sigmaj <- rbind(c(.2, 0, 0),
+                  c(0, .3, 0),
+                  c(0, 0, .4))
+a.mj <- c(1, 4, 7)
+
+# in regime 'b' there is correlation between the traits
+b.X0 <- c(12, 4, 3)
+b.Alpha <- rbind(c(2, .1, .2),
+                 c(.1, .6, .2),
+                 c(.2, .2, .3))
+b.Theta <- c(10, 6, 2)
+b.Sigma <- rbind(c(1.6, .3, .3),
+                 c(.3, 0.3, .4),
+                 c(.3, .4, 2))
+b.Sigmae2 <- rbind(c(.2, 0, 0),
+                   c(0, .3, 0),
+                   c(0, 0, .4))
+b.Sigmaj <- rbind(c(.2, 0.1, 0.1),
+                  c(0.1, .3, 0),
+                  c(0.1, 0, .4))
+b.mj <- c(11, 17, 42)
+
+
+Alpha <- abind::abind(a.Alpha, b.Alpha, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Theta <- abind::abind(a.Theta, b.Theta, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
+Sigma <- abind::abind(a.Sigma, b.Sigma, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Sigmaj <- abind::abind(a.Sigmaj, b.Sigmaj, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+mj <- abind::abind(a.mj, b.mj, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
+
+
+xi = c(1,1,0,1,0,0,1,0)
+
+## Simulations of trait data
+
+# regime 'a', traits 1, 2 and 3
+model.a.123 <- list(X0 = a.X0,
+                  Alpha=Alpha['a',,,drop=FALSE],
+                  Theta=Theta['a',,drop=FALSE],
+                  Sigma=Sigma['a',,,drop=FALSE],
+                  Sigmae=Sigmae['a',,,drop=FALSE],
+                  Sigmaj=Sigmaj['a',,,drop=FALSE],
+                  mj=mj['a',,drop=FALSE],
+                  xi=xi)
+class(model.a.123) <- 'JOU'
+
+# regime 'b', traits 1, 2 and 3
+model.b.123 <- list(X0 = b.X0,
+                    Alpha=Alpha['b',,,drop=FALSE],
+                    Theta=Theta['b',,drop=FALSE],
+                    Sigma=Sigma['b',,,drop=FALSE],
+                    Sigmae=Sigmae['b',,,drop=FALSE],
+                    Sigmaj=Sigmaj['b',,,drop=FALSE],
+                    mj=mj['b',,drop=FALSE],
+                    xi=xi)
+class(model.b.123) <- 'JOU'
+
+
+xi = c(1,0,1,0,0,1,0,0,0,1,1)
+# regimes 'a' and 'b', traits 1, 2 and 3
+model.ab.123 <- list(X0 = a.X0,
+                     Alpha=Alpha[,,,drop=FALSE],
+                     Theta=Theta[,,drop=FALSE],
+                     Sigma=Sigma[,,,drop=FALSE],
+                     Sigmae=Sigmae[,,,drop=FALSE],
+                     Sigmaj=Sigmaj[,,,drop=FALSE],
+                     mj=mj[,,drop=FALSE],
+                     xi=xi)
+class(model.ab.123) <- 'JOU'
+
+
+context(ctx <- "R=1/k=1/N=5")
+
+# number of tips
+N <- 5
+
+# tree with one regime
+
+tree.a <- phytools::pbtree(n=N, scale=1)
+tree.b <- phytools::pbtree(n=N, scale=1)
+
+tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
+
+# convert the simmap tree to a normal phylo object with singleton nodes at the
+# within-branch regime changes. The regimes are encoded as names of the edge.length
+# vector
+tree.ab.singles <- map.to.singleton(tree.ab)
+
+
+
+
+# generate traits
+
+traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
+traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
+traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
+
+
+# calculate likelihoods
+
+JOU.lik.a <-  mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
+JOU.lik.b <-  mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
+JOU.lik.ab <-  mvlik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
+
