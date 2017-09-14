@@ -39,8 +39,10 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
     stop('Xi should be a one dimensional matrix of length equal to the number of edges in the tree')
   }
 
-  if(!any(model$xi!=c(0,1))){
-    stop('Xi should contain as values only 1 or 0 corresponding to jump or not')
+  for(i in 1:length(model$xi)){
+    if ((model$xi)[i]!=1 & (model$xi)[i]!=0){
+      stop('Xi should contain as values only 1 or 0 corresponding to jump or not')
+    }
   }
 
   # number of traits
@@ -155,8 +157,7 @@ fLambda_ij.JOU <- function(Lambda_ij, threshold0=0) {
 
 texp.JOU <- function(Alpha,threshold0=0){
 
-  dummy = 2*Alpha
-
+  force(Alpha)
   return(function(time){
     res = expm::expm(-time*Alpha)
     return(res)
@@ -178,14 +179,11 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
   Lambda_ij <- Lambda_ij.JOU(lambda)
   fLambda_ij <- fLambda_ij.JOU(Lambda_ij, threshold0)
   P_1SigmaP_t <- P_1%*%Sigma%*%t(P_1)
-  dummy = Sigmaj*2
-  dummy = Alpha*2
+  force(Alpha)
+  force(Sigmaj)
   e_ATt <- texp.JOU(t(Alpha))
-  #print("ok")
-  #print(Sigmaj)
   e_At <- texp.JOU(Alpha)
 
-  #print(dim(Alpha))
   # need to evoque P as well to make it available for the daughter function
   if(!all.equal(dim(P),dim(P_1))) {
     # Dummy code: this should never happen
@@ -194,12 +192,6 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
 
   function(time,xi) {
 
-    #(print("ok2"))
-    #e_ATt <- expm::expm(-time*t(Alpha))
-    #e_At <- expm::expm(-time*Alpha)
-    #return((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_ATt %*% Sigmaj %*% e_At))
-    #print(e_ATt(time))
-    #print(e_ATt(time)%*% Sigmaj)
     return((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_ATt(time) %*% Sigmaj %*% e_At(time)))
   }
 }
@@ -215,7 +207,6 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
 mvcond.JOU <- function(model, r=1, verbose=FALSE) {
   with(model, {
     Alpha <- as.matrix(model$Alpha[r,,])
-    #print(dim(Alpha))
     Theta <- model$Theta[r,]
     Sigma <- as.matrix(model$Sigma[r,,])
     Sigmaj <- as.matrix(model$Sigmaj[r,,])
@@ -313,13 +304,8 @@ AbCdEf.JOU <- function(tree, model,
     P_1[r,,] <- PLambdaP_1$P_1
     lambda[r,] <- PLambdaP_1$lambda
 
-    #print(R)
-    # create the V.JOU function for regime r
-    #print(dim(as.matrix(model$Alpha[r,,])))
-    #print("ok")
     fV.JOU[[r]] <- V.JOU(lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
                        as.matrix(model$Sigma[r,,]), as.matrix(model$Alpha[r,,]), as.matrix(model$Sigmaj[r,,]))
-    #print("again")
     }
 
   V <- array(NA, dim=c(M, k, k))
@@ -355,9 +341,6 @@ AbCdEf.JOU <- function(tree, model,
     # present coordinates in parent and daughte nodes
     kj <- pc[j,]
     ki <- pc[i,]
-    #print(ti)
-    #print(xi[e])
-    #print("before")
     V[i,,] <- fV.JOU[[r[e]]](ti,xi[e])
 
     #stop("up here")
@@ -367,15 +350,9 @@ AbCdEf.JOU <- function(tree, model,
       V[i,,] <- V[i,,] + model$Sigmae[r[e],,]
     }
 
-    #print(model$mj[r[e],])
-    #print(e_ATt[i,ki,])
-    #print(xi[e])
-
     V_1[i,ki,ki] <- solve(V[i,ki,ki])
     e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
     e_ATt[i,,] <- expm::expm(-ti*t(as.matrix(model$A[r[e],,])))
-
-    #print((t(model$mj[r[e],]) %*% e_ATt[i,ki,])*xi[e])
 
     # now compute AbCdEf according to eq (8) in doc.
     # here A is from the general form (not the alpa from JOU process)
