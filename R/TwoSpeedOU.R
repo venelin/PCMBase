@@ -356,10 +356,3 @@ AbCdEf.2SpOU <- function(tree, model,
 #'
 #' @return a named
 
-
-toVector.2SpOU <- function(model) {
-  if(is.null(class(model)) | class(model) != '2SpOU') {
-    stop("Expecting an object of S3 class '2SpOU'.")
-  }
-  return (c(model$X0,as.vector(model$Alpha1),as.vector(model$Alpha2),Theta,as.vector(model$Sigma),as.vector(model$Sigmae)))
-}
