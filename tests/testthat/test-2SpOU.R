@@ -18,11 +18,6 @@ k <- 3
 Q <- matrix(c(-1, 1, 1, -1), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
-## Specifying a bivariate OU process for each regime
-# First, specify the A, theta, Sigma and sigmae2 parameters for each regime.
-# Then we use the abind function to stack the parameters into arrays which's first
-# dimension is the regime
-
 # regimes
 
 # in regime 'a' the three traits evolve according to three independent OU processes
@@ -51,13 +46,16 @@ b.Sigmae2 <- rbind(c(.2, 0, 0),
                    c(0, .3, 0),
                    c(0, 0, .4))
 
+# First, specify the ALpha1,Alpha2, theta, Sigma and sigmae2 parameters for each regime.
+# Then we use the abind function to stack the parameters into arrays which's first
+# dimension is the regime
+
+
 Alpha <- abind::abind(a.Alpha, a.Alpha, along=-1, new.names=list(regime=c('a','a2'), x=NULL, y=NULL))
 Theta <- abind::abind(a.Theta, a.Theta, along=-1, new.names=list(regime=c('a', 'a2'), xy=NULL))
 Sigma <- abind::abind(a.Sigma, a.Sigma, along=-1, new.names=list(regime=c('a','a2'), x=NULL, y=NULL))
 Sigmae <- abind::abind(a.Sigmae2, a.Sigmae2, along=-1, new.names=list(regime=c('a','a2'), x=NULL, y=NULL))
 
-
-## Simulations of trait data
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- list(X0 = a.X0,
@@ -108,8 +106,6 @@ Alpha <- abind::abind(b.Alpha, b.Alpha, along=-1, new.names=list(regime=c('b','b
 Theta <- abind::abind(b.Theta, b.Theta, along=-1, new.names=list(regime=c('b', 'b2'), xy=NULL))
 Sigma <- abind::abind(b.Sigma, b.Sigma, along=-1, new.names=list(regime=c('b','b2'), x=NULL, y=NULL))
 Sigmae <- abind::abind(b.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('b','b2'), x=NULL, y=NULL))
-
-## Simulations of trait data
 
 # regime 'a', traits 1, 2 and 3
 model.b.123 <- list(X0 = b.X0,

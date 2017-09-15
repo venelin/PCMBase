@@ -17,15 +17,6 @@ k <- 3
 Q <- matrix(c(-1, 1, 1, -1), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
-## Specifying a bivariate BM process for each regime
-# First, specify Sigma and sigmae2 parameters for each regime.
-# Then we use the abind function to stack the parameters into arrays which's first
-# dimension is the regime
-
-# regimes
-
-
-
 # in regime 'a' the three traits evolve according to three independent BM processes
 a.X0 <- c(5, 2, 1)
 a.Sigma <- rbind(c(1.6, 0, 0),
@@ -44,6 +35,9 @@ b.Sigmae2 <- rbind(c(.2, 0, 0),
                    c(0, .3, 0),
                    c(0, 0, .4))
 
+# First, specify Sigma and sigmae2 parameters for each regime.
+# Then we use the abind function to stack the parameters into arrays which's first
+# dimension is the regime
 
 Sigma <- abind::abind(a.Sigma, b.Sigma, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
 Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))

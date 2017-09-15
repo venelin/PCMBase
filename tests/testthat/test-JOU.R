@@ -19,11 +19,6 @@ k <- 3
 Q <- matrix(c(-1, 1, 1, -1), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
-## Specifying a bivariate OU process for each regime
-# First, specify the A, theta, Sigma and sigmae2 parameters for each regime.
-# Then we use the abind function to stack the parameters into arrays which's first
-# dimension is the regime
-
 # regimes
 
 # in regime 'a' the three traits evolve according to three independent OU processes
@@ -60,6 +55,9 @@ b.Sigmaj <- rbind(c(.2, 0.1, 0.1),
                   c(0.1, 0, .4))
 b.mj <- c(11, 17, 42)
 
+# First, specify the Alpha, theta, Sigma sigmae2, Sigmaj, mj parameters for each regime.
+# Then we use the abind function to stack the parameters into arrays which's first
+# dimension is the regime
 
 Alpha <- abind::abind(a.Alpha, b.Alpha, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
 Theta <- abind::abind(a.Theta, b.Theta, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
@@ -70,8 +68,6 @@ mj <- abind::abind(a.mj, b.mj, along=-1, new.names=list(regime=c('a', 'b'), xy=N
 
 
 xi = c(1,1,0,1,0,0,1,0)
-
-## Simulations of trait data
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- list(X0 = a.X0,
@@ -119,6 +115,8 @@ N <- 5
 tree.a <- phytools::pbtree(n=N, scale=1)
 tree.b <- phytools::pbtree(n=N, scale=1)
 
+# tree with two regimes
+
 tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
 
 # convert the simmap tree to a normal phylo object with singleton nodes at the
@@ -126,13 +124,15 @@ tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
 # vector
 tree.ab.singles <- map.to.singleton(tree.ab)
 
-
-
-
 # generate traits
 
 traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
+
+# The singles tree is used for the generation of the traits in this case. Since the singles tree will be used
+# for the likelihood calculation, the length of xi has to match the number of edges in the singles tree. Therefore
+# in case the tree.ab is used for the generation of the traits then the length of xi will not match the number of
+# edges which is less in this tree.
 traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
 
