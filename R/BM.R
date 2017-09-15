@@ -85,8 +85,7 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
 
 V.BM <- function(Sigma, threshold0=0) {
 
-  dummy = Sigma*2
-
+  force(Sigma)
   fun = function(time) {
         return (time*Sigma)
   }
@@ -207,8 +206,6 @@ AbCdEf.BM <- function(tree, model,
     # present coordinates in parent and daughte nodes
     kj <- pc[j,]
     ki <- pc[i,]
-
-    #print(fV.BM[[r[e]]](ti))
 
     V[i,,] <- fV.BM[[r[e]]](ti)
 

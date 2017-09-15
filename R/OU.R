@@ -321,32 +321,3 @@ AbCdEf.OU <- function(tree, model,
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)
 }
-
-
-#' Convert a the model OU object to a numerical vector
-#'
-#' @param model parameters of the OU process. This must be a
-#' named list with the following elements:
-#' X0: initial k-vector of values
-#' Alpha: a R x k x k array, where R is the number of regimes of the
-#' OU process, k is the number of variables (traits), each Alpha[r,,]
-#' containing the matrix Alpha for regime r;
-#' Theta: a R x k matrix, row Theta[r, ] containing the long-term
-#' mean Theta for regime r;
-#' Sigma: a R x k x k array, each Sigma[r,,] containing the
-#' matrix Sigma for regime r;
-#' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
-#' with elements on the diagona corresponding to the environmental variances for
-#' the k traits in regime r
-#'
-#' @details The dimnames
-#'
-#' @return a named
-
-
-toVector.OU <- function(model) {
-  if(is.null(class(model)) | class(model) != 'OU') {
-    stop("Expecting an object of S3 class 'OU'.")
-  }
-  return (c(model$X0,as.vector(model$Alpha),Theta,as.vector(model$Sigma),as.vector(model$Sigmae)))
-}

@@ -26,7 +26,6 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
     R <- length(regimes)
   }
 
-  #print(R)
   if(verbose) {
     cat('R=',R,'\n')
   }
@@ -361,7 +360,7 @@ AbCdEf.JOU <- function(tree, model,
     e_ATt[i,,] <- expm::expm(-ti*t(as.matrix(model$A[r[e],,])))
 
     # now compute AbCdEf
-    # here A is from the general form (not the alpa from JOU process)
+    # here A is from the general form (not the alpha from JOU process)
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 
     b[i,ki] <- V_1[i,ki,ki] %*% ((I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
