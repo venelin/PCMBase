@@ -37,8 +37,8 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
   }
 
   if(!is.array(model$Sigma)|!is.array(model$Sigmae) |
-     !isTRUE(all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k))) |
-     !isTRUE(all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k)))) {
+     !all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k)) |
+     !all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k))) {
     if(verbose) {
       print('dim Sigma:')
       print(dim(model$Sigma))
