@@ -1,3 +1,7 @@
+#' function that converts a vector of 2SpOU parameters to a list of matrices
+#' @param a vector of 2SpOU parameters of length 11
+#' @return a list of matrices.
+
 fromVector <- function(l){
 
   Alpha1 = diag(x=c(l[1],l[2]), 2, 2)
@@ -10,7 +14,10 @@ fromVector <- function(l){
 
 }
 
-# L is the number of replicates
+#' function that generates the seeds for a multivariate 2SpOU porcess according to specified parameter distributions.
+#' @param the number of replications
+#' @return a list of matrices.
+
 generate.seeds <- function(L){
 
   dAlpha1 = lapply(1:2,function(i) rexp(L,5))
@@ -22,9 +29,6 @@ generate.seeds <- function(L){
   Theta1 = rnorm(L,0,1)
   Theta2 = rnorm(L,2,1)
   Theta.replicates = lapply(1:L, function(i) c(Theta1[i],Theta2[i]))
-
-  # dSigma = lapply(1:2,function(i) rexp(1,1))
-  # offdSigma = rnorm(1,0.2,0.1)
 
   Sigma.replicates = lapply(1:L, function(i) {
     determ <- -Inf
@@ -46,6 +50,10 @@ generate.seeds <- function(L){
               'Sigma'=Sigma.replicates,'Sigmae'=Sigmae.replicates))
 
 }
+
+#' function that generates an 2SpOU model
+#' @param parameters is a list of matrices containing the parameters Alpha1, Alpha2, Theta, Sigma and Sigmae
+#' @return 2SpOU model.
 
 generate.model <- function(parameters){
 
@@ -74,6 +82,11 @@ generate.model <- function(parameters){
 
 }
 
+#' function that generates the traits on a tree
+#' @param tree
+#' @param 2SpOU model
+#' @return a list containing the tree and the traits.
+
 generate.data <-function(tree,model){
 
   traits <- mvsim(tree, model, c(0,0), verbose=TRUE)
@@ -81,7 +94,10 @@ generate.data <-function(tree,model){
   return(list('tree'=tree,'traits'=traits))
 }
 
-# parameters are in a matrix form.
+#' function that computes the prior given the distribution of the parameters
+#' @param a list of matrices containing the parameters of the 2SpOU model: Alpha1, Alpha2, Theta, Sigma, Sigmae
+#' @return a single value for the prior or -Inf if Sigma matrix is not positive semi-definite
+
 compute.prior <- function(parameters){
 
   if (det(parameters[['Sigma']])<0){
@@ -95,7 +111,11 @@ compute.prior <- function(parameters){
 
 }
 
-# parameters are in a list form
+#' function that computes a value proportional to the log probability density from which the MCMC can sample.
+#' @param vector of parameters in the 2SpOU model
+#' @param list containing the tree and the traits
+#' @return the sum of the likelihood of the 2SpOU parameters and the prior value.
+
 posterior <- function(parameters,extra){
 
   tree = extra[[1]]
@@ -114,6 +134,13 @@ posterior <- function(parameters,extra){
 
 }
 
+#' function that generates the MCMC samples.
+#' @param posterior function
+#' @param number of samples
+#' @param the tree
+#' @param the traits of the tree
+#' @return a list of components returned by the built-in R MCMC function.
+
 generate.samples <- function(p,n,tree,traits){
 
   samples = MCMC(p, n,init = c(5,5,1,1,0,2,1,0.2,1,0.1,0.1), scale = rep(1,11),adapt = TRUE, acc.rate = 0.234,
@@ -121,6 +148,11 @@ generate.samples <- function(p,n,tree,traits){
 
   return (samples)
 }
+
+#' function that computes the posterior quantiles for all 2SpOU parameters.
+#' @param the samples generated from the MCMC in the form of coda objects
+#' @param a list of the seeds
+#' @return a vector of posterior quantiles with length equal to the number of 2SpOU parameters.
 
 compute.postquant <- function(samples,initial){
 
