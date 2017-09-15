@@ -38,7 +38,7 @@ Sigmae = param.replicates[['Sigmae']][[1]]
 
 # Create a list of matrices that includes all parameters
 
-param.m = list('Alpha' = Alpha,'Theta'= Theta,'Sigma' = Sigma,'Sigmae'=Sigmae)  ######### or I take out the names
+param.m = list('Alpha' = Alpha,'Theta'= Theta,'Sigma' = Sigma,'Sigmae'=Sigmae)
 
 # Generate the model
 
