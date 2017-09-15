@@ -1,3 +1,7 @@
+#' function that converts a vector of JOU parameters to a list of matrices
+#' @param a vector of OU parameters of length 14
+#' @return a list of matrices.
+
 fromVector <- function(l){
 
   Alpha = diag(x=c(l[1],l[2]), 2, 2)
@@ -11,7 +15,10 @@ fromVector <- function(l){
 
 }
 
-# L is the number of replicates
+#' function that generates the seeds for a multivariate JOU porcess according to specified parameter distributions.
+#' @param the number of replications
+#' @return a list of matrices.
+
 generate.seeds <- function(L){
 
   dAlpha = lapply(1:2,function(i) rexp(L,1))
@@ -24,9 +31,6 @@ generate.seeds <- function(L){
   mj1 = rnorm(L,0.2,0.1)
   mj2 = rnorm(L,-0.2,0.1)
   mj.replicates = lapply(1:L, function(i) c(mj1[i],mj2[i]))
-
-  # dSigma = lapply(1:2,function(i) rexp(1,1))
-  # offdSigma = rnorm(1,0.2,0.1)
 
   Sigma.replicates = lapply(1:L, function(i) {
     determ <- -Inf
@@ -63,6 +67,11 @@ generate.seeds <- function(L){
 
 }
 
+#' function that generates a JOU model
+#' @param parameters is a list of matrices containing the parameters Alpha, Theta, Sigma, Sigmae, mj and Sigmaj
+#' @param binary vector of length equal to the number of edges in the tree indicating a jump or not at each edge
+#' @return JOU model.
+
 generate.model <- function(parameters,xi){
 
   Alpha1 = parameters[['Alpha']]
@@ -95,6 +104,11 @@ generate.model <- function(parameters,xi){
 
 }
 
+#' function that generates the traits on a tree
+#' @param tree
+#' @param JOU model
+#' @return a list containing the tree and the traits.
+
 generate.data <-function(tree,model){
 
   traits <- mvsim(tree, model, c(0,0), verbose=TRUE)
@@ -102,7 +116,10 @@ generate.data <-function(tree,model){
   return(list('tree'=tree,'traits'=traits))
 }
 
-# parameters are in a matrix form.
+#' function that computes the prior given the distribution of the parameters
+#' @param a list of matrices containing the parameters of the JOU model: Alpha, Theta, Sigma, Sigmae, mj and Sigmaj
+#' @return a single value for the prior or -Inf if Sigma or Sigmaj matrix is not positive semi-definite
+
 compute.prior <- function(parameters){
 
   if (det(parameters[['Sigma']])<0 | det(parameters[['Sigmaj']])<0){
@@ -115,7 +132,11 @@ compute.prior <- function(parameters){
 
 }
 
-# parameters are in a list form
+#' function that computes a value proportional to the log probability density from which the MCMC can sample.
+#' @param vector of parameters in the JOU model
+#' @param list containing the tree and the traits
+#' @return the sum of the likelihood of the JOU parameters and the prior value.
+
 posterior <- function(parameters,extra){
 
   tree = extra[[1]]
@@ -135,6 +156,13 @@ posterior <- function(parameters,extra){
 
 }
 
+#' function that generates the MCMC samples.
+#' @param posterior function
+#' @param number of samples
+#' @param the tree
+#' @param the traits of the tree
+#' @return a list of components returned by the built-in R MCMC function.
+
 generate.samples <- function(p,n,tree,traits,xi){
 
   samples = MCMC(p, n,init = c(1,1,0,2,1,0.2,1,0.1,0.1,0.2,-0.2,5,0.04,5), scale = rep(1,14),adapt = TRUE, acc.rate = 0.234,
@@ -142,6 +170,11 @@ generate.samples <- function(p,n,tree,traits,xi){
 
   return (samples)
 }
+
+#' function that computes the posterior quantiles for all JOU parameters.
+#' @param the samples generated from the MCMC in the form of coda objects
+#' @param a list of the seeds
+#' @return a vector of posterior quantiles with length equal to the number of JOU parameters.
 
 compute.postquant <- function(samples,initial){
 
