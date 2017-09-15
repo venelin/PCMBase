@@ -154,7 +154,10 @@ fLambda_ij.JOU <- function(Lambda_ij, threshold0=0) {
   }
 }
 
-
+#' Create a function of time that calculates exp(-Alpha*time)
+#' @param the argument Alpha is an Alpha matrix kxk specifying the alphas in a JOU process
+#' @param threshold0 numeric threshold value.
+#' @return a function of time returning a matrix
 texp.JOU <- function(Alpha,threshold0=0){
 
   force(Alpha)
@@ -169,7 +172,7 @@ texp.JOU <- function(Alpha,threshold0=0){
 #' @param P matrix of the eigenvectors of the matrix Alpha
 #' @param P_1 inverse eigenvectors matrix
 #' @param Sigma the matrix Sigma of a MV JOU process.
-#' @param Alpha is the matrix Alpha of a MV OU process.
+#' @param Alpha is the matrix Alpha of a MV JOU process.
 #' @param Sigmaj is the variance matrix of the jump distribution in JOU process
 #' @param threshold0
 #' @return a function of two numerical arguments (time) and (xi:binary value denoting jump or not) , which calculates the
@@ -197,8 +200,9 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
 }
 
 #' Create a conditional multivariate JOU distribution
-#' @param Alpha,Theta,Sigma parameters of the multivariate JOU process; Alpha is a k x k
-#' matrix, Theta is a k-vector and Sigma is a k x k matrix
+#' @param Alpha,Theta,Sigma,Sigmaj,mj,xi parameters of the multivariate JOU process; Alpha is a k x k
+#' matrix, Theta,mj are k-vectors and Sigma,Sigmaj are k x k matrices,xi is a vector of length equal to the number
+#' of edges in the tree
 #' @return a list containging the passed parameters as well as
 #' a function mvr of arguments n (number of observation k-vectors to generate),
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
@@ -262,6 +266,10 @@ mvcond.JOU <- function(model, r=1, verbose=FALSE) {
 #' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
 #' with elements on the diagona corresponding to the environmental variances for
 #' the k traits in regime r
+#' Sigmaj: a R x k x k array, each Sigmaj[r,,] containing the
+#' matrix Sigmaj for regime r;
+#' mj: a R x k matrix, row mj[r, ] containing mj for regime r;
+#' xi: a M-1 binary vector indicating jump or not
 #' @param pc a M x k logical matrix representing the present coordinates at each
 #' node
 #'
@@ -343,8 +351,6 @@ AbCdEf.JOU <- function(tree, model,
     ki <- pc[i,]
     V[i,,] <- fV.JOU[[r[e]]](ti,xi[e])
 
-    #stop("up here")
-
     if(i<=N) {
       # add environmental variance at each tip node
       V[i,,] <- V[i,,] + model$Sigmae[r[e],,]
@@ -354,7 +360,7 @@ AbCdEf.JOU <- function(tree, model,
     e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
     e_ATt[i,,] <- expm::expm(-ti*t(as.matrix(model$A[r[e],,])))
 
-    # now compute AbCdEf according to eq (8) in doc.
+    # now compute AbCdEf
     # here A is from the general form (not the alpa from JOU process)
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 

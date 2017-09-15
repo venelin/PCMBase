@@ -308,7 +308,7 @@ AbCdEf.2SpOU <- function(tree, model,
     V_1[i,ki,ki] <- solve(V[i,ki,ki])
     e_A1t[i,,] <- expm::expm(-ti*as.matrix(model$Alpha1[r[e],,]))
 
-    # now compute AbCdEf according to eq (8) in doc.
+    # now compute AbCdEf
     # here A is from the general form
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 
