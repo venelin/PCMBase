@@ -1,4 +1,4 @@
-#' Validate OU parameters
+#' Validate 2SpOU parameters
 #'
 validateModel.2SpOU <- function(tree, model, verbose=FALSE) {
   if(verbose) {
