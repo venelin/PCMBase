@@ -101,7 +101,7 @@ validateModel.2SpOU <- function(tree, model, verbose=FALSE) {
 }
 
 PLambdaP_1.2SpOU <- function(Alpha) {
-  # here the argument Alpha is an Alpha matrix specifying the alphas in a OU process
+  # here the argument Alpha is an Alpha matrix specifying the alphas in a 2SpOU process
   r <- eigen(Alpha)
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
@@ -131,17 +131,14 @@ fLambda_ij.2SpOU <- function(Lambda_ij, threshold0=0) {
 }
 
 
-#' Generate a multivariate (MV) OU variance-covariance function
-#' @param lambda vector of the eignevalues of the matrix Alpha of a MV OU process.
+#' Generate a multivariate (MV) 2SpOU variance-covariance function
+#' @param lambda vector of the eignevalues of the matrix Alpha2 of a MV 2SpOU process.
 #' @param P matrix of the eigenvectors of the matrix Alpha
 #' @param P_1 inverse eigenvectors matrix
-#' @param Sigma the matrix Sigma of a MV OU process.
-#' @param Sigmae optional additional error (environmental) variance covariance
-#' matrix or single number (if the error has the same variance for all dimensions).
-#' This matrix is added to the MV-OU variance covariance matrix.
+#' @param Sigma the matrix Sigma of a MV 2SpOU process.
 #' @param threshold0
 #' @return a function of one numerical argument (time), which calculates the
-#' expected variance covariance matrix of a MV-OU process after time, given
+#' expected variance covariance matrix of a MV-2SpOU process after time, given
 #' the specified arguments.
 V.2SpOU <- function(lambda, P, P_1, Sigma, threshold0=0) {
   Lambda_ij <- Lambda_ij.2SpOU(lambda)
@@ -159,9 +156,9 @@ V.2SpOU <- function(lambda, P, P_1, Sigma, threshold0=0) {
   }
 }
 
-#' Create a conditional multivariate OU distribution
-#' @param Alpha,Theta,Sigma parameters of the multivariate OU process; Alpha is a k x k
-#' matrix, Theta is a k-vector and Sigma is a k x k matrix
+#' Create a conditional multivariate 2SpOU distribution
+#' @param Alpha1,Alpha2,Theta,Sigma parameters of the multivariate 2SpOU process; Alpha1,Alpha2 are
+#'  k x k matrices, Theta is a k-vector and Sigma is a k x k matrix
 #' @return a list containging the passed parameters as well as
 #' a function mvr of arguments n (number of observation k-vectors to generate),
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
@@ -180,7 +177,7 @@ mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
       print(paste('dim(Alpha2)=', dim(Alpha2)))
       print(paste('length(Theta)=', length(Theta)))
       print(paste('dim(Sigma)=', dim(Sigma)))
-      stop('Some of Alpha, Theta or Sigma has a wrong dimension.')
+      stop('Some of Alpha1, Alpha2, Theta or Sigma has a wrong dimension.')
     }
     PLP_1 <- PLambdaP_1.2SpOU(Alpha2)
     fV <- V.2SpOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
@@ -210,11 +207,10 @@ mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
 #' form (eq. 1) for each edge in a tree
 #'
 #' @param tree a phylo object (see details)
-#' @param model parameters of the OU process. This must be a
+#' @param model parameters of the 2SpOU process. This must be a
 #' named list with the following elements:
-#' Alpha: a R x k x k array, where R is the number of regimes of the
-#' OU process, k is the number of variables (traits), each Alpha[r,,]
-#' containing the matrix Alpha for regime r;
+#' Alpha1, Alpha2: R x k x k arrays, where R is the number of regimes of the
+#' 2SpOU process, k is the number of variables (traits)
 #' Theta: a R x k matrix, row Theta[r, ] containing the long-term
 #' mean Theta for regime r;
 #' Sigma: a R x k x k array, each Sigma[r,,] containing the
@@ -237,7 +233,7 @@ mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
 AbCdEf.2SpOU <- function(tree, model,
-                      metaI=validateModel.OU(tree, model, verbose=verbose),
+                      metaI=validateModel.2SpOU(tree, model, verbose=verbose),
                       pc, verbose=FALSE) {
   # number of regimes
   R <- metaI$R
@@ -265,7 +261,7 @@ AbCdEf.2SpOU <- function(tree, model,
     P_1[r,,] <- PLambdaP_1$P_1
     lambda[r,] <- PLambdaP_1$lambda
 
-    # create the V.OU function for regime r
+    # create the V.2SpOU function for regime r
     fV.2SpOU[[r]] <- V.2SpOU(lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
                        as.matrix(model$Sigma[r,,]))
   }
@@ -313,7 +309,7 @@ AbCdEf.2SpOU <- function(tree, model,
     e_A1t[i,,] <- expm::expm(-ti*as.matrix(model$Alpha1[r[e],,]))
 
     # now compute AbCdEf according to eq (8) in doc.
-    # here A is from the general form (not the alpa from OU process)
+    # here A is from the general form
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 
     b[i,ki] <- V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],]
@@ -332,27 +328,3 @@ AbCdEf.2SpOU <- function(tree, model,
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_A1t, V=V)
 }
-
-#' Convert a the model OU object to a numerical vector
-#'
-#' @param model parameters of the 2SpOU process. This must be a
-#' named list with the following elements:
-#' X0: initial k-vector of values
-#' Alpha1: a R x k x k array, where R is the number of regimes of the
-#' OU process, k is the number of variables (traits), each Alpha[r,,]
-#' containing the matrix Alpha for regime r;
-#' Alpha2: a R x k x k array, where R is the number of regimes of the
-#' OU process, k is the number of variables (traits), each Alpha[r,,]
-#' containing the matrix Alpha for regime r;
-#' Theta: a R x k matrix, row Theta[r, ] containing the long-term
-#' mean Theta for regime r;
-#' Sigma: a R x k x k array, each Sigma[r,,] containing the
-#' matrix Sigma for regime r;
-#' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
-#' with elements on the diagona corresponding to the environmental variances for
-#' the k traits in regime r
-#'
-#' @details The dimnames
-#'
-#' @return a named
-
