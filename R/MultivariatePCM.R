@@ -372,14 +372,3 @@ mvlik <- function(X, tree, model,
   value
 }
 
-
-#' Convert a model object to a numerical vector
-#'
-#' @description Usually this concatenates
-#'
-#' @param model A named list of the model parameters for the specific model
-#'
-#' @return A numerical vector
-toVector <- function(model) {
-  UseMethod("toVector", model)
-}
