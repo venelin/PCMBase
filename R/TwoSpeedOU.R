@@ -314,7 +314,7 @@ AbCdEf.2SpOU <- function(tree, model,
 
     b[i,ki] <- V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],]
 
-    C[i,kj,kj] <- -0.5*t(e_A1t[i,ki,]) %*% V_1[i,ki,ki] %*% e_A1t[i,ki,kj]
+    C[i,kj,kj] <- -0.5*t(e_A1t[i,ki,kj]) %*% V_1[i,ki,ki] %*% e_A1t[i,ki,kj]
 
     d[i,kj] <- -t(e_A1t[i,ki,kj]) %*% V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],]
 
