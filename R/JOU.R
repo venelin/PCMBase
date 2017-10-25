@@ -158,12 +158,11 @@ fLambda_ij.JOU <- function(Lambda_ij, threshold0=0) {
 #' @param threshold0 numeric threshold value.
 #' @return a function of time returning a matrix
 texp.JOU <- function(Alpha,threshold0=0){
-
-  force(Alpha)
-  return(function(time){
-    res = expm::expm(-time*Alpha)
-    return(res)
-  })
+    force(Alpha)
+    return(function(time){
+	res = expm::expm(-time*Alpha)
+	return(res)
+	})
 }
 
 #' Generate a multivariate (MV) JOU variance-covariance function
@@ -186,6 +185,7 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
   e_ATt <- texp.JOU(t(Alpha))
   e_At <- texp.JOU(Alpha)
 
+
   # need to evoque P as well to make it available for the daughter function
   if(!all.equal(dim(P),dim(P_1))) {
     # Dummy code: this should never happen
@@ -193,8 +193,7 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
   }
 
   function(time,xi) {
-
-    return((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_ATt(time) %*% Sigmaj %*% e_At(time)))
+    return((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) +xi*(e_At(time) %*% Sigmaj %*% e_ATt(time)))
   }
 }
 
@@ -284,11 +283,10 @@ mvcond.JOU <- function(model, r=1, verbose=FALSE) {
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
 AbCdEf.JOU <- function(tree, model,
-                      metaI=validateModel.JOU(tree, model, verbose=verbose),
-                      pc, verbose=FALSE) {
+                       metaI=validateModel.JOU(tree, model, verbose=verbose),
+                       pc, verbose=FALSE) {
   # number of regimes
   R <- metaI$R
-
   # number of tips
   N <- metaI$N
 
@@ -312,8 +310,8 @@ AbCdEf.JOU <- function(tree, model,
     lambda[r,] <- PLambdaP_1$lambda
 
     fV.JOU[[r]] <- V.JOU(lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
-                       as.matrix(model$Sigma[r,,]), as.matrix(model$Alpha[r,,]), as.matrix(model$Sigmaj[r,,]))
-    }
+                         as.matrix(model$Sigma[r,,]), as.matrix(model$Alpha[r,,]), as.matrix(model$Sigmaj[r,,]))
+  }
 
   V <- array(NA, dim=c(M, k, k))
   V_1 <- array(NA, dim=c(M, k, k))
@@ -365,7 +363,7 @@ AbCdEf.JOU <- function(tree, model,
 
     b[i,ki] <- V_1[i,ki,ki] %*% ((I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
 
-    C[i,kj,kj] <- -0.5*t(e_At[i,ki,]) %*% V_1[i,ki,ki] %*% e_At[i,ki,kj]
+    C[i,kj,kj] <- -0.5*t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% e_At[i,ki,kj]
 
     d[i,kj] <- -t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% ((I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
 
