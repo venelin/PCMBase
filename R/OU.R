@@ -307,7 +307,7 @@ AbCdEf.OU <- function(tree, model,
 
     b[i,ki] <- V_1[i,ki,ki] %*% (I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],]
 
-    C[i,kj,kj] <- -0.5*t(e_At[i,ki,]) %*% V_1[i,ki,ki] %*% e_At[i,ki,kj]
+    C[i,kj,kj] <- -0.5*t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% e_At[i,ki,kj]
 
     d[i,kj] <- -t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% (I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],]
 
