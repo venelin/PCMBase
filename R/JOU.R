@@ -186,14 +186,11 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
   e_At <- texp.JOU(Alpha)
 
 
-  # need to evoque P as well to make it available for the daughter function
-  if(!all.equal(dim(P),dim(P_1))) {
-    # Dummy code: this should never happen
-    stop('Error!')
-  }
+  force(P)
+  force(P_1)
 
   function(time,xi) {
-    return((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) +xi*(e_At(time) %*% Sigmaj %*% e_ATt(time)))
+    Re((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) +xi*(e_At(time) %*% Sigmaj %*% e_ATt(time)))
   }
 }
 

@@ -141,13 +141,11 @@ V.OU <- function(lambda, P, P_1, Sigma, threshold0=0) {
   P_1SigmaP_t <- P_1%*%Sigma%*%t(P_1)
 
   # need to evoque P as well to make it available for the daughter function
-  if(!all.equal(dim(P),dim(P_1))) {
-    # Dummy code: this should never happen
-    stop('Error!')
-  }
+  force(P)
+  force(P_1)
 
   function(time) {
-    P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)
+    Re(P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P))
   }
 }
 
