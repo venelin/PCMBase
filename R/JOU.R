@@ -55,10 +55,10 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
   }
 
   if(!is.array(model$Alpha)|!is.array(model$Sigma)|!is.array(model$Sigmae) |!is.array(model$Sigmaj)|
-     !all.equal(dim(model$Alpha[regimes,,,drop=FALSE]),c(R, k, k)) |
-     !all.equal(dim(model$Sigmaj[regimes,,,drop=FALSE]), c(R, k, k)) |
-     !all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k)) |
-     !all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k))) {
+     !isTRUE(all.equal(dim(model$Alpha[regimes,,,drop=FALSE]),c(R, k, k))) |
+     !isTRUE(all.equal(dim(model$Sigmaj[regimes,,,drop=FALSE]), c(R, k, k))) |
+     !isTRUE(all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k))) |
+     !isTRUE(all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k)))) {
     if(verbose) {
       print('dim Alpha:')
       print(dim(model$Alpha))
@@ -72,11 +72,11 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
     stop("Incorrect dimensions for some of the parameters Alpha, Sigma and Sigmae and Sigmaj")
   }
 
-  if(R>1 & (!all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Theta)[[1]]) |
-            !all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigmaj)[[1]])|
-            !all.equal(dimnames(model$Alpha)[[1]], dimnames(model$mj)[[1]])|
-            !all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigma)[[1]]) |
-            !all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigmae)[[1]]))) {
+  if(R>1 & (!isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Theta)[[1]])) |
+            !isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigmaj)[[1]])) |
+            !isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$mj)[[1]])) |
+            !isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigma)[[1]])) |
+            !isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigmae)[[1]])))) {
     if(verbose) {
       print('dimnames Alpha:')
       print(dimnames(model$Alpha))
