@@ -319,8 +319,8 @@ AbCdEf.2SpOU <- function(tree, model,
 
     f[i] <-
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))) +
-              t(model$Theta[r[e],]) %*% t(I[,ki]-e_A1t[i,,ki]) %*%
-              V_1[i,ki,ki] %*% (I[,ki]-e_A1t[i,,ki]) %*% model$Theta[r[e],])
+              t(model$Theta[r[e],]) %*% t(I[ki,]-e_A1t[i,ki,]) %*%
+              V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],])
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_A1t, V=V)

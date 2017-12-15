@@ -352,7 +352,6 @@ AbCdEf.JOU <- function(tree, model,
 
     V_1[i,ki,ki] <- solve(V[i,ki,ki])
     e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
-    e_ATt[i,,] <- expm::expm(-ti*t(as.matrix(model$A[r[e],,])))
 
     # now compute AbCdEf
     # here A is from the general form (not the alpha from JOU process)
@@ -368,8 +367,8 @@ AbCdEf.JOU <- function(tree, model,
 
     f[i] <-
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))) +
-              (t(model$Theta[r[e],]) %*% t(I[,ki]-e_At[i,,ki]) + t(model$mj[r[e],]) %*% e_ATt[i,ki,]*xi[e]) %*%
-              V_1[i,ki,ki] %*% ((I[,ki]-e_At[i,,ki]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e]))
+              (t(model$Theta[r[e],]) %*% t(I[ki,]-e_At[i,ki,]) + t(model$mj[r[e],]) %*% t(e_At[i,ki,])*xi[e]) %*%
+              V_1[i,ki,ki] %*% ((I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e]))
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)

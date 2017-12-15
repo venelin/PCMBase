@@ -193,6 +193,9 @@ AbCdEf.BM <- function(tree, model,
   # vector of regime indices for each branch
   r <- metaI$regimes
 
+  # identity k x k matrix
+  I <- diag(k)
+
   # iterate over the edges
   for(e in 1:(M-1)) {
     # parent node
@@ -223,11 +226,11 @@ AbCdEf.BM <- function(tree, model,
 
     b[i,ki] <- 0
 
-    C[i,kj,kj] <- (-0.5*V_1[i,ki,ki])
+    C[i,kj,kj] <- (-0.5*(t(I[ki,kj])%*%V_1[i,ki,ki])%*%I[ki,kj])
 
     d[i,kj] <- 0
 
-    E[i,kj,ki] <- (V_1[i,ki,ki])
+    E[i,kj,ki] <- (t(I[ki,kj])%*%V_1[i,ki,ki])
 
     f[i] <- -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))))
   }
