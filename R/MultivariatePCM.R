@@ -283,6 +283,7 @@ mvlik <- function(X, tree, model,
   L <- array(0, dim=c(M, k, k))
   m <- array(0, dim=c(M, k))
   r <- array(0, dim=c(M))
+  logDetV <- array(0, dim=c(M))
 
   AbCdEf <- AbCdEf(tree, model=model, metaI=metaI, pc=pc, verbose=verbose)
 
@@ -307,6 +308,7 @@ mvlik <- function(X, tree, model,
                        t(X[i,ki]) %*% b[i,ki] + f[i])
 
         m[i,kj] <- with(AbCdEf, d[i,kj] + E[i,kj,ki] %*% X[i,ki])
+        logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
       }
     } else {
       # edges pointing to internal nodes, for which all children
@@ -321,17 +323,18 @@ mvlik <- function(X, tree, model,
         AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
         AplusL_1 <- solve(AplusL)
         EAplusL_1 <- AbCdEf$E[i,kj,ki] %*% AplusL_1
+        logDetVNode <- log(det(-2*AplusL))
 
         # here it is important that we first evaluate r[i] and then m[i,kj]
         # since the expression for r[i] refers to to the value of m[i,ki]
         # before updating it.
-        r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*log(det(-2*AplusL)) -
+        r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
                        .25*t(b[i,ki]+m[i,ki]) %*% AplusL_1 %*% (b[i,ki]+m[i,ki]))
 
         m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
 
         L[i,kj,kj] <- with(AbCdEf, C[i,kj,kj] -.25*EAplusL_1 %*% t(E[i,kj,ki]))
-
+        logDetV[i] <- logDetV[i] + logDetVNode
       }
     }
 
@@ -342,6 +345,7 @@ mvlik <- function(X, tree, model,
       L[edge[es[un], 1],,] <- L[edge[es[un], 1],,] + L[edge[es[un], 2],,]
       m[edge[es[un], 1],] <- m[edge[es[un], 1],] + m[edge[es[un], 2],]
       r[edge[es[un], 1]] <- r[edge[es[un], 1]] + r[edge[es[un], 2]]
+      logDetV[edge[es[un], 1]] <- logDetV[edge[es[un], 1]] + logDetV[edge[es[un], 2]]
       es <- es[-un]
     }
   }
@@ -358,6 +362,8 @@ mvlik <- function(X, tree, model,
   value <- as.vector(if(log) loglik else exp(loglik))
   if(exists('X0'))
     attr(value, 'X0') <- X0
+
+  attr(value, "logDetV") <- logDetV[N+1]
 
   if(debug) {
     debugdata <- data.table::data.table(model=list(model), AbCdEf=list(AbCdEf),
