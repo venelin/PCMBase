@@ -1,6 +1,6 @@
 library(phytools)
 library(testthat)
-
+library(PCMBase)
 
 set.seed(1)
 
@@ -27,29 +27,35 @@ colnames(Q) <- rownames(Q) <- letters[1:R]
 
 # in regime 'a' the three traits evolve according to three independent OU processes
 a.X0 <- c(5, 2, 1)
-a.Alpha <- rbind(c(0, 0, 0),
-             c(0, 2, 0),
-             c(0, 0, 3))
+a.Alpha <- rbind(
+  c(0, 0, 0),
+  c(0, 2, 0),
+  c(0, 0, 3))
 a.Theta <- c(10, 6, 2)
-a.Sigma <- rbind(c(1.6, 0, 0),
-                 c(0, 2.4, 0),
-                 c(0, 0, 2))
-a.Sigmae2 <- rbind(c(0, 0, 0),
-                   c(0, 0, 0),
-                   c(0, 0, 0))
+a.Sigma <- rbind(
+  c(1.6, 0, 0),
+  c(0, 2.4, 0),
+  c(0, 0, 2))
+a.Sigmae2 <- rbind(
+  c(0, 0, 0),
+  c(0, 0, 0),
+  c(0, 0, 0))
 
 # in regime 'b' there is correlation between the traits
 b.X0 <- c(12, 4, 3)
-b.Alpha <- rbind(c(2, .1, .2),
-             c(.1, .6, .2),
-             c(.2, .2, .3))
+b.Alpha <- rbind(
+  c(2, .1, .2),
+  c(.1, .6, .2),
+  c(.2, .2, .3))
 b.Theta <- c(10, 6, 2)
-b.Sigma <- rbind(c(1.6, .3, .3),
-                 c(.3, 0.3, .4),
-                 c(.3, .4, 2))
-b.Sigmae2 <- rbind(c(.2, 0, 0),
-                   c(0, .3, 0),
-                   c(0, 0, .4))
+b.Sigma <- rbind(
+  c(1.6, .3, .3),
+  c(.3, 0.3, .4),
+  c(.3, .4, 2))
+b.Sigmae2 <- rbind(
+  c(.2, 0, 0),
+  c(0, .3, 0),
+  c(0, 0, .4))
 
 Alpha <- abind::abind(a.Alpha, b.Alpha, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
 Theta <- abind::abind(a.Theta, b.Theta, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
@@ -287,6 +293,8 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 })
 
 
+
+
 plot(traits.a.1$values)
 
 
@@ -300,6 +308,19 @@ tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
 tree.ab.singles <- map.to.singleton(tree.ab)
 
 
-traits.ab.123 <- mvsim(tree.ab, model.ab.123, c(0,0,0), verbose=TRUE)
+traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
 mvlik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
+
+
+X <- t(traits.ab.123$values)
+Pc <- apply(X, 1:2, function(x) as.integer(!is.na(x)))
+
+objectOU <- PCMBase:::QuadraticPolynomialOU$new(tree = tree.ab,
+                                                regimes_unique = c("a","b"),
+                                                X = X[,1:400],
+                                                Pc = Pc[,1:400])
+
+mvlik(X = traits.ab.123$values, tree = tree.ab.singles, model = model.ab.123, verbose = TRUE)
+
+mvlik(tree=tree.ab.singles, model = model.ab.123, pruneI = objectOU, pc = NULL)

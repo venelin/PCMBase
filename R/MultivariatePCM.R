@@ -52,7 +52,7 @@ orderBreadthFirst <- function(tree) {
 #' @details This method should only be called if calculating poumm likelihood
 #' with impl='R5'.
 #' @return a list of objects
-#'
+#' @useDynLib PCMBase
 #' @export
 pruneTree <- function(tree) {
   # number of tips
@@ -247,11 +247,16 @@ mvcond <- function(model, r=1, verbose=FALSE) {
   UseMethod("mvcond", model)
 }
 
-#' Quadratic polynomial parameters
+#' Quadratic polynomial parameters A, b, C, d, E, f for each node
 AbCdEf <- function(tree, model,
                    metaI=validateModel(tree, model, verbose=verbose),
                    pc, verbose=FALSE) {
   UseMethod("AbCdEf", model)
+}
+
+#' Quadratic polynomial parameters L, m, r for the root node
+Lmr <- function(model, metaI, pruneI) {
+  UseMethod("Lmr", model)
 }
 
 #' Multivariate likelihood calculation
@@ -263,118 +268,148 @@ mvlik <- function(X, tree, model,
                 log=TRUE,
                 verbose=FALSE,
                 debug=FALSE) {
-  edge <- tree$edge
-  endingAt <- pruneI$endingAt
-  nodesVector <- pruneI$nodesVector
-  nodesIndex <- pruneI$nodesIndex
-  nLevels <- pruneI$nLevels
-  unVector <- pruneI$unVector
-  unIndex <- pruneI$unIndex
 
   # support regimes as names of edge.length vector or as a member edge.regime in tree
   if(is.null(tree$edge.regime)) {
     tree$edge.regime <- names(tree$edge.length)
   }
 
-  unJ <- 1
+  if(class(pruneI) == "list") {
+    # Old implementation: Perform serial loglik computation in R
+    unJ <- 1
 
-  N <- metaI$N; M <- metaI$M; k <- metaI$k;
+    N <- metaI$N; M <- metaI$M; k <- metaI$k;
 
-  L <- array(0, dim=c(M, k, k))
-  m <- array(0, dim=c(M, k))
-  r <- array(0, dim=c(M))
-  logDetV <- array(0, dim=c(M))
+    edge <- tree$edge
+    endingAt <- pruneI$endingAt
+    nodesVector <- pruneI$nodesVector
+    nodesIndex <- pruneI$nodesIndex
+    nLevels <- pruneI$nLevels
+    unVector <- pruneI$unVector
+    unIndex <- pruneI$unIndex
 
-  AbCdEf <- AbCdEf(tree, model=model, metaI=metaI, pc=pc, verbose=verbose)
 
-  # avoid redundant calculation
-  log2pi <- log(2*pi)
+    L <- array(0, dim=c(M, k, k))
+    m <- array(0, dim=c(M, k))
+    r <- array(0, dim=c(M))
 
-  for(level in 1:nLevels) {
-    nodes <- nodesVector[(nodesIndex[level]+1):nodesIndex[level+1]]
-    es <- endingAt[nodes]
+    # needed for the determinant
+    # total number of observed (non-missing) traits for all tips.
+    K <- 0
+    ftilde <- array(0, dim=c(M))
+    rtilde <- array(0, dim=c(M))
 
-    if(nodes[1] <= N) {
-      # all es pointing to tips
-      L[nodes,,] <- AbCdEf$C[nodes,,]
+    logDetV <- array(0, dim=c(M))
 
-      for(e in es) {
-        # parent and daughter nodes
-        j <- edge[e, 1]; i <- edge[e, 2];
-        # present coordinates
-        kj <- pc[j,]; ki <- pc[i,];
+    AbCdEf <- AbCdEf(tree, model=model, metaI=metaI, pc=pc, verbose=verbose)
 
-        r[i] <- with(AbCdEf, t(X[i,ki]) %*% A[i,ki,ki] %*% X[i,ki] +
-                       t(X[i,ki]) %*% b[i,ki] + f[i])
+    # avoid redundant calculation
+    log2pi <- log(2*pi)
 
-        m[i,kj] <- with(AbCdEf, d[i,kj] + E[i,kj,ki] %*% X[i,ki])
-        logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
+    for(level in 1:nLevels) {
+      nodes <- nodesVector[(nodesIndex[level]+1):nodesIndex[level+1]]
+      es <- endingAt[nodes]
+
+      if(nodes[1] <= N) {
+        # all es pointing to tips
+        L[nodes,,] <- AbCdEf$C[nodes,,]
+
+        for(e in es) {
+          # parent and daughter nodes
+          j <- edge[e, 1]; i <- edge[e, 2];
+          # present coordinates
+          kj <- pc[j,]; ki <- pc[i,];
+
+          r[i] <- with(AbCdEf, t(X[i,ki]) %*% A[i,ki,ki] %*% X[i,ki] +
+                         t(X[i,ki]) %*% b[i,ki] + f[i])
+
+          m[i,kj] <- with(AbCdEf, d[i,kj] + E[i,kj,ki] %*% X[i,ki])
+
+          #logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
+
+          cat("r(i):", i, ":",r[i],"\n")
+
+          #K <- K + sum(ki)
+        }
+      } else {
+        # edges pointing to internal nodes, for which all children
+        # nodes have been visited
+        for(e in es) {
+          # parent and daughter nodes
+          j <- edge[e, 1]; i <- edge[e, 2];
+          # present coordinates
+          kj <- pc[j,]; ki <- pc[i,];
+
+          # auxilary variables to avoid redundant evaluation
+          AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
+          cat("AplusL:\n")
+          print(AplusL)
+          AplusL_1 <- solve(AplusL)
+
+          EAplusL_1 <- AbCdEf$E[i,kj,ki] %*% AplusL_1
+          logDetVNode <- log(det(-2*AplusL))
+
+          # here it is important that we first evaluate r[i] and then m[i,kj]
+          # since the expression for r[i] refers to to the value of m[i,ki]
+          # before updating it.
+          with(AbCdEf, cat("f[i]:",f[i],", r[i]:",r[i],", sum(ki)/2:",sum(ki)/2, ", log2pi:", log2pi,", logDetVNode:", logDetVNode, "\n"))
+          r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
+                         .25*t(b[i,ki]+m[i,ki]) %*% AplusL_1 %*% (b[i,ki]+m[i,ki]))
+
+          m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
+
+          L[i,kj,kj] <- with(AbCdEf, C[i,kj,kj] -.25*EAplusL_1 %*% t(E[i,kj,ki]))
+
+          cat("r(i):", i, ":",r[i],"\n")
+          #logDetV[i] <- logDetV[i] + logDetVNode
+        }
       }
-    } else {
-      # edges pointing to internal nodes, for which all children
-      # nodes have been visited
-      for(e in es) {
-        # parent and daughter nodes
-        j <- edge[e, 1]; i <- edge[e, 2];
-        # present coordinates
-        kj <- pc[j,]; ki <- pc[i,];
 
-        # auxilary variables to avoid redundant evaluation
-        AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
-        AplusL_1 <- solve(AplusL)
-        EAplusL_1 <- AbCdEf$E[i,kj,ki] %*% AplusL_1
-        logDetVNode <- log(det(-2*AplusL))
-
-        # here it is important that we first evaluate r[i] and then m[i,kj]
-        # since the expression for r[i] refers to to the value of m[i,ki]
-        # before updating it.
-        r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
-                       .25*t(b[i,ki]+m[i,ki]) %*% AplusL_1 %*% (b[i,ki]+m[i,ki]))
-
-        m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
-
-        L[i,kj,kj] <- with(AbCdEf, C[i,kj,kj] -.25*EAplusL_1 %*% t(E[i,kj,ki]))
-        logDetV[i] <- logDetV[i] + logDetVNode
+      # add up to parents
+      while(length(es)>0) {
+        un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
+        unJ <- unJ+1
+        L[edge[es[un], 1],,] <- L[edge[es[un], 1],,] + L[edge[es[un], 2],,]
+        m[edge[es[un], 1],] <- m[edge[es[un], 1],] + m[edge[es[un], 2],]
+        r[edge[es[un], 1]] <- r[edge[es[un], 1]] + r[edge[es[un], 2]]
+        logDetV[edge[es[un], 1]] <- logDetV[edge[es[un], 1]] + logDetV[edge[es[un], 2]]
+        es <- es[-un]
       }
     }
 
-    # add up to parents
-    while(length(es)>0) {
-      un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
-      unJ <- unJ+1
-      L[edge[es[un], 1],,] <- L[edge[es[un], 1],,] + L[edge[es[un], 2],,]
-      m[edge[es[un], 1],] <- m[edge[es[un], 1],] + m[edge[es[un], 2],]
-      r[edge[es[un], 1]] <- r[edge[es[un], 1]] + r[edge[es[un], 2]]
-      logDetV[edge[es[un], 1]] <- logDetV[edge[es[un], 1]] + logDetV[edge[es[un], 2]]
-      es <- es[-un]
-    }
+    L_root <- L[N+1,, , drop=TRUE]
+    m_root <- m[N+1, , drop=TRUE]
+    r_root <- r[N+1]
+  } else {
+    Lmr <- Lmr(model, metaI, pruneI)
+    L_root <- Lmr$L
+    m_root <- Lmr$m
+    r_root <- Lmr$r
   }
 
+  cat("L:\n")
+  print(L_root)
+  cat("m:\n")
+  print(m_root)
+  cat("r:\n")
+  print(r_root)
   if(is.null(model$X0)) {
     # set the root value to the one that maximizes the likelihood
-    X0 <- solve(a=L[N+1,,]+t(L[N+1,,]), b=-m[N+1,])
+    X0 <- solve(a=L_root + t(L_root), b = -m_root)
   } else {
     X0 <- model$X0
   }
 
-  loglik <- X0 %*% L[N+1,,] %*% X0 + m[N+1,] %*% X0 + r[N+1]
+  loglik <- X0 %*% L_root %*% X0 + m_root %*% X0 + r_root
 
   value <- as.vector(if(log) loglik else exp(loglik))
+  #attr(value, "logDetV") <- logDetV[N+1]
+
   if(exists('X0'))
     attr(value, 'X0') <- X0
 
-  attr(value, "logDetV") <- logDetV[N+1]
-
-  if(debug) {
-    debugdata <- data.table::data.table(model=list(model), AbCdEf=list(AbCdEf),
-                                        L=list(L), m=list(m), r=list(r),
-                                        loglik=list(loglik), X0=list(X0))
-    if(!exists('.likDebug')) {
-      .likDebug <<- debugdata
-    } else {
-      .likDebug <<- data.table::rbindlist(list(.likDebug, debugdata))
-    }
-  }
   value
 }
 
+# loading the QuadraticPolynomialOU C++ module
+loadModule( "QuadraticPolynomialOU", TRUE )

@@ -1,13 +1,29 @@
 Package: PCMBase
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.1
-Author: Venelin Mitov & Krzysztof Bartoszek
-Maintainer: Who to complain to <venelin.mitov@gmail.com>
-Description: This package provides likelihood cacluation and optimization of a
-    growing collection of Phylogenetic Comparative Models. Currently the following
-    models have been implemented: Phylogenetic Mixed Model (PMM), the Phylogenetic
-    Ornstein-Uhlenbeck Mixec Model (POUMM).
-License: This package is under the GNU General Public Licence Version 3
-LazyData: TRUE
+Title: Calculating the likelihood of Gaussian phylogenetic comparative models
+Version: 0.1.2
+Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
+                 role = c("aut", "cre", "cph")),
+             person("Georgios", "Asimomitis",
+                 role = c("ctb", "cph")),
+           person("Krzysztof", "Bartoszek",
+                 role = c("ctb", "cph")))
+Maintainer: Who to complain to <vmitov@gmail.com>
+Description: This package provides likelihood cacluation of a
+    growing collection of phylogenetic comparative models (PCM). 
+License: GPL (>= 3.0)
+LazyData: true
+Depends:
+    R (>= 3.1.0),
+    Rcpp,
+LinkingTo: Rcpp, RcppArmadillo
+Imports:
+    ape
+Suggests:
+    testthat,
+    microbenchmark
 RoxygenNote: 5.0.1
+VignetteBuilder: knitr
+ByteCompile: yes
+NeedsCompilation: yes
+
