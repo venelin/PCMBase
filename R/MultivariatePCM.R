@@ -52,7 +52,6 @@ orderBreadthFirst <- function(tree) {
 #' @details This method should only be called if calculating poumm likelihood
 #' with impl='R5'.
 #' @return a list of objects
-#' @useDynLib PCMBase
 #' @export
 pruneTree <- function(tree) {
   # number of tips
@@ -327,8 +326,6 @@ mvlik <- function(X, tree, model,
 
           #logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
 
-          cat("r(i):", i, ":",r[i],"\n")
-
           #K <- K + sum(ki)
         }
       } else {
@@ -342,8 +339,6 @@ mvlik <- function(X, tree, model,
 
           # auxilary variables to avoid redundant evaluation
           AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
-          cat("AplusL:\n")
-          print(AplusL)
           AplusL_1 <- solve(AplusL)
 
           EAplusL_1 <- AbCdEf$E[i,kj,ki] %*% AplusL_1
@@ -352,15 +347,12 @@ mvlik <- function(X, tree, model,
           # here it is important that we first evaluate r[i] and then m[i,kj]
           # since the expression for r[i] refers to to the value of m[i,ki]
           # before updating it.
-          with(AbCdEf, cat("f[i]:",f[i],", r[i]:",r[i],", sum(ki)/2:",sum(ki)/2, ", log2pi:", log2pi,", logDetVNode:", logDetVNode, "\n"))
           r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
                          .25*t(b[i,ki]+m[i,ki]) %*% AplusL_1 %*% (b[i,ki]+m[i,ki]))
 
           m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
 
           L[i,kj,kj] <- with(AbCdEf, C[i,kj,kj] -.25*EAplusL_1 %*% t(E[i,kj,ki]))
-
-          cat("r(i):", i, ":",r[i],"\n")
           #logDetV[i] <- logDetV[i] + logDetVNode
         }
       }
@@ -387,12 +379,6 @@ mvlik <- function(X, tree, model,
     r_root <- Lmr$r
   }
 
-  cat("L:\n")
-  print(L_root)
-  cat("m:\n")
-  print(m_root)
-  cat("r:\n")
-  print(r_root)
   if(is.null(model$X0)) {
     # set the root value to the one that maximizes the likelihood
     X0 <- solve(a=L_root + t(L_root), b = -m_root)
@@ -410,6 +396,3 @@ mvlik <- function(X, tree, model,
 
   value
 }
-
-# loading the QuadraticPolynomialOU C++ module
-loadModule( "QuadraticPolynomialOU", TRUE )
