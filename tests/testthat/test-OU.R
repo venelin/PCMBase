@@ -292,9 +292,6 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
         ) < EPS)
 })
 
-
-
-
 plot(traits.a.1$values)
 
 
@@ -307,20 +304,4 @@ tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
 # vector
 tree.ab.singles <- map.to.singleton(tree.ab)
 
-
 traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
-
-mvlik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
-
-
-X <- t(traits.ab.123$values)
-Pc <- apply(X, 1:2, function(x) as.integer(!is.na(x)))
-
-objectOU <- PCMBase:::QuadraticPolynomialOU$new(tree = tree.ab,
-                                                regimes_unique = c("a","b"),
-                                                X = X[,1:400],
-                                                Pc = Pc[,1:400])
-
-mvlik(X = traits.ab.123$values, tree = tree.ab.singles, model = model.ab.123, verbose = TRUE)
-
-mvlik(tree=tree.ab.singles, model = model.ab.123, pruneI = objectOU, pc = NULL)
