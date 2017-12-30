@@ -1,5 +1,5 @@
 #' Validate JOU parameters
-#'
+#' @export
 validateModel.JOU <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')

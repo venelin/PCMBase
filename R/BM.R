@@ -1,5 +1,5 @@
 #' Validate BM parameters
-#'
+#' @export
 validateModel.BM <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')

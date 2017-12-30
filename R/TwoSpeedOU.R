@@ -1,5 +1,5 @@
 #' Validate 2SpOU parameters
-#'
+#' @export
 validateModel.2SpOU <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')
@@ -40,11 +40,18 @@ validateModel.2SpOU <- function(tree, model, verbose=FALSE) {
     cat('k=', k, '\n')
   }
 
-  if(!is.array(model$Alpha1)|!is.array(model$Alpha2)|!is.array(model$Sigma)|!is.array(model$Sigmae) |
-     !isTRUE(all.equal(dim(model$Alpha1[regimes,,,drop=FALSE]),c(R, k, k))) |
-     !isTRUE(all.equal(dim(model$Alpha2[regimes,,,drop=FALSE]),c(R, k, k))) |
-     !isTRUE(all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k))) |
-     !isTRUE(all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k)))) {
+  if(!is.array(model$Alpha1) |
+     !is.array(model$Alpha2) |
+     !is.array(model$Sigma) |
+     !is.array(model$Sigmae) |
+     !isTRUE(all.equal(dim(model$Alpha1[regimes,,,drop=FALSE]),
+                       c(R, k, k))) |
+     !isTRUE(all.equal(dim(model$Alpha2[regimes,,,drop=FALSE]),
+                       c(R, k, k))) |
+     !isTRUE(all.equal(dim(model$Sigma[regimes,,,drop=FALSE]),
+                       c(R, k, k))) |
+     !isTRUE(all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]),
+                       c(R, k, k)))) {
     if(verbose) {
       print('dim Alpha1:')
       print(dim(model$Alpha1))

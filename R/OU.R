@@ -1,5 +1,5 @@
 #' Validate OU parameters
-#'
+#' @export
 validateModel.OU <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')
@@ -40,7 +40,9 @@ validateModel.OU <- function(tree, model, verbose=FALSE) {
     cat('k=', k, '\n')
   }
 
-  if(!is.array(model$Alpha) | !is.array(model$Sigma) | !is.array(model$Sigmae) |
+  if(!is.array(model$Alpha) |
+     !is.array(model$Sigma) |
+     !is.array(model$Sigmae) |
      !isTRUE(all.equal(dim(model$Alpha[regimes,,,drop=FALSE]), c(R, k, k))) |
      !isTRUE(all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k))) |
      !isTRUE(all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k)))) {
@@ -137,9 +139,6 @@ fLambda_ij.OU <- function(Lambda_ij, threshold0=0) {
 #' the specified arguments.
 V.OU <- function(lambda, P, P_1, Sigma, threshold0=0) {
   Lambda_ij <- Lambda_ij.OU(lambda)
-  cat("Lambda_ij:\n")
-  print(Lambda_ij);
-
   fLambda_ij <- fLambda_ij.OU(Lambda_ij, threshold0)
 
   P_1SigmaP_t <- P_1 %*% Sigma %*% t(P_1)
@@ -149,10 +148,6 @@ V.OU <- function(lambda, P, P_1, Sigma, threshold0=0) {
   force(P_1)
 
   function(time) {
-    cat("time: ", time, "\n")
-    cat("fLambda_ij:\n")
-    print(fLambda_ij(time))
-
     Re(P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P))
   }
 }
@@ -265,12 +260,6 @@ AbCdEf.OU <- function(tree, model,
                        as.matrix(model$Sigma[r,,]))
   }
 
-  print("lambda:")
-  print(lambda)
-  print("P:")
-  for(r in 1:R)
-  print(P[r,,])
-
   V <- array(NA, dim=c(M, k, k))
   V_1 <- array(NA, dim=c(M, k, k))
   e_At <- array(NA, dim=c(M, k, k))
@@ -310,11 +299,9 @@ AbCdEf.OU <- function(tree, model,
       V[i,,] <- V[i,,] + model$Sigmae[r[e],,]
     }
 
-    cat("i=",i,"ki=",ki,"\n")
-    print(V[i,ki,ki])
-
     V_1[i,ki,ki] <- solve(V[i,ki,ki])
-    e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
+    #e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
+    e_At[i,,] <- Re(P[r[e],,] %*% diag(exp(-ti * lambda[r[e],])) %*% P_1[r[e],,])
 
     # now compute AbCdEf according to eq (8) in doc.
     # here A is from the general form (not the alpa from OU process)
@@ -332,63 +319,7 @@ AbCdEf.OU <- function(tree, model,
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))) +
               t(model$Theta[r[e],]) %*% t(I[ki,]-e_At[i,ki,]) %*%
               V_1[i,ki,ki] %*% (I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],])
-    cat("i=",i, "r[e]:",r[e]-1, ", f(i)=",f[i],"\n")
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)
-}
-
-
-#' Calculate the coefficients L, m, r of the general
-#' form (eq. 2) for the root node of a tree
-#'
-#' @param model parameters of the OU process. This must be a
-#' named list with the following elements:
-#' Alpha: a R x k x k array, where R is the number of regimes of the
-#' OU process, k is the number of variables (traits), each Alpha[r,,]
-#' containing the matrix Alpha for regime r;
-#' Theta: a R x k matrix, row Theta[r, ] containing the long-term
-#' mean Theta for regime r;
-#' Sigma: a R x k x k array, each Sigma[r,,] containing the
-#' matrix Sigma for regime r;
-#' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
-#' with elements on the diagona corresponding to the environmental variances for
-#' the k traits in regime r
-#' @param pruneI an object of class PCMBaseOU, which has been created using
-#'   PCMBase$new(X, ME, tree, model)
-#'
-#' @details The dimnames
-#'
-#' @return a named list containing the following elements:
-#' L: a k x k matrix
-#' m: a k vector
-#' r: a number;
-Lmr.OU <- function(model, metaI, pruneI) {
-  # number of regimes
-  R <- metaI$R
-
-  # number of traits (variables)
-  k <- metaI$k
-
-  par <- c()
-  for(r in 1:R) {
-    par <- c(par, model$Alpha[r,, , drop=FALSE])
-  }
-  for(r in 1:R) {
-    par <- c(par, model$Theta[r, , drop=FALSE])
-  }
-  for(r in 1:R) {
-    par <- c(par, model$Sigma[r,, , drop=FALSE])
-  }
-  for(r in 1:R) {
-    par <- c(par, model$Sigmae[r,, , drop=FALSE])
-  }
-
-  Lmr_vec <- pruneI$TraverseTree(par, mode=0)
-
-  L <- matrix(Lmr_vec[1:(k*k)], k, k)
-  m <- Lmr_vec[k*k+(1:k)]
-  r <- Lmr_vec[k*k+k+1]
-
-  list(L=L, m=m, r=r)
 }
