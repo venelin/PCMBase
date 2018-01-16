@@ -1,8 +1,16 @@
+#' @name PCMBase
+#'
+#' @title A General Framework for Gaussian Phylogenetic Comparative Models
+#'
+#' @description
+#'
+#'
+NULL
+
 #' Breadth-first tree traversal
 #' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
 #' one daughter node)
 #' @return a vector of indices of edges in tree$edge in breadth-first order.
-#' @export
 orderBreadthFirst <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
@@ -44,14 +52,15 @@ orderBreadthFirst <- function(tree) {
   res
 }
 
-#' Extract information for pruning a tree used as cache in poumm likelihood
+#' Extract information for pruning a tree used as cache during likelihood
 #' calculation
 #'
 #' @param tree a phylo object
 #'
-#' @details This method should only be called if calculating poumm likelihood
-#' with impl='R5'.
-#' @return a list of objects
+#' @details The function is very slow on strongly unbalanced trees due to the
+#' slow vector append() operation in R.
+#'
+#' @return a list of objects used by the R implementation of mvlik().
 #' @export
 pruneTree <- function(tree) {
   # number of tips
@@ -125,14 +134,15 @@ pruneTree <- function(tree) {
 }
 
 
-# For every node (root, internal or tip) in tree, build a logical vector of
-# length k with TRUE values for every present coordinate.
-# @param X numeric Nxk matrix of observed values, with possible NA entries. The
-# rows in X are in the order of tree$tip.label
-# @param tree a phylo object
-# @param pruneI a list returned by the pruneITree function. Either leave this
-# as default or pass a previously computed pruneI for the same tree.
-# @return a Mxk logical matrix
+#' For every node (root, internal or tip) in tree, build a logical vector of
+#' length k with TRUE values for every present coordinate.
+#' @param X numeric Nxk matrix of observed values, with possible NA entries. The
+#' rows in X are in the order of tree$tip.label
+#' @param tree a phylo object
+#' @param pruneI a list returned by the pruneITree function. Either leave this
+#' as default or pass a previously computed pruneI for the same tree.
+#' @return a Mxk logical matrix
+#' @export
 presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
   edge <- tree$edge
   endingAt <- pruneI$endingAt
@@ -171,14 +181,20 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
       es <- es[-un]
     }
   }
+  if(any(rowSums(pc) == 0)) {
+    stop("Some tips have 0 present coordinates. Consider removing these tips.")
+  }
   pc
 }
 
-#' Generate multivariate trait-values on a tree according to a multivariate OU
-#' process with one or several regimes
+#' Generate trait data on a tree according to a multivariate stochastic
+#' model with one or several regimes
 #'
-#' @param tree a phylo object
-#' @param model a list containing the following elements (parameters of the model).
+#' @param x0 a numeric vector of length k (the number of traits) specifying the #' trait values at the root of the tree.
+#' @param tree a phylo object specifying a rooted tree.
+#' @param model an S3 object specifying the model.
+#' @param metaI a named list containg meta-information about the data and the
+#' model.
 #' A: numeric k x k matrix specifying the selection strengths of the OU process;
 #' Theta numeric k-vector specifying the long-term mean of the OU process
 #' @param Sigma numeric k x k matrix specifying the stochastic time-unit variance of the
@@ -204,27 +220,30 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
 #'
 #' @importFrom mvtnorm rmvnorm
 #' @export
-mvsim <- function(tree, model, X0,
-                  metaI=validateModel(tree, model, verbose=verbose),
-                  verbose=FALSE) {
+mvsim <- function(
+  tree, model, X0,
+  metaI = validateModel(tree = tree, model = model,
+                        verbose = verbose),
+  verbose = FALSE) {
+
   if(length(X0)!=metaI$k) {
     stop(paste('X0 must be of length', metaI$k, '.'))
   }
 
   values <- errors <- matrix(0, nrow=dim(tree$edge)[1]+1, ncol=metaI$k)
-  values[metaI$N+1,] <- X0
+  values[metaI$N + 1, ] <- X0
 
   ordBF <- orderBreadthFirst(tree)
 
   # create a list of random generator functions for each regime
   funMVCond <- lapply(1:metaI$R, function(r) {
-    mvcond(model=model, r=r, verbose=verbose)$mvr
+    mvcond(tree, model = model, r = r, verbose = verbose)$mvr
   })
 
   for(e in ordBF) {
     values[tree$edge[e, 2],] <-
       funMVCond[[metaI$regimes[e]]](
-        n=1, x0=values[tree$edge[e,1],], t = tree$edge.length[e], e = e)
+        n=1, x0 = values[tree$edge[e,1],], t = tree$edge.length[e], e = e)
     if(!is.null(model$Sigmae)) {
       errors[tree$edge[e, 2],] <-
         rmvnorm(1, rep(0, metaI$k),
@@ -236,20 +255,253 @@ mvsim <- function(tree, model, X0,
 }
 
 
-# The specifics of every model are programmed in specifications of a few
-# S3 generic functions:
-validateModel <- function(tree, model, verbose=FALSE) {
+# The specifics of every model are programmed in specifications of a
+# few S3 generic functions:
+
+#' An S3 generic function validating a model for a given tree.
+#' @description This function should be implemented for each model.
+#' @export
+validateModel <- function(tree, model, verbose = FALSE) {
   UseMethod("validateModel", model)
 }
 
-mvcond <- function(model, r=1, verbose=FALSE) {
+#' Specify a phylogenetic comparative model for a given tree
+#'
+#' @param tree a phylo object
+#' @param modelName a character specifying the name of the model. The
+#' name of the model should be used as an S3 class of all model
+#' instances.
+#' @param k integer, specifying the number of traits;
+#' @param R integer, specifying the number of regimes;
+#' @param paramNames a list of characters specifying the names of
+#'  the model parameters. The length of the list is used to
+#'  determine the number of parameters.
+#' @param paramStorageModes a list of characters of the same length
+#'  as `paramNames` specifying the storage.mode (native type) for
+#'  each parameter. Each element of this list should be one of
+#'  "double", "integer", "logical", "character", "complex", "raw".
+#' @param paramDims a list of integer vectors, or character
+#'   strings evaluating as integer vectors specifying the
+#'   dimension of each model parameter for all model regimes.
+#'   This list should be the same length as `paramNames`. If an element of the
+#'   list is a character string it must evaluate to a vector of positive
+#'   integers, based on the objects accessible from the model parameters
+#'   (including k, R and ...) and
+#'   the symbols N and M, where N stays for the number of tips in the
+#'   tree, and M denotes the number of nodes. For example, if
+#'   there are 5 traits and 2 regimes, the dimension of the parameter Alpha of
+#'   an OU model should be specified as c(5, 5, 2) or "c(5, 5, 2)" or
+#'   "c(k, k, R)". If a parameter is a flat vector or an atom, for which the
+#'   dimension is NULL, specify an integer corresponding to its length, e.g.
+#'   the parameter specifying the presence of jumps in an OU model with jumps,
+#'   should have a dimension "M-1" corresponding to the number of edges in the
+#'   tree.
+#' @param ... additional arguments used in the evaluation of
+#'   `paramDims`.
+#' @seealso \code{\link{storage.mode}}
+#' @return an S3 object of class ModelSpecification.
+#' @export
+specifyModel <- function(tree, modelName,
+                         k, R, regimesUnique,
+                         paramNames,
+                         paramStorageModes,
+                         paramDims,
+                         ...) {
+
+  if(class(tree) != "phylo") {
+    stop("In specifyModel: tree should be an object of S3 class 'phylo'.")
+  }
+
+  if(!is.character(modelName) & length(modelName) == 1) {
+    stop("In specifyModel: modelName should be a character string.")
+  }
+
+  spec <- list(
+    modelName = as.character(modelName)[1],
+    k = as.integer(k),
+    R = as.integer(R),
+    regimesUnique = regimesUnique,
+    N = as.integer(length(tree$tip.label)),
+    M = as.integer(nrow(tree$edge) + 1),
+    paramNames = lapply(paramNames, as.character),
+    paramStorageModes = lapply(paramStorageModes, as.character)
+  )
+
+  if(! (storage.mode(regimesUnique) %in% c("integer", "character")) ) {
+    stop("In specifyModel: the storage mode of regimesUnique should be either
+         integer or character")
+  }
+
+  if( storage.mode(regimesUnique) == "integer" ) {
+    if(!identical(regimesUnique, 1:max(regimesUnique)))
+      stop("In specifyModel: when regimesUnique is integer it should be an
+           integer vector from 1 to max(regimesUnique), so it can be used as
+           index in an array.")
+  }
+
+  paramDims = with(
+    c(spec, list(...)),
+    lapply(paramDims, function(dim) {
+      if(is.character(dim)) {
+        as.integer(eval(parse(text = dim)))
+      } else {
+        as.integer(dim)
+      }
+    }))
+
+  spec[["paramDims"]] <- paramDims
+
+  if(spec[["k"]] <= 0) {
+    stop("In specifyModel: k should be a positive integer.")
+  }
+  if(spec[["R"]] <= 0) {
+    stop("In specifyModel: R should be a positive integer.")
+  }
+
+  if(spec[["N"]] <= 0) {
+    stop("In specifyModel: The tree should have at least one tip.")
+  }
+
+  if(spec[["M"]] <= 1) {
+    stop("In specifyModel: The tree should have at least two nodes,
+         that is, a minimum of one tip and one root-node.")
+  }
+
+  lapply(spec[["paramDims"]], function(dim) {
+   if(any(is.na(dim)) | any(dim <= 0)) {
+     stop(paste0("In specifyModel: paramDims should be a list of  positive integer vectors or a vector of characters, each of which can be parsed into a positive  integer vector, but was :",
+                 toString(paramDims)))
+   }
+  })
+
+  nParams <- length(paramNames)
+
+  if(length(paramStorageModes) != nParams) {
+    stop("In specifyModel: paramStorageModes should be the same length as paramNames.")
+  }
+
+  if(!all(paramStorageModes %in% c("character", "integer", "double", "complex", "logical"))) {
+    stop('In specifyModel: all paramStorageModes should be in {"character", "integer", "double", "complex", "logical"}.')
+  }
+
+  if(length(paramDims) != nParams) {
+    stop("In specifyModel: paramDims should be the same length as paramNames.")
+  }
+
+  class(spec) <- "ModelSpecification"
+  spec
+}
+
+#' General function for validating a model
+#' @param tree an object of S3 class "phylo"
+#' @param model a model object of S3 class the name of the model
+#' @param modelSpec an object of S3 class ModelSpecification
+#' @param verbose a logical indicating if the log messges should be
+#'   printed on the screen during validation.
+#'
+validateModelGeneral <- function(tree, model, modelSpec, verbose) {
+  if(class(model) != modelSpec$modelName) {
+    stop(paste0("The model object should be of S3 class: ",
+                modelSpec$modelName))
+  }
+  nParams <- length(modelSpec$paramNames)
+
+  if(!all(modelSpec$paramNames %in% names(model))) {
+    stop("model should be a named list with elements",
+         toString(modelSpec$paramNames))
+  }
+
+
+  # number of tips
+  N <- length(tree$tip.label)
+
+  # number of nodes including the root
+  M <- nrow(tree$edge)+1
+  if(verbose) {
+    cat('M=', M, '\n')
+  }
+
+  if(N != modelSpec$N | M != modelSpec$M) {
+    stop("validateModelGeneral(): the numbers of tips and nodes in tree do not match modelSpec$N and modelSpec$M.")
+  }
+
+  # number of regimes
+  if(is.null(tree$edge.regime)) {
+    if(!is.null(names(tree$edge.length))) {
+      tree$edge.regime <- names(tree$edge.length)
+      regimes <- unique(tree$edge.regime)
+      R <- length(regimes)
+    } else {
+      regimes <- 1
+      R <- 1
+    }
+
+  } else {
+    regimes <- unique(tree$edge.regime)
+    R <- length(regimes)
+  }
+
+  if(verbose) {
+    cat('R=',R,'\n')
+  }
+
+  if(verbose) {
+    cat("Regimes found in tree$edge.regime: ")
+    print(regimes)
+  }
+
+  if(R==1) {
+    regimes <- rep(1, length(tree$edge.length))
+  } else {
+    regimes <- match(tree$edge.regime, modelSpec$regimesUnique)
+    if(any(is.na(regimes))) {
+      stop(paste0("Some of the regimes in tree$edge.regime not found in",
+                  "modelSpec$regimesUnique.\n",
+                  "tree$edge.regime=", toString(tree$edge.regime), "\n",
+                  "modelSpec$regimesUnique=", toString(modelSpec$regimesUnique)))
+    }
+  }
+
+  for(i in 1:nParams) {
+    paramName_i <- modelSpec$paramNames[[i]]
+    storageMode_i <- modelSpec$paramStorageModes[[i]]
+    paramDim_i <- modelSpec$paramDims[[i]]
+    if(storage.mode(model[[paramName_i]]) != storageMode_i) {
+      stop(paste0(
+        paramName_i, " should have a storage mode ", storageMode_i,
+        " but has storageMode", storage.mode(model[[paramName_i]]), "."))
+    }
+    if(length(paramDim_i) == 1) {
+      # a vector or an atom
+      if(length(model[[paramName_i]]) != paramDim_i) {
+        stop(paste0(
+          paramName_i, " should be a vector of length ", paramDim_i,
+          " but has length ", length(model[[paramName_i]])
+        ))
+      }
+    } else {
+      if(!identical(dim(model[[paramName_i]]), paramDim_i)) {
+        stop(paste0(
+          paramName_i, " should have dimension ", toString(paramDim_i),
+          " but has dimension ", dim(model[[paramName_i]]), "."
+        ))
+      }
+    }
+  }
+
+  list(N = modelSpec$N, M = modelSpec$M, R = modelSpec$R, k=modelSpec$k,
+       regimes = regimes, regimesUnique = modelSpec$regimesUnique)
+}
+
+mvcond <- function(tree, model, metaI, r=1, verbose = FALSE) {
   UseMethod("mvcond", model)
 }
 
 #' Quadratic polynomial parameters A, b, C, d, E, f for each node
-AbCdEf <- function(tree, model,
-                   metaI=validateModel(tree, model, verbose=verbose),
-                   pc, verbose=FALSE) {
+#' @description A generic function specified for every model class. This
+#' function is called by mvlik.
+#' @export
+AbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
   UseMethod("AbCdEf", model)
 }
 
@@ -261,17 +513,18 @@ Lmr <- function(model, metaI, pruneI) {
 #' Multivariate likelihood calculation
 #' @export
 mvlik <- function(X, tree, model,
-                metaI=validateModel(tree, model, verbose=verbose),
-                pruneI=pruneTree(tree),
-                pc=presentCoordinates(X, tree),
+                metaI =validateModel(tree, model, verbose=verbose),
+                pruneI = pruneTree(tree),
+                pc = presentCoordinates(X, tree),
                 log=TRUE,
                 verbose=FALSE,
                 debug=FALSE) {
 
   # support regimes as names of edge.length vector or as a member edge.regime in tree
-  if(is.null(tree$edge.regime)) {
-    tree$edge.regime <- names(tree$edge.length)
-  }
+  # if(is.null(tree$edge.regime)) {
+  #   warning("tree$edge.regime is null; using names(tree$edge.length).")
+  #   tree$edge.regime <- names(tree$edge.length)
+  # }
 
   if(class(pruneI) == "list") {
     # Old implementation: Perform serial loglik computation in R
@@ -300,7 +553,9 @@ mvlik <- function(X, tree, model,
 
     logDetV <- array(0, dim=c(M))
 
-    AbCdEf <- AbCdEf(tree, model=model, metaI=metaI, pc=pc, verbose=verbose)
+    AbCdEf <- AbCdEf(tree = tree, model = model,
+                     metaI = metaI,
+                     pc = pc, verbose = verbose)
 
     # avoid redundant calculation
     log2pi <- log(2*pi)
@@ -322,7 +577,7 @@ mvlik <- function(X, tree, model,
           r[i] <- with(AbCdEf, t(X[i,ki]) %*% A[i,ki,ki] %*% X[i,ki] +
                          t(X[i,ki]) %*% b[i,ki] + f[i])
 
-          m[i,kj] <- with(AbCdEf, d[i,kj] + E[i,kj,ki] %*% X[i,ki])
+          m[i,kj] <- with(AbCdEf, d[i,kj] + matrix(E[i,kj,ki], sum(kj), sum(ki)) %*% X[i,ki])
 
           #logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
 
@@ -341,7 +596,7 @@ mvlik <- function(X, tree, model,
           AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
           AplusL_1 <- solve(AplusL)
 
-          EAplusL_1 <- AbCdEf$E[i,kj,ki] %*% AplusL_1
+          EAplusL_1 <- matrix(AbCdEf$E[i,kj,ki], sum(kj), sum(ki)) %*% AplusL_1
           logDetVNode <- log(det(-2*AplusL))
 
           # here it is important that we first evaluate r[i] and then m[i,kj]
@@ -352,7 +607,7 @@ mvlik <- function(X, tree, model,
 
           m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
 
-          L[i,kj,kj] <- with(AbCdEf, C[i,kj,kj] -.25*EAplusL_1 %*% t(E[i,kj,ki]))
+          L[i,kj,kj] <- with(AbCdEf, C[i,kj,kj] -.25*EAplusL_1 %*% t(matrix(E[i,kj,ki], sum(kj), sum(ki))))
           #logDetV[i] <- logDetV[i] + logDetVNode
         }
       }

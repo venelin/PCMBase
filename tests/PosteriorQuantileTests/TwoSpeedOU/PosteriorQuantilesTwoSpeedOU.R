@@ -19,7 +19,7 @@ for (iter in 1:replications){
   param.l = c(Alpha1[1,1],Alpha1[2,2],Alpha2[1,1],Alpha2[2,2],Theta,Sigma[1,1],Sigma[1,2],Sigma[2,2],Sigmae[1,1],Sigmae[2,2])
   seeds[[iter]] = param.l
 
-  sample = get(load(paste("~/Documents/LabRotation1/Results/2SpOU_MCMC-300000_Samples/coda/coda_sample_job_replication",iter,".RData",sep="")))
+  sample = get(load(paste("~/Documents/LabRotation1/Results/TwoSpeedOU_MCMC-300000_Samples/coda/coda_sample_job_replication",iter,".RData",sep="")))
   post.quant_red[[iter]] = compute.postquant(sample[200000:300000, ],param.l)
 
 }
@@ -38,14 +38,14 @@ for (j in 1:num.param){
   val[j] = (ks.test(x[[j]], runif(replications)))$p.value
   #val[j] = (ks.test(x[[j]], "punif"))$p.value
 
-  filename = paste("~/Documents/LabRotation1/Results/2SpOU_MCMC-300000_Samples/Figures/",param.names[j],"hist2SpOU.png",sep="")
+  filename = paste("~/Documents/LabRotation1/Results/TwoSpeedOU_MCMC-300000_Samples/Figures/",param.names[j],"histTwoSpeedOU.png",sep="")
   png(filename)
-  hist(x[[j]], main=paste("Histogram for 2SpOU parameter",param.names[j]),xlab = param.names[j]
+  hist(x[[j]], main=paste("Histogram for TwoSpeedOU parameter",param.names[j]),xlab = param.names[j]
        ,border="black",col="blue",las=1, breaks=10)
   dev.off()
 }
 
-filename = "~/Documents/LabRotation1/Results/2SpOU_MCMC-300000_Samples/Figures/P-Values.png"
+filename = "~/Documents/LabRotation1/Results/TwoSpeedOU_MCMC-300000_Samples/Figures/P-Values.png"
 #png(filename)
 plot(1:11,val,pch=21,bg="blue",xaxt = "n",main="Parameter's P-value",xlab = "parameters")
 axis(1, at=1:11, labels=param.names)

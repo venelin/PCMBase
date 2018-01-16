@@ -122,6 +122,7 @@ N <- 2
 
 # tree with one regime
 tree.a <- phytools::pbtree(n=N, scale=1)
+tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 # generate traits
 traits.a.1 <- mvsim(tree.a, model.a.1, 0, verbose=TRUE)
@@ -175,6 +176,7 @@ N <- 400
 
 # tree with one regime
 tree.a <- pbtree(n=N, scale=1)
+tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 # generate traits
 traits.a.1 <- mvsim(tree.a, model.a.1, 0, verbose=TRUE)
@@ -298,10 +300,54 @@ plot(traits.a.1$values)
 traits.b.123 <- mvsim(tree.a, model.b.123, c(0,0,0), verbose=TRUE)
 
 tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
+tree.ab$edge.regime <- names(tree.ab$edge.length)
 
 # convert the simmap tree to a normal phylo object with singleton nodes at the
 # within-branch regime changes. The regimes are encoded as names of the edge.length
 # vector
 tree.ab.singles <- map.to.singleton(tree.ab)
+tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
 
 traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
+
+if(require(PCMBaseCpp)) {
+  cat("Testing PCMBaseCpp on OU:\n")
+
+  test_that("a.123",
+            expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
+                         mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
+                               pruneI = newCppObject(X = traits.a.123$values[1:length(tree.a$tip.label), ],
+                                                     tree = tree.a,
+                                                     model.a.123))))
+
+  test_that("ab.123",
+            expect_equal(mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123),
+                         mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
+                               pruneI = newCppObject(X = traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
+                                                       traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ],
+                                                     tree = tree.ab.singles,
+                                                     model.ab.123))))
+
+
+  values <- traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] + traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ]
+  values[sample(x=1:length(values), 88)] <- NA
+
+  test_that("ab.123 with missing values",
+            expect_equal(mvlik(values, tree.ab.singles, model.ab.123),
+                         mvlik(values, tree.ab.singles, model.ab.123,
+                               pruneI = newCppObject(X = values,
+                                                     tree = tree.ab.singles,
+                                                     model.ab.123))))
+
+  print(mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
+        pruneI = newCppObject(X = traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
+                                traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ],
+                              tree = tree.ab.singles,
+                              model.ab.123)))
+
+  print(mvlik(values, tree.ab.singles, model.ab.123,
+              pruneI = newCppObject(X = values,
+                                    tree = tree.ab.singles,
+                                    model.ab.123)))
+}
+

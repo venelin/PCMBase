@@ -2,11 +2,10 @@
 % Please edit documentation in R/OU.R
 \name{validateModel.OU}
 \alias{validateModel.OU}
-\title{Validate OU parameters}
+\title{Validate OU parameters,}
 \usage{
 \method{validateModel}{OU}(tree, model, verbose = FALSE)
 }
 \description{
-Validate OU parameters
+Validate OU parameters,
 }
-

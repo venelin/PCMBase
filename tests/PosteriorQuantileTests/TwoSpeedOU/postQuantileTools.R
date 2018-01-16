@@ -1,5 +1,5 @@
-#' function that converts a vector of 2SpOU parameters to a list of matrices
-#' @param a vector of 2SpOU parameters of length 11
+#' function that converts a vector of TwoSpeedOU parameters to a list of matrices
+#' @param a vector of TwoSpeedOU parameters of length 11
 #' @return a list of matrices.
 
 fromVector <- function(l){
@@ -14,7 +14,7 @@ fromVector <- function(l){
 
 }
 
-#' function that generates the seeds for a multivariate 2SpOU porcess according to specified parameter distributions.
+#' function that generates the seeds for a multivariate TwoSpeedOU porcess according to specified parameter distributions.
 #' @param the number of replications
 #' @return a list of matrices.
 
@@ -51,9 +51,9 @@ generate.seeds <- function(L){
 
 }
 
-#' function that generates an 2SpOU model
+#' function that generates an TwoSpeedOU model
 #' @param parameters is a list of matrices containing the parameters Alpha1, Alpha2, Theta, Sigma and Sigmae
-#' @return 2SpOU model.
+#' @return TwoSpeedOU model.
 
 generate.model <- function(parameters){
 
@@ -76,7 +76,7 @@ generate.model <- function(parameters){
                 Theta=Theta['a',,drop=FALSE],
                 Sigma=Sigma['a',,,drop=FALSE],
                 Sigmae=Sigmae['a',,,drop=FALSE])
-  class(model) <- '2SpOU'
+  class(model) <- 'TwoSpeedOU'
 
   return(model)
 
@@ -84,7 +84,7 @@ generate.model <- function(parameters){
 
 #' function that generates the traits on a tree
 #' @param tree
-#' @param 2SpOU model
+#' @param TwoSpeedOU model
 #' @return a list containing the tree and the traits.
 
 generate.data <-function(tree,model){
@@ -95,7 +95,7 @@ generate.data <-function(tree,model){
 }
 
 #' function that computes the prior given the distribution of the parameters
-#' @param a list of matrices containing the parameters of the 2SpOU model: Alpha1, Alpha2, Theta, Sigma, Sigmae
+#' @param a list of matrices containing the parameters of the TwoSpeedOU model: Alpha1, Alpha2, Theta, Sigma, Sigmae
 #' @return a single value for the prior or -Inf if Sigma matrix is not positive semi-definite
 
 compute.prior <- function(parameters){
@@ -112,9 +112,9 @@ compute.prior <- function(parameters){
 }
 
 #' function that computes a value proportional to the log probability density from which the MCMC can sample.
-#' @param vector of parameters in the 2SpOU model
+#' @param vector of parameters in the TwoSpeedOU model
 #' @param list containing the tree and the traits
-#' @return the sum of the likelihood of the 2SpOU parameters and the prior value.
+#' @return the sum of the likelihood of the TwoSpeedOU parameters and the prior value.
 
 posterior <- function(parameters,extra){
 
@@ -149,10 +149,10 @@ generate.samples <- function(p,n,tree,traits){
   return (samples)
 }
 
-#' function that computes the posterior quantiles for all 2SpOU parameters.
+#' function that computes the posterior quantiles for all TwoSpeedOU parameters.
 #' @param the samples generated from the MCMC in the form of coda objects
 #' @param a list of the seeds
-#' @return a vector of posterior quantiles with length equal to the number of 2SpOU parameters.
+#' @return a vector of posterior quantiles with length equal to the number of TwoSpeedOU parameters.
 
 compute.postquant <- function(samples,initial){
 

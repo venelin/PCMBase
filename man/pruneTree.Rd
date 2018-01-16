@@ -2,7 +2,7 @@
 % Please edit documentation in R/MultivariatePCM.R
 \name{pruneTree}
 \alias{pruneTree}
-\title{Extract information for pruning a tree used as cache in poumm likelihood
+\title{Extract information for pruning a tree used as cache during likelihood
 calculation}
 \usage{
 pruneTree(tree)
@@ -11,14 +11,13 @@ pruneTree(tree)
 \item{tree}{a phylo object}
 }
 \value{
-a list of objects
+a list of objects used by the R implementation of mvlik().
 }
 \description{
-Extract information for pruning a tree used as cache in poumm likelihood
+Extract information for pruning a tree used as cache during likelihood
 calculation
 }
 \details{
-This method should only be called if calculating poumm likelihood
-with impl='R5'.
+The function is very slow on strongly unbalanced trees due to the
+slow vector append() operation in R.
 }
-

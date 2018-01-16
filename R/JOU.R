@@ -4,6 +4,49 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')
   }
+  if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
+    stop("Expecting the model to have a member called Sigmae with dimensions
+         R x k x k, where R is the number of regimes and k is the number of
+         traits.")
+  }
+
+  R <- dim(model$Sigmae)[1]
+  k <- dim(model$Sigmae)[2]
+  regimesUnique <- dimnames(model$Sigmae)[[1]]
+
+  if(is.null(regimesUnique)) {
+    regimesUnique <- 1:dim(model$Sigmae)[[1]]
+  }
+
+  if(is.null(tree$edge.jump)) {
+    stop("Expecting the tree to have a member edge.jump - an integer vector of
+         0's and 1's describing if there is a jump for each branch of the tree.")
+  }
+
+  if(!all(tree$edge.jump %in% as.integer(0:1))) {
+    stop("Check that tree$edge.jump is an integer vector of 0's and 1's")
+  }
+
+  if(length(tree$edge.jump) != nrow(tree$edge)) {
+    stop("Check that tree$edge.jump has nrow(tree$edge) elements.")
+  }
+
+  validateModelGeneral(
+    tree = tree, model = model,
+    modelSpec = specifyModel(
+      tree = tree, modelName = "JOU",
+      k = k, R = R, regimesUnique = regimesUnique,
+      paramNames = list("Alpha", "Theta", "Sigma", "Sigmae", "mj", "Sigmaj"),
+      paramStorageModes = list("double", "double", "double", "double", "double", "double"),
+      paramDims = list(c(R, k, k), c(R, k), c(R, k, k), c(R, k, k), c(R, k), c(R, k, k))
+    ),
+    verbose = verbose)
+}
+
+validateModel2.JOU <- function(tree, model, verbose=FALSE) {
+  if(verbose) {
+    print('Validating model...')
+  }
   if(!all(c('Alpha', 'Theta', 'Sigma', 'Sigmae','xi','mj','Sigmaj')%in%names(model))) {
     stop("model should be a named list with elements 'Alpha', 'Theta', 'Sigma', 'Sigmae','xi','mj','Sigmaj'")
   }
@@ -182,15 +225,14 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
   P_1SigmaP_t <- P_1%*%Sigma%*%t(P_1)
   force(Alpha)
   force(Sigmaj)
-  e_ATt <- texp.JOU(t(Alpha))
   e_At <- texp.JOU(Alpha)
-
 
   force(P)
   force(P_1)
 
   function(time,xi) {
-    Re((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) +xi*(e_At(time) %*% Sigmaj %*% e_ATt(time)))
+    e_Ati <- e_At(time)
+    Re((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_Ati %*% Sigmaj %*% t(e_Ati)))
   }
 }
 
@@ -203,14 +245,14 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
-mvcond.JOU <- function(model, r=1, verbose=FALSE) {
+mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     Alpha <- as.matrix(model$Alpha[r,,])
     Theta <- model$Theta[r,]
     Sigma <- as.matrix(model$Sigma[r,,])
     Sigmaj <- as.matrix(model$Sigmaj[r,,])
     mj <- model$mj[r,]
-    xi <- model$xi
+    xi <- tree$edge.jump
 
     if(length(unique(c(length(Theta), dim(Alpha), dim(mj), dim(Sigmaj), dim(Sigma))))!=1) {
       # this is a dummy check to evaluate Theta
@@ -228,18 +270,18 @@ mvcond.JOU <- function(model, r=1, verbose=FALSE) {
       e_At <- expm::expm(-t*Alpha)
       I <- diag(nrow(Alpha))
       mvtnorm::rmvnorm(n=n,
-                       mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*e,
+                       mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*xi[e],
                        sigma=fV(t,val))
     }
     mvd <- function(x, x0, t, e, log=FALSE) {
       e_At <- expm::expm(-t*Alpha)
       I <- diag(nrow(Alpha))
       dmvnorm(x,
-              mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*e,
-              sigma=fV(t,xi[e]), log=log)
+              mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*xi[e],
+              sigma=fV(t, xi[e]), log=log)
     }
 
-    list(Alpha=Alpha, Theta=Theta, Sigma=Sigma, Sigmaj = Sigmaj , mj = mj, mvr=mvr, mvd=mvd, vcov=fV)
+    list(Alpha=Alpha, Theta=Theta, Sigma=Sigma, Sigmaj = Sigmaj, mj = mj, mvr=mvr, mvd=mvd, vcov=fV)
   })
 }
 
@@ -279,6 +321,8 @@ mvcond.JOU <- function(model, r=1, verbose=FALSE) {
 #' d: a M x k matrix, d[i,] corresponding to the vectors di;
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
+#'
+#' @export
 AbCdEf.JOU <- function(tree, model,
                        metaI=validateModel.JOU(tree, model, verbose=verbose),
                        pc, verbose=FALSE) {
@@ -339,7 +383,7 @@ AbCdEf.JOU <- function(tree, model,
     # length of edge leading to i
     ti <- tree$edge.length[e]
     # binary vector indicating jump or not per edge
-    xi <- model$xi
+    xi <- tree$edge.jump
     # present coordinates in parent and daughte nodes
     kj <- pc[j,]
     ki <- pc[i,]
@@ -357,18 +401,18 @@ AbCdEf.JOU <- function(tree, model,
     # here A is from the general form (not the alpha from JOU process)
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 
-    b[i,ki] <- V_1[i,ki,ki] %*% ((I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
+    b[i,ki] <- V_1[i,ki,ki] %*% ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
 
-    C[i,kj,kj] <- -0.5*t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% e_At[i,ki,kj]
+    C[i,kj,kj] <- -0.5*t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% matrix(e_At[i,ki,kj], sum(ki), sum(kj))
 
-    d[i,kj] <- -t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% ((I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
+    d[i,kj] <- -t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
 
-    E[i,kj,ki] <- t(e_At[i,ki,kj]) %*% V_1[i,ki,ki]
+    E[i,kj,ki] <- t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki]
 
     f[i] <-
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))) +
-              (t(model$Theta[r[e],]) %*% t(I[ki,]-e_At[i,ki,]) + t(model$mj[r[e],]) %*% t(e_At[i,ki,])*xi[e]) %*%
-              V_1[i,ki,ki] %*% ((I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e]))
+              (t(model$Theta[r[e],]) %*% t(matrix(I[ki,]-e_At[i,ki,], sum(ki))) + t(model$mj[r[e],]) %*% t(matrix(e_At[i,ki,], sum(ki)))*xi[e]) %*%
+              V_1[i,ki,ki] %*% ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e]))
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)

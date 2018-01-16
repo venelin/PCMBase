@@ -4,75 +4,30 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')
   }
-  if(!all(c('Sigma', 'Sigmae')%in%names(model))) {
-    stop("model should be a named list with elements 'Sigma', 'Sigmae'")
+  if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
+    stop("Expecting the model to have a member called Sigmae with dimensions
+         R x k x k, where R is the number of regimes and k is the number of
+         traits.")
   }
 
-  # number of tips
-  N <- length(tree$tip.label)
+  R <- dim(model$Sigmae)[1]
+  k <- dim(model$Sigmae)[2]
+  regimesUnique <- dimnames(model$Sigmae)[[1]]
 
-  # number of nodes including the root
-  M <- nrow(tree$edge)+1
-  if(verbose) {
-    cat('M=', M, '\n')
+  if(is.null(regimesUnique)) {
+    regimesUnique <- 1:dim(model$Sigmae)[[1]]
   }
 
-  # number of regimes
-  if(is.null(tree$edge.regime)) {
-    regimes <- 1
-    R <- 1
-  } else {
-    regimes <- unique(tree$edge.regime)
-    R <- length(regimes)
-  }
-
-  if(verbose) {
-    cat('R=',R,'\n')
-  }
-
-  # number of traits
-  k <- dim(model$Sigma)[2]
-  if(verbose) {
-    cat('k=', k, '\n')
-  }
-
-  if(!is.array(model$Sigma)|!is.array(model$Sigmae) |
-     !isTRUE(all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k))) |
-     !isTRUE(all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k)))) {
-    if(verbose) {
-      print('dim Sigma:')
-      print(dim(model$Sigma))
-      print('dim Sigmae:')
-      print(dim(model$Sigmae))
-    }
-    stop("Incorrect dimensions for some of the parameters Sigma and Sigmae")
-  }
-
-  if(R>1 & (!isTRUE(all.equal(dimnames(model$Sigma)[[1]], dimnames(model$Sigmae)[[1]])))) {
-    if(verbose) {
-      print('dimnames Sigma:')
-      print(dimnames(model$Sigma))
-      print('dimnames Sigmae:')
-      print(dimnames(model$Sigmae))
-    }
-    stop("Disagreeing regime-names (dimnames(X)[[1]]) of Sigma and Sigmae")
-  }
-
-  if(R==1) {
-    regimes <- rep(1, length(tree$edge.length))
-  } else {
-    regimes <- match(tree$edge.regime, dimnames(model$Sigma)[[1]])
-    if(any(is.na(regimes))) {
-      if(verbose) {
-        print('dimnames Sigma:')
-        print(dimnames(model$Sigma))
-        print('dimnames Sigmae:')
-        print(dimnames(model$Sigmae))
-      }
-      stop("Not all regime-names (names in tree$edge.length) are specified parameters")
-    }
-  }
-  list(N=N, M=M, R=R, k=k, regimes=regimes)
+  validateModelGeneral(
+    tree = tree, model = model,
+    modelSpec = specifyModel(
+      tree = tree, modelName = "BM",
+      k = k, R = R, regimesUnique = regimesUnique,
+      paramNames = list("Sigma", "Sigmae"),
+      paramStorageModes = list("double", "double"),
+      paramDims = list(c(R, k, k), c(R, k, k))
+    ),
+    verbose = verbose)
 }
 
 
@@ -99,7 +54,7 @@ V.BM <- function(Sigma, threshold0=0) {
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
-mvcond.BM <- function(model, r=1, verbose=FALSE) {
+mvcond.BM <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     Sigma <- as.matrix(model$Sigma[r,,])
 
@@ -153,6 +108,8 @@ mvcond.BM <- function(model, r=1, verbose=FALSE) {
 #' d: a M x k matrix, d[i,] corresponding to the vectors di;
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
+#'
+#' @export
 AbCdEf.BM <- function(tree, model,
                       metaI=validateModel.BM(tree, model, verbose=verbose),
                       pc, verbose=FALSE) {
@@ -226,11 +183,11 @@ AbCdEf.BM <- function(tree, model,
 
     b[i,ki] <- 0
 
-    C[i,kj,kj] <- (-0.5*(t(I[ki,kj])%*%V_1[i,ki,ki])%*%I[ki,kj])
+    C[i,kj,kj] <- (-0.5*(t(matrix(I[ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki]) %*% matrix(I[ki,kj], sum(ki), sum(kj)))
 
     d[i,kj] <- 0
 
-    E[i,kj,ki] <- (t(I[ki,kj])%*%V_1[i,ki,ki])
+    E[i,kj,ki] <- (t(matrix(I[ki,kj], sum(ki), sum(kj)))%*%V_1[i,ki,ki])
 
     f[i] <- -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))))
   }

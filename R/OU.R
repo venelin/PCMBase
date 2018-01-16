@@ -1,97 +1,36 @@
-#' Validate OU parameters
+#' Validate OU parameters,
 #' @export
-validateModel.OU <- function(tree, model, verbose=FALSE) {
+validateModel.OU <- function(tree, model, verbose = FALSE) {
   if(verbose) {
     print('Validating model...')
   }
-  if(!all(c('Alpha', 'Theta', 'Sigma', 'Sigmae')%in%names(model))) {
-    stop("model should be a named list with elements 'Alpha', 'Theta', 'Sigma', 'Sigmae'")
+
+  if(is.null(model$Sigmae) |
+     is.null(dim(model$Sigmae)) |
+     length(dim(model$Sigmae)) != 3) {
+    stop("Expecting the model to have a member called Sigmae with dimensions
+         R x k x k, where R is the number of regimes and k is the number of
+         traits.")
   }
 
-  # number of tips
-  N <- length(tree$tip.label)
+  R <- dim(model$Sigmae)[1]
+  k <- dim(model$Sigmae)[2]
+  regimesUnique <- dimnames(model$Sigmae)[[1]]
 
-  # number of nodes including the root
-  M <- nrow(tree$edge)+1
-  if(verbose) {
-    cat('M=', M, '\n')
+  if(is.null(regimesUnique)) {
+    regimesUnique <- 1:dim(model$Sigmae)[[1]]
   }
 
-  # number of regimes
-  if(is.null(tree$edge.regime)) {
-    regimes <- 1
-    R <- 1
-  } else {
-    regimes <- unique(tree$edge.regime)
-    R <- length(regimes)
-  }
-
-  if(verbose) {
-    cat('R=',R,'\n')
-  }
-
-  if(!is.matrix(model$Theta) | nrow(model$Theta)<R) {
-    stop(paste0('Theta should be a R x k matrix, where R is the number of regimes and k - the number of traits: R=',R))
-  }
-
-  # number of traits
-  k <- dim(model$Theta)[2]
-  if(verbose) {
-    cat('k=', k, '\n')
-  }
-
-  if(!is.array(model$Alpha) |
-     !is.array(model$Sigma) |
-     !is.array(model$Sigmae) |
-     !isTRUE(all.equal(dim(model$Alpha[regimes,,,drop=FALSE]), c(R, k, k))) |
-     !isTRUE(all.equal(dim(model$Sigma[regimes,,,drop=FALSE]), c(R, k, k))) |
-     !isTRUE(all.equal(dim(model$Sigmae[regimes,,,drop=FALSE]), c(R, k, k)))) {
-    if(verbose) {
-      print('dim Alpha:')
-      print(dim(model$Alpha))
-      print('dim Sigma:')
-      print(dim(model$Sigma))
-      print('dim Sigmae:')
-      print(dim(model$Sigmae))
-    }
-    stop("Incorrect dimensions for some of the parameters Alpha, Sigma and Sigmae")
-  }
-
-  if(R>1 & (!isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Theta)[[1]])) |
-            !isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigma)[[1]])) |
-            !isTRUE(all.equal(dimnames(model$Alpha)[[1]], dimnames(model$Sigmae)[[1]])))) {
-    if(verbose) {
-      print('dimnames Alpha:')
-      print(dimnames(model$Alpha))
-      print('dimnames Theta:')
-      print(dimnames(model$Theta))
-      print('dimnames Sigma:')
-      print(dimnames(model$Sigma))
-      print('dimnames Sigmae:')
-      print(dimnames(model$Sigmae))
-    }
-    stop("Disagreeing regime-names (dimnames(X)[[1]]) of Alpha, Theta, Sigma and Sigmae")
-  }
-
-  if(R==1) {
-    regimes <- rep(1, length(tree$edge.length))
-  } else {
-    regimes <- match(tree$edge.regime, dimnames(model$Alpha)[[1]])
-    if(any(is.na(regimes))) {
-      if(verbose) {
-        print('dimnames Alpha:')
-        print(dimnames(model$Alpha))
-        print('dimnames Theta:')
-        print(dimnames(model$Theta))
-        print('dimnames Sigma:')
-        print(dimnames(model$Sigma))
-        print('dimnames Sigmae:')
-        print(dimnames(model$Sigmae))
-      }
-      stop("Not all regime-names (names in tree$edge.length) are specified parameters")
-    }
-  }
-  list(N=N, M=M, R=R, k=k, regimes=regimes)
+  validateModelGeneral(
+    tree = tree, model = model,
+    modelSpec = specifyModel(
+      tree = tree, modelName = "OU",
+      k = k, R = R, regimesUnique = regimesUnique,
+      paramNames = list("Alpha", "Theta", "Sigma", "Sigmae"),
+      paramStorageModes = list("double", "double", "double", "double"),
+      paramDims = list(c(R, k, k), c(R, k), c(R, k, k), c(R, k, k))
+    ),
+    verbose = verbose)
 }
 
 PLambdaP_1.OU <- function(Alpha) {
@@ -163,7 +102,7 @@ V.OU <- function(lambda, P, P_1, Sigma, threshold0=0) {
 #' @importFrom mvtnorm rmvnorm dmvnorm
 #' @importFrom expm expm
 #'
-mvcond.OU <- function(model, r=1, verbose=FALSE) {
+mvcond.OU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     Alpha <- as.matrix(model$Alpha[r,,])
     Theta <- model$Theta[r,]
@@ -226,6 +165,8 @@ mvcond.OU <- function(model, r=1, verbose=FALSE) {
 #' d: a M x k matrix, d[i,] corresponding to the vectors di;
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
+#'
+#' @export
 AbCdEf.OU <- function(tree, model,
                       metaI=validateModel.OU(tree, model, verbose=verbose),
                       pc, verbose=FALSE) {
@@ -300,25 +241,24 @@ AbCdEf.OU <- function(tree, model,
     }
 
     V_1[i,ki,ki] <- solve(V[i,ki,ki])
-    #e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
-    e_At[i,,] <- Re(P[r[e],,] %*% diag(exp(-ti * lambda[r[e],])) %*% P_1[r[e],,])
+    e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
 
-    # now compute AbCdEf according to eq (8) in doc.
+        # now compute AbCdEf according to eq (8) in doc.
     # here A is from the general form (not the alpa from OU process)
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 
     b[i,ki] <- V_1[i,ki,ki] %*% (I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],]
 
-    C[i,kj,kj] <- -0.5*t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% e_At[i,ki,kj]
+    C[i,kj,kj] <- -0.5*t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% e_At[i,ki,kj]
 
-    d[i,kj] <- -t(e_At[i,ki,kj]) %*% V_1[i,ki,ki] %*% (I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],]
+    d[i,kj] <- -t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% (matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],]
 
-    E[i,kj,ki] <- t(e_At[i,ki,kj]) %*% V_1[i,ki,ki]
+    E[i,kj,ki] <- t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki]
 
     f[i] <-
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))) +
-              t(model$Theta[r[e],]) %*% t(I[ki,]-e_At[i,ki,]) %*%
-              V_1[i,ki,ki] %*% (I[ki,]-e_At[i,ki,]) %*% model$Theta[r[e],])
+              t(model$Theta[r[e],]) %*% t(matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*%
+              V_1[i,ki,ki] %*% (matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],])
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)

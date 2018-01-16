@@ -1,6 +1,7 @@
 library(phytools)
 library(testthat)
 library(mvtnorm)
+library(PCMBase)
 
 
 set.seed(1)
@@ -67,8 +68,6 @@ Sigmaj <- abind::abind(a.Sigmaj, b.Sigmaj, along=-1, new.names=list(regime=c('a'
 mj <- abind::abind(a.mj, b.mj, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
 
 
-xi = c(1,1,0,1,0,0,1,0)
-
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- list(X0 = a.X0,
                   Alpha=Alpha['a',,,drop=FALSE],
@@ -76,8 +75,7 @@ model.a.123 <- list(X0 = a.X0,
                   Sigma=Sigma['a',,,drop=FALSE],
                   Sigmae=Sigmae['a',,,drop=FALSE],
                   Sigmaj=Sigmaj['a',,,drop=FALSE],
-                  mj=mj['a',,drop=FALSE],
-                  xi=xi)
+                  mj=mj['a',,drop=FALSE])
 class(model.a.123) <- 'JOU'
 
 # regime 'b', traits 1, 2 and 3
@@ -87,12 +85,9 @@ model.b.123 <- list(X0 = b.X0,
                     Sigma=Sigma['b',,,drop=FALSE],
                     Sigmae=Sigmae['b',,,drop=FALSE],
                     Sigmaj=Sigmaj['b',,,drop=FALSE],
-                    mj=mj['b',,drop=FALSE],
-                    xi=xi)
+                    mj=mj['b',,drop=FALSE])
 class(model.b.123) <- 'JOU'
 
-
-xi = c(1,0,1,0,0,1,0,0,0,1,1)
 # regimes 'a' and 'b', traits 1, 2 and 3
 model.ab.123 <- list(X0 = a.X0,
                      Alpha=Alpha[,,,drop=FALSE],
@@ -100,20 +95,23 @@ model.ab.123 <- list(X0 = a.X0,
                      Sigma=Sigma[,,,drop=FALSE],
                      Sigmae=Sigmae[,,,drop=FALSE],
                      Sigmaj=Sigmaj[,,,drop=FALSE],
-                     mj=mj[,,drop=FALSE],
-                     xi=xi)
+                     mj=mj[,,drop=FALSE])
 class(model.ab.123) <- 'JOU'
 
 
 context(ctx <- "R=1/k=1/N=5")
 
 # number of tips
-N <- 5
+N <- 400
 
 # tree with one regime
 
 tree.a <- phytools::pbtree(n=N, scale=1)
 tree.b <- phytools::pbtree(n=N, scale=1)
+
+
+tree.a$edge.jump <- sample(as.integer(0:1), size = nrow(tree.a$edge), replace = TRUE)
+tree.b$edge.jump <- tree.a$edge.jump
 
 # tree with two regimes
 
@@ -124,6 +122,9 @@ tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
 # vector
 tree.ab.singles <- map.to.singleton(tree.ab)
 
+tree.ab.singles$edge.jump = sample(as.integer(0:1), size = nrow(tree.ab.singles$edge), replace = TRUE)
+
+tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
 # generate traits
 
 traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
@@ -141,4 +142,34 @@ traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 JOU.lik.a <-  mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
 JOU.lik.b <-  mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
 JOU.lik.ab <-  mvlik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
+
+if(require(PCMBaseCpp)) {
+  cat("Testing PCMBaseCpp on JOU:\n")
+
+  test_that("a.123",
+            expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
+                         mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
+                               pruneI = newCppObject(X = traits.a.123$values[1:length(tree.a$tip.label), ],
+                                                     tree = tree.a,
+                                                     model.a.123))))
+
+
+  cat("Testing PCMBaseCpp on JOU with missing values:\n")
+
+  values <- traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
+    traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ]
+
+  nas <- sample(1:length(values), 100)
+  values[nas] <- NA
+
+  pruneI <- newCppObject(X = values, tree = tree.ab.singles, model.ab.123)
+
+  QuadrPolyCoefsAbCdEf <- AbCdEf(tree.ab.singles, model.ab.123,
+                                 validateModel(tree.ab.singles, model.ab.123),
+                                 presentCoordinates(values, tree.ab.singles))
+  test_that("ab.123",
+            expect_equal(mvlik(values, tree.ab.singles, model.ab.123),
+                         mvlik(tree = tree.ab.singles, model = model.ab.123, pruneI = pruneI)))
+
+}
 

@@ -1,6 +1,36 @@
-#' Validate 2SpOU parameters
+#' Validate TwoSpeedOU parameters
 #' @export
-validateModel.2SpOU <- function(tree, model, verbose=FALSE) {
+validateModel.TwoSpeedOU <- function(tree, model, verbose = FALSE) {
+  if(verbose) {
+    print('Validating model...')
+  }
+  if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
+    stop("Expecting the model to have a member called Sigmae with dimensions
+         R x k x k, where R is the number of regimes and k is the number of
+         traits.")
+  }
+
+  R <- dim(model$Sigmae)[1]
+  k <- dim(model$Sigmae)[2]
+  regimesUnique <- dimnames(model$Sigmae)[[1]]
+
+  if(is.null(regimesUnique)) {
+    regimesUnique <- 1:dim(model$Sigmae)[[1]]
+  }
+
+  validateModelGeneral(
+    tree = tree, model = model,
+    modelSpec = specifyModel(
+      tree = tree, modelName = "TwoSpeedOU",
+      k = k, R = R, regimesUnique = regimesUnique,
+      paramNames = list("Alpha1", "Alpha2", "Theta", "Sigma", "Sigmae"),
+      paramStorageModes = list("double", "double", "double", "double", "double"),
+      paramDims = list(c(R, k, k), c(R, k, k), c(R, k), c(R, k, k), c(R, k, k))
+    ),
+    verbose = verbose)
+}
+
+validateModel2.TwoSpeedOU <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')
   }
@@ -107,15 +137,15 @@ validateModel.2SpOU <- function(tree, model, verbose=FALSE) {
   list(N=N, M=M, R=R, k=k, regimes=regimes)
 }
 
-PLambdaP_1.2SpOU <- function(Alpha) {
-  # here the argument Alpha is an Alpha matrix specifying the alphas in a 2SpOU process
+PLambdaP_1.TwoSpeedOU <- function(Alpha) {
+  # here the argument Alpha is an Alpha matrix specifying the alphas in a TwoSpeedOU process
   r <- eigen(Alpha)
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
 
 #' sums of pairs of elements in a vector
 #' @param lambda
-Lambda_ij.2SpOU <- function(lambda) {
+Lambda_ij.TwoSpeedOU <- function(lambda) {
   sapply(lambda, function(li) sapply(lambda, function(lj) li+lj))
 }
 
@@ -126,7 +156,7 @@ Lambda_ij.2SpOU <- function(lambda) {
 #'  than threshold the limit time is returned.
 #' @return a function of time returning a matrix with entries formed from the
 #'  above function or the limit time if |Lambda_{ij}|<=trehshold0.
-fLambda_ij.2SpOU <- function(Lambda_ij, threshold0=0) {
+fLambda_ij.TwoSpeedOU <- function(Lambda_ij, threshold0=0) {
   idx0 <- which(abs(Lambda_ij)<=threshold0)
   function(time) {
     res <- (1-exp(-Lambda_ij*time))/Lambda_ij
@@ -138,18 +168,18 @@ fLambda_ij.2SpOU <- function(Lambda_ij, threshold0=0) {
 }
 
 
-#' Generate a multivariate (MV) 2SpOU variance-covariance function
-#' @param lambda vector of the eignevalues of the matrix Alpha2 of a MV 2SpOU process.
+#' Generate a multivariate (MV) TwoSpeedOU variance-covariance function
+#' @param lambda vector of the eignevalues of the matrix Alpha2 of a MV TwoSpeedOU process.
 #' @param P matrix of the eigenvectors of the matrix Alpha
 #' @param P_1 inverse eigenvectors matrix
-#' @param Sigma the matrix Sigma of a MV 2SpOU process.
+#' @param Sigma the matrix Sigma of a MV TwoSpeedOU process.
 #' @param threshold0
 #' @return a function of one numerical argument (time), which calculates the
-#' expected variance covariance matrix of a MV-2SpOU process after time, given
+#' expected variance covariance matrix of a MV-TwoSpeedOU process after time, given
 #' the specified arguments.
-V.2SpOU <- function(lambda, P, P_1, Sigma, threshold0=0) {
-  Lambda_ij <- Lambda_ij.2SpOU(lambda)
-  fLambda_ij <- fLambda_ij.2SpOU(Lambda_ij, threshold0)
+V.TwoSpeedOU <- function(lambda, P, P_1, Sigma, threshold0=0) {
+  Lambda_ij <- Lambda_ij.TwoSpeedOU(lambda)
+  fLambda_ij <- fLambda_ij.TwoSpeedOU(Lambda_ij, threshold0)
   P_1SigmaP_t <- P_1%*%Sigma%*%t(P_1)
 
   force(P)
@@ -160,15 +190,15 @@ V.2SpOU <- function(lambda, P, P_1, Sigma, threshold0=0) {
   }
 }
 
-#' Create a conditional multivariate 2SpOU distribution
-#' @param Alpha1,Alpha2,Theta,Sigma parameters of the multivariate 2SpOU process; Alpha1,Alpha2 are
+#' Create a conditional multivariate TwoSpeedOU distribution
+#' @param Alpha1,Alpha2,Theta,Sigma parameters of the multivariate TwoSpeedOU process; Alpha1,Alpha2 are
 #'  k x k matrices, Theta is a k-vector and Sigma is a k x k matrix
 #' @return a list containging the passed parameters as well as
 #' a function mvr of arguments n (number of observation k-vectors to generate),
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
-mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
+mvcond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     Alpha1 <- as.matrix(model$Alpha1[r,,])
     Alpha2 <- as.matrix(model$Alpha2[r,,])
@@ -183,8 +213,8 @@ mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
       print(paste('dim(Sigma)=', dim(Sigma)))
       stop('Some of Alpha1, Alpha2, Theta or Sigma has a wrong dimension.')
     }
-    PLP_1 <- PLambdaP_1.2SpOU(Alpha2)
-    fV <- V.2SpOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
+    PLP_1 <- PLambdaP_1.TwoSpeedOU(Alpha2)
+    fV <- V.TwoSpeedOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
     mvr <- function(n=1, x0, t, e) {
       e_A1t <- expm::expm(-t*Alpha1)
@@ -211,10 +241,10 @@ mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
 #' form (eq. 1) for each edge in a tree
 #'
 #' @param tree a phylo object (see details)
-#' @param model parameters of the 2SpOU process. This must be a
+#' @param model parameters of the TwoSpeedOU process. This must be a
 #' named list with the following elements:
 #' Alpha1, Alpha2: R x k x k arrays, where R is the number of regimes of the
-#' 2SpOU process, k is the number of variables (traits)
+#' TwoSpeedOU process, k is the number of variables (traits)
 #' Theta: a R x k matrix, row Theta[r, ] containing the long-term
 #' mean Theta for regime r;
 #' Sigma: a R x k x k array, each Sigma[r,,] containing the
@@ -236,8 +266,10 @@ mvcond.2SpOU <- function(model, r=1, verbose=FALSE) {
 #' d: a M x k matrix, d[i,] corresponding to the vectors di;
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
-AbCdEf.2SpOU <- function(tree, model,
-                      metaI=validateModel.2SpOU(tree, model, verbose=verbose),
+#'
+#' @export
+AbCdEf.TwoSpeedOU <- function(tree, model,
+                      metaI=validateModel.TwoSpeedOU(tree, model, verbose=verbose),
                       pc, verbose=FALSE) {
   # number of regimes
   R <- metaI$R
@@ -257,16 +289,16 @@ AbCdEf.2SpOU <- function(tree, model,
   P_1 <- array(NA, dim=c(R, k, k), dimnames=dimnames(model$Alpha2))
   lambda <- array(NA, dim=c(R, k), dimnames=dimnames(model$Alpha2)[-3])
 
-  fV.2SpOU <- list()
+  fV.TwoSpeedOU <- list()
 
   for(r in 1:R) {
-    PLambdaP_1 <- PLambdaP_1.2SpOU(model$Alpha2[r,,])
+    PLambdaP_1 <- PLambdaP_1.TwoSpeedOU(model$Alpha2[r,,])
     P[r,,] <- PLambdaP_1$P
     P_1[r,,] <- PLambdaP_1$P_1
     lambda[r,] <- PLambdaP_1$lambda
 
-    # create the V.2SpOU function for regime r
-    fV.2SpOU[[r]] <- V.2SpOU(lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
+    # create the V.TwoSpeedOU function for regime r
+    fV.TwoSpeedOU[[r]] <- V.TwoSpeedOU(lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
                        as.matrix(model$Sigma[r,,]))
   }
 
@@ -302,7 +334,7 @@ AbCdEf.2SpOU <- function(tree, model,
     kj <- pc[j,]
     ki <- pc[i,]
 
-    V[i,,] <- fV.2SpOU[[r[e]]](ti)
+    V[i,,] <- fV.TwoSpeedOU[[r[e]]](ti)
 
     if(i<=N) {
       # add environmental variance at each tip node
@@ -318,16 +350,16 @@ AbCdEf.2SpOU <- function(tree, model,
 
     b[i,ki] <- V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],]
 
-    C[i,kj,kj] <- -0.5*t(e_A1t[i,ki,kj]) %*% V_1[i,ki,ki] %*% e_A1t[i,ki,kj]
+    C[i,kj,kj] <- -0.5*t(matrix(e_A1t[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% e_A1t[i,ki,kj]
 
-    d[i,kj] <- -t(e_A1t[i,ki,kj]) %*% V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],]
+    d[i,kj] <- -t(matrix(e_A1t[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],]
 
-    E[i,kj,ki] <- t(e_A1t[i,ki,kj]) %*% V_1[i,ki,ki]
+    E[i,kj,ki] <- t(matrix(e_A1t[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki]
 
     f[i] <-
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))) +
-              t(model$Theta[r[e],]) %*% t(I[ki,]-e_A1t[i,ki,]) %*%
-              V_1[i,ki,ki] %*% (I[ki,]-e_A1t[i,ki,]) %*% model$Theta[r[e],])
+              t(model$Theta[r[e],]) %*% t(matrix(I[ki,]-e_A1t[i,ki,], sum(ki))) %*%
+              V_1[i,ki,ki] %*% (matrix(I[ki,]-e_A1t[i,ki,], sum(ki))) %*% model$Theta[r[e],])
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_A1t, V=V)

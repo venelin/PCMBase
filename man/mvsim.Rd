@@ -2,20 +2,25 @@
 % Please edit documentation in R/MultivariatePCM.R
 \name{mvsim}
 \alias{mvsim}
-\title{Generate multivariate trait-values on a tree according to a multivariate OU
-process with one or several regimes}
+\title{Generate trait data on a tree according to a multivariate stochastic
+model with one or several regimes}
 \usage{
-mvsim(tree, model, X0, metaI = validateModel(tree, model, verbose = verbose),
-  verbose = FALSE)
+mvsim(tree, model, X0, metaI = validateModel(tree = tree, model = model,
+  verbose = verbose), verbose = FALSE)
 }
 \arguments{
-\item{tree}{a phylo object}
+\item{tree}{a phylo object specifying a rooted tree.}
 
-\item{model}{a list containing the following elements (parameters of the model).
+\item{model}{an S3 object specifying the model.}
+
+\item{X0}{numeric vector of length k indicating the root value}
+
+\item{metaI}{a named list containg meta-information about the data and the
+model.
 A: numeric k x k matrix specifying the selection strengths of the OU process;
 Theta numeric k-vector specifying the long-term mean of the OU process}
 
-\item{X0}{numeric vector of length k indicating the root value}
+\item{x0}{a numeric vector of length k (the number of traits) specifying the #' trait values at the root of the tree.}
 
 \item{Sigma}{numeric k x k matrix specifying the stochastic time-unit variance of the
 OU process;}
@@ -38,7 +43,6 @@ with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
 corresponding to the root and bigger than N+1 corresponding to internal nodes.
 }
 \description{
-Generate multivariate trait-values on a tree according to a multivariate OU
-process with one or several regimes
+Generate trait data on a tree according to a multivariate stochastic
+model with one or several regimes
 }
-

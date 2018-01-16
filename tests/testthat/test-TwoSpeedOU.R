@@ -1,0 +1,223 @@
+library(phytools)
+library(testthat)
+library(PCMBase)
+
+
+set.seed(1)
+
+
+#numerical zero:
+EPS <- 10^-9
+
+# number of regimes
+R <- 2
+# number of traits
+k <- 3
+
+
+# rate mtrix of transition from one regime to another
+Q <- matrix(c(-1, 1, 1, -1), R, R)
+colnames(Q) <- rownames(Q) <- letters[1:R]
+
+# regimes
+
+# in regime 'a' the three traits evolve according to three independent OU processes
+a.X0 <- c(5, 2, 1)
+a.Alpha <- rbind(c(0, 0, 0),
+                 c(0, 2, 0),
+                 c(0, 0, 3))
+a.Alpha2 <- rbind(c(0, 0, 0),
+                 c(0, 2, 0),
+                 c(0, 0, 3))
+
+a.Theta <- c(10, 6, 2)
+a.Sigma <- rbind(c(1.6, 0, 0),
+                 c(0, 2.4, 0),
+                 c(0, 0, 2))
+a.Sigmae2 <- rbind(c(0, 0, 0),
+                   c(0, 0, 0),
+                   c(0, 0, 0))
+
+# in regime 'b' there is correlation between the traits
+b.X0 <- c(12, 4, 3)
+b.Alpha <- rbind(c(2, .1, .2),
+                 c(.1, .6, .2),
+                 c(.2, .2, .3))
+
+b.Alpha2 <- rbind(c(2, .1, .2),
+                 c(.1, .6, .2),
+                 c(.2, .2, .3))
+
+b.Theta <- c(10, 6, 2)
+b.Sigma <- rbind(c(1.6, .3, .3),
+                 c(.3, 0.3, .4),
+                 c(.3, .4, 2))
+b.Sigmae2 <- rbind(c(.2, 0, 0),
+                   c(0, .3, 0),
+                   c(0, 0, .4))
+
+# First, specify the ALpha1,Alpha2, theta, Sigma and sigmae2 parameters for each regime.
+# Then we use the abind function to stack the parameters into arrays which's first
+# dimension is the regime
+
+
+Alpha1 <- abind::abind(a.Alpha, b.Alpha, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Alpha2 <- abind::abind(a.Alpha2, b.Alpha2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Theta <- abind::abind(a.Theta, b.Theta, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
+Sigma <- abind::abind(a.Sigma, b.Sigma, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+
+
+# regime 'a', traits 1, 2 and 3
+model.a.123 <- list(X0 = a.X0,
+                    Alpha=Alpha1['a',,,drop=FALSE],
+                    Theta=Theta['a',,drop=FALSE],
+                    Sigma=Sigma['a',,,drop=FALSE],
+                    Sigmae=Sigmae['a',,,drop=FALSE])
+class(model.a.123) <- 'OU'
+
+model.a.123.TwoSpeedOU <- list(X0 = a.X0,
+                    Alpha1=Alpha1['a',,,drop=FALSE],
+                    Alpha2=Alpha2['a',,,drop=FALSE],
+                    Theta=Theta['a',,drop=FALSE],
+                    Sigma=Sigma['a',,,drop=FALSE],
+                    Sigmae=Sigmae['a',,,drop=FALSE])
+class(model.a.123.TwoSpeedOU) <- 'TwoSpeedOU'
+
+#####################################################################################################
+
+context(ctx <- "R=1/k=3/N=400")
+
+# number of tips
+N <- 400
+
+# tree with one regime
+tree.a <- phytools::pbtree(n=N, scale=1)
+tree.a$edge.regime <- names(tree.a$edge.length)
+
+# generate traits
+
+traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
+
+## Calculate likelihood
+
+lik.OU = mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
+
+lik.TwoSpeedOU = mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123.TwoSpeedOU)
+
+cat('OU likelihood=',lik.OU,'\n')
+cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
+
+test_that(paste(ctx, "Match multivariate likelihood of independent traits regime a"), {
+  expect_true(abs(lik.OU - lik.TwoSpeedOU) < EPS)
+})
+
+#####################################################################################################
+
+# regime 'a', traits 1, 2 and 3
+model.b.123 <- list(X0 = b.X0,
+                    Alpha=Alpha1['b',,,drop=FALSE],
+                    Theta=Theta['b',,drop=FALSE],
+                    Sigma=Sigma['b',,,drop=FALSE],
+                    Sigmae=Sigmae['b',,,drop=FALSE])
+class(model.b.123) <- 'OU'
+
+model.b.123.TwoSpeedOU <- list(X0 = b.X0,
+                          Alpha1=Alpha1['b',,,drop=FALSE],
+                          Alpha2=Alpha2['b',,,drop=FALSE],
+                          Theta=Theta['b',,drop=FALSE],
+                          Sigma=Sigma['b',,,drop=FALSE],
+                          Sigmae=Sigmae['b',,,drop=FALSE])
+class(model.b.123.TwoSpeedOU) <- 'TwoSpeedOU'
+
+context(ctx <- "R=1/k=3/N=400")
+
+# number of tips
+N <- 400
+
+# tree with one regime
+tree.b <- phytools::pbtree(n=N, scale=1)
+tree.b$edge.regime <- names(tree.b$edge.length)
+
+# generate traits
+
+traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
+
+## Calculate likelihood
+
+lik.OU = mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
+
+lik.TwoSpeedOU = mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123.TwoSpeedOU)
+
+cat('OU likelihood=',lik.OU,'\n')
+cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
+
+test_that(paste(ctx, "Match multivariate likelihood of dependent traits regime b"), {
+  expect_true(abs(lik.OU - lik.TwoSpeedOU) < EPS)
+})
+
+
+
+tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
+tree.ab$edge.regime <- names(tree.ab$edge.length)
+
+# convert the simmap tree to a normal phylo object with singleton nodes at the
+# within-branch regime changes. The regimes are encoded as names of the edge.length
+# vector
+tree.ab.singles <- map.to.singleton(tree.ab)
+tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
+
+model.ab.123 <- list(X0 = a.X0,
+                     Alpha1=Alpha1[,,,drop=FALSE],
+                     Alpha2=Alpha2[,,,drop=FALSE],
+                     Theta=Theta[,,drop=FALSE],
+                     Sigma=Sigma[,,,drop=FALSE],
+                     Sigmae=Sigmae[,,,drop=FALSE])
+class(model.ab.123) <- 'TwoSpeedOU'
+
+traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
+
+
+if(require(PCMBaseCpp)) {
+  cat("Testing PCMBaseCpp on TwoSpeedOU:\n")
+
+  test_that("a.123",
+            expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
+                         mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
+                               pruneI = newCppObject(X = traits.a.123$values[1:length(tree.a$tip.label), ],
+                                                     tree = tree.a,
+                                                     model.a.123))))
+
+  test_that("ab.123",
+            expect_equal(mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123),
+                         mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
+                               pruneI = newCppObject(X = traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
+                                                       traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ],
+                                                     tree = tree.ab.singles,
+                                                     model.ab.123))))
+
+
+  values <- traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] + traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ]
+  values[sample(x=1:length(values), 200)] <- NA
+
+  test_that("ab.123 with missing values",
+            expect_equal(mvlik(values, tree.ab.singles, model.ab.123),
+                         mvlik(values, tree.ab.singles, model.ab.123,
+                               pruneI = newCppObject(X = values,
+                                                     tree = tree.ab.singles,
+                                                     model.ab.123))))
+
+  print(mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
+              pruneI = newCppObject(X = traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
+                                      traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ],
+                                    tree = tree.ab.singles,
+                                    model.ab.123)))
+
+  print(mvlik(values, tree.ab.singles, model.ab.123,
+              pruneI = newCppObject(X = values,
+                                    tree = tree.ab.singles,
+                                    model.ab.123)))
+}
+
+
+

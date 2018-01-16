@@ -27,4 +27,3 @@ the specified arguments.
 \description{
 Generate a multivariate (MV) OU variance-covariance function
 }
-

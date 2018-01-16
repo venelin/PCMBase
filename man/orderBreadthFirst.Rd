@@ -16,4 +16,3 @@ a vector of indices of edges in tree$edge in breadth-first order.
 \description{
 Breadth-first tree traversal
 }
-

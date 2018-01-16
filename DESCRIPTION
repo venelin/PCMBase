@@ -10,29 +10,26 @@ Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("ctb", "cph")))
 Maintainer: Who to complain to <vmitov@gmail.com>
 Description: Gaussian phylogenetic comparative models represent models of 
-continuous trait data associated with the tips of a phylogenetic tree, under 
-which the distribution of the trait values is multivariate Gaussian. 
-Examples of such models are Gaussian continuous time branching stochastic 
-processes such as Brownian motion (BM) and Ornstein-Uhlenbeck (OU), which regard 
-the data at the tips of the tree as an observed (final) state of a Markov chain 
-starting from an initial state at the root and evolving along the branches of 
-the tree. The PCMBase R package provides a general framework for manipulating 
-such models. This framework consists of an application programming interface for 
-specifying data and model parameters, and efficient algorithms for simulating 
-trait evolution under a model and calculating the likelihood of model parameters
-for an assumed model and trait data. The core interface consists of 
-several S3 generic methods (validateModel, mvcond, AbcDeF, Lmr). 
-A model represents an object of an S3 class and specializations of the above 
-methods for this class. These specializations are invoked in the function mvsim 
-simulating trait evolution from an initial trait vector at the root of the tree, 
-and the function mvlik calculating the model likelihood, that is the Gaussian 
-probability density of data observed at the tips of the tree, given an assumed
-model and model parameters. 
-
-
-The package implements a growing collection of models, which currently includes 
-BM, OU, BM/OU with jumps, 2-speed OU.
-
+  continuous trait data associated with the tips of a phylogenetic tree, under 
+  which the distribution of the trait values is multivariate Gaussian. Examples 
+  of such models are Gaussian continuous time branching stochastic processes 
+  such as Brownian motion (BM) and Ornstein-Uhlenbeck (OU), which regard the 
+  data at the tips of the tree as an observed (final) state of a Markov chain 
+  starting from an initial state at the root and evolving along the branches of 
+  the tree. The PCMBase R package provides a general framework for manipulating 
+  such models. This framework consists of an application programming interface 
+  for specifying data and model parameters, and efficient algorithms for 
+  simulating trait evolution under a model and calculating the likelihood of 
+  model parameters for an assumed model and trait data. The core interface 
+  consists of several S3 generic methods (validateModel, mvcond, AbCdEf, Lmr). 
+  A model represents an object of an S3 class and specializations of the above 
+  methods for this class. These specializations are invoked in the function 
+  mvsim simulating trait evolution from an initial trait vector at the root of 
+  the tree, and the function mvlik calculating the model likelihood, that is the 
+  Gaussian probability density of data observed at the tips of the tree, given 
+  an assumedmodel and model parameters. The package implements a growing 
+  collection of models, which currently includes BM, OU, BM/OU with jumps, 
+  2-speed OU.
 License: GPL (>= 3.0)
 LazyData: true
 Depends:
@@ -43,5 +40,5 @@ Suggests:
     PCMBaseCpp,
     testthat,
     microbenchmark
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 VignetteBuilder: knitr

@@ -1,5 +1,6 @@
 library(phytools)
 library(testthat)
+library(PCMBase)
 
 
 set.seed(1)
@@ -190,11 +191,8 @@ tree.b <- phytools::pbtree(n=N, scale=1)
 traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
 ## Calculate likelihood
-
 lik.BM = mvlik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123)
-
 lik.OU = mvlik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123.OU)
-
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   traits.b.123$values[,1]+traits.b.123$errors[,1],
@@ -222,12 +220,35 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
                                   sqrt(model.b.123$Sigmae[1,3,3]),
                                   b.X0[3]))
 
-
 cat('BM likelihood=',lik.BM,'\n')
 cat('OU likelihood=',lik.OU,'\n')
 cat('POUMM likelihood=',POUMMlik,'\n')
 
 
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime b"),{
-  expect_true( abs(lik.BM - lik.OU ) < EPS)
+  expect_true( abs(lik.BM - lik.OU ) < EPS*1000)
   })
+
+if(require(PCMBaseCpp)) {
+  cat("Testing PCMBaseCpp on BM:\n")
+
+  test_that("a.123",
+            expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
+                         mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
+                               pruneI = newCppObject(X = traits.a.123$values[1:length(tree.a$tip.label), ],
+                                                     tree = tree.a,
+                                                     model.a.123))))
+
+  values <- traits.a.123$values[1:length(tree.a$tip.label), ] + traits.a.123$errors[1:length(tree.a$tip.label), ]
+  values[sample(x=1:length(values), 88)] <- NA
+
+  test_that("a.123 with missing values",
+            expect_equal(mvlik(values, tree.a, model.a.123),
+                         mvlik(tree = tree.a, model = model.a.123,
+                               pruneI = newCppObject(X = values,
+                                                     tree = tree.a,
+                                                     model.a.123))))
+
+}
+
+
