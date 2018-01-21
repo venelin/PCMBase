@@ -60,32 +60,32 @@ b.mj <- c(11, 17, 42)
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
-Alpha <- abind::abind(a.Alpha, b.Alpha, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-Theta <- abind::abind(a.Theta, b.Theta, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-Sigmaj <- abind::abind(a.Sigmaj, b.Sigmaj, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-mj <- abind::abind(a.mj, b.mj, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
+Alpha <- abind::abind(a.Alpha, b.Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Theta <- abind::abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
+Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmaj <- abind::abind(a.Sigmaj, b.Sigmaj, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+mj <- abind::abind(a.mj, b.mj, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
 
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- list(X0 = a.X0,
-                  Alpha=Alpha['a',,,drop=FALSE],
-                  Theta=Theta['a',,drop=FALSE],
-                  Sigma=Sigma['a',,,drop=FALSE],
-                  Sigmae=Sigmae['a',,,drop=FALSE],
-                  Sigmaj=Sigmaj['a',,,drop=FALSE],
-                  mj=mj['a',,drop=FALSE])
+                  Alpha=Alpha[,,'a',drop=FALSE],
+                  Theta=Theta[,'a',drop=FALSE],
+                  Sigma=Sigma[,,'a',drop=FALSE],
+                  Sigmae=Sigmae[,,'a',drop=FALSE],
+                  Sigmaj=Sigmaj[,,'a',drop=FALSE],
+                  mj=mj[,'a',drop=FALSE])
 class(model.a.123) <- 'JOU'
 
 # regime 'b', traits 1, 2 and 3
 model.b.123 <- list(X0 = b.X0,
-                    Alpha=Alpha['b',,,drop=FALSE],
-                    Theta=Theta['b',,drop=FALSE],
-                    Sigma=Sigma['b',,,drop=FALSE],
-                    Sigmae=Sigmae['b',,,drop=FALSE],
-                    Sigmaj=Sigmaj['b',,,drop=FALSE],
-                    mj=mj['b',,drop=FALSE])
+                    Alpha=Alpha[,,'b',drop=FALSE],
+                    Theta=Theta[,'b',drop=FALSE],
+                    Sigma=Sigma[,,'b',drop=FALSE],
+                    Sigmae=Sigmae[,,'b',drop=FALSE],
+                    Sigmaj=Sigmaj[,,'b',drop=FALSE],
+                    mj=mj[,'b',drop=FALSE])
 class(model.b.123) <- 'JOU'
 
 # regimes 'a' and 'b', traits 1, 2 and 3
@@ -155,19 +155,15 @@ if(require(PCMBaseCpp)) {
   test_that("a.123",
             expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
                          mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = newCppObject(X = traits.a.123$values[1:length(tree.a$tip.label), ],
+                               pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
 
   cat("Testing PCMBaseCpp on JOU with missing values:\n")
 
-  values <- traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
-    traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ]
-
-  #nas <- sample(1:length(values), 100)
-  #values[nas] <- NA
-  #x<-sapply(1:dim(a$C)[1], function(i) { if(is.finite(a$C[i,1,1])) eigen(a$C[i,,])$values else c(NA, NA)})
+  values <- traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
+    traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)]
 
   pruneI <- newCppObject(X = values, tree = tree.ab.singles, model.ab.123)
 

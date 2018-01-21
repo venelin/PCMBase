@@ -5,17 +5,15 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
     print('Validating model...')
   }
   if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("ERR:02101:PCMBase:BM.R:validateModel.BM:: Expecting the model to have a member called Sigmae with dimensions
-         R x k x k, where R is the number of regimes and k is the number of
-         traits.")
+    stop("ERR:02101:PCMBase:BM.R:validateModel.BM:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
   }
 
-  R <- dim(model$Sigmae)[1]
-  k <- dim(model$Sigmae)[2]
-  regimesUnique <- dimnames(model$Sigmae)[[1]]
+  R <- dim(model$Sigmae)[3]
+  k <- dim(model$Sigmae)[1]
+  regimesUnique <- dimnames(model$Sigmae)[[3]]
 
   if(is.null(regimesUnique)) {
-    regimesUnique <- 1:dim(model$Sigmae)[[1]]
+    regimesUnique <- 1:dim(model$Sigmae)[[3]]
   }
 
   validateModelGeneral(
@@ -25,7 +23,7 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
       k = k, R = R, regimesUnique = regimesUnique,
       paramNames = list("Sigma", "Sigmae"),
       paramStorageModes = list("double", "double"),
-      paramDims = list(c(R, k, k), c(R, k, k))
+      paramDims = list(c(k, k, R), c(k, k, R))
     ),
     verbose = verbose)
 }
@@ -54,9 +52,12 @@ V.BM <- function(Sigma, threshold0=0) {
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
+#' @importFrom mvtnorm rmvnorm dmvnorm
+#'
+#' @export
 mvcond.BM <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
-    Sigma <- as.matrix(model$Sigma[r,,])
+    Sigma <- as.matrix(model$Sigma[,,r])
 
     if(length(unique(c(dim(Sigma))))!=1) {
       # this is a dummy check to evaluate Theta
@@ -67,9 +68,9 @@ mvcond.BM <- function(tree, model, r=1, verbose=FALSE) {
     fV <- V.BM(Sigma)
 
     mvr <- function(n=1, x0, t, e) {
-      mvtnorm::rmvnorm(n=n,
-                       mean=x0,
-                       sigma=fV(t))
+      rmvnorm(n=n,
+              mean=x0,
+              sigma=fV(t))
     }
     mvd <- function(x, x0, t, e, log=FALSE) {
       dmvnorm(x,
@@ -89,24 +90,24 @@ mvcond.BM <- function(tree, model, r=1, verbose=FALSE) {
 #' @param tree a phylo object (see details)
 #' @param model parameters of the BM process. This must be a
 #' named list with the following elements:
-#' Sigma: a R x k x k array, each Sigma[r,,] containing the
+#' Sigma: a k x k x R array, each Sigma[,,r] containing the
 #' matrix Sigma for regime r;
-#' Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
+#' Sigmae: a k x k x R array, each Sigmae[,,r] representing a diagonal matrix
 #' with elements on the diagona corresponding to the environmental variances for
 #' the k traits in regime r
-#' @param presentCoords a M x k logical matrix representing the present coordinates at each
+#' @param presentCoords a k x M logical matrix representing the present coordinates at each
 #' node
 #'
 #' @details The dimnames
 #'
 #' @return a named list containing the following elements:
-#' A: a M x k x k array, A[i,,] corresponding to Ai for
+#' A: a k x k x M array, A[,,i] corresponding to Ai for
 #' each branch ending at node or tip i;
-#' b: a M x k matrix, b[i,] corresponding to the vectors bi;
-#' C: a M x k x k array, C[i,,] corresponding to the
+#' b: a k x M matrix, b[,i] corresponding to the vectors bi;
+#' C: a k x k x M array, C[,,i] corresponding to the
 #' matrices Ci;
-#' d: a M x k matrix, d[i,] corresponding to the vectors di;
-#' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
+#' d: a k x M matrix, d[,i] corresponding to the vectors di;
+#' E: a k x k x M array, E[,,i] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
 #'
 #' @export
@@ -132,19 +133,19 @@ AbCdEf.BM <- function(tree, model,
   for(r in 1:R) {
 
     # create the V.BM function for regime r
-    fV.BM[[r]] <- V.BM(as.matrix(model$Sigma[r,,]))
+    fV.BM[[r]] <- V.BM(as.matrix(model$Sigma[,,r]))
 
   }
 
-  V <- array(NA, dim=c(M, k, k))
-  V_1 <- array(NA, dim=c(M, k, k))
+  V <- array(NA, dim=c(k, k, M))
+  V_1 <- array(NA, dim=c(k, k, M))
 
   # returned general form parameters
-  A <- array(NA, dim=c(M, k, k))
-  b <- array(NA, dim=c(M, k))
-  C <- array(NA, dim=c(M, k, k))
-  d <- array(NA, dim=c(M, k))
-  E <- array(NA, dim=c(M, k, k))
+  A <- array(NA, dim=c(k, k, M))
+  b <- array(NA, dim=c(k, M))
+  C <- array(NA, dim=c(k, k, M))
+  d <- array(NA, dim=c(k, M))
+  E <- array(NA, dim=c(k, k, M))
   f <- array(NA, dim=c(M))
 
   # vector of regime indices for each branch
@@ -164,32 +165,32 @@ AbCdEf.BM <- function(tree, model,
     ti <- tree$edge.length[e]
 
     # present coordinates in parent and daughte nodes
-    kj <- pc[j,]
-    ki <- pc[i,]
+    kj <- pc[,j]
+    ki <- pc[,i]
 
-    V[i,,] <- fV.BM[[r[e]]](ti)
+    V[,,i] <- fV.BM[[r[e]]](ti)
 
 
     if(i<=N) {
       # add environmental variance at each tip node
-      V[i,,] <- V[i,,] + model$Sigmae[r[e],,]
+      V[,,i] <- V[,,i] + model$Sigmae[,,r[e]]
     }
 
-    V_1[i,ki,ki] <- solve(V[i,ki,ki])
+    V_1[ki,ki,i] <- solve(V[ki,ki,i])
 
     # now compute AbCdEf according to eq (16) in doc.
     # here A is from the general form
-    A[i,ki,ki] <- (-0.5*V_1[i,ki,ki])
+    A[ki,ki,i] <- (-0.5*V_1[ki,ki,i])
 
-    b[i,ki] <- 0
+    b[ki,i] <- 0
 
-    C[i,kj,kj] <- (-0.5*(t(matrix(I[ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki]) %*% matrix(I[ki,kj], sum(ki), sum(kj)))
+    C[kj,kj,i] <- (-0.5*(t(matrix(I[ki,kj], sum(ki), sum(kj))) %*% V_1[ki,ki,i]) %*% matrix(I[ki,kj], sum(ki), sum(kj)))
 
-    d[i,kj] <- 0
+    d[kj,i] <- 0
 
-    E[i,kj,ki] <- (t(matrix(I[ki,kj], sum(ki), sum(kj)))%*%V_1[i,ki,ki])
+    E[kj,ki,i] <- (t(matrix(I[ki,kj], sum(ki), sum(kj)))%*%V_1[ki,ki,i])
 
-    f[i] <- -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))))
+    f[i] <- -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))))
   }
 
   list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)

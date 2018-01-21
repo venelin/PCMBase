@@ -40,14 +40,14 @@ b.Sigmae2 <- rbind(c(.2, 0, 0),
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 # regime 'a', traits 1, 2 and 3
 
 model.a.123 <- list(X0 = a.X0,
-                    Sigma=Sigma['a',,,drop=FALSE],
-                    Sigmae=Sigmae['a',,,drop=FALSE])
+                    Sigma=Sigma[,,'a',drop=FALSE],
+                    Sigmae=Sigmae[,,'a',drop=FALSE])
 class(model.a.123) <- 'BM'
 
 ################ 1st Validation ######################################################
@@ -69,7 +69,7 @@ BMlik = mvlik(X = traits.a.123$values + traits.a.123$errors,
       model = model.a.123)
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
-  traits.a.123$values[,1]+traits.a.123$errors[,1],
+  traits.a.123$values[1,]+traits.a.123$errors[1,],
   tree.a,
   0,
   0,
@@ -78,20 +78,20 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   a.X0[1]) +
 
   POUMM::likPOUMMGivenTreeVTips(
-    traits.a.123$values[,2]+traits.a.123$errors[,2],
+    traits.a.123$values[2,]+traits.a.123$errors[2,],
     tree.a,
     0,
     0,
-    sqrt(model.a.123$Sigma[1,2,2]),
-    sqrt(model.a.123$Sigmae[1,2,2]),
+    sqrt(model.a.123$Sigma[2,2,1]),
+    sqrt(model.a.123$Sigmae[2,2,1]),
     a.X0[2]) +
 
-  POUMM::likPOUMMGivenTreeVTips(traits.a.123$values[,3]+traits.a.123$errors[,3],
+  POUMM::likPOUMMGivenTreeVTips(traits.a.123$values[3,]+traits.a.123$errors[3,],
                                 tree.a,
                                 0,
                                 0,
-                                sqrt(model.a.123$Sigma[1,3,3]),
-                                sqrt(model.a.123$Sigmae[1,3,3]),
+                                sqrt(model.a.123$Sigma[3,3,1]),
+                                sqrt(model.a.123$Sigmae[3,3,1]),
                                 a.X0[3]))
 
 cat('BM likelihood=',BMlik,'\n')
@@ -122,7 +122,7 @@ BMlik = mvlik(X = traits.a.123$values + traits.a.123$errors,
               model = model.a.123)
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
-  traits.a.123$values[,1]+traits.a.123$errors[,1],
+  traits.a.123$values[1,]+traits.a.123$errors[1,],
   tree.a,
   0,
   0,
@@ -131,20 +131,20 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   a.X0[1]) +
 
     POUMM::likPOUMMGivenTreeVTips(
-      traits.a.123$values[,2]+traits.a.123$errors[,2],
+      traits.a.123$values[2,]+traits.a.123$errors[2,],
       tree.a,
       0,
       0,
-      sqrt(model.a.123$Sigma[1,2,2]),
-      sqrt(model.a.123$Sigmae[1,2,2]),
+      sqrt(model.a.123$Sigma[2,2,1]),
+      sqrt(model.a.123$Sigmae[2,2,1]),
       a.X0[2]) +
 
-    POUMM::likPOUMMGivenTreeVTips(traits.a.123$values[,3]+traits.a.123$errors[,3],
+    POUMM::likPOUMMGivenTreeVTips(traits.a.123$values[3,]+traits.a.123$errors[3,],
                                   tree.a,
                                   0,
                                   0,
-                                  sqrt(model.a.123$Sigma[1,3,3]),
-                                  sqrt(model.a.123$Sigmae[1,3,3]),
+                                  sqrt(model.a.123$Sigma[3,3,1]),
+                                  sqrt(model.a.123$Sigmae[3,3,1]),
                                   a.X0[3]))
 
 cat('BM likelihood=',BMlik,'\n')
@@ -165,21 +165,21 @@ b.OU.Alpha <- rbind(c(EPS, 0, 0),
 b.OU.Theta <- c(0, 0, 0)
 
 
-Alpha <- abind::abind(b.OU.Alpha, b.OU.Alpha, along=-1, new.names=list(regime=c('b','b.OU'), x=NULL, y=NULL))
-Theta <- abind::abind(b.OU.Theta, b.OU.Theta, along=-1, new.names=list(regime=c('b', 'b.OU'), xy=NULL))
-Sigma <- abind::abind(b.Sigma, b.Sigma, along=-1, new.names=list(regime=c('b','b.OU'), x=NULL, y=NULL))
-Sigmae <- abind::abind(b.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('b','b.OU'), x=NULL, y=NULL))
+Alpha <- abind::abind(b.OU.Alpha, b.OU.Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
+Theta <- abind::abind(b.OU.Theta, b.OU.Theta, along=2, new.names=list(xy=NULL, regime=c('b', 'b.OU')))
+Sigma <- abind::abind(b.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
+Sigmae <- abind::abind(b.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
 
 model.b.123 <- list(X0 = b.X0,
-                    Sigma=Sigma['b',,,drop=FALSE],
-                    Sigmae=Sigmae['b',,,drop=FALSE])
+                    Sigma=Sigma[,,'b',drop=FALSE],
+                    Sigmae=Sigmae[,,'b',drop=FALSE])
 class(model.b.123) <- 'BM'
 
 model.b.123.OU <- list(X0 = b.X0,
-                       Alpha=Alpha['b.OU',,,drop=FALSE],
-                       Theta=Theta['b.OU',,drop=FALSE],
-                       Sigma=Sigma['b.OU',,,drop=FALSE],
-                       Sigmae=Sigmae['b.OU',,,drop=FALSE])
+                       Alpha=Alpha[,,'b.OU',drop=FALSE],
+                       Theta=Theta[,'b.OU',drop=FALSE],
+                       Sigma=Sigma[,,'b.OU',drop=FALSE],
+                       Sigmae=Sigmae[,,'b.OU',drop=FALSE])
 class(model.b.123.OU) <- 'OU'
 
 context(ctx <- "R=1/k=3/N=400")
@@ -195,7 +195,7 @@ lik.BM = mvlik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, mod
 lik.OU = mvlik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123.OU)
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
-  traits.b.123$values[,1]+traits.b.123$errors[,1],
+  traits.b.123$values[1,]+traits.b.123$errors[1,],
   tree.b,
   0,
   0,
@@ -204,20 +204,20 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   b.X0[1]) +
 
     POUMM::likPOUMMGivenTreeVTips(
-      traits.b.123$values[,2]+traits.b.123$errors[,2],
+      traits.b.123$values[2,]+traits.b.123$errors[2,],
       tree.b,
       0,
       0,
-      sqrt(model.b.123$Sigma[1,2,2]),
-      sqrt(model.b.123$Sigmae[1,2,2]),
+      sqrt(model.b.123$Sigma[2,2,1]),
+      sqrt(model.b.123$Sigmae[2,2,1]),
       b.X0[2]) +
 
-    POUMM::likPOUMMGivenTreeVTips(traits.b.123$values[,3]+traits.b.123$errors[,3],
+    POUMM::likPOUMMGivenTreeVTips(traits.b.123$values[3,]+traits.b.123$errors[3,],
                                   tree.b,
                                   0,
                                   0,
-                                  sqrt(model.b.123$Sigma[1,3,3]),
-                                  sqrt(model.b.123$Sigmae[1,3,3]),
+                                  sqrt(model.b.123$Sigma[3,3,1]),
+                                  sqrt(model.b.123$Sigmae[3,3,1]),
                                   b.X0[3]))
 
 cat('BM likelihood=',lik.BM,'\n')
@@ -235,12 +235,12 @@ if(require(PCMBaseCpp)) {
   test_that("a.123",
             expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
                          mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = newCppObject(X = traits.a.123$values[1:length(tree.a$tip.label), ],
+                               pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
-  values <- traits.a.123$values[1:length(tree.a$tip.label), ] + traits.a.123$errors[1:length(tree.a$tip.label), ]
-  values[sample(x=1:length(values), 88)] <- NA
+  values <- traits.a.123$values[, 1:length(tree.a$tip.label)] + traits.a.123$errors[, 1:length(tree.a$tip.label)]
+  values[sample(x=1:length(values), 50)] <- NA
 
   pruneInfoR <- pruneTree(tree.a)
   pruneInfoCpp <- newCppObject(X = values,
