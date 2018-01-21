@@ -5,7 +5,7 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
     print('Validating model...')
   }
   if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("Expecting the model to have a member called Sigmae with dimensions
+    stop("ERR:02301:PCMBase:JOU.R:validateModel.JOU:: Expecting the model to have a member called Sigmae with dimensions
          R x k x k, where R is the number of regimes and k is the number of
          traits.")
   }
@@ -19,16 +19,16 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
   }
 
   if(is.null(tree$edge.jump)) {
-    stop("Expecting the tree to have a member edge.jump - an integer vector of
+    stop("ERR:02302:PCMBase:JOU.R:validateModel.JOU:: Expecting the tree to have a member edge.jump - an integer vector of
          0's and 1's describing if there is a jump for each branch of the tree.")
   }
 
   if(!all(tree$edge.jump %in% as.integer(0:1))) {
-    stop("Check that tree$edge.jump is an integer vector of 0's and 1's")
+    stop("ERR:02303:PCMBase:JOU.R:validateModel.JOU:: Check that tree$edge.jump is an integer vector of 0's and 1's")
   }
 
   if(length(tree$edge.jump) != nrow(tree$edge)) {
-    stop("Check that tree$edge.jump has nrow(tree$edge) elements.")
+    stop("ERR:02304:PCMBase:JOU.R:validateModel.JOU:: Check that tree$edge.jump has nrow(tree$edge) elements.")
   }
 
   validateModelGeneral(
@@ -46,6 +46,9 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
 PLambdaP_1.JOU <- function(Alpha) {
   # here the argument Alpha is an Alpha matrix specifying the alphas in a JOU process
   r <- eigen(Alpha)
+  if(isTRUE(all.equal(rcond(r$vectors),0))) {
+    stop(paste0("ERR:02311:PCMBase:JOU.R:PLambdaP_1.JOU:: The provided Alpha matrix is defective. Its matrix of eigenvectors is computationally singular. Alpha=", toString(Alpha)))
+  }
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
 
@@ -58,12 +61,20 @@ Lambda_ij.JOU <- function(lambda) {
 #' Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
 #' for every element lambad_{ij} of the input matrix Lambda_ij
 #' @param Lambda_ij a squared numerical matrix of dimension k x k
-#' @param threshold0 numeric threshold value. For |Lambda_{ij}| smaller or equal
-#'  than threshold the limit time is returned.
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
+#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+#'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#'   "PCMBase.Threshold.Lambda_ij". The default value of 1e-8 is suitable for branch lengths bigger than
+#'   1e-6. For smaller branch lengths, you are likely to increase the threshold value using, e.g.
+#'   `options(PCMBase.Threshold.Lambda_ij = 1e-6)`.
 #' @return a function of time returning a matrix with entries formed from the
 #'  above function or the limit time if |Lambda_{ij}|<=trehshold0.
-fLambda_ij.JOU <- function(Lambda_ij, threshold0=0) {
-  idx0 <- which(abs(Lambda_ij)<=threshold0)
+fLambda_ij.JOU <- function(
+  Lambda_ij,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8)) {
+
+  idx0 <- which(abs(Lambda_ij) <= threshold.Lambda_ij)
   function(time) {
     res <- (1-exp(-Lambda_ij*time))/Lambda_ij
     if(length(idx0)>0) {
@@ -75,14 +86,15 @@ fLambda_ij.JOU <- function(Lambda_ij, threshold0=0) {
 
 #' Create a function of time that calculates exp(-Alpha*time)
 #' @param the argument Alpha is an Alpha matrix kxk specifying the alphas in a JOU process
-#' @param threshold0 numeric threshold value.
+#'
+#' @importFrom expm expm
 #' @return a function of time returning a matrix
-texp.JOU <- function(Alpha,threshold0=0){
-    force(Alpha)
-    return(function(time){
-	res = expm::expm(-time*Alpha)
-	return(res)
-	})
+texp.JOU <- function(Alpha){
+  force(Alpha)
+  return(function(time){
+    res = expm(-time*Alpha)
+    return(res)
+  })
 }
 
 #' Generate a multivariate (MV) JOU variance-covariance function
@@ -92,13 +104,23 @@ texp.JOU <- function(Alpha,threshold0=0){
 #' @param Sigma the matrix Sigma of a MV JOU process.
 #' @param Alpha is the matrix Alpha of a MV JOU process.
 #' @param Sigmaj is the variance matrix of the jump distribution in JOU process
-#' @param threshold0
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
+#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+#'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
+#'   1e-6. For smaller branch lengths, you are may want to increase the threshold value using, e.g.
+#'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
 #' @return a function of two numerical arguments (time) and (xi:binary value denoting jump or not) , which calculates the
 #' expected variance covariance matrix of a MV-JOU process after time, given
 #' the specified arguments.
-V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
+#' @export
+V.JOU <- function(
+  lambda, P, P_1, Sigma, Alpha, Sigmaj,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8)) {
+
   Lambda_ij <- Lambda_ij.JOU(lambda)
-  fLambda_ij <- fLambda_ij.JOU(Lambda_ij, threshold0)
+  fLambda_ij <- fLambda_ij.JOU(Lambda_ij, threshold.Lambda_ij)
   P_1SigmaP_t <- P_1%*%Sigma%*%t(P_1)
   force(Alpha)
   force(Sigmaj)
@@ -107,7 +129,7 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
   force(P)
   force(P_1)
 
-  function(time,xi) {
+  function(time, xi) {
     e_Ati <- e_At(time)
     Re((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_Ati %*% Sigmaj %*% t(e_Ati)))
   }
@@ -122,6 +144,8 @@ V.JOU <- function(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0=0) {
 #' x0 (initial k-vector of values), t (numeric time); and a function mvd for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
+#' @importFrom expm expm
+#' @importFrom mvtnorm rmvnorm dmvnorm
 mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     Alpha <- as.matrix(model$Alpha[r,,])
@@ -132,26 +156,20 @@ mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
     xi <- tree$edge.jump
 
     if(length(unique(c(length(Theta), dim(Alpha), dim(mj), dim(Sigmaj), dim(Sigma))))!=1) {
-      # this is a dummy check to evaluate Theta
-      print(paste('dim(Alpha)=', dim(Alpha)))
-      print(paste('length(Theta)=', length(Theta)))
-      print(paste('dim(Sigma)=', dim(Sigma)))
-      print(paste('dim(mj)=', dim(mj)))
-      stop('Some of Alpha, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
+      stop('ERR:02321:PCMBase:JOU.R:mvcond.JOU:: Some of Alpha, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
     }
     PLP_1 <- PLambdaP_1.JOU(Alpha)
     fV <- V.JOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma, Alpha, Sigmaj)
 
     mvr <- function(n=1, x0, t, e) {
-      val = xi[e]
-      e_At <- expm::expm(-t*Alpha)
+      e_At <- expm(-t*Alpha)
       I <- diag(nrow(Alpha))
-      mvtnorm::rmvnorm(n=n,
-                       mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*xi[e],
-                       sigma=fV(t,val))
+      rmvnorm(n=n,
+              mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*xi[e],
+              sigma=fV(t, xi[e]))
     }
     mvd <- function(x, x0, t, e, log=FALSE) {
-      e_At <- expm::expm(-t*Alpha)
+      e_At <- expm(-t*Alpha)
       I <- diag(nrow(Alpha))
       dmvnorm(x,
               mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*xi[e],
@@ -199,6 +217,8 @@ mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
 #'
+#' @importFrom expm expm
+#'
 #' @export
 AbCdEf.JOU <- function(tree, model,
                        metaI=validateModel.JOU(tree, model, verbose=verbose),
@@ -227,8 +247,12 @@ AbCdEf.JOU <- function(tree, model,
     P_1[r,,] <- PLambdaP_1$P_1
     lambda[r,] <- PLambdaP_1$lambda
 
-    fV.JOU[[r]] <- V.JOU(lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
-                         as.matrix(model$Sigma[r,,]), as.matrix(model$Alpha[r,,]), as.matrix(model$Sigmaj[r,,]))
+    fV.JOU[[r]] <- V.JOU(lambda[r,],
+                         as.matrix(P[r,,]),
+                         as.matrix(P_1[r,,]),
+                         as.matrix(model$Sigma[r,,]),
+                         as.matrix(model$Alpha[r,,]),
+                         as.matrix(model$Sigmaj[r,,]))
   }
 
   V <- array(NA, dim=c(M, k, k))
@@ -264,7 +288,7 @@ AbCdEf.JOU <- function(tree, model,
     # present coordinates in parent and daughte nodes
     kj <- pc[j,]
     ki <- pc[i,]
-    V[i,,] <- fV.JOU[[r[e]]](ti,xi[e])
+    V[i,,] <- fV.JOU[[r[e]]](ti, xi[e])
 
     if(i<=N) {
       # add environmental variance at each tip node
@@ -272,17 +296,19 @@ AbCdEf.JOU <- function(tree, model,
     }
 
     V_1[i,ki,ki] <- solve(V[i,ki,ki])
-    e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
+    e_At[i,,] <- expm(-ti*as.matrix(model$A[r[e],,]))
 
     # now compute AbCdEf
     # here A is from the general form (not the alpha from JOU process)
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 
-    b[i,ki] <- V_1[i,ki,ki] %*% ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
+    b[i,ki] <- V_1[i,ki,ki] %*%
+      ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
 
     C[i,kj,kj] <- -0.5*t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% matrix(e_At[i,ki,kj], sum(ki), sum(kj))
 
-    d[i,kj] <- -t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*% ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e])
+    d[i,kj] <- -t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki] %*%
+      ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],] * xi[e])
 
     E[i,kj,ki] <- t(matrix(e_At[i,ki,kj], sum(ki), sum(kj))) %*% V_1[i,ki,ki]
 
@@ -292,6 +318,6 @@ AbCdEf.JOU <- function(tree, model,
               V_1[i,ki,ki] %*% ((matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],] + e_At[i,ki,] %*% model$mj[r[e],]*xi[e]))
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)
+  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V, V_1=V_1)
 }
 

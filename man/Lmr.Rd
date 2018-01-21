@@ -2,10 +2,12 @@
 % Please edit documentation in R/MultivariatePCM.R
 \name{Lmr}
 \alias{Lmr}
-\title{Quadratic polynomial parameters L, m, r for the root node}
+\title{Quadratic polynomial parameters L, m, r}
 \usage{
-Lmr(model, metaI, pruneI)
+Lmr(X, tree, model, metaI = validateModel(tree, model, verbose = verbose),
+  pruneI = pruneTree(tree), pc = presentCoordinates(X, tree, pruneI),
+  root.only = TRUE, verbose = FALSE)
 }
 \description{
-Quadratic polynomial parameters L, m, r for the root node
+Quadratic polynomial parameters L, m, r
 }

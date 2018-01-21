@@ -2,12 +2,10 @@
 #' @export
 validateModel.TwoSpeedOU <- function(tree, model, verbose = FALSE) {
   if(verbose) {
-    print('Validating model...')
+    cat('Validating model...')
   }
   if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("Expecting the model to have a member called Sigmae with dimensions
-         R x k x k, where R is the number of regimes and k is the number of
-         traits.")
+    stop("ERR:02401:PCMBase:TwoSpeedOU.R:validateModel.TwoSpeedOU:: Expecting the model to have a member called Sigmae with dimensions R x k x k, where R is the number of regimes and k is the number of traits.")
   }
 
   R <- dim(model$Sigmae)[1]
@@ -33,6 +31,9 @@ validateModel.TwoSpeedOU <- function(tree, model, verbose = FALSE) {
 PLambdaP_1.TwoSpeedOU <- function(Alpha) {
   # here the argument Alpha is an Alpha matrix specifying the alphas in a TwoSpeedOU process
   r <- eigen(Alpha)
+  if(isTRUE(all.equal(rcond(r$vectors),0))) {
+    stop(paste0("ERR:02411:PCMBase:TwoSpeedOU.R:PLambdaP_1.TwoSpeedOU:: The provided Alpha matrix is defective - its matrix of eigenvectors is computationally singular. Alpha=", toString(Alpha)))
+  }
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
 
@@ -45,12 +46,22 @@ Lambda_ij.TwoSpeedOU <- function(lambda) {
 #' Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
 #' for every element lambad_{ij} of the input matrix Lambda_ij
 #' @param Lambda_ij a squared numerical matrix of dimension k x k
-#' @param threshold0 numeric threshold value. For |Lambda_{ij}| smaller or equal
-#'  than threshold the limit time is returned.
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i
+#'   and Lambda_j are eigenvalues of the parameter matrix Alpha. This
+#'   threshold-value is used as a condition to
+#'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+#'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch
+#'    lengths bigger than 1e-6. For smaller branch lengths, you are may want to
+#'    increase the threshold value using, e.g.
+#'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
 #' @return a function of time returning a matrix with entries formed from the
 #'  above function or the limit time if |Lambda_{ij}|<=trehshold0.
-fLambda_ij.TwoSpeedOU <- function(Lambda_ij, threshold0=0) {
-  idx0 <- which(abs(Lambda_ij)<=threshold0)
+fLambda_ij.TwoSpeedOU <- function(
+  Lambda_ij,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8) ) {
+
+  idx0 <- which(abs(Lambda_ij)<=threshold.Lambda_ij)
   function(time) {
     res <- (1-exp(-Lambda_ij*time))/Lambda_ij
     if(length(idx0)>0) {
@@ -66,13 +77,24 @@ fLambda_ij.TwoSpeedOU <- function(Lambda_ij, threshold0=0) {
 #' @param P matrix of the eigenvectors of the matrix Alpha
 #' @param P_1 inverse eigenvectors matrix
 #' @param Sigma the matrix Sigma of a MV TwoSpeedOU process.
-#' @param threshold0
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i
+#'   and Lambda_j are eigenvalues of the parameter matrix Alpha. This
+#'   threshold-value is used as a condition to
+#'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+#'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch
+#'    lengths bigger than 1e-6. For smaller branch lengths, you are may want to
+#'    increase the threshold value using, e.g.
+#'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
 #' @return a function of one numerical argument (time), which calculates the
 #' expected variance covariance matrix of a MV-TwoSpeedOU process after time, given
 #' the specified arguments.
-V.TwoSpeedOU <- function(lambda, P, P_1, Sigma, threshold0=0) {
+V.TwoSpeedOU <- function(
+  lambda, P, P_1, Sigma,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8) ) {
+
   Lambda_ij <- Lambda_ij.TwoSpeedOU(lambda)
-  fLambda_ij <- fLambda_ij.TwoSpeedOU(Lambda_ij, threshold0)
+  fLambda_ij <- fLambda_ij.TwoSpeedOU(Lambda_ij, threshold.Lambda_ij)
   P_1SigmaP_t <- P_1%*%Sigma%*%t(P_1)
 
   force(P)
@@ -99,12 +121,7 @@ mvcond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
     Sigma <- as.matrix(model$Sigma[r,,])
 
     if(length(unique(c(length(Theta), dim(Alpha1), dim(Alpha2), dim(Sigma))))!=1) {
-      # this is a dummy check to evaluate Theta
-      print(paste('dim(Alpha1)=', dim(Alpha1)))
-      print(paste('dim(Alpha2)=', dim(Alpha2)))
-      print(paste('length(Theta)=', length(Theta)))
-      print(paste('dim(Sigma)=', dim(Sigma)))
-      stop('Some of Alpha1, Alpha2, Theta or Sigma has a wrong dimension.')
+      stop('ERR:02421:PCMBase:TwoSpeedOU.R:mvcond.TwoSpeedOU:: Some of Alpha1, Alpha2, Theta or Sigma has a wrong dimension.')
     }
     PLP_1 <- PLambdaP_1.TwoSpeedOU(Alpha2)
     fV <- V.TwoSpeedOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
@@ -191,8 +208,9 @@ AbCdEf.TwoSpeedOU <- function(tree, model,
     lambda[r,] <- PLambdaP_1$lambda
 
     # create the V.TwoSpeedOU function for regime r
-    fV.TwoSpeedOU[[r]] <- V.TwoSpeedOU(lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
-                       as.matrix(model$Sigma[r,,]))
+    fV.TwoSpeedOU[[r]] <- V.TwoSpeedOU(
+      lambda[r,], as.matrix(P[r,,]), as.matrix(P_1[r,,]),
+      as.matrix(model$Sigma[r,,]))
   }
 
   V <- array(NA, dim=c(M, k, k))
@@ -255,5 +273,5 @@ AbCdEf.TwoSpeedOU <- function(tree, model,
               V_1[i,ki,ki] %*% (matrix(I[ki,]-e_A1t[i,ki,], sum(ki))) %*% model$Theta[r[e],])
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_A1t, V=V)
+  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_A1t, V=V, V_1=V_1)
 }

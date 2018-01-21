@@ -4,7 +4,8 @@
 \alias{V.OU}
 \title{Generate a multivariate (MV) OU variance-covariance function}
 \usage{
-V.OU(lambda, P, P_1, Sigma, threshold0 = 0)
+V.OU(lambda, P, P_1, Sigma,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-08))
 }
 \arguments{
 \item{lambda}{vector of the eignevalues of the matrix Alpha of a MV OU process.}
@@ -14,6 +15,14 @@ V.OU(lambda, P, P_1, Sigma, threshold0 = 0)
 \item{P_1}{inverse eigenvectors matrix}
 
 \item{Sigma}{the matrix Sigma of a MV OU process.}
+
+\item{threshold.Lambda_ij}{a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
+eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+`(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+"PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
+1e-6. For smaller branch lengths, you are may want to increase the threshold value using, e.g.
+`options(PCMBase.Threshold.Lambda_ij=1e-6)`.}
 
 \item{Sigmae}{optional additional error (environmental) variance covariance
 matrix or single number (if the error has the same variance for all dimensions).

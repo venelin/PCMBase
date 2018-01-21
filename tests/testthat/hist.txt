@@ -1,0 +1,100 @@
+source("test-JOU.R")
+source("test-JOU.R")
+source("test-JOU.R")
+QuadrPolyCoefsAbCdEf$A
+dim(QuadrPolyCoefsAbCdEf$A)
+lapply(1:12, function(i) print(QuadrPolyCoefsAbCdEfd$A[i,,]))
+lapply(1:12, function(i) print(QuadrPolyCoefsAbCdEf$A[i,,]))
+pruneI$tree$OrderNodes( 1:12)
+pruneI$tree$OrderNodes( 1:12) + 1
+lapply(pruneI$tree$OrderNodes( 1:12) + 1, function(i) print(pruneI$A[,,i]))
+lapply(pruneI$tree$OrderNodes( 1:12) + 1, function(i) print(pruneI$spec$A[,,i]))
+lapply(pruneI$tree$OrderNodes( 1:12 ) + 1, function(i) print(pruneI$spec$A[,,i]))
+pruneI$tree$OrderNodes( 1:12)
+pruneI$tree$OrderNodes( 1:12) +1
+lapply(1:12, function(i) print(QuadrPolyCoefsAbCdEf$A[i,,]))
+QuadrPolyCoefsAbCdEf$A
+dim(QuadrPolyCoefsAbCdEf$A
+)
+QuadrPolyCoefsAbCdEf$A[1,,
+]
+pruneI$spec$A[,,1]
+QuadrPolyCoefsAbCdEf$A[2,,]
+pruneI$spec$A[,,2]
+QuadrPolyCoefsAbCdEf$A[3,,]
+pruneI$spec$A[,,3]
+QuadrPolyCoefsAbCdEf$A[4,,]
+pruneI$spec$A[,,4]
+QuadrPolyCoefsAbCdEf$A[5,,]
+pruneI$spec$A[,,5]
+pruneI$spec$A[,,6]
+QuadrPolyCoefsAbCdEf$A[6,,]
+QuadrPolyCoefsAbCdEf$A[7,,]
+pruneI$spec$A[,,7]
+QuadrPolyCoefsAbCdEf$A[7,,]
+pruneI$spec$A[,,pruneI$tree$FindIdOfNode(7) + 1]
+
+with(pruneInfoCpp$spec,
+  cbind(
+
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    isTRUE(all.equal(a$A[i,,], A[,,pruneInfoCpp$tree$FindIdOfNode(i) + 1]))
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    isTRUE(all.equal(a$b[i,], b[,pruneInfoCpp$tree$FindIdOfNode(i) + 1]))
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    isTRUE(all.equal(a$C[i,,], C[,,pruneInfoCpp$tree$FindIdOfNode(i) + 1]))
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    isTRUE(all.equal(a$d[i,], d[,pruneInfoCpp$tree$FindIdOfNode(i) + 1]))
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    isTRUE(all.equal(a$E[i,,], E[,,pruneInfoCpp$tree$FindIdOfNode(i) + 1]))
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    isTRUE(all.equal(a$f[i], f[pruneInfoCpp$tree$FindIdOfNode(i) + 1]))
+    })
+    )
+  )
+
+maxDelta<-function(a, b) max(abs(a-b))
+with(pruneInfoCpp1$spec,
+  cbind(
+
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    maxDelta(a$A[i,,], A[,,pruneInfoCpp$tree$FindIdOfNode(i) + 1])
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    maxDelta(a$b[i,], b[,pruneInfoCpp$tree$FindIdOfNode(i) + 1])
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    maxDelta(a$C[i,,], C[,,pruneInfoCpp$tree$FindIdOfNode(i) + 1])
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    maxDelta(a$d[i,], d[,pruneInfoCpp$tree$FindIdOfNode(i) + 1])
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    maxDelta(a$E[i,,], E[,,pruneInfoCpp$tree$FindIdOfNode(i) + 1])
+    }),
+  sapply(1:length(unique(as.vector(tree$edge))), function(i) {
+    maxDelta(a$f[i], f[pruneInfoCpp$tree$FindIdOfNode(i) + 1])
+    })
+    )
+  )
+
+
+
+)
+pruneI$spec$A[,,pruneI$tree$FindIdOfNode(6) + 1])
+pruneI$spec$A[,,pruneI$tree$FindIdOfNode(6) + 1]
+for(i in 1:12) print(all.equal(QuadrPolyCoefsAbCdEf$b[i,], pruneI$spec$b[,pruneI$tree$FindIdOfNode(i) + 1]))
+for(i in 1:12) print(all.equal(QuadrPolyCoefsAbCdEf$C[i,,], pruneI$spec$C[,,pruneI$tree$FindIdOfNode(i) + 1]))
+for(i in 1:12) print(all.equal(QuadrPolyCoefsAbCdEf$d[i,], pruneI$spec$d[,pruneI$tree$FindIdOfNode(i) + 1]))
+for(i in 1:12) print(all.equal(QuadrPolyCoefsAbCdEf$E[i,,], pruneI$spec$E[,,pruneI$tree$FindIdOfNode(i) + 1]))
+for(i in 1:12) print(all.equal(QuadrPolyCoefsAbCdEf$f[i,], pruneI$spec$f[,pruneI$tree$FindIdOfNode(i) + 1]))
+for(i in 1:12) print(all.equal(QuadrPolyCoefsAbCdEf$f[i], pruneI$spec$f[pruneI$tree$FindIdOfNode(i) + 1]))
+source("test-JOU.R")
+history()
+?history
+savehistory(file="hist.txt")

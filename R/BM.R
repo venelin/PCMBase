@@ -5,7 +5,7 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
     print('Validating model...')
   }
   if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("Expecting the model to have a member called Sigmae with dimensions
+    stop("ERR:02101:PCMBase:BM.R:validateModel.BM:: Expecting the model to have a member called Sigmae with dimensions
          R x k x k, where R is the number of regimes and k is the number of
          traits.")
   }
@@ -61,7 +61,7 @@ mvcond.BM <- function(tree, model, r=1, verbose=FALSE) {
     if(length(unique(c(dim(Sigma))))!=1) {
       # this is a dummy check to evaluate Theta
       print(paste('dim(Sigma)=', dim(Sigma)))
-      stop('Sigma has a wrong dimension.')
+      stop('ERR:02102:PCMBase:BM.R:mvcond.BM:: Sigma has a wrong dimension.')
     }
 
     fV <- V.BM(Sigma)
@@ -192,5 +192,5 @@ AbCdEf.BM <- function(tree, model,
     f[i] <- -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[i,ki,ki]))))
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f,V=V)
+  list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
 }

@@ -4,11 +4,9 @@
 \alias{texp.JOU}
 \title{Create a function of time that calculates exp(-Alpha*time)}
 \usage{
-texp.JOU(Alpha, threshold0 = 0)
+texp.JOU(Alpha)
 }
 \arguments{
-\item{threshold0}{numeric threshold value.}
-
 \item{the}{argument Alpha is an Alpha matrix kxk specifying the alphas in a JOU process}
 }
 \value{

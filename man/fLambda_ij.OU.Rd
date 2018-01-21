@@ -5,13 +5,19 @@
 \title{Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
 for every element lambda_{ij} of the input matrix Lambda_ij}
 \usage{
-fLambda_ij.OU(Lambda_ij, threshold0 = 0)
+fLambda_ij.OU(Lambda_ij,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-08))
 }
 \arguments{
 \item{Lambda_ij}{a squared numerical matrix of dimension k x k}
 
-\item{threshold0}{numeric threshold value. For |Lambda_{ij}| smaller or equal
-than threshold the limit time is returned.}
+\item{threshold.Lambda_ij}{a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
+eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+`(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+"PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
+1e-6. For smaller branch lengths, you are may want to increase the threshold value using, e.g.
+`options(PCMBase.Threshold.Lambda_ij=1e-6)`.}
 }
 \value{
 a function of time returning a matrix with entries formed from the

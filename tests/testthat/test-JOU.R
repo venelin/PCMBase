@@ -1,4 +1,4 @@
-library(phytools)
+library(ape)
 library(testthat)
 library(mvtnorm)
 library(PCMBase)
@@ -106,26 +106,30 @@ N <- 400
 
 # tree with one regime
 
-tree.a <- phytools::pbtree(n=N, scale=1)
-tree.b <- phytools::pbtree(n=N, scale=1)
+tree.a <- rtree(N) #phytools::pbtree(n=N, scale=1)
+tree.b <- rtree(N) #phytools::pbtree(n=N, scale=1)
 
 
 tree.a$edge.jump <- sample(as.integer(0:1), size = nrow(tree.a$edge), replace = TRUE)
 tree.b$edge.jump <- tree.a$edge.jump
 
-# tree with two regimes
+if(require(phytools)) {
+  # tree with two regimes
+  tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
 
-tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
-
-# convert the simmap tree to a normal phylo object with singleton nodes at the
-# within-branch regime changes. The regimes are encoded as names of the edge.length
-# vector
-tree.ab.singles <- map.to.singleton(tree.ab)
+  # convert the simmap tree to a normal phylo object with singleton nodes at the
+  # within-branch regime changes. The regimes are encoded as names of the edge.length
+  # vector
+  tree.ab.singles <- map.to.singleton(tree.ab)
+  tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
+  # generate traits
+} else {
+  tree.ab <- tree.a
+  tree.ab$edge.regime <- sample(c("a", "b"), size = length(tree.ab$edge.length), replace = TRUE)
+  tree.ab.singles <- tree.ab
+}
 
 tree.ab.singles$edge.jump = sample(as.integer(0:1), size = nrow(tree.ab.singles$edge), replace = TRUE)
-
-tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
-# generate traits
 
 traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
@@ -143,6 +147,8 @@ JOU.lik.a <-  mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123
 JOU.lik.b <-  mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
 JOU.lik.ab <-  mvlik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
 
+
+
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on JOU:\n")
 
@@ -159,8 +165,9 @@ if(require(PCMBaseCpp)) {
   values <- traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
     traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ]
 
-  nas <- sample(1:length(values), 100)
-  values[nas] <- NA
+  #nas <- sample(1:length(values), 100)
+  #values[nas] <- NA
+  #x<-sapply(1:dim(a$C)[1], function(i) { if(is.finite(a$C[i,1,1])) eigen(a$C[i,,])$values else c(NA, NA)})
 
   pruneI <- newCppObject(X = values, tree = tree.ab.singles, model.ab.123)
 

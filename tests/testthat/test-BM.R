@@ -1,4 +1,4 @@
-library(phytools)
+library(ape)
 library(testthat)
 library(PCMBase)
 
@@ -58,7 +58,7 @@ context(ctx <- "R=1/k=3/N=2")
 N <- 2
 
 # tree with one regime
-tree.a <- phytools::pbtree(n=N, scale=1)
+tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
 
 # generate traits
 
@@ -109,7 +109,7 @@ context(ctx <- "R=1/k=3/N=400")
 # number of tips
 N <- 400
 
-tree.a <- phytools::pbtree(n=N, scale=1)
+tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
 
 # generate traits
 
@@ -186,7 +186,7 @@ context(ctx <- "R=1/k=3/N=400")
 
 N=400
 
-tree.b <- phytools::pbtree(n=N, scale=1)
+tree.b <- rtree(N) # phytools::pbtree(n=N, scale=1)
 
 traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
@@ -242,12 +242,31 @@ if(require(PCMBaseCpp)) {
   values <- traits.a.123$values[1:length(tree.a$tip.label), ] + traits.a.123$errors[1:length(tree.a$tip.label), ]
   values[sample(x=1:length(values), 88)] <- NA
 
+  pruneInfoR <- pruneTree(tree.a)
+  pruneInfoCpp <- newCppObject(X = values,
+                               tree = tree.a,
+                               model.a.123)
+
   test_that("a.123 with missing values",
             expect_equal(mvlik(values, tree.a, model.a.123),
                          mvlik(tree = tree.a, model = model.a.123,
-                               pruneI = newCppObject(X = values,
-                                                     tree = tree.a,
-                                                     model.a.123))))
+                               pruneI = pruneInfoCpp)))
+
+
+  if(require(microbenchmark)) {
+    cat("microbenchmark test")
+
+    options(PCMBase.Lmr.mode=11)
+    print(microbenchmark(
+      mvlik(values, tree.a, model.a.123, pruneI = pruneInfoR),
+      mvlik(values, tree.a, model.a.123, pruneI = pruneInfoCpp), times = 10
+    ))
+
+    options(PCMBase.Lmr.mode=21)
+    print(microbenchmark(
+      mvlik(values, tree.a, model.a.123, pruneI = pruneInfoCpp)
+    ))
+  }
 
 }
 

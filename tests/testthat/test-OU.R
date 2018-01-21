@@ -1,4 +1,4 @@
-library(phytools)
+library(ape)
 library(testthat)
 library(PCMBase)
 
@@ -121,7 +121,7 @@ context(ctx <- "R=1/k=1/N=2")
 N <- 2
 
 # tree with one regime
-tree.a <- phytools::pbtree(n=N, scale=1)
+tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
 tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 # generate traits
@@ -175,7 +175,7 @@ context(ctx <- "R=1/k=1/N=400")
 N <- 400
 
 # tree with one regime
-tree.a <- pbtree(n=N, scale=1)
+tree.a <- rtree(N) # pbtree(n=N, scale=1)
 tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 # generate traits
@@ -299,14 +299,20 @@ plot(traits.a.1$values)
 
 traits.b.123 <- mvsim(tree.a, model.b.123, c(0,0,0), verbose=TRUE)
 
-tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
-tree.ab$edge.regime <- names(tree.ab$edge.length)
+if(require(phytools)) {
+  tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
+  tree.ab$edge.regime <- names(tree.ab$edge.length)
 
-# convert the simmap tree to a normal phylo object with singleton nodes at the
-# within-branch regime changes. The regimes are encoded as names of the edge.length
-# vector
-tree.ab.singles <- map.to.singleton(tree.ab)
-tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
+  # convert the simmap tree to a normal phylo object with singleton nodes at the
+  # within-branch regime changes. The regimes are encoded as names of the edge.length
+  # vector
+  tree.ab.singles <- map.to.singleton(tree.ab)
+  tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
+} else {
+  tree.ab <- tree.a
+  tree.ab$edge.regime <- sample(c("a", "b"), size = length(tree.ab$edge.length), replace = TRUE)
+  tree.ab.singles <- tree.ab
+}
 
 traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
@@ -330,14 +336,17 @@ if(require(PCMBaseCpp)) {
 
 
   values <- traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] + traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ]
-  values[sample(x=1:length(values), 88)] <- NA
+  #values[sample(x=1:length(values), 88)] <- NA
 
+  pruneInfoR <- pruneTree(tree.ab.singles)
+  pruneInfoCpp <- newCppObject(X = values,
+                               tree = tree.ab.singles,
+                               model.ab.123)
   test_that("ab.123 with missing values",
-            expect_equal(mvlik(values, tree.ab.singles, model.ab.123),
+            expect_equal(mvlik(values, tree.ab.singles, model.ab.123,
+                               pruneI = pruneInfoR),
                          mvlik(values, tree.ab.singles, model.ab.123,
-                               pruneI = newCppObject(X = values,
-                                                     tree = tree.ab.singles,
-                                                     model.ab.123))))
+                               pruneI = pruneInfoCpp)))
 
   print(mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
         pruneI = newCppObject(X = traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
@@ -349,5 +358,22 @@ if(require(PCMBaseCpp)) {
               pruneI = newCppObject(X = values,
                                     tree = tree.ab.singles,
                                     model.ab.123)))
+
+
+  if(require(microbenchmark)) {
+    cat("microbenchmark test")
+
+    options(PCMBase.Lmr.mode=11)
+    print(microbenchmark(
+      mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
+      mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp),
+      times = 10
+    ))
+
+    options(PCMBase.Lmr.mode=21)
+    print(microbenchmark(
+      mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
+    ))
+  }
 }
 

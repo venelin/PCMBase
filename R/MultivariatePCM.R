@@ -182,7 +182,7 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
     }
   }
   if(any(rowSums(pc) == 0)) {
-    stop("Some tips have 0 present coordinates. Consider removing these tips.")
+    stop("ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.")
   }
   pc
 }
@@ -227,7 +227,7 @@ mvsim <- function(
   verbose = FALSE) {
 
   if(length(X0)!=metaI$k) {
-    stop(paste('X0 must be of length', metaI$k, '.'))
+    stop(paste('ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length', metaI$k, '.'))
   }
 
   values <- errors <- matrix(0, nrow=dim(tree$edge)[1]+1, ncol=metaI$k)
@@ -309,11 +309,11 @@ specifyModel <- function(tree, modelName,
                          ...) {
 
   if(class(tree) != "phylo") {
-    stop("In specifyModel: tree should be an object of S3 class 'phylo'.")
+    stop("ERR:02003:PCMBase:MultivariatePCM.R:specifyModel:: tree should be an object of S3 class 'phylo'.")
   }
 
   if(!is.character(modelName) & length(modelName) == 1) {
-    stop("In specifyModel: modelName should be a character string.")
+    stop("ERR:02004:PCMBase:MultivariatePCM.R:specifyModel:: modelName should be a character string.")
   }
 
   spec <- list(
@@ -328,15 +328,12 @@ specifyModel <- function(tree, modelName,
   )
 
   if(! (storage.mode(regimesUnique) %in% c("integer", "character")) ) {
-    stop("In specifyModel: the storage mode of regimesUnique should be either
-         integer or character")
+    stop("ERR:02005:PCMBase:MultivariatePCM.R:specifyModel:: the storage mode of regimesUnique should be either integer or character")
   }
 
   if( storage.mode(regimesUnique) == "integer" ) {
     if(!identical(regimesUnique, 1:max(regimesUnique)))
-      stop("In specifyModel: when regimesUnique is integer it should be an
-           integer vector from 1 to max(regimesUnique), so it can be used as
-           index in an array.")
+      stop("ERR:02006:PCMBase:MultivariatePCM.R:specifyModel:: when regimesUnique is integer it should be an integer vector from 1 to max(regimesUnique), so it can be used as index in an array.")
   }
 
   paramDims = with(
@@ -352,40 +349,38 @@ specifyModel <- function(tree, modelName,
   spec[["paramDims"]] <- paramDims
 
   if(spec[["k"]] <= 0) {
-    stop("In specifyModel: k should be a positive integer.")
+    stop(paste0("ERR:02007:PCMBase:MultivariatePCM.R:specifyModel:: k should be a positive integer but was ", spec[["k"]], "."))
   }
   if(spec[["R"]] <= 0) {
-    stop("In specifyModel: R should be a positive integer.")
+    stop(paste0("ERR:02008:PCMBase:MultivariatePCM.R:specifyModel:: R should be a positive integer but was", spec[["R"]], "."))
   }
 
   if(spec[["N"]] <= 0) {
-    stop("In specifyModel: The tree should have at least one tip.")
+    stop(paste0("ERR:02009:PCMBase:MultivariatePCM.R:specifyModel:: The tree should have at least one tip but N was ", spec[["N"]], "."))
   }
 
   if(spec[["M"]] <= 1) {
-    stop("In specifyModel: The tree should have at least two nodes,
-         that is, a minimum of one tip and one root-node.")
+    stop(paste0("ERR:02010:PCMBase:MultivariatePCM.R:specifyModel:: The tree should have at least two nodes, that is, a minimum of one tip and one root-node but M was ", spec[["M"]], "."))
   }
 
   lapply(spec[["paramDims"]], function(dim) {
    if(any(is.na(dim)) | any(dim <= 0)) {
-     stop(paste0("In specifyModel: paramDims should be a list of  positive integer vectors or a vector of characters, each of which can be parsed into a positive  integer vector, but was :",
-                 toString(paramDims)))
+     stop(paste0("ERR:02011:PCMBase:MultivariatePCM.R:specifyModel:: paramDims should be a list of  positive integer vectors or a vector of characters, each of which can be parsed into a positive  integer vector, but was ", toString(paramDims)))
    }
   })
 
   nParams <- length(paramNames)
 
   if(length(paramStorageModes) != nParams) {
-    stop("In specifyModel: paramStorageModes should be the same length as paramNames.")
+    stop(paste0("ERR:02012:PCMBase:MultivariatePCM.R:specifyModel:: paramStorageModes should be the same length as paramNames but its length was ", length(paramStorageModes), "."))
   }
 
   if(!all(paramStorageModes %in% c("character", "integer", "double", "complex", "logical"))) {
-    stop('In specifyModel: all paramStorageModes should be in {"character", "integer", "double", "complex", "logical"}.')
+    stop('ERR:02013:PCMBase:MultivariatePCM.R:specifyModel:: all paramStorageModes should be in {"character", "integer", "double", "complex", "logical"}.')
   }
 
   if(length(paramDims) != nParams) {
-    stop("In specifyModel: paramDims should be the same length as paramNames.")
+    stop("ERR:02014:PCMBase:MultivariatePCM.R:specifyModel:: paramDims should be the same length as paramNames but its length was ", length(paramDims), ".")
   }
 
   class(spec) <- "ModelSpecification"
@@ -400,17 +395,14 @@ specifyModel <- function(tree, modelName,
 #'   printed on the screen during validation.
 #'
 validateModelGeneral <- function(tree, model, modelSpec, verbose) {
-  if(class(model) != modelSpec$modelName) {
-    stop(paste0("The model object should be of S3 class: ",
-                modelSpec$modelName))
+  if(class(model)[[1]] != modelSpec$modelName) {
+    stop(paste0("ERR:02020:PCMBase:MultivariatePCM.R:validateModelGeneral:: The model object should be of S3 class: ", modelSpec$modelName, " but was of class ", class(model)[[1]], "."))
   }
   nParams <- length(modelSpec$paramNames)
 
   if(!all(modelSpec$paramNames %in% names(model))) {
-    stop("model should be a named list with elements",
-         toString(modelSpec$paramNames))
+    stop(paste0("ERR:02021:PCMBase:MultivariatePCM.R:validateModelGeneral:: model should be a named list with elements ", toString(modelSpec$paramNames)))
   }
-
 
   # number of tips
   N <- length(tree$tip.label)
@@ -422,7 +414,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
   }
 
   if(N != modelSpec$N | M != modelSpec$M) {
-    stop("validateModelGeneral(): the numbers of tips and nodes in tree do not match modelSpec$N and modelSpec$M.")
+    stop("ERR:02022:PCMBase:MultivariatePCM.R:validateModelGeneral:: the numbers of tips and nodes in tree do not match modelSpec$N and modelSpec$M.")
   }
 
   # number of regimes
@@ -455,7 +447,9 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
   } else {
     regimes <- match(tree$edge.regime, modelSpec$regimesUnique)
     if(any(is.na(regimes))) {
-      stop(paste0("Some of the regimes in tree$edge.regime not found in",
+      stop(paste0("ERR:02023:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
+                  toString(tree$edge.regime),":",
+                  " Some of the regimes in tree$edge.regime not found in",
                   "modelSpec$regimesUnique.\n",
                   "tree$edge.regime=", toString(tree$edge.regime), "\n",
                   "modelSpec$regimesUnique=", toString(modelSpec$regimesUnique)))
@@ -468,6 +462,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
     paramDim_i <- modelSpec$paramDims[[i]]
     if(storage.mode(model[[paramName_i]]) != storageMode_i) {
       stop(paste0(
+        "ERR:02024:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
         paramName_i, " should have a storage mode ", storageMode_i,
         " but has storageMode", storage.mode(model[[paramName_i]]), "."))
     }
@@ -475,6 +470,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
       # a vector or an atom
       if(length(model[[paramName_i]]) != paramDim_i) {
         stop(paste0(
+          "ERR:02025:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
           paramName_i, " should be a vector of length ", paramDim_i,
           " but has length ", length(model[[paramName_i]])
         ))
@@ -482,6 +478,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
     } else {
       if(!identical(dim(model[[paramName_i]]), paramDim_i)) {
         stop(paste0(
+          "ERR:02024:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
           paramName_i, " should have dimension ", toString(paramDim_i),
           " but has dimension ", dim(model[[paramName_i]]), "."
         ))
@@ -505,149 +502,360 @@ AbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
   UseMethod("AbCdEf", model)
 }
 
-#' Quadratic polynomial parameters L, m, r for the root node
-Lmr <- function(model, metaI, pruneI) {
-  UseMethod("Lmr", model)
+#' Quadratic polynomial parameters L, m, r
+#' @export
+Lmr <- function(X, tree, model,
+                metaI = validateModel(tree, model, verbose = verbose),
+                pruneI = pruneTree(tree),
+                pc = presentCoordinates(X, tree, pruneI),
+                root.only = TRUE, verbose = FALSE) {
+  UseMethod("Lmr", pruneI)
 }
+
+#' Defaut R-implementation of Lmr
+#' @details This funciton is not a generic S3 implementation of Lmr - it needs
+#' additional raguments and is designed to be called by mvlik. It can still
+#' be called by the end-user for debugging purpose.
+#' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree.
+#' @export
+Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
+                       pruneI = pruneTree(tree),
+                       pc = presentCoordinates(X, tree, pruneI),
+                       root.only = FALSE,
+                       verbose = FALSE) {
+  unJ <- 1
+
+  N <- metaI$N; M <- metaI$M; k <- metaI$k;
+
+  edge <- tree$edge
+  endingAt <- pruneI$endingAt
+  nodesVector <- pruneI$nodesVector
+  nodesIndex <- pruneI$nodesIndex
+  nLevels <- pruneI$nLevels
+  unVector <- pruneI$unVector
+  unIndex <- pruneI$unIndex
+
+
+  L <- array(0, dim=c(M, k, k))
+  m <- array(0, dim=c(M, k))
+  r <- array(0, dim=c(M))
+
+  # needed for the determinant
+  # total number of observed (non-missing) traits for all tips.
+  logDetV <- array(0, dim=c(M))
+
+  AbCdEf <- AbCdEf(tree = tree, model = model,
+                   metaI = metaI,
+                   pc = pc, verbose = verbose)
+
+  threshold_SV <- getOption("PCMBase.Threshold.SV", 1e-6)
+
+  # avoid redundant calculation
+  log2pi <- log(2*pi)
+
+  for(level in 1:nLevels) {
+    nodes <- nodesVector[(nodesIndex[level]+1):nodesIndex[level+1]]
+    es <- endingAt[nodes]
+
+    if(nodes[1] <= N) {
+      # all es pointing to tips
+      #L[nodes,,] <- AbCdEf$C[nodes,,]
+
+      for(e in es) {
+        # parent and daughter nodes
+        j <- edge[e, 1]; i <- edge[e, 2];
+        # present coordinates
+        kj <- pc[j,]; ki <- pc[i,];
+
+
+        # check that V[i,ki,ki] is non-singular
+        #print(AbCdEf$V[i,ki,ki])
+        svdV = svd(matrix(AbCdEf$V[i,ki,ki], sum(ki)), 0, 0)$d
+        if(min(svdV)/max(svdV) < threshold_SV) {
+          err <- paste0(
+            "ERR:02031:PCMBase:MultivariatePCM.R:Lmr.default:",i,":",
+            " The matrix V for node ", i,
+            " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
+            ". Check the model parameters and the length of the branch",
+            " leading to the node. For details on this error, read the User Guide.")
+          stop(err)
+        }
+
+        # ensure symmetry of L[i,,]
+        L[i,,] <- 0.5 * (AbCdEf$C[i,,] + t(AbCdEf$C[i,,]))
+
+        r[i] <- with(AbCdEf, t(X[i,ki]) %*% A[i,ki,ki] %*% X[i,ki] +
+                       t(X[i,ki]) %*% b[i,ki] + f[i])
+
+        m[i,kj] <- with(AbCdEf, d[i,kj] + matrix(E[i,kj,ki], sum(kj), sum(ki)) %*% X[i,ki])
+
+        #logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
+
+        #K <- K + sum(ki)
+      }
+    } else {
+      # edges pointing to internal nodes, for which all children
+      # nodes have been visited
+      for(e in es) {
+        # parent and daughter nodes
+        j <- edge[e, 1]; i <- edge[e, 2];
+        # present coordinates
+        kj <- pc[j,]; ki <- pc[i,];
+
+        # check that V[i,ki,ki] is non-singular
+        svdV = svd(matrix(AbCdEf$V[i,ki,ki], sum(ki)), 0, 0)$d
+        if(min(svdV)/max(svdV) < threshold_SV) {
+          err <- paste0(
+            "ERR:02031:PCMBase:MultivariatePCM.R:Lmr.default:",i,":",
+            " The matrix V for node ", i,
+            " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
+            ", det(V)=", det(matrix(AbCdEf$V[i,ki,ki], sum(ki))),
+            ". Check the model parameters and the length of the branch",
+            " leading to the node. For details on this error, read the User Guide.")
+          stop(err)
+        }
+
+
+
+        # auxilary variables to avoid redundant evaluation
+        AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
+        # ensure symmetry of AplusL, this should guarantee that AplusL_1 is symmetric
+        # as well (unless solve-implementation is buggy.)
+        AplusL <- 0.5 * (AplusL + t(AplusL))
+
+        AplusL_1 <- solve(AplusL)
+
+        EAplusL_1 <- matrix(AbCdEf$E[i,kj,ki], sum(kj), sum(ki)) %*% AplusL_1
+        logDetVNode <- log(det(-2*AplusL))
+
+        # here it is important that we first evaluate r[i] and then m[i,kj]
+        # since the expression for r[i] refers to to the value of m[i,ki]
+        # before updating it.
+        r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
+                       .25*t(b[i,ki]+m[i,ki]) %*% AplusL_1 %*% (b[i,ki]+m[i,ki]))
+
+        m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
+
+        L[i,kj,kj] <- with(
+          AbCdEf,
+          C[i,kj,kj] -.25*EAplusL_1 %*% t(matrix(E[i,kj,ki], sum(kj), sum(ki))))
+
+        # ensure symmetry of L:
+        L[i,kj,kj] <- 0.5 * (L[i,kj,kj] + t(L[i,kj,kj]))
+
+        #logDetV[i] <- logDetV[i] + logDetVNode
+      }
+    }
+
+    # add up to parents
+    while(length(es)>0) {
+      un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
+      unJ <- unJ+1
+      L[edge[es[un], 1],,] <- L[edge[es[un], 1],,] + L[edge[es[un], 2],,]
+      m[edge[es[un], 1],] <- m[edge[es[un], 1],] + m[edge[es[un], 2],]
+      r[edge[es[un], 1]] <- r[edge[es[un], 1]] + r[edge[es[un], 2]]
+      logDetV[edge[es[un], 1]] <- logDetV[edge[es[un], 1]] + logDetV[edge[es[un], 2]]
+      es <- es[-un]
+    }
+  }
+
+  if(root.only) {
+    list(L = L[N+1,, , drop=TRUE],
+         m = m[N+1, , drop = TRUE],
+         r = r[N+1])
+  } else {
+    c(AbCdEf[c("A", "b", "C", "d", "E", "f", "V", "V_1")],
+      list(L = L, m = m, r = r))
+  }
+}
+
 
 #' Multivariate likelihood calculation
 #' @export
 mvlik <- function(X, tree, model,
-                metaI =validateModel(tree, model, verbose=verbose),
+                metaI =validateModel(tree, model, verbose = verbose),
                 pruneI = pruneTree(tree),
                 pc = presentCoordinates(X, tree),
-                log=TRUE,
-                verbose=FALSE,
-                debug=FALSE) {
+                log = TRUE,
+                verbose = FALSE,
+                debug = FALSE) {
 
-  # support regimes as names of edge.length vector or as a member edge.regime in tree
-  # if(is.null(tree$edge.regime)) {
-  #   warning("tree$edge.regime is null; using names(tree$edge.length).")
-  #   tree$edge.regime <- names(tree$edge.length)
-  # }
+  # will change this value if there is no error
+  value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
 
-  if(class(pruneI) == "list") {
-    # Old implementation: Perform serial loglik computation in R
-    unJ <- 1
+  Lmr <- try(Lmr(X, tree, model, metaI, pruneI, pc, verbose = verbose, root.only = TRUE),
+             silent = TRUE)
 
-    N <- metaI$N; M <- metaI$M; k <- metaI$k;
-
-    edge <- tree$edge
-    endingAt <- pruneI$endingAt
-    nodesVector <- pruneI$nodesVector
-    nodesIndex <- pruneI$nodesIndex
-    nLevels <- pruneI$nLevels
-    unVector <- pruneI$unVector
-    unIndex <- pruneI$unIndex
-
-
-    L <- array(0, dim=c(M, k, k))
-    m <- array(0, dim=c(M, k))
-    r <- array(0, dim=c(M))
-
-    # needed for the determinant
-    # total number of observed (non-missing) traits for all tips.
-    K <- 0
-    ftilde <- array(0, dim=c(M))
-    rtilde <- array(0, dim=c(M))
-
-    logDetV <- array(0, dim=c(M))
-
-    AbCdEf <- AbCdEf(tree = tree, model = model,
-                     metaI = metaI,
-                     pc = pc, verbose = verbose)
-
-    # avoid redundant calculation
-    log2pi <- log(2*pi)
-
-    for(level in 1:nLevels) {
-      nodes <- nodesVector[(nodesIndex[level]+1):nodesIndex[level+1]]
-      es <- endingAt[nodes]
-
-      if(nodes[1] <= N) {
-        # all es pointing to tips
-        L[nodes,,] <- AbCdEf$C[nodes,,]
-
-        for(e in es) {
-          # parent and daughter nodes
-          j <- edge[e, 1]; i <- edge[e, 2];
-          # present coordinates
-          kj <- pc[j,]; ki <- pc[i,];
-
-          r[i] <- with(AbCdEf, t(X[i,ki]) %*% A[i,ki,ki] %*% X[i,ki] +
-                         t(X[i,ki]) %*% b[i,ki] + f[i])
-
-          m[i,kj] <- with(AbCdEf, d[i,kj] + matrix(E[i,kj,ki], sum(kj), sum(ki)) %*% X[i,ki])
-
-          #logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
-
-          #K <- K + sum(ki)
-        }
-      } else {
-        # edges pointing to internal nodes, for which all children
-        # nodes have been visited
-        for(e in es) {
-          # parent and daughter nodes
-          j <- edge[e, 1]; i <- edge[e, 2];
-          # present coordinates
-          kj <- pc[j,]; ki <- pc[i,];
-
-          # auxilary variables to avoid redundant evaluation
-          AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
-          AplusL_1 <- solve(AplusL)
-
-          EAplusL_1 <- matrix(AbCdEf$E[i,kj,ki], sum(kj), sum(ki)) %*% AplusL_1
-          logDetVNode <- log(det(-2*AplusL))
-
-          # here it is important that we first evaluate r[i] and then m[i,kj]
-          # since the expression for r[i] refers to to the value of m[i,ki]
-          # before updating it.
-          r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
-                         .25*t(b[i,ki]+m[i,ki]) %*% AplusL_1 %*% (b[i,ki]+m[i,ki]))
-
-          m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
-
-          L[i,kj,kj] <- with(AbCdEf, C[i,kj,kj] -.25*EAplusL_1 %*% t(matrix(E[i,kj,ki], sum(kj), sum(ki))))
-          #logDetV[i] <- logDetV[i] + logDetVNode
-        }
-      }
-
-      # add up to parents
-      while(length(es)>0) {
-        un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
-        unJ <- unJ+1
-        L[edge[es[un], 1],,] <- L[edge[es[un], 1],,] + L[edge[es[un], 2],,]
-        m[edge[es[un], 1],] <- m[edge[es[un], 1],] + m[edge[es[un], 2],]
-        r[edge[es[un], 1]] <- r[edge[es[un], 1]] + r[edge[es[un], 2]]
-        logDetV[edge[es[un], 1]] <- logDetV[edge[es[un], 1]] + logDetV[edge[es[un], 2]]
-        es <- es[-un]
-      }
+  if(class(Lmr) == "try-error") {
+    errL <- parseErrorMessage(Lmr)
+    if(is.null(errL)) {
+      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating the coefficients L,m,r. Error message from call to Lmr: ", Lmr)
+      errL <- parseErrorMessage(err)
+    } else {
+      err <- Lmr
     }
+    if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+      warning(err)
+    } else {
+      stop(err)
+    }
+    X0 <- model$X0
+    attr(value.NA, 'X0') <- X0
+    attr(value.NA, "error") <- errL
 
-    L_root <- L[N+1,, , drop=TRUE]
-    m_root <- m[N+1, , drop=TRUE]
-    r_root <- r[N+1]
-  } else {
-    Lmr <- Lmr(model, metaI, pruneI)
+    return(value.NA)
+
+  } else if(is.list(Lmr)) {
+
     L_root <- Lmr$L
     m_root <- Lmr$m
     r_root <- Lmr$r
-  }
 
-  if(is.null(model$X0)) {
-    # set the root value to the one that maximizes the likelihood
-    X0 <- solve(a=L_root + t(L_root), b = -m_root)
+    if(is.null(L_root) | is.null(m_root) | is.null(r_root)) {
+      err <- paste0("ERR:02042:PCMBase:MultivariatePCM.R:mvlik:: The list returned by Lmr did not contain elements 'L', 'm' and 'r'.")
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      errL <- parseErrorMessage(err)
+
+      X0 <- model$X0
+      attr(value.NA, 'X0') <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    }
+
+    if(is.null(model$X0)) {
+      # set the root value to the one that maximizes the likelihood
+      X0 <- try(solve(a=L_root + t(L_root), b = -m_root), silent = TRUE)
+      if(class(X0) == "try-error") {
+        err <- paste0(
+          "ERR:02043:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
+          ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0)
+
+        errL <- parseErrorMessage(err)
+        if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+          warning(err)
+        } else {
+          stop(err)
+        }
+        X0 <- NULL
+        attr(value.NA, "X0") <- X0
+        attr(value.NA, "error") <- errL
+
+        return(value.NA)
+
+      }
+
+    } else {
+
+      X0 <- model$X0
+
+    }
+
+    loglik <- try(X0 %*% L_root %*% X0 + m_root %*% X0 + r_root, silent = TRUE)
+    if(class(loglik) == "try-error") {
+      err <- paste0(
+        "ERR:02044:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
+        ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik)
+
+      errL <- parseErrorMessage(err)
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      attr(value.NA, "X0") <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    }
+
+    value <- try(as.vector(if(log) loglik else exp(loglik)), silent = TRUE)
+
+    if(class(value) == "try-error") {
+      err <- paste0(
+        "ERR:02045:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value)
+
+      errL <- parseErrorMessage(err)
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      attr(value.NA, "X0") <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    } else if(is.na(value)) {
+
+      err <- paste0(
+        "ERR:02046:PCMBase:MultivariatePCM.R:mvlik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to Lmr. Check for runtime warnings.")
+
+      errL <- parseErrorMessage(err)
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      attr(value.NA, "X0") <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    }
+
+    # no errors detected, returning the calculated likelihood value:
+    attr(value, "X0") <- X0
+    return(value)
+  }
+}
+
+#' Extract error information from a formatted error message.
+#' @param x character string representing the error message.
+#' @description The function searches x for a pattern matching the format
+#' 'ERR:5-digit-code:project-name:source-file:error-specifics:'. Specifically it
+#' searches for a regular expression pattern "ERR:[0-9]+:[^:]+:[^:]+:[^:]+:[^:]*:".
+#' @return a named list with the parsed error information or NULL, if no match
+#' was found.
+#' @export
+parseErrorMessage <- function(x) {
+  res <- try({
+    if(is.character(x)) {
+      code <- regmatches(x, regexpr("ERR:[0-9]+:[^:]+:[^:]+:[^:]+:[^:]*:", x))
+      if(length(code) > 0) {
+        code <- code[1]
+        codeL <- strsplit(code, split=":")[[1]]
+        list(
+          type = codeL[1],
+          icode = codeL[2],
+          project = codeL[3],
+          file = codeL[4],
+          fun = codeL[5],
+          info = codeL[6],
+          code = code,
+          msg = x
+        )
+      } else {
+        NULL
+      }
+    } else {
+      NULL
+    }
+  }, silent = TRUE)
+
+  if(class(res)=="try-error") {
+    NULL
   } else {
-    X0 <- model$X0
+    res
   }
-
-  loglik <- X0 %*% L_root %*% X0 + m_root %*% X0 + r_root
-
-  value <- as.vector(if(log) loglik else exp(loglik))
-  #attr(value, "logDetV") <- logDetV[N+1]
-
-  if(exists('X0'))
-    attr(value, 'X0') <- X0
-
-  value
 }

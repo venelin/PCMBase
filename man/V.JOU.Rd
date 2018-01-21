@@ -4,7 +4,8 @@
 \alias{V.JOU}
 \title{Generate a multivariate (MV) JOU variance-covariance function}
 \usage{
-V.JOU(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0 = 0)
+V.JOU(lambda, P, P_1, Sigma, Alpha, Sigmaj,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-08))
 }
 \arguments{
 \item{lambda}{vector of the eignevalues of the matrix Alpha of a MV JOU process.}
@@ -18,6 +19,14 @@ V.JOU(lambda, P, P_1, Sigma, Alpha, Sigmaj, threshold0 = 0)
 \item{Alpha}{is the matrix Alpha of a MV JOU process.}
 
 \item{Sigmaj}{is the variance matrix of the jump distribution in JOU process}
+
+\item{threshold.Lambda_ij}{a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
+eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+`(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+"PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
+1e-6. For smaller branch lengths, you are may want to increase the threshold value using, e.g.
+`options(PCMBase.Threshold.Lambda_ij=1e-6)`.}
 }
 \value{
 a function of two numerical arguments (time) and (xi:binary value denoting jump or not) , which calculates the

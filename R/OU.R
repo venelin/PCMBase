@@ -8,9 +8,7 @@ validateModel.OU <- function(tree, model, verbose = FALSE) {
   if(is.null(model$Sigmae) |
      is.null(dim(model$Sigmae)) |
      length(dim(model$Sigmae)) != 3) {
-    stop("Expecting the model to have a member called Sigmae with dimensions
-         R x k x k, where R is the number of regimes and k is the number of
-         traits.")
+    stop("ERR:02201:PCMBase:OU.R:validateModel.OU:: Expecting the model to have a member called Sigmae with dimensions R x k x k, where R is the number of regimes and k is the number of traits.")
   }
 
   R <- dim(model$Sigmae)[1]
@@ -36,6 +34,9 @@ validateModel.OU <- function(tree, model, verbose = FALSE) {
 PLambdaP_1.OU <- function(Alpha) {
   # here the argument Alpha is an Alpha matrix specifying the alphas in a OU process
   r <- eigen(Alpha)
+  if(isTRUE(all.equal(rcond(r$vectors),0))) {
+    stop(paste0("ERR:02211:PCMBase:OU.R:PLambdaP_1.OU:: The provided Alpha matrix is defective. Its matrix of eigenvectors is computationally singular. Alpha=", toString(Alpha)))
+  }
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
 
@@ -48,12 +49,20 @@ Lambda_ij.OU <- function(lambda) {
 #' Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
 #' for every element lambda_{ij} of the input matrix Lambda_ij
 #' @param Lambda_ij a squared numerical matrix of dimension k x k
-#' @param threshold0 numeric threshold value. For |Lambda_{ij}| smaller or equal
-#'  than threshold the limit time is returned.
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
+#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+#'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
+#'   1e-6. For smaller branch lengths, you are may want to increase the threshold value using, e.g.
+#'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
 #' @return a function of time returning a matrix with entries formed from the
 #'  above function or the limit time if |Lambda_{ij}|<=trehshold0.
-fLambda_ij.OU <- function(Lambda_ij, threshold0=0) {
-  idx0 <- which(abs(Lambda_ij)<=threshold0)
+fLambda_ij.OU <- function(
+  Lambda_ij,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8)) {
+
+  idx0 <- which(abs(Lambda_ij)<=threshold.Lambda_ij)
   function(time) {
     res <- (1-exp(-Lambda_ij*time))/Lambda_ij
     if(length(idx0)>0) {
@@ -72,13 +81,22 @@ fLambda_ij.OU <- function(Lambda_ij, threshold0=0) {
 #' @param Sigmae optional additional error (environmental) variance covariance
 #' matrix or single number (if the error has the same variance for all dimensions).
 #' This matrix is added to the MV-OU variance covariance matrix.
-#' @param threshold0
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
+#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+#'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
+#'   1e-6. For smaller branch lengths, you are may want to increase the threshold value using, e.g.
+#'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
 #' @return a function of one numerical argument (time), which calculates the
 #' expected variance covariance matrix of a MV-OU process after time, given
 #' the specified arguments.
-V.OU <- function(lambda, P, P_1, Sigma, threshold0=0) {
+V.OU <- function(
+  lambda, P, P_1, Sigma,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8) ) {
+
   Lambda_ij <- Lambda_ij.OU(lambda)
-  fLambda_ij <- fLambda_ij.OU(Lambda_ij, threshold0)
+  fLambda_ij <- fLambda_ij.OU(Lambda_ij, threshold.Lambda_ij)
 
   P_1SigmaP_t <- P_1 %*% Sigma %*% t(P_1)
 
@@ -108,23 +126,19 @@ mvcond.OU <- function(tree, model, r=1, verbose=FALSE) {
     Theta <- model$Theta[r,]
     Sigma <- as.matrix(model$Sigma[r,,])
 
-  if(length(unique(c(length(Theta), dim(Alpha), dim(Sigma))))!=1) {
-    # this is a dummy check to evaluate Theta
-    print(paste('dim(Alpha)=', dim(Alpha)))
-    print(paste('length(Theta)=', length(Theta)))
-    print(paste('dim(Sigma)=', dim(Sigma)))
-    stop('Some of Alpha, Theta or Sigma has a wrong dimension.')
+  if(length(unique(c(length(Theta), dim(Alpha), dim(Sigma)))) != 1) {
+    stop('ERR:02221:PCMBase:OU.R:mvcond.OU:: Some of Alpha, Theta or Sigma has a wrong dimension.')
   }
   PLP_1 <- PLambdaP_1.OU(Alpha)
   fV <- V.OU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
   mvr <- function(n=1, x0, t, e) {
-    e_At <- expm::expm(-t*Alpha)
+    e_At <- expm(-t*Alpha)
     I <- diag(nrow(Alpha))
     rmvnorm(n=n, mean=e_At%*%x0 + (I-e_At) %*% Theta, sigma=fV(t))
   }
   mvd <- function(x, x0, t, e, log=FALSE) {
-    e_At <- expm::expm(-t*Alpha)
+    e_At <- expm(-t*Alpha)
     I <- diag(nrow(Alpha))
     dmvnorm(x, mean=e_At%*%x0 + (I-e_At) %*% Theta, sigma=fV(t), log=log)
   }
@@ -166,6 +180,7 @@ mvcond.OU <- function(tree, model, r=1, verbose=FALSE) {
 #' E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
 #' f: a vector, f[i] correspondign to fi
 #'
+#' @importFrom expm expm
 #' @export
 AbCdEf.OU <- function(tree, model,
                       metaI=validateModel.OU(tree, model, verbose=verbose),
@@ -241,9 +256,9 @@ AbCdEf.OU <- function(tree, model,
     }
 
     V_1[i,ki,ki] <- solve(V[i,ki,ki])
-    e_At[i,,] <- expm::expm(-ti*as.matrix(model$A[r[e],,]))
+    e_At[i,,] <- expm(-ti*as.matrix(model$A[r[e],,]))
 
-        # now compute AbCdEf according to eq (8) in doc.
+    # now compute AbCdEf according to eq (8) in doc.
     # here A is from the general form (not the alpa from OU process)
     A[i,ki,ki] <- -0.5*V_1[i,ki,ki]
 
@@ -261,5 +276,5 @@ AbCdEf.OU <- function(tree, model,
               V_1[i,ki,ki] %*% (matrix(I[ki,]-e_At[i,ki,], sum(ki))) %*% model$Theta[r[e],])
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V)
+  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V, V_1=V_1)
 }
