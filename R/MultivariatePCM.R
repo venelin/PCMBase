@@ -155,10 +155,10 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
 
   N <- length(tree$tip.label)
   M <- nrow(edge)+1
-  k <- dim(X)[2]
+  k <- dim(X)[1]
 
-  pc <- rep(FALSE, M*k)
-  dim(pc) <- c(M, k)
+  pc <- rep(FALSE, k*M)
+  dim(pc) <- c(k, M)
 
   for(i in 1:nLevels) {
     nodes <- nodesVector[(nodesIndex[i]+1):nodesIndex[i+1]]
@@ -166,7 +166,7 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
 
     if(nodes[1] <= N) {
       # all es pointing to tips
-      pc[nodes, ] <- !is.na(X[nodes,])
+      pc[, nodes] <- !is.na(X[, nodes])
     } else {
       # edges pointing to internal nodes, for which all children nodes have been
       # visited
@@ -177,7 +177,7 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
     while(length(es)>0) {
       un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
       unJ <- unJ+1
-      pc[edge[es[un], 1], ] <- pc[edge[es[un], 1], ] | pc[edge[es[un], 2], ]
+      pc[, edge[es[un], 1]] <- pc[, edge[es[un], 1]] | pc[, edge[es[un], 2]]
       es <- es[-un]
     }
   }
@@ -230,8 +230,8 @@ mvsim <- function(
     stop(paste('ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length', metaI$k, '.'))
   }
 
-  values <- errors <- matrix(0, nrow=dim(tree$edge)[1]+1, ncol=metaI$k)
-  values[metaI$N + 1, ] <- X0
+  values <- errors <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
+  values[, metaI$N + 1] <- X0
 
   ordBF <- orderBreadthFirst(tree)
 
@@ -241,13 +241,13 @@ mvsim <- function(
   })
 
   for(e in ordBF) {
-    values[tree$edge[e, 2],] <-
+    values[, tree$edge[e, 2]] <-
       funMVCond[[metaI$regimes[e]]](
-        n=1, x0 = values[tree$edge[e,1],], t = tree$edge.length[e], e = e)
+        n=1, x0 = values[, tree$edge[e,1]], t = tree$edge.length[e], e = e)
     if(!is.null(model$Sigmae)) {
-      errors[tree$edge[e, 2],] <-
+      errors[, tree$edge[e, 2]] <-
         rmvnorm(1, rep(0, metaI$k),
-                as.matrix(model$Sigmae[metaI$regimes[e],,]))
+                as.matrix(model$Sigmae[,, metaI$regimes[e]]))
     }
   }
 
@@ -490,6 +490,8 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
        regimes = regimes, regimesUnique = modelSpec$regimesUnique)
 }
 
+#' Multivariate normal distribution for a given tree and model
+#' @export
 mvcond <- function(tree, model, metaI, r=1, verbose = FALSE) {
   UseMethod("mvcond", model)
 }
@@ -535,20 +537,17 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
   unVector <- pruneI$unVector
   unIndex <- pruneI$unIndex
 
+  threshold_SV <- getOption("PCMBase.Threshold.SV", 1e-6)
 
-  L <- array(0, dim=c(M, k, k))
-  m <- array(0, dim=c(M, k))
+  L <- array(0, dim=c(k, k, M))
+  m <- array(0, dim=c(k, M))
   r <- array(0, dim=c(M))
 
-  # needed for the determinant
-  # total number of observed (non-missing) traits for all tips.
-  logDetV <- array(0, dim=c(M))
 
   AbCdEf <- AbCdEf(tree = tree, model = model,
                    metaI = metaI,
                    pc = pc, verbose = verbose)
 
-  threshold_SV <- getOption("PCMBase.Threshold.SV", 1e-6)
 
   # avoid redundant calculation
   log2pi <- log(2*pi)
@@ -565,12 +564,11 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
         # parent and daughter nodes
         j <- edge[e, 1]; i <- edge[e, 2];
         # present coordinates
-        kj <- pc[j,]; ki <- pc[i,];
+        kj <- pc[, j]; ki <- pc[, i];
 
 
-        # check that V[i,ki,ki] is non-singular
-        #print(AbCdEf$V[i,ki,ki])
-        svdV = svd(matrix(AbCdEf$V[i,ki,ki], sum(ki)), 0, 0)$d
+        # check that V[ki,ki,] is non-singular
+        svdV = svd(matrix(AbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
         if(min(svdV)/max(svdV) < threshold_SV) {
           err <- paste0(
             "ERR:02031:PCMBase:MultivariatePCM.R:Lmr.default:",i,":",
@@ -581,13 +579,13 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
           stop(err)
         }
 
-        # ensure symmetry of L[i,,]
-        L[i,,] <- 0.5 * (AbCdEf$C[i,,] + t(AbCdEf$C[i,,]))
+        # ensure symmetry of L[,,i]
+        L[,,i] <- 0.5 * (AbCdEf$C[,,i] + t(AbCdEf$C[,,i]))
 
-        r[i] <- with(AbCdEf, t(X[i,ki]) %*% A[i,ki,ki] %*% X[i,ki] +
-                       t(X[i,ki]) %*% b[i,ki] + f[i])
+        r[i] <- with(AbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
+                       t(X[ki,i]) %*% b[ki,i] + f[i])
 
-        m[i,kj] <- with(AbCdEf, d[i,kj] + matrix(E[i,kj,ki], sum(kj), sum(ki)) %*% X[i,ki])
+        m[kj,i] <- with(AbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
 
         #logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
 
@@ -600,10 +598,10 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
         # parent and daughter nodes
         j <- edge[e, 1]; i <- edge[e, 2];
         # present coordinates
-        kj <- pc[j,]; ki <- pc[i,];
+        kj <- pc[, j]; ki <- pc[, i];
 
         # check that V[i,ki,ki] is non-singular
-        svdV = svd(matrix(AbCdEf$V[i,ki,ki], sum(ki)), 0, 0)$d
+        svdV = svd(matrix(AbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
         if(min(svdV)/max(svdV) < threshold_SV) {
           err <- paste0(
             "ERR:02031:PCMBase:MultivariatePCM.R:Lmr.default:",i,":",
@@ -618,32 +616,30 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
 
 
         # auxilary variables to avoid redundant evaluation
-        AplusL <- as.matrix(AbCdEf$A[i,ki,ki] + L[i,ki,ki])
+        AplusL <- as.matrix(AbCdEf$A[ki,ki,i] + L[ki,ki,i])
         # ensure symmetry of AplusL, this should guarantee that AplusL_1 is symmetric
         # as well (unless solve-implementation is buggy.)
         AplusL <- 0.5 * (AplusL + t(AplusL))
 
         AplusL_1 <- solve(AplusL)
 
-        EAplusL_1 <- matrix(AbCdEf$E[i,kj,ki], sum(kj), sum(ki)) %*% AplusL_1
+        EAplusL_1 <- matrix(AbCdEf$E[kj,ki,i], sum(kj), sum(ki)) %*% AplusL_1
         logDetVNode <- log(det(-2*AplusL))
 
         # here it is important that we first evaluate r[i] and then m[i,kj]
         # since the expression for r[i] refers to to the value of m[i,ki]
         # before updating it.
         r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
-                       .25*t(b[i,ki]+m[i,ki]) %*% AplusL_1 %*% (b[i,ki]+m[i,ki]))
+                       .25*t(b[ki,i]+m[ki,i]) %*% AplusL_1 %*% (b[ki,i]+m[ki,i]))
 
-        m[i,kj] <- with(AbCdEf, d[i,kj] - .5*EAplusL_1 %*% (b[i,ki]+m[i,ki]))
+        m[kj,i] <- with(AbCdEf, d[kj,i] - .5*EAplusL_1 %*% (b[ki,i]+m[ki,i]))
 
-        L[i,kj,kj] <- with(
+        L[kj,kj,i] <- with(
           AbCdEf,
-          C[i,kj,kj] -.25*EAplusL_1 %*% t(matrix(E[i,kj,ki], sum(kj), sum(ki))))
+          C[kj,kj,i] -.25*EAplusL_1 %*% t(matrix(E[kj,ki,i], sum(kj), sum(ki))))
 
         # ensure symmetry of L:
-        L[i,kj,kj] <- 0.5 * (L[i,kj,kj] + t(L[i,kj,kj]))
-
-        #logDetV[i] <- logDetV[i] + logDetVNode
+        L[kj,kj,i] <- 0.5 * (L[kj,kj,i] + t(L[kj,kj,i]))
       }
     }
 
@@ -651,17 +647,16 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
     while(length(es)>0) {
       un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
       unJ <- unJ+1
-      L[edge[es[un], 1],,] <- L[edge[es[un], 1],,] + L[edge[es[un], 2],,]
-      m[edge[es[un], 1],] <- m[edge[es[un], 1],] + m[edge[es[un], 2],]
+      L[,,edge[es[un], 1]] <- L[,,edge[es[un], 1]] + L[,,edge[es[un], 2]]
+      m[,edge[es[un], 1]] <- m[,edge[es[un], 1]] + m[,edge[es[un], 2]]
       r[edge[es[un], 1]] <- r[edge[es[un], 1]] + r[edge[es[un], 2]]
-      logDetV[edge[es[un], 1]] <- logDetV[edge[es[un], 1]] + logDetV[edge[es[un], 2]]
       es <- es[-un]
     }
   }
 
   if(root.only) {
-    list(L = L[N+1,, , drop=TRUE],
-         m = m[N+1, , drop = TRUE],
+    list(L = L[,,N+1],
+         m = m[,N+1],
          r = r[N+1])
   } else {
     c(AbCdEf[c("A", "b", "C", "d", "E", "f", "V", "V_1")],

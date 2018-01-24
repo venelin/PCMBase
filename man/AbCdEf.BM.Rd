@@ -13,24 +13,24 @@ form (eq. 1) for each edge in a tree}
 
 \item{model}{parameters of the BM process. This must be a
 named list with the following elements:
-Sigma: a R x k x k array, each Sigma[r,,] containing the
+Sigma: a k x k x R array, each Sigma[,,r] containing the
 matrix Sigma for regime r;
-Sigmae: a R x k x k array, each Sigmae[r,,] representing a diagonal matrix
+Sigmae: a k x k x R array, each Sigmae[,,r] representing a diagonal matrix
 with elements on the diagona corresponding to the environmental variances for
 the k traits in regime r}
 
-\item{presentCoords}{a M x k logical matrix representing the present coordinates at each
+\item{presentCoords}{a k x M logical matrix representing the present coordinates at each
 node}
 }
 \value{
 a named list containing the following elements:
-A: a M x k x k array, A[i,,] corresponding to Ai for
+A: a k x k x M array, A[,,i] corresponding to Ai for
 each branch ending at node or tip i;
-b: a M x k matrix, b[i,] corresponding to the vectors bi;
-C: a M x k x k array, C[i,,] corresponding to the
+b: a k x M matrix, b[,i] corresponding to the vectors bi;
+C: a k x k x M array, C[,,i] corresponding to the
 matrices Ci;
-d: a M x k matrix, d[i,] corresponding to the vectors di;
-E: a M x k x k array, E[i,,] corresponding to the matrices Ei;
+d: a k x M matrix, d[,i] corresponding to the vectors di;
+E: a k x k x M array, E[,,i] corresponding to the matrices Ei;
 f: a vector, f[i] correspondign to fi
 }
 \description{

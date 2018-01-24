@@ -61,27 +61,27 @@ b.Sigmae2 <- rbind(c(.2, 0, 0),
 # dimension is the regime
 
 
-Alpha1 <- abind::abind(a.Alpha, b.Alpha, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-Alpha2 <- abind::abind(a.Alpha2, b.Alpha2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-Theta <- abind::abind(a.Theta, b.Theta, along=-1, new.names=list(regime=c('a', 'b'), xy=NULL))
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=-1, new.names=list(regime=c('a','b'), x=NULL, y=NULL))
+Alpha1 <- abind::abind(a.Alpha, b.Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Alpha2 <- abind::abind(a.Alpha2, b.Alpha2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Theta <- abind::abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
+Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- list(X0 = a.X0,
-                    Alpha=Alpha1['a',,,drop=FALSE],
-                    Theta=Theta['a',,drop=FALSE],
-                    Sigma=Sigma['a',,,drop=FALSE],
-                    Sigmae=Sigmae['a',,,drop=FALSE])
+                    Alpha=Alpha1[,,'a',drop=FALSE],
+                    Theta=Theta[,'a',drop=FALSE],
+                    Sigma=Sigma[,,'a',drop=FALSE],
+                    Sigmae=Sigmae[,,'a',drop=FALSE])
 class(model.a.123) <- 'OU'
 
 model.a.123.TwoSpeedOU <- list(X0 = a.X0,
-                    Alpha1=Alpha1['a',,,drop=FALSE],
-                    Alpha2=Alpha2['a',,,drop=FALSE],
-                    Theta=Theta['a',,drop=FALSE],
-                    Sigma=Sigma['a',,,drop=FALSE],
-                    Sigmae=Sigmae['a',,,drop=FALSE])
+                    Alpha1=Alpha1[,,'a',drop=FALSE],
+                    Alpha2=Alpha2[,,'a',drop=FALSE],
+                    Theta=Theta[,'a',drop=FALSE],
+                    Sigma=Sigma[,,'a',drop=FALSE],
+                    Sigmae=Sigmae[,,'a',drop=FALSE])
 class(model.a.123.TwoSpeedOU) <- 'TwoSpeedOU'
 
 #####################################################################################################
@@ -116,18 +116,18 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 
 # regime 'a', traits 1, 2 and 3
 model.b.123 <- list(X0 = b.X0,
-                    Alpha=Alpha1['b',,,drop=FALSE],
-                    Theta=Theta['b',,drop=FALSE],
-                    Sigma=Sigma['b',,,drop=FALSE],
-                    Sigmae=Sigmae['b',,,drop=FALSE])
+                    Alpha=Alpha1[,,'b',drop=FALSE],
+                    Theta=Theta[,'b',drop=FALSE],
+                    Sigma=Sigma[,,'b',drop=FALSE],
+                    Sigmae=Sigmae[,,'b',drop=FALSE])
 class(model.b.123) <- 'OU'
 
 model.b.123.TwoSpeedOU <- list(X0 = b.X0,
-                          Alpha1=Alpha1['b',,,drop=FALSE],
-                          Alpha2=Alpha2['b',,,drop=FALSE],
-                          Theta=Theta['b',,drop=FALSE],
-                          Sigma=Sigma['b',,,drop=FALSE],
-                          Sigmae=Sigmae['b',,,drop=FALSE])
+                          Alpha1=Alpha1[,,'b',drop=FALSE],
+                          Alpha2=Alpha2[,,'b',drop=FALSE],
+                          Theta=Theta[,'b',drop=FALSE],
+                          Sigma=Sigma[,,'b',drop=FALSE],
+                          Sigmae=Sigmae[,,'b',drop=FALSE])
 class(model.b.123.TwoSpeedOU) <- 'TwoSpeedOU'
 
 context(ctx <- "R=1/k=3/N=400")
@@ -189,20 +189,20 @@ if(require(PCMBaseCpp)) {
   test_that("a.123",
             expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
                          mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = newCppObject(X = traits.a.123$values[1:length(tree.a$tip.label), ],
+                               pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   test_that("ab.123",
             expect_equal(mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123),
                          mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
-                               pruneI = newCppObject(X = traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] +
-                                                       traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ],
+                               pruneI = newCppObject(X = traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
+                                                       traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)],
                                                      tree = tree.ab.singles,
                                                      model.ab.123))))
 
 
-  values <- traits.ab.123$values[1:length(tree.ab.singles$tip.label), ] + traits.ab.123$errors[1:length(tree.ab.singles$tip.label), ]
+  values <- traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] + traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)]
   values[sample(x=1:length(values), 50)] <- NA
 
   pruneInfoR <- pruneTree(tree.ab.singles)

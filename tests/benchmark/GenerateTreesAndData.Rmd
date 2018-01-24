@@ -1,0 +1,180 @@
+---
+title: "Generating trees and data for microbenchmark"
+author: "Venelin Mitov"
+date: "22 January 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ape)
+library(apTreeshape)
+library(data.table)
+library(POUMM)
+library(phytools)
+library(PCMBase)
+library(Rphylopars)
+
+set.seed(10)
+```
+
+
+```{r, eval=FALSE}
+trees <- data.table(N=c(100, 1000, 10000))[
+  , rbindlist(lapply(N, function(N) {
+    p.c99 <- 0.01/N
+    data.table(N=N, p = c(p.c99 = p.c99,
+                          p0.5 = 0.5,
+                          p0.1 = 0.1,
+                          p0.01 = 0.01),
+               pSymb = c(
+                 "p.c99", "p0.5", "p0.1", "p0.01")
+    )
+  }))]
+
+trees[, id:=1:.N]
+trees[, treeshape:=lapply(1:.N, function(i) {
+  cat("Generating treeshape for N=", N[i], " and p=", p[i], ".\n")
+  rtreeshape(1, tip.number=N[i], model="biased", p=p[i])[[1]]
+})]
+
+save(trees, file = "./Trees.RData")
+```
+
+```{r, eval=FALSE}
+load("./Trees.RData")
+
+cat("Converting to phylo...\n")
+
+trees[, tree:=lapply(treeshape, as.phylo)]
+
+save(trees, file='Trees.RData')
+```
+
+
+```{r, eval=FALSE}
+load("./Trees.RData")
+
+trees[, treeshape:=lapply(tree, as.treeshape)]
+trees[, colless:=sapply(treeshape, function(.) {
+  res <- try(colless(.), silent=TRUE)
+  if(class(res)!='try-error') {
+    res
+  } else {
+    NA
+  }
+})]
+trees[, collessNorm:=colless/((N-1)*(N-2)/2)]
+save(trees, file="Trees.RData")
+```
+
+```{r measure-depth, eval=FALE}
+trees[, num.prunes:=sapply(tree, function(.) {
+  ppt <- SPLiTTree:::PruningTree1$new(.)
+  ppt$num_parallel_ranges_prune
+})]
+trees[, num.levels:=sapply(tree, function(.) {
+  ppt <- SPLiTTree:::PruningTree1$new(.)
+  ppt$num_levels
+})]
+trees[, num.nodes:=sapply(tree, function(.) {
+  ppt <- SPLiTTree:::PruningTree1$new(.)
+  ppt$num_nodes
+})]
+```
+
+```{r randomModel}
+randomPDSymMatrix <- function(n) {
+  ev <- runif(n, 0, 10)
+  A <- matrix(rnorm(n^2), nrow=n)
+  decomp <- qr(A)
+  Q <- qr.Q(decomp) 
+  R <- qr.R(decomp)
+  d <- diag(R)
+  ph <- d / abs(d)
+  O <- Q %*% diag(ph, nrow = n, ncol = n)
+  t(O) %*% diag(ev, nrow = n, ncol = n) %*% O
+}
+
+randomOUModel <- function(k) {
+  # in regime 'a' the three traits evolve according to three independent OU processes
+  
+  while(TRUE) {
+    X0 <- rnorm(k)
+    Alpha <- randomPDSymMatrix(k)
+    
+    Theta <- rep(1, k)
+    
+    Sigma <- randomPDSymMatrix(k)
+    
+    Sigmae2 <- matrix(0, k, k)
+    
+    Alpha <- abind::abind(Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
+    Theta <- abind::abind(Theta, along=2, new.names=list(xy=NULL, regime=c('a')))
+    Sigma <- abind::abind(Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
+    Sigmae <- abind::abind(Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
+    
+    model <- list(X0 = X0,
+                  Alpha=Alpha[,,,drop=FALSE],
+                  Theta=Theta[,,drop=FALSE],
+                  Sigma=Sigma[,,,drop=FALSE],
+                  Sigmae=Sigmae[,,,drop=FALSE])
+    class(model) <- 'OU'
+  
+    cond <- mvcond(NULL, model)
+    eig <- eigen(cond$vcov(0.01))
+    
+    if(isTRUE(all(eig$values > 0))) {
+      return(model)    
+    }
+    cat(".")
+  }
+}
+```
+
+
+```{r random-lengths}
+set.seed(10)
+load("./Trees.RData")
+g0 <- 16
+alpha <- 2
+theta <- 4
+sigma <- .2
+sigmae <- .8
+
+# set random branch lengths
+trees[, tree:=lapply(1:.N, function(i) {
+  tr <- tree[[i]]
+  tr$edge.length <- rexp(length(tr$edge.length), rate=1000)
+  tr
+})]
+
+save(trees, file="Trees.RData")
+```
+
+```{r generate-traits}
+set.seed(10)
+
+cat("Generating trait values...\n")
+
+
+trees2 <- rbindlist(
+  lapply(c(1,4,8,16), function(k) {
+    
+    model <- randomOUModel(k)
+    data <- copy(trees)
+    data[, num_traits:=k]
+    data[, X:=lapply(1:.N, function(i) {
+      cat("Generating data for N=", N[i], ", k=",k,"; p=",p[i], "\n")
+      mvsim(tree[[i]], model, model$X0)
+    })]
+    
+    data[, model:=list(list(model))]
+    data
+  })
+)
+
+trees <- copy(trees2)
+save(trees, file="./Trees.RData")
+```
+
