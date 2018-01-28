@@ -24,18 +24,18 @@ validateModel.OU <- function(tree, model, verbose = FALSE) {
     modelSpec = specifyModel(
       tree = tree, modelName = "OU",
       k = k, R = R, regimesUnique = regimesUnique,
-      paramNames = list("Alpha", "Theta", "Sigma", "Sigmae"),
+      paramNames = list("H", "Theta", "Sigma", "Sigmae"),
       paramStorageModes = list("double", "double", "double", "double"),
       paramDims = list(c(k, k, R), c(k, R), c(k, k, R), c(k, k, R))
     ),
     verbose = verbose)
 }
 
-PLambdaP_1.OU <- function(Alpha) {
-  # here the argument Alpha is an Alpha matrix specifying the alphas in a OU process
-  r <- eigen(Alpha)
+PLambdaP_1.OU <- function(H) {
+  # here the argument H is a matrix specifying the alphas in a OU process
+  r <- eigen(H)
   if(isTRUE(all.equal(rcond(r$vectors),0))) {
-    stop(paste0("ERR:02211:PCMBase:OU.R:PLambdaP_1.OU:: The provided Alpha matrix is defective. Its matrix of eigenvectors is computationally singular. Alpha=", toString(Alpha)))
+    stop(paste0("ERR:02211:PCMBase:OU.R:PLambdaP_1.OU:: The provided H matrix is defective. Its matrix of eigenvectors is computationally singular. H=", toString(H)))
   }
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
@@ -50,7 +50,7 @@ Lambda_ij.OU <- function(lambda) {
 #' for every element lambda_{ij} of the input matrix Lambda_ij
 #' @param Lambda_ij a squared numerical matrix of dimension k x k
 #' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
-#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   eigenvalues of the parameter matrix H. This threshold-values is used as a condition to
 #'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 #'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
 #'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
@@ -74,15 +74,15 @@ fLambda_ij.OU <- function(
 
 
 #' Generate a multivariate (MV) OU variance-covariance function
-#' @param lambda vector of the eignevalues of the matrix Alpha of a MV OU process.
-#' @param P matrix of the eigenvectors of the matrix Alpha
+#' @param lambda vector of the eignevalues of the matrix H of a MV OU process.
+#' @param P matrix of the eigenvectors of the matrix H
 #' @param P_1 inverse eigenvectors matrix
 #' @param Sigma the matrix Sigma of a MV OU process.
 #' @param Sigmae optional additional error (environmental) variance covariance
 #' matrix or single number (if the error has the same variance for all dimensions).
 #' This matrix is added to the MV-OU variance covariance matrix.
 #' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
-#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   eigenvalues of the parameter matrix H. This threshold-values is used as a condition to
 #'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 #'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
 #'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
@@ -111,7 +111,7 @@ V.OU <- function(
 
 #' Create a conditional multivariate OU distribution
 #'
-#' @param Alpha,Theta,Sigma parameters of the multivariate OU process; Alpha is a k x k
+#' @param H,Theta,Sigma parameters of the multivariate OU process; H is a k x k
 #' matrix, Theta is a k-vector and Sigma is a k x k matrix
 #'
 #' @return a list containging the passed parameters as well as
@@ -126,28 +126,28 @@ V.OU <- function(
 #' @export
 mvcond.OU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
-    Alpha <- as.matrix(model$Alpha[,,r])
+    H <- as.matrix(model$H[,,r])
     Theta <- model$Theta[,r]
     Sigma <- as.matrix(model$Sigma[,,r])
 
-  if(length(unique(c(length(Theta), dim(Alpha), dim(Sigma)))) != 1) {
-    stop('ERR:02221:PCMBase:OU.R:mvcond.OU:: Some of Alpha, Theta or Sigma has a wrong dimension.')
+  if(length(unique(c(length(Theta), dim(H), dim(Sigma)))) != 1) {
+    stop('ERR:02221:PCMBase:OU.R:mvcond.OU:: Some of H, Theta or Sigma has a wrong dimension.')
   }
-  PLP_1 <- PLambdaP_1.OU(Alpha)
+  PLP_1 <- PLambdaP_1.OU(H)
   fV <- V.OU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
   mvr <- function(n=1, x0, t, e) {
-    e_At <- expm(-t*Alpha)
-    I <- diag(nrow(Alpha))
-    rmvnorm(n=n, mean=e_At%*%x0 + (I-e_At) %*% Theta, sigma=fV(t))
+    e_Ht <- expm(-t*H)
+    I <- diag(nrow(H))
+    rmvnorm(n=n, mean=e_Ht%*%x0 + (I-e_Ht) %*% Theta, sigma=fV(t))
   }
   mvd <- function(x, x0, t, e, log=FALSE) {
-    e_At <- expm(-t*Alpha)
-    I <- diag(nrow(Alpha))
-    dmvnorm(x, mean=e_At%*%x0 + (I-e_At) %*% Theta, sigma=fV(t), log=log)
+    e_Ht <- expm(-t*H)
+    I <- diag(nrow(H))
+    dmvnorm(x, mean=e_Ht%*%x0 + (I-e_Ht) %*% Theta, sigma=fV(t), log=log)
   }
 
-  list(Alpha=Alpha, Theta=Theta, Sigma=Sigma, mvr=mvr, mvd=mvd, vcov=fV)
+  list(H=H, Theta=Theta, Sigma=Sigma, mvr=mvr, mvd=mvd, vcov=fV)
   })
 }
 
@@ -157,9 +157,9 @@ mvcond.OU <- function(tree, model, r=1, verbose=FALSE) {
 #' @param tree a phylo object (see details)
 #' @param model parameters of the OU process. This must be a
 #' named list with the following elements:
-#' Alpha: a k x k x R array, where R is the number of regimes of the
-#' OU process, k is the number of variables (traits), each Alpha[,,r]
-#' containing the matrix Alpha for regime r;
+#' H: a k x k x R array, where R is the number of regimes of the
+#' OU process, k is the number of variables (traits), each H[,,r]
+#' containing the matrix H for regime r;
 #' Theta: a k x R matrix, row Theta[, r] containing the long-term
 #' mean Theta for regime r;
 #' Sigma: a k x k x R array, each Sigma[,,r] containing the
@@ -201,14 +201,14 @@ AbCdEf.OU <- function(tree, model,
 
   tree <- tree
 
-  P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$Alpha))
-  P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$Alpha))
-  lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$Alpha)[-2])
+  P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+  P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+  lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H)[-2])
 
   fV.OU <- list()
 
   for(r in 1:R) {
-    PLambdaP_1 <- PLambdaP_1.OU(model$Alpha[,,r])
+    PLambdaP_1 <- PLambdaP_1.OU(model$H[,,r])
     P[,,r] <- PLambdaP_1$P
     P_1[,,r] <- PLambdaP_1$P_1
     lambda[,r] <- PLambdaP_1$lambda
@@ -220,7 +220,7 @@ AbCdEf.OU <- function(tree, model,
 
   V <- array(NA, dim=c(k, k, M))
   V_1 <- array(NA, dim=c(k, k, M))
-  e_At <- array(NA, dim=c(k, k, M))
+  e_Ht <- array(NA, dim=c(k, k, M))
 
   # returned general form parameters
   A <- array(NA, dim=c(k, k, M))
@@ -258,25 +258,25 @@ AbCdEf.OU <- function(tree, model,
     }
 
     V_1[ki,ki,i] <- solve(V[ki,ki,i])
-    e_At[,,i] <- expm(-ti*as.matrix(model$A[,,r[e]]))
+    e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[e]]))
 
     # now compute AbCdEf according to eq (8) in doc.
     # here A is from the general form (not the alpa from OU process)
     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
 
-    b[ki,i] <- V_1[ki,ki,i] %*% (I[ki,]-e_At[ki,,i]) %*% model$Theta[,r[e]]
+    b[ki,i] <- V_1[ki,ki,i] %*% (I[ki,]-e_Ht[ki,,i]) %*% model$Theta[,r[e]]
 
-    C[kj,kj,i] <- -0.5*t(matrix(e_At[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% e_At[ki,kj,i]
+    C[kj,kj,i] <- -0.5*t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% e_Ht[ki,kj,i]
 
-    d[kj,i] <- -t(matrix(e_At[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% (matrix(I[ki,]-e_At[ki,,i], sum(ki))) %*% model$Theta[,r[e]]
+    d[kj,i] <- -t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% (matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]]
 
-    E[kj,ki,i] <- t(matrix(e_At[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
+    E[kj,ki,i] <- t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
 
     f[i] <-
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
-              t(model$Theta[,r[e]]) %*% t(matrix(I[ki,]-e_At[ki,,i], sum(ki))) %*%
-              V_1[ki,ki,i] %*% (matrix(I[ki,]-e_At[ki,,i], sum(ki))) %*% model$Theta[,r[e]])
+              t(model$Theta[,r[e]]) %*% t(matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*%
+              V_1[ki,ki,i] %*% (matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]])
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V, V_1=V_1)
+  list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
 }

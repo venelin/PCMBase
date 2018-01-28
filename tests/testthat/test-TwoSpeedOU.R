@@ -23,10 +23,10 @@ colnames(Q) <- rownames(Q) <- letters[1:R]
 
 # in regime 'a' the three traits evolve according to three independent OU processes
 a.X0 <- c(5, 2, 1)
-a.Alpha <- rbind(c(0, 0, 0),
+a.H <- rbind(c(0, 0, 0),
                  c(0, 2, 0),
                  c(0, 0, 3))
-a.Alpha2 <- rbind(c(0, 0, 0),
+a.H2 <- rbind(c(0, 0, 0),
                  c(0, 2, 0),
                  c(0, 0, 3))
 
@@ -40,11 +40,11 @@ a.Sigmae2 <- rbind(c(0, 0, 0),
 
 # in regime 'b' there is correlation between the traits
 b.X0 <- c(12, 4, 3)
-b.Alpha <- rbind(c(2, .1, .2),
+b.H <- rbind(c(2, .1, .2),
                  c(.1, .6, .2),
                  c(.2, .2, .3))
 
-b.Alpha2 <- rbind(c(2, .1, .2),
+b.H2 <- rbind(c(2, .1, .2),
                  c(.1, .6, .2),
                  c(.2, .2, .3))
 
@@ -56,13 +56,13 @@ b.Sigmae2 <- rbind(c(.2, 0, 0),
                    c(0, .3, 0),
                    c(0, 0, .4))
 
-# First, specify the ALpha1,Alpha2, theta, Sigma and sigmae2 parameters for each regime.
+# First, specify the ALpha1,H2, theta, Sigma and sigmae2 parameters for each regime.
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
 
-Alpha1 <- abind::abind(a.Alpha, b.Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Alpha2 <- abind::abind(a.Alpha2, b.Alpha2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+H1 <- abind::abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+H2 <- abind::abind(a.H2, b.H2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Theta <- abind::abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
 Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
@@ -70,15 +70,15 @@ Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=N
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- list(X0 = a.X0,
-                    Alpha=Alpha1[,,'a',drop=FALSE],
+                    H=H1[,,'a',drop=FALSE],
                     Theta=Theta[,'a',drop=FALSE],
                     Sigma=Sigma[,,'a',drop=FALSE],
                     Sigmae=Sigmae[,,'a',drop=FALSE])
 class(model.a.123) <- 'OU'
 
 model.a.123.TwoSpeedOU <- list(X0 = a.X0,
-                    Alpha1=Alpha1[,,'a',drop=FALSE],
-                    Alpha2=Alpha2[,,'a',drop=FALSE],
+                    H1=H1[,,'a',drop=FALSE],
+                    H2=H2[,,'a',drop=FALSE],
                     Theta=Theta[,'a',drop=FALSE],
                     Sigma=Sigma[,,'a',drop=FALSE],
                     Sigmae=Sigmae[,,'a',drop=FALSE])
@@ -116,15 +116,15 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 
 # regime 'a', traits 1, 2 and 3
 model.b.123 <- list(X0 = b.X0,
-                    Alpha=Alpha1[,,'b',drop=FALSE],
+                    H=H1[,,'b',drop=FALSE],
                     Theta=Theta[,'b',drop=FALSE],
                     Sigma=Sigma[,,'b',drop=FALSE],
                     Sigmae=Sigmae[,,'b',drop=FALSE])
 class(model.b.123) <- 'OU'
 
 model.b.123.TwoSpeedOU <- list(X0 = b.X0,
-                          Alpha1=Alpha1[,,'b',drop=FALSE],
-                          Alpha2=Alpha2[,,'b',drop=FALSE],
+                          H1=H1[,,'b',drop=FALSE],
+                          H2=H2[,,'b',drop=FALSE],
                           Theta=Theta[,'b',drop=FALSE],
                           Sigma=Sigma[,,'b',drop=FALSE],
                           Sigmae=Sigmae[,,'b',drop=FALSE])
@@ -173,8 +173,8 @@ if(require(phytools)) {
 }
 
 model.ab.123 <- list(X0 = a.X0,
-                     Alpha1=Alpha1[,,,drop=FALSE],
-                     Alpha2=Alpha2[,,,drop=FALSE],
+                     H1=H1[,,,drop=FALSE],
+                     H2=H2[,,,drop=FALSE],
                      Theta=Theta[,,drop=FALSE],
                      Sigma=Sigma[,,,drop=FALSE],
                      Sigmae=Sigmae[,,,drop=FALSE])

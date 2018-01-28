@@ -33,18 +33,18 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
     modelSpec = specifyModel(
       tree = tree, modelName = "JOU",
       k = k, R = R, regimesUnique = regimesUnique,
-      paramNames = list("Alpha", "Theta", "Sigma", "Sigmae", "mj", "Sigmaj"),
+      paramNames = list("H", "Theta", "Sigma", "Sigmae", "mj", "Sigmaj"),
       paramStorageModes = list("double", "double", "double", "double", "double", "double"),
       paramDims = list(c(k, k, R), c(k, R), c(k, k, R), c(k, k, R), c(k, R), c(k, k, R))
     ),
     verbose = verbose)
 }
 
-PLambdaP_1.JOU <- function(Alpha) {
-  # here the argument Alpha is an Alpha matrix specifying the alphas in a JOU process
-  r <- eigen(Alpha)
+PLambdaP_1.JOU <- function(H) {
+  # here the argument H is an H matrix specifying the alphas in a JOU process
+  r <- eigen(H)
   if(isTRUE(all.equal(rcond(r$vectors),0))) {
-    stop(paste0("ERR:02311:PCMBase:JOU.R:PLambdaP_1.JOU:: The provided Alpha matrix is defective. Its matrix of eigenvectors is computationally singular. Alpha=", toString(Alpha)))
+    stop(paste0("ERR:02311:PCMBase:JOU.R:PLambdaP_1.JOU:: The provided H matrix is defective. Its matrix of eigenvectors is computationally singular. H=", toString(H)))
   }
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
@@ -59,7 +59,7 @@ Lambda_ij.JOU <- function(lambda) {
 #' for every element lambad_{ij} of the input matrix Lambda_ij
 #' @param Lambda_ij a squared numerical matrix of dimension k x k
 #' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
-#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   eigenvalues of the parameter matrix H. This threshold-values is used as a condition to
 #'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 #'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
 #'   "PCMBase.Threshold.Lambda_ij". The default value of 1e-8 is suitable for branch lengths bigger than
@@ -81,28 +81,28 @@ fLambda_ij.JOU <- function(
   }
 }
 
-#' Create a function of time that calculates exp(-Alpha*time)
-#' @param the argument Alpha is an Alpha matrix kxk specifying the alphas in a JOU process
+#' Create a function of time that calculates exp(-H*time)
+#' @param H a kxk matrix specifying the alphas in a JOU process
 #'
 #' @importFrom expm expm
 #' @return a function of time returning a matrix
-texp.JOU <- function(Alpha){
-  force(Alpha)
+texp.JOU <- function(H){
+  force(H)
   return(function(time){
-    res = expm(-time*Alpha)
+    res = expm(-time*H)
     return(res)
   })
 }
 
 #' Generate a multivariate (MV) JOU variance-covariance function
-#' @param lambda vector of the eignevalues of the matrix Alpha of a MV JOU process.
-#' @param P matrix of the eigenvectors of the matrix Alpha
+#' @param lambda vector of the eignevalues of the matrix H of a MV JOU process.
+#' @param P matrix of the eigenvectors of the matrix H
 #' @param P_1 inverse eigenvectors matrix
 #' @param Sigma the matrix Sigma of a MV JOU process.
-#' @param Alpha is the matrix Alpha of a MV JOU process.
+#' @param H is the matrix H of a MV JOU process.
 #' @param Sigmaj is the variance matrix of the jump distribution in JOU process
 #' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
-#'   eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+#'   eigenvalues of the parameter matrix H. This threshold-values is used as a condition to
 #'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 #'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
 #'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than
@@ -113,27 +113,27 @@ texp.JOU <- function(Alpha){
 #' the specified arguments.
 #' @export
 V.JOU <- function(
-  lambda, P, P_1, Sigma, Alpha, Sigmaj,
+  lambda, P, P_1, Sigma, H, Sigmaj,
   threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8)) {
 
   Lambda_ij <- Lambda_ij.JOU(lambda)
   fLambda_ij <- fLambda_ij.JOU(Lambda_ij, threshold.Lambda_ij)
   P_1SigmaP_t <- P_1%*%Sigma%*%t(P_1)
-  force(Alpha)
+  force(H)
   force(Sigmaj)
-  e_At <- texp.JOU(Alpha)
+  e_Ht <- texp.JOU(H)
 
   force(P)
   force(P_1)
 
   function(time, xi) {
-    e_Ati <- e_At(time)
-    Re((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_Ati %*% Sigmaj %*% t(e_Ati)))
+    e_Hti <- e_Ht(time)
+    Re((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_Hti %*% Sigmaj %*% t(e_Hti)))
   }
 }
 
 #' Create a conditional multivariate JOU distribution
-#' @param Alpha,Theta,Sigma,Sigmaj,mj,xi parameters of the multivariate JOU process; Alpha is a k x k
+#' @param H,Theta,Sigma,Sigmaj,mj,xi parameters of the multivariate JOU process; H is a k x k
 #' matrix, Theta,mj are k-vectors and Sigma,Sigmaj are k x k matrices,xi is a vector of length equal to the number
 #' of edges in the tree
 #' @return a list containging the passed parameters as well as
@@ -147,35 +147,35 @@ V.JOU <- function(
 #' @export
 mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
-    Alpha <- as.matrix(model$Alpha[,,r])
+    H <- as.matrix(model$H[,,r])
     Theta <- model$Theta[,r]
     Sigma <- as.matrix(model$Sigma[,,r])
     Sigmaj <- as.matrix(model$Sigmaj[,,r])
     mj <- model$mj[,r]
     xi <- tree$edge.jump
 
-    if(length(unique(c(length(Theta), dim(Alpha), dim(mj), dim(Sigmaj), dim(Sigma))))!=1) {
-      stop('ERR:02321:PCMBase:JOU.R:mvcond.JOU:: Some of Alpha, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
+    if(length(unique(c(length(Theta), dim(H), dim(mj), dim(Sigmaj), dim(Sigma))))!=1) {
+      stop('ERR:02321:PCMBase:JOU.R:mvcond.JOU:: Some of H, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
     }
-    PLP_1 <- PLambdaP_1.JOU(Alpha)
-    fV <- V.JOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma, Alpha, Sigmaj)
+    PLP_1 <- PLambdaP_1.JOU(H)
+    fV <- V.JOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma, H, Sigmaj)
 
     mvr <- function(n=1, x0, t, e) {
-      e_At <- expm(-t*Alpha)
-      I <- diag(nrow(Alpha))
+      e_Ht <- expm(-t*H)
+      I <- diag(nrow(H))
       rmvnorm(n=n,
-              mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*xi[e],
+              mean=e_Ht%*%x0 + (I-e_Ht)%*%Theta + mj*xi[e],
               sigma=fV(t, xi[e]))
     }
     mvd <- function(x, x0, t, e, log=FALSE) {
-      e_At <- expm(-t*Alpha)
-      I <- diag(nrow(Alpha))
+      e_Ht <- expm(-t*H)
+      I <- diag(nrow(H))
       dmvnorm(x,
-              mean=e_At%*%x0 + (I-e_At)%*%Theta + mj*xi[e],
+              mean=e_Ht%*%x0 + (I-e_Ht)%*%Theta + mj*xi[e],
               sigma=fV(t, xi[e]), log=log)
     }
 
-    list(Alpha=Alpha, Theta=Theta, Sigma=Sigma, Sigmaj = Sigmaj, mj = mj, mvr=mvr, mvd=mvd, vcov=fV)
+    list(H=H, Theta=Theta, Sigma=Sigma, Sigmaj = Sigmaj, mj = mj, mvr=mvr, mvd=mvd, vcov=fV)
   })
 }
 
@@ -187,9 +187,9 @@ mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
 #' @param tree a phylo object (see details)
 #' @param model parameters of the JOU process. This must be a
 #' named list with the following elements:
-#' Alpha: a k x k x R array, where R is the number of regimes of the
-#' JOU process, k is the number of variables (traits), each Alpha[,,r]
-#' containing the matrix Alpha for regime r;
+#' H: a k x k x R array, where R is the number of regimes of the
+#' JOU process, k is the number of variables (traits), each H[,,r]
+#' containing the matrix H for regime r;
 #' Theta: a k x R matrix, row Theta[, r] containing the long-term
 #' mean Theta for regime r;
 #' Sigma: a k x k x R array, each Sigma[,, r] containing the
@@ -234,14 +234,14 @@ AbCdEf.JOU <- function(tree, model,
   M <- metaI$M
 
   tree <- tree
-  P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$Alpha))
-  P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$Alpha))
-  lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$Alpha)[-2])
+  P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+  P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+  lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H)[-2])
 
   fV.JOU <- list()
 
   for(r in 1:R) {
-    PLambdaP_1 <- PLambdaP_1.JOU(model$Alpha[,,r])
+    PLambdaP_1 <- PLambdaP_1.JOU(model$H[,,r])
     P[,,r] <- PLambdaP_1$P
     P_1[,,r] <- PLambdaP_1$P_1
     lambda[,r] <- PLambdaP_1$lambda
@@ -250,14 +250,14 @@ AbCdEf.JOU <- function(tree, model,
                          as.matrix(P[,,r]),
                          as.matrix(P_1[,,r]),
                          as.matrix(model$Sigma[,,r]),
-                         as.matrix(model$Alpha[,,r]),
+                         as.matrix(model$H[,,r]),
                          as.matrix(model$Sigmaj[,,r]))
   }
 
   V <- array(NA, dim=c(k, k, M))
   V_1 <- array(NA, dim=c(k, k, M))
-  e_At <- array(NA, dim=c(k, k, M))
-  e_ATt <- array(NA, dim=c(k, k, M))
+  e_Ht <- array(NA, dim=c(k, k, M))
+  e_HTt <- array(NA, dim=c(k, k, M))
 
   # returned general form parameters
   A <- array(NA, dim=c(k, k, M))
@@ -295,28 +295,28 @@ AbCdEf.JOU <- function(tree, model,
     }
 
     V_1[ki,ki,i] <- solve(V[ki,ki,i])
-    e_At[,,i] <- expm(-ti*as.matrix(model$A[,,r[e]]))
+    e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[e]]))
 
     # now compute AbCdEf
     # here A is from the general form (not the alpha from JOU process)
     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
 
     b[ki,i] <- V_1[ki,ki,i] %*%
-      ((matrix(I[ki,]-e_At[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_At[ki,,i] %*% model$mj[,r[e]]*xi[e])
+      ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_Ht[ki,,i] %*% model$mj[,r[e]]*xi[e])
 
-    C[kj,kj,i] <- -0.5*t(matrix(e_At[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% matrix(e_At[ki,kj,i], sum(ki), sum(kj))
+    C[kj,kj,i] <- -0.5*t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))
 
-    d[kj,i] <- -t(matrix(e_At[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*%
-      ((matrix(I[ki,]-e_At[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_At[ki,,i] %*% model$mj[,r[e]] * xi[e])
+    d[kj,i] <- -t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*%
+      ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_Ht[ki,,i] %*% model$mj[,r[e]] * xi[e])
 
-    E[kj,ki,i] <- t(matrix(e_At[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
+    E[kj,ki,i] <- t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
 
     f[i] <-
       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
-              (t(model$Theta[,r[e]]) %*% t(matrix(I[ki,]-e_At[ki,,i], sum(ki))) + t(model$mj[,r[e]]) %*% t(matrix(e_At[ki,,i], sum(ki)))*xi[e]) %*%
-              V_1[ki,ki,i] %*% ((matrix(I[ki,]-e_At[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_At[ki,,i] %*% model$mj[,r[e]]*xi[e]))
+              (t(model$Theta[,r[e]]) %*% t(matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) + t(model$mj[,r[e]]) %*% t(matrix(e_Ht[ki,,i], sum(ki)))*xi[e]) %*%
+              V_1[ki,ki,i] %*% ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_Ht[ki,,i] %*% model$mj[,r[e]]*xi[e]))
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f, e_At=e_At, V=V, V_1=V_1)
+  list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
 }
 

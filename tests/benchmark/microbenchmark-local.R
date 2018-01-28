@@ -121,7 +121,7 @@ timePOUMMR <- function(X, tree, model) {
     )[3]*1000
 
     timeLik <- system.time(
-      for(i in 1:(10*nTests)) POUMM::likPOUMMGivenTreeVTips(Z, tree, alpha = model$Alpha[1,1,1], theta=model$Theta[1,1], sigma = model$Sigma[1,1,1], sigmae = model$Sigmae[1,1,1], g0=model$X0[1],  pruneInfo = pruneI)
+      for(i in 1:(10*nTests)) POUMM::likPOUMMGivenTreeVTips(Z, tree, alpha = model$H[1,1,1], theta=model$Theta[1,1], sigma = model$Sigma[1,1,1], sigmae = model$Sigmae[1,1,1], g0=model$X0[1],  pruneInfo = pruneI)
     )[3]*1000/(10*nTests)
     cat(timeLik, "ms\n")
 
@@ -143,7 +143,7 @@ timePOUMMCpp <- function(X, tree, model, mode) {
     )[3]*1000
 
     timeLik <- system.time(
-      for(i in 1:(10*nTests)) POUMM::likPOUMMGivenTreeVTipsC(integrator = pruneI$integrator, alpha = model$Alpha[1,1,1], theta=model$Theta[1,1], sigma = model$Sigma[1,1,1], sigmae = model$Sigmae[1,1,1], g0=model$X0[1])
+      for(i in 1:(10*nTests)) POUMM::likPOUMMGivenTreeVTipsC(integrator = pruneI$integrator, alpha = model$H[1,1,1], theta=model$Theta[1,1], sigma = model$Sigma[1,1,1], sigmae = model$Sigmae[1,1,1], g0=model$X0[1])
     )[3]*1000/(10*nTests)
 
     data.table(impl = paste0("POUMM: C++, Poly, ", getModeStr(mode)), time = timeLik, timeExtra = timeExtra)

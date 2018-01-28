@@ -24,7 +24,7 @@ colnames(Q) <- rownames(Q) <- letters[1:R]
 
 # in regime 'a' the three traits evolve according to three independent OU processes
 a.X0 <- c(5, 2, 1)
-a.Alpha <- rbind(c(0, 0, 0),
+a.H <- rbind(c(0, 0, 0),
                  c(0, 2, 0),
                  c(0, 0, 3))
 a.Theta <- c(10, 6, 2)
@@ -41,7 +41,7 @@ a.mj <- c(1, 4, 7)
 
 # in regime 'b' there is correlation between the traits
 b.X0 <- c(12, 4, 3)
-b.Alpha <- rbind(c(2, .1, .2),
+b.H <- rbind(c(2, .1, .2),
                  c(.1, .6, .2),
                  c(.2, .2, .3))
 b.Theta <- c(10, 6, 2)
@@ -56,11 +56,11 @@ b.Sigmaj <- rbind(c(.2, 0.1, 0.1),
                   c(0.1, 0, .4))
 b.mj <- c(11, 17, 42)
 
-# First, specify the Alpha, theta, Sigma sigmae2, Sigmaj, mj parameters for each regime.
+# First, specify the H, theta, Sigma sigmae2, Sigmaj, mj parameters for each regime.
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
-Alpha <- abind::abind(a.Alpha, b.Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+H <- abind::abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Theta <- abind::abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
 Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
@@ -70,7 +70,7 @@ mj <- abind::abind(a.mj, b.mj, along=2, new.names=list(xy=NULL, regime=c('a', 'b
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- list(X0 = a.X0,
-                  Alpha=Alpha[,,'a',drop=FALSE],
+                  H=H[,,'a',drop=FALSE],
                   Theta=Theta[,'a',drop=FALSE],
                   Sigma=Sigma[,,'a',drop=FALSE],
                   Sigmae=Sigmae[,,'a',drop=FALSE],
@@ -80,7 +80,7 @@ class(model.a.123) <- 'JOU'
 
 # regime 'b', traits 1, 2 and 3
 model.b.123 <- list(X0 = b.X0,
-                    Alpha=Alpha[,,'b',drop=FALSE],
+                    H=H[,,'b',drop=FALSE],
                     Theta=Theta[,'b',drop=FALSE],
                     Sigma=Sigma[,,'b',drop=FALSE],
                     Sigmae=Sigmae[,,'b',drop=FALSE],
@@ -90,7 +90,7 @@ class(model.b.123) <- 'JOU'
 
 # regimes 'a' and 'b', traits 1, 2 and 3
 model.ab.123 <- list(X0 = a.X0,
-                     Alpha=Alpha[,,,drop=FALSE],
+                     H=H[,,,drop=FALSE],
                      Theta=Theta[,,drop=FALSE],
                      Sigma=Sigma[,,,drop=FALSE],
                      Sigmae=Sigmae[,,,drop=FALSE],

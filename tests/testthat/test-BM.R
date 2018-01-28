@@ -159,13 +159,13 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 
 ################ 2nd Validation ######################################################
 
-b.OU.Alpha <- rbind(c(EPS, 0, 0),
+b.OU.H <- rbind(c(EPS, 0, 0),
                     c(0, EPS, 0),
                     c(0, 0, EPS))
 b.OU.Theta <- c(0, 0, 0)
 
 
-Alpha <- abind::abind(b.OU.Alpha, b.OU.Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
+H <- abind::abind(b.OU.H, b.OU.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
 Theta <- abind::abind(b.OU.Theta, b.OU.Theta, along=2, new.names=list(xy=NULL, regime=c('b', 'b.OU')))
 Sigma <- abind::abind(b.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
 Sigmae <- abind::abind(b.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
@@ -176,7 +176,7 @@ model.b.123 <- list(X0 = b.X0,
 class(model.b.123) <- 'BM'
 
 model.b.123.OU <- list(X0 = b.X0,
-                       Alpha=Alpha[,,'b.OU',drop=FALSE],
+                       H=H[,,'b.OU',drop=FALSE],
                        Theta=Theta[,'b.OU',drop=FALSE],
                        Sigma=Sigma[,,'b.OU',drop=FALSE],
                        Sigmae=Sigmae[,,'b.OU',drop=FALSE])
