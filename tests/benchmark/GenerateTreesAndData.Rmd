@@ -136,6 +136,9 @@ randomOUModel <- function(k) {
 ```{r random-lengths}
 set.seed(10)
 load("./Trees.RData")
+trees <- trees[1:12]
+trees[, X:=NULL]
+trees[, model:=NULL]
 g0 <- 16
 alpha <- 2
 theta <- 4
@@ -145,7 +148,14 @@ sigmae <- .8
 # set random branch lengths
 trees[, tree:=lapply(1:.N, function(i) {
   tr <- tree[[i]]
+  N <- length(tr$tip.label)
   tr$edge.length <- rexp(length(tr$edge.length), rate=1000)
+  tr_len <- POUMM::nodeTimes(tr, tipsOnly = TRUE)
+  eTips <- which(tr$edge[,2]<=N)
+  eTips <- eTips[order(tr$edge[,2][eTips])]
+  # extend branches pointing to tips to make the tree ultrametric 
+  # (needed to include Rphylopars in the test, since it doesn't support OU on non-ultrametric trees)
+  tr$edge.length[eTips] = tr$edge.length[eTips] + max(tr_len) - tr_len
   tr
 })]
 
