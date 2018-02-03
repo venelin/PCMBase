@@ -136,12 +136,12 @@ pruneTree <- function(tree) {
 
 #' For every node (root, internal or tip) in tree, build a logical vector of
 #' length k with TRUE values for every present coordinate.
-#' @param X numeric Nxk matrix of observed values, with possible NA entries. The
-#' rows in X are in the order of tree$tip.label
+#' @param X numeric k x N matrix of observed values, with possible NA entries. The
+#' columns in X are in the order of tree$tip.label
 #' @param tree a phylo object
-#' @param pruneI a list returned by the pruneITree function. Either leave this
+#' @param pruneI a list returned by the pruneTree function. Either leave this
 #' as default or pass a previously computed pruneI for the same tree.
-#' @return a Mxk logical matrix
+#' @return a k x M logical matrix
 #' @export
 presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
   edge <- tree$edge
@@ -157,32 +157,39 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
   M <- nrow(edge)+1
   k <- dim(X)[1]
 
-  pc <- rep(FALSE, k*M)
-  dim(pc) <- c(k, M)
 
-  for(i in 1:nLevels) {
-    nodes <- nodesVector[(nodesIndex[i]+1):nodesIndex[i+1]]
-    es <- endingAt[nodes]
+  if(getOption("PCMBase.Internal.PC.Full", TRUE)) {
+    pc <- rep(TRUE, k*M)
+    dim(pc) <- c(k, M)
+    pc[, 1:N] <- !is.na(X[, 1:N])
+  } else {
+    pc <- rep(FALSE, k*M)
+    dim(pc) <- c(k, M)
 
-    if(nodes[1] <= N) {
-      # all es pointing to tips
-      pc[, nodes] <- !is.na(X[, nodes])
-    } else {
-      # edges pointing to internal nodes, for which all children nodes have been
-      # visited
-      # here we do nothing
+    for(i in 1:nLevels) {
+      nodes <- nodesVector[(nodesIndex[i]+1):nodesIndex[i+1]]
+      es <- endingAt[nodes]
+
+      if(nodes[1] <= N) {
+        # all es pointing to tips
+        pc[, nodes] <- !is.na(X[, nodes])
+      } else {
+        # edges pointing to internal nodes, for which all children nodes have been
+        # visited
+        # here we do nothing
+      }
+
+      #update parent pifs
+      while(length(es)>0) {
+        un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
+        unJ <- unJ+1
+        pc[, edge[es[un], 1]] <- pc[, edge[es[un], 1]] | pc[, edge[es[un], 2]]
+        es <- es[-un]
+      }
     }
-
-    #update parent pifs
-    while(length(es)>0) {
-      un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
-      unJ <- unJ+1
-      pc[, edge[es[un], 1]] <- pc[, edge[es[un], 1]] | pc[, edge[es[un], 2]]
-      es <- es[-un]
+    if(any(rowSums(pc) == 0)) {
+      stop("ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.")
     }
-  }
-  if(any(rowSums(pc) == 0)) {
-    stop("ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.")
   }
   pc
 }
@@ -447,8 +454,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
   } else {
     regimes <- match(tree$edge.regime, modelSpec$regimesUnique)
     if(any(is.na(regimes))) {
-      stop(paste0("ERR:02023:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
-                  toString(tree$edge.regime),":",
+      stop(paste0("ERR:02023:PCMBase:MultivariatePCM.R:validateModelGeneral::: ",
                   " Some of the regimes in tree$edge.regime not found in",
                   "modelSpec$regimesUnique.\n",
                   "tree$edge.regime=", toString(tree$edge.regime), "\n",

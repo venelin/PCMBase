@@ -166,7 +166,7 @@ mvcond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
 #' Sigmae: a k x k x R array, each Sigmae[,,r] representing a diagonal matrix
 #' with elements on the diagona corresponding to the environmental variances for
 #' the k traits in regime r
-#' @param presentCoords a M x k logical matrix representing the present coordinates at each
+#' @param pc a k x M logical matrix representing the present coordinates at each
 #' node
 #'
 #' @details The dimnames
