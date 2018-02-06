@@ -23,13 +23,13 @@ library(POUMM)
 
 # Data 
 
-The input data for the phylogenetic comparative methods covered in the PCMBase package consists of a phylogenetic tree of $N$ tips and a $N\times k$ matrix, $X$ of observed trait-values, where $k$ is the number of traits. The matrix $X$ can contain ```NA```s corresponding to missing values.
+The input data for the phylogenetic comparative methods covered in the PCMBase package consists of a phylogenetic tree of $N$ tips and a $k\times N$ matrix, $X$ of observed trait-values, where $k$ is the number of traits. The matrix $X$ can contain ```NA```s corresponding to missing values.
 
 # Models
 A *model* is defined by a set of parameters and a rule stating how these parameters should be fit to the data. For example, a multivariate phylogenetic Ornstein-Uhlenbeck mixed model has the following parameters:
 
 - ```X0``` : a $k$-vector of initial values;
-- ```Alfa``` : a $k\times k$ matrix denoting the selection strength of the process;
+- ```H``` : a $k\times k$ matrix denoting the selection strength of the process;
 - ```Theta``` : a $k$-vector of long-term optimal trait values;
 - ```Sigma``` : a $k\times k$ matrix denoting the stochastic drift variance-covariances;
 - ```Sigmae``` : a $k\times k$ matrix denoting the non-genetic (non-heritable) variance covariance;
@@ -37,7 +37,7 @@ A *model* is defined by a set of parameters and a rule stating how these paramet
 The rule defining how the above OU-parameters should be fit to the data is defined by the multivariate OU Gaussian distribution, as described in (insert reference);
 
 ## Model regimes
-Model *regimes* are different instances of the model parameters (excluding root-values), which are associated with different parts of the phylogenetic tree. 
+Model *regimes* are different instances of the model parameters, which are associated with different branches of the phylogenetic tree. 
 
 ## Examples 
 
@@ -50,8 +50,8 @@ R <- 2
 k <- 3
 
 ## Specifying a trivariate OU process for each regime
-# First, specify the Alfa, Theta, Sigma and Sigmae2 parameters for each regime.
-# Then we use the abind function to stack the parameters into arrays which's first
+# First, specify the X0, H, Theta, Sigma and Sigmae2 parameters for each regime.
+# Then we use the abind function to stack the parameters into arrays which's last
 # dimension is the regime
 
 # regimes
@@ -69,7 +69,7 @@ a.Sigmae2 <- rbind(c(0, 0, 0),
                    c(0, 0, 0),
                    c(0, 0, 0))
 
-# in regime 'b' there is correlation between the traits
+# in regime 'b' there is a correlation between the traits
 b.X0 <- c(12, 4, 3)
 b.H <- rbind(c(2, .1, .2),
              c(.1, .6, .2),
