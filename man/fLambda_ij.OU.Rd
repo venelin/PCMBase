@@ -12,7 +12,7 @@ fLambda_ij.OU(Lambda_ij,
 \item{Lambda_ij}{a squared numerical matrix of dimension k x k}
 
 \item{threshold.Lambda_ij}{a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i and Lambda_j are
-eigenvalues of the parameter matrix Alpha. This threshold-values is used as a condition to
+eigenvalues of the parameter matrix H. This threshold-values is used as a condition to
 take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
 "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths bigger than

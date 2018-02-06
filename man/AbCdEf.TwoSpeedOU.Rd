@@ -14,7 +14,7 @@ form (eq. 1) for each edge in a tree}
 
 \item{model}{parameters of the TwoSpeedOU process. This must be a
 named list with the following elements:
-Alpha1, Alpha2: k x k x R arrays, where R is the number of regimes of the
+H1, H2: k x k x R arrays, where R is the number of regimes of the
 TwoSpeedOU process, k is the number of variables (traits)
 Theta: a k x R matrix, row Theta[, r] containing the long-term
 mean Theta for regime r;
@@ -24,7 +24,7 @@ Sigmae: a k x k x R array, each Sigmae[,,r] representing a diagonal matrix
 with elements on the diagona corresponding to the environmental variances for
 the k traits in regime r}
 
-\item{presentCoords}{a M x k logical matrix representing the present coordinates at each
+\item{pc}{a k x M logical matrix representing the present coordinates at each
 node}
 }
 \value{

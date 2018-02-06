@@ -7,7 +7,7 @@
 \method{mvcond}{TwoSpeedOU}(tree, model, r = 1, verbose = FALSE)
 }
 \arguments{
-\item{Alpha1, Alpha2, Theta, Sigma}{parameters of the multivariate TwoSpeedOU process; Alpha1,Alpha2 are
+\item{H1, H2, Theta, Sigma}{parameters of the multivariate TwoSpeedOU process; H1,H2 are
 k x k matrices, Theta is a k-vector and Sigma is a k x k matrix}
 }
 \value{

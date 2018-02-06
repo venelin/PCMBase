@@ -2,16 +2,16 @@
 % Please edit documentation in R/JOU.R
 \name{texp.JOU}
 \alias{texp.JOU}
-\title{Create a function of time that calculates exp(-Alpha*time)}
+\title{Create a function of time that calculates exp(-H*time)}
 \usage{
-texp.JOU(Alpha)
+texp.JOU(H)
 }
 \arguments{
-\item{the}{argument Alpha is an Alpha matrix kxk specifying the alphas in a JOU process}
+\item{H}{a kxk matrix specifying the alphas in a JOU process}
 }
 \value{
 a function of time returning a matrix
 }
 \description{
-Create a function of time that calculates exp(-Alpha*time)
+Create a function of time that calculates exp(-H*time)
 }

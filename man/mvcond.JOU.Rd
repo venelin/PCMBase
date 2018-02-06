@@ -7,7 +7,7 @@
 \method{mvcond}{JOU}(tree, model, r = 1, verbose = FALSE)
 }
 \arguments{
-\item{Alpha, Theta, Sigma, Sigmaj, mj, xi}{parameters of the multivariate JOU process; Alpha is a k x k
+\item{H, Theta, Sigma, Sigmaj, mj, xi}{parameters of the multivariate JOU process; H is a k x k
 matrix, Theta,mj are k-vectors and Sigma,Sigmaj are k x k matrices,xi is a vector of length equal to the number
 of edges in the tree}
 }

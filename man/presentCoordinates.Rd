@@ -8,16 +8,16 @@ length k with TRUE values for every present coordinate.}
 presentCoordinates(X, tree, pruneI = pruneTree(tree))
 }
 \arguments{
-\item{X}{numeric Nxk matrix of observed values, with possible NA entries. The
-rows in X are in the order of tree$tip.label}
+\item{X}{numeric k x N matrix of observed values, with possible NA entries. The
+columns in X are in the order of tree$tip.label}
 
 \item{tree}{a phylo object}
 
-\item{pruneI}{a list returned by the pruneITree function. Either leave this
+\item{pruneI}{a list returned by the pruneTree function. Either leave this
 as default or pass a previously computed pruneI for the same tree.}
 }
 \value{
-a Mxk logical matrix
+a k x M logical matrix
 }
 \description{
 For every node (root, internal or tip) in tree, build a logical vector of

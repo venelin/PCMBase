@@ -7,7 +7,7 @@
 \method{mvcond}{OU}(tree, model, r = 1, verbose = FALSE)
 }
 \arguments{
-\item{Alpha, Theta, Sigma}{parameters of the multivariate OU process; Alpha is a k x k
+\item{H, Theta, Sigma}{parameters of the multivariate OU process; H is a k x k
 matrix, Theta is a k-vector and Sigma is a k x k matrix}
 }
 \value{

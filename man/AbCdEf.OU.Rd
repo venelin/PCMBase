@@ -13,9 +13,9 @@ form (eq. 1) for each edge in a tree}
 
 \item{model}{parameters of the OU process. This must be a
 named list with the following elements:
-Alpha: a k x k x R array, where R is the number of regimes of the
-OU process, k is the number of variables (traits), each Alpha[,,r]
-containing the matrix Alpha for regime r;
+H: a k x k x R array, where R is the number of regimes of the
+OU process, k is the number of variables (traits), each H[,,r]
+containing the matrix H for regime r;
 Theta: a k x R matrix, row Theta[, r] containing the long-term
 mean Theta for regime r;
 Sigma: a k x k x R array, each Sigma[,,r] containing the
