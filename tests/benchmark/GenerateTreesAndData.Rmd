@@ -68,7 +68,7 @@ trees[, collessNorm:=colless/((N-1)*(N-2)/2)]
 save(trees, file="Trees.RData")
 ```
 
-```{r measure-depth, eval=FALE}
+```{r measure-depth, eval=FALSE}
 trees[, num.prunes:=sapply(tree, function(.) {
   ppt <- SPLiTTree:::PruningTree1$new(.)
   ppt$num_parallel_ranges_prune
