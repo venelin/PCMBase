@@ -60,7 +60,9 @@ analyze.data.common <- function(X, params.true, input) {
       parLower = input$parLower,
       parUpper = input$parUpper,
       nCallsOptim = 4,
-      listParInitMCMC = lapply(1:4, function(i) input$generate.param()),
+      nChainsMCMC = 5,
+      samplePriorMCMC = c(TRUE, TRUE, FALSE, FALSE, FALSE),
+      listParInitMCMC = lapply(1:5, function(i) input$generate.param()),
       parallelMCMC = FALSE),
     verbose = TRUE)
 
@@ -169,7 +171,7 @@ validate.common <- function(modelFromVector, prior, genParam, ...) {
 }
 
 
-#if(TRUE) {
+if(FALSE) {
   # MANUAL EXECUTION ONLY
 
   library(data.table)
@@ -192,5 +194,5 @@ validate.common <- function(modelFromVector, prior, genParam, ...) {
   plotSimmap(tree.ab, fsize = 0.01, type="fan", setEnv = TRUE)
 
 
-#}
+}
 

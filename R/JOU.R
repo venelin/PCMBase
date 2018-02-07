@@ -164,14 +164,14 @@ mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
       e_Ht <- expm(-t*H)
       I <- diag(nrow(H))
       rmvnorm(n=n,
-              mean=e_Ht%*%x0 + (I-e_Ht)%*%Theta + mj*xi[e],
+              mean=e_Ht%*%(x0 + xi[e]*mj) + (I-e_Ht)%*%Theta,
               sigma=fV(t, xi[e]))
     }
     mvd <- function(x, x0, t, e, log=FALSE) {
       e_Ht <- expm(-t*H)
       I <- diag(nrow(H))
       dmvnorm(x,
-              mean=e_Ht%*%x0 + (I-e_Ht)%*%Theta + mj*xi[e],
+              mean=e_Ht%*%(x0 + xi[e]*mj) + (I-e_Ht)%*%Theta,
               sigma=fV(t, xi[e]), log=log)
     }
 
