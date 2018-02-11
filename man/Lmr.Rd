@@ -8,6 +8,45 @@ Lmr(X, tree, model, metaI = validateModel(tree, model, verbose = verbose),
   pruneI = pruneTree(tree), pc = presentCoordinates(X, tree, pruneI),
   root.only = TRUE, verbose = FALSE)
 }
+\arguments{
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Depending on the value of the global option "PCMBase.Internal.PC.Full" \code{NA}
+entries are interpreted either as missing measurements or non-existing traits
+(see \code{\link{presentCoordinates}}).}
+
+\item{tree}{a phylo object with N tips.}
+
+\item{model}{an S3 object specifying both, the model type (class, e.g. "OU") as
+well as the concrete model parameter values at which the likelihood is to be
+calculated (see also Details).}
+
+\item{metaI}{a list returned from a call to \code{validateModel(tree, model)},
+containing meta-data such as N, M and k.}
+
+\item{pruneI}{a named list containing cached preprocessing data for the tree used
+to perform post-order traversal (pruning). By default, this is created
+using \code{pruneTree(tree)}. This will use the default R-implementation of the
+likelihood calculation, which is based on the default R-implementation of the
+function \code{\link{Lmr}} (\code{\link{Lmr.default}}) and the S3 specification
+of the function
+\code{\link{AbCdEf}} for the given model (a function called \code{AbCdEf.MODEL},
+where model is the name of the mode and the class attribute of the \code{model}
+argument. For a different implementation of the function \code{\link{Lmr}},
+provide an S3 object for which an S3 specification has been written (see Details
+and example section).}
+
+\item{pc}{a logical k x M matrix returned by \code{\link{presentCoordinates}}.}
+
+\item{root.only}{logical indicatin whether to return the calculated values of L,m,r
+only for the root or for all nodes in the tree.}
+
+\item{verbose}{logical indicating if some debug-messages should printed.}
+}
+\value{
+A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
+  only for the root if root.only=TRUE.
+}
 \description{
-Quadratic polynomial parameters L, m, r
+
 }

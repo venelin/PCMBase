@@ -2,8 +2,7 @@
 % Please edit documentation in R/MultivariatePCM.R
 \name{mvsim}
 \alias{mvsim}
-\title{Generate trait data on a tree according to a multivariate stochastic
-model with one or several regimes}
+\title{Simulation of a phylogenetic comparative model on a tree}
 \usage{
 mvsim(tree, model, X0, metaI = validateModel(tree = tree, model = model,
   verbose = verbose), verbose = FALSE)
@@ -11,38 +10,38 @@ mvsim(tree, model, X0, metaI = validateModel(tree = tree, model = model,
 \arguments{
 \item{tree}{a phylo object specifying a rooted tree.}
 
-\item{model}{an S3 object specifying the model.}
+\item{model}{an S3 object specifying the model (see Details).}
 
-\item{X0}{numeric vector of length k indicating the root value}
+\item{X0}{a numeric vector of length k (the number of traits) specifying the
+trait values at the root of the tree.}
 
 \item{metaI}{a named list containg meta-information about the data and the
-model.
-A: numeric k x k matrix specifying the selection strengths of the OU process;
-Theta numeric k-vector specifying the long-term mean of the OU process}
-
-\item{x0}{a numeric vector of length k (the number of traits) specifying the #' trait values at the root of the tree.}
-
-\item{Sigma}{numeric k x k matrix specifying the stochastic time-unit variance of the
-OU process;}
-
-\item{A, Theta, Sigma}{parameters of the OU process:
-A: a R x k x k array, where R is the number of regimes of the
-OU process, k is the number of variables (traits), each A[r,,]
-containing the matrix A for regime r;
-Theta: a R x k matrix, row Theta[r, ] containing the long-term
-mean theta for regime r;
-Sigma: a R x k x k array, each Sigma[r,,] containing the
-matrix Sigma for regime r;
-Sigmae: a R x k matrix, each Sigmae[r, ] containing the environmental
-variances for the k traits in regime r}
+model.}
 }
 \value{
-a numeric M x k matrix of values at all nodes of the tree (root,
-internal and tip), where M is the number such nodes: M=dim(tree$edge)[1]+1,
+a list with two members as follows:
+\item{values}{numeric M x k matrix of values at all nodes of the tree (root,
+internal and tip), where M is the number of nodes: M=dim(tree$edge)[1]+1,
 with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
-corresponding to the root and bigger than N+1 corresponding to internal nodes.
+corresponding to the root and bigger than N+1 corresponding to internal nodes.}
+\item{errors}{numeric M x k matrix of errors at all nodes of the tree (root,
+internal and tip). Note that these errors are only simulated if the model contains
+a k x k x R matrix member with the name 'Sigmae'. In this case the errors are
+simulated as a random Gaussian noise with 0 mean and variance covariance matrix
+defined by Sigmae. Note also that the errors on the root- and the internal nodes
+are not used as input for the values/errors at their descending nodes, because
+they are treated as non-heritable components or measurement error.}
+The function will fail in case that the length of the argument vector X0 differs
+from the number of traits specified in \code{metaI$k}. Error message: "ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length ...".
 }
 \description{
 Generate trait data on a tree according to a multivariate stochastic
 model with one or several regimes
+}
+\details{
+Internally, this function uses the \code{\link{mvcond}} iimplementation
+ for the given model class.
+}
+\seealso{
+\code{\link{mvlik}} \code{\link{validateModel}} \code{\link{mvcond}}
 }

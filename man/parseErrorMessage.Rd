@@ -11,7 +11,15 @@ parseErrorMessage(x)
 }
 \value{
 a named list with the parsed error information or NULL, if no match
-was found.
+was found. The elements of this list are named as follows:
+\item{type}{The type of the error message. Usually this is ERROR, but could be
+WARNING or anything else.}
+\item{icode}{An integer code of the error.}
+\item{project}{The name of the project locating the code that raised the error.}
+\item{file}{The name of the source-file containing the code that raised the error.}
+\item{fun}{The name of the function raising the error}
+\item{info}{A character string containing additional error-specific information}
+\item{msg}{A verbal description of the error.}
 }
 \description{
 The function searches x for a pattern matching the format

@@ -2,8 +2,7 @@
 % Please edit documentation in R/MultivariatePCM.R
 \name{presentCoordinates}
 \alias{presentCoordinates}
-\title{For every node (root, internal or tip) in tree, build a logical vector of
-length k with TRUE values for every present coordinate.}
+\title{Determine which traits are present (active) on each node of the tree}
 \usage{
 presentCoordinates(X, tree, pruneI = pruneTree(tree))
 }
@@ -17,9 +16,30 @@ columns in X are in the order of tree$tip.label}
 as default or pass a previously computed pruneI for the same tree.}
 }
 \value{
-a k x M logical matrix
+a k x M logical matrix which can be passed as a pc argument to the mvlik
+function. The function fails in case when all traits are NAs for some of the tips.
+In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
 }
 \description{
-For every node (root, internal or tip) in tree, build a logical vector of
-length k with TRUE values for every present coordinate.
+For every node (root, internal or tip) in tree, build a logical
+vector of length k with TRUE values for every present coordinate. Non-present
+coordinates arize from NA-values in the trait data. These can occur in two cases:
+\describe{
+\item{Missing measurements for some traits at some tips:}{the present coordinates are FALSE for the corresponding
+tip and trait, but are full for all traits at all internal and root nodes.}
+\item{non-existent traits for some species:}{the FALSE present coordinates propagate towards the parent
+nodes - an internal or root node will have a present coordinate set to FALSE
+for a given trait, if all of its descendants have this coordinate set to FALSE.}
+}
+These two cases have different effect on the likelihood calculation: missing
+measurements are integrated out at the parent nodes; while non-existent traits
+are treated as reduced dimensionality of the vector at the parent node.
+The PCMBase package allows to specify the treatment of NA trait values using the
+global option "PCMBase.Internal.PC.Full", which is set to TRUE by default. This
+setting corresponds to assuming that all traits exist for all tips and NA values
+are integrated out during likelihood calculation. Setting this option to FALSE
+corresponds to assuming all NA values as non-existent.
+}
+\seealso{
+\code{\link{mvlik}}
 }

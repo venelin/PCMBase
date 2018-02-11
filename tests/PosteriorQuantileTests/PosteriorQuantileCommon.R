@@ -170,29 +170,281 @@ validate.common <- function(modelFromVector, prior, genParam, ...) {
   list(env.input = env.input, res.validate = res.validate)
 }
 
+## Settings for the different models
 
-if(FALSE) {
-  # MANUAL EXECUTION ONLY
+# BM
+modelFromVectorBM <- function(x){
+  Sigma.a <- diag(rep(x[1], 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- x[2]
+  Sigma.b <- diag(diag(Sigma.a))
 
-  library(data.table)
-  library(ggplot2)
+  Sigmae.a <- Sigmae.b <- diag(rep(x[3], 2))
 
-  gplotX <- function(X, tree) {
-    N <- length(tree$tip.label)
-    times <- POUMM::nodeTimes(tree, tipsOnly = TRUE)
-    Xt <- t(X$values[, 1:N] + X$errors[, 1:N])
-    data <- as.data.table(Xt)
-    data[, id:=1:(.N)]
-    data[, time:=times]
-    data[, regime:=sapply(id, function(i) tree$edge.regime[which(tree$edge[, 2]==i)])]
+  Sigma <- abind(Sigma.a, Sigma.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  Sigmae <- abind(Sigmae.a, Sigmae.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
 
-    pl <- ggplot(data) + geom_point(aes(x=V1, y=V2, col=regime, size = time, alpha = time))
-    pl
-  }
-
-  # plotting the tree using the phytools function plotSimmap:
-  plotSimmap(tree.ab, fsize = 0.01, type="fan", setEnv = TRUE)
-
-
+  model <- list(X0 = c(0, 0), Sigma = Sigma, Sigmae = Sigmae)
+  class(model) <- "BM"
+  model
 }
+
+priorBM <- function(model){
+  if(det(model$Sigma[,,1]) < 0 |
+     det(model$Sigmae[,,1]) < 0 |
+     det(model$Sigma[,,2]) < 0 |
+     det(model$Sigmae[,,2]) < 0) {
+    -Inf
+  } else {
+    sum(c(dexp(model$Sigma[1,1,1], 1, log = TRUE),
+          dunif(model$Sigma[1,2,1],
+                min = -model$Sigma[1,1,1] *.9,
+                max = model$Sigma[1,1,1] * .9, log = TRUE),
+          dexp(model$Sigmae[1,1,1], 10, log = TRUE)))
+  }
+}
+
+genParamBM <- function() {
+  Sigma.a <- diag(rep(rexp(1, rate = 1), 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- runif(1, min = -Sigma.a[1,1] * .9, max = Sigma.a[1,1] * .9)
+  Sigma.b <- diag(diag(Sigma.a))
+
+  Sigmae.a <- Sigmae.b <- diag(rep(rexp(1, rate = 10), 2))
+
+  c("Sigma[a11]" = Sigma.a[1,1], "Sigma[a12]" = Sigma.a[1,2], "Sigmae[a11]" = Sigmae.a[1,1])
+}
+
+# OU
+modelFromVectorOU <- function(x){
+  H2.a <- matrix(0, 2, 2)
+  H2.b <- diag(x[1:2])
+  H2.b[1,2] <- H2.b[2,1] <- x[3]
+
+  Theta.a <- c(0, 0)
+  Theta.b <- x[4:5]
+
+  Sigma.a <- diag(rep(x[6], 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- x[7]
+
+  Sigma.b <- diag(diag(Sigma.a))
+
+  Sigmae.a <- Sigmae.b <- diag(rep(x[8], 2))
+
+  H2 <- abind(H2.a, H2.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  Theta <- abind(Theta.a, Theta.b, along = 2, new.names = list(xy = NULL, regime = c("a", "b")))
+  Sigma <- abind(Sigma.a, Sigma.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  Sigmae <- abind(Sigmae.a, Sigmae.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+
+  model <- list(X0 = c(0, 0), H = H2, Theta = Theta, Sigma = Sigma, Sigmae = Sigmae)
+  class(model) <- "OU"
+  model
+}
+
+priorOU <- function(model){
+  if(det(model$Sigma[,,1]) < 0 |
+     det(model$Sigmae[,,1]) < 0 |
+     det(model$H[,,2]) < 0 |
+     det(model$Sigma[,,2]) < 0 |
+     det(model$Sigmae[,,2]) < 0) {
+    -Inf
+  } else {
+    sum(c(dexp(diag(model$H[,,2]), rate = 1, log = TRUE),
+          dunif(model$H[1,2,2],
+                min = -sqrt(model$H[1,1,2]*model$H[2,2,2])*.9,
+                max = sqrt(model$H[1,1,2]*model$H[2,2,2])*.9, log = TRUE),
+          dnorm(model$Theta[1,2], 1, .5, log = TRUE),
+          dnorm(model$Theta[2,2], 2, .5, log = TRUE),
+          dexp(model$Sigma[1,1,1], 1, log = TRUE),
+          dunif(model$Sigma[1,2,1],
+                min = -model$Sigma[1,1,1] *.9,
+                max = model$Sigma[1,1,1] * .9, log = TRUE),
+          dexp(model$Sigmae[1,1,1], 10, log = TRUE)))
+  }
+}
+
+genParamOU <- function() {
+  H2.a <- matrix(0, 2, 2)
+  H2.b <- diag(rexp(2, rate = 1))
+  H2.b[1,2] <- H2.b[2,1] <- runif(1, min = -sqrt(H2.b[1,1]*H2.b[2,2])*.9, max = sqrt(H2.b[1,1]*H2.b[2,2])*.9)
+
+  Theta.b <- c(0, 0) # not part of arguments
+  Theta.b <- c(rnorm(1, 1, .5), rnorm(1, 2, .5))
+
+  Sigma.a <- diag(rep(rexp(1, rate = 1), 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- runif(1, min = -Sigma.a[1,1] * .9, max = Sigma.a[1,1] * .9)
+  Sigma.b <- diag(diag(Sigma.a))
+
+  Sigmae.a <- Sigmae.b <- diag(rep(rexp(1, rate = 10), 2))
+
+  c("H2[b11]" = H2.b[1,1], "H2[b22]" = H2.b[2,2], "H2[b12]" = H2.b[1,2],
+    "Theta[b1]" = Theta.b[1], "Theta[b2]" = Theta.b[2],
+    "Sigma[a11]" = Sigma.a[1,1], "Sigma[a12]" = Sigma.a[1,2],
+    "Sigmae[a11]" = Sigmae.a[1,1])
+}
+
+# JOU
+modelFromVectorJOU <- function(x){
+  H2.a <- matrix(0, 2, 2)
+  H2.b <- diag(x[1:2])
+  H2.b[1,2] <- H2.b[2,1] <- x[3]
+
+  Theta.a <- c(0, 0)
+  Theta.b <- x[4:5]
+
+  Sigma.a <- diag(rep(x[6], 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- x[7]
+  Sigma.b <- diag(diag(Sigma.a))
+
+  Sigmae.a <- Sigmae.b <- diag(rep(x[8], 2))
+
+  # mj.a is interpreted as a jump back to regime a, so the
+  mj.a <- -Theta.b
+  mj.b <- Theta.b
+
+  Sigmaj.a <- diag(1, nrow = 2, ncol = 2)
+  Sigmaj.b <- diag(rep(x[9], 2))
+
+  H2 <- abind(H2.a, H2.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  Theta <- abind(Theta.a, Theta.b, along = 2, new.names = list(xy = NULL, regime = c("a", "b")))
+  Sigma <- abind(Sigma.a, Sigma.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  Sigmae <- abind(Sigmae.a, Sigmae.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  mj <- abind(mj.a, mj.b, along = 2, new.names = list(xy = NULL, regime = c("a", "b")))
+  Sigmaj <- abind(Sigmaj.a, Sigmaj.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+
+  model <- list(X0 = c(0, 0), H = H2, Theta = Theta, Sigma = Sigma, Sigmae = Sigmae, mj = mj, Sigmaj = Sigmaj)
+  class(model) <- "JOU"
+  model
+}
+
+genParamJOU <- function() {
+  H2.a <- matrix(0, 2, 2)
+  H2.b <- diag(rexp(2, rate = 1))
+  H2.b[1,2] <- H2.b[2,1] <- runif(1, min = -sqrt(H2.b[1,1]*H2.b[2,2])*.9, max = sqrt(H2.b[1,1]*H2.b[2,2])*.9)
+
+  Theta.b <- c(0, 0) # not part of arguments
+  Theta.b <- c(rnorm(1, 1, .5), rnorm(1, 2, .5))
+
+  Sigma.a <- diag(rep(rexp(1, rate = 1), 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- runif(1, min = -Sigma.a[1,1] * .9, max = Sigma.a[1,1] * .9)
+  Sigma.b <- diag(diag(Sigma.a))
+
+  Sigmae.a <- Sigmae.b <- diag(rep(rexp(1, rate = 10), 2))
+
+  Sigmaj.a <- diag(1, nrow = 2, ncol = 2)
+  Sigmaj.b <- diag(rep(rexp(1, rate = 10), 2))
+
+
+  c("H2[b11]" = H2.b[1,1], "H2[b22]" = H2.b[2,2], "H2[b12]" = H2.b[1,2],
+    "Theta[b1]" = Theta.b[1], "Theta[b2]" = Theta.b[2],
+    "Sigma[a11]" = Sigma.a[1,1], "Sigma[a12]" = Sigma.a[1,2],
+    "Sigmae[a11]" = Sigmae.a[1,1],
+    "Sigmaj[b11]" = Sigmaj.b[1,1])
+}
+
+priorJOU <- function(model){
+  if(det(model$Sigma[,,1]) < 0 |
+     det(model$Sigmae[,,1]) < 0 |
+     det(model$Sigmaj[,,1]) < 0 |
+     det(model$H[,,2]) < 0 |
+     det(model$Sigma[,,2]) < 0 |
+     det(model$Sigmae[,,2]) < 0 |
+     det(model$Sigmaj[,,2]) < 0) {
+    -Inf
+  } else {
+    sum(c(dexp(diag(model$H[,,2]), rate = 1, log = TRUE),
+          dunif(model$H[1,2,2],
+                min = -sqrt(model$H[1,1,2] * model$H[2,2,2]) * .9,
+                max = sqrt(model$H[1,1,2] * model$H[2,2,2]) * .9, log = TRUE),
+          dnorm(model$Theta[1,2], 1, .5, log = TRUE),
+          dnorm(model$Theta[2,2], 2, .5, log = TRUE),
+          dexp(model$Sigma[1,1,1], 1, log = TRUE),
+          dunif(model$Sigma[1,2,1],
+                min = -model$Sigma[1,1,1] * .9,
+                max = model$Sigma[1,1,1] * .9, log = TRUE),
+          dexp(model$Sigmae[1,1,1], 10, log = TRUE),
+          dexp(model$Sigmaj[1,1,2], 10, log = TRUE)))
+  }
+}
+
+
+# TwoSpeedOU
+modelFromVectorTwoSpeedOU <- function(x){
+  H1.a <- diag(x[1], nrow = 2, ncol = 2)
+  H1.b <- diag(x[2], nrow = 2, ncol = 2)
+  H1.b[1,2] <- H1.b[2,1] <- x[3]
+
+  H2.a <- matrix(0, 2, 2)
+  H2.b <- diag(x[4:5])
+  H2.b[1,2] <- H2.b[2,1] <- x[6]
+
+  Theta.a <- c(0, 0)
+  Theta.b <- x[7:8]
+
+  Sigma.a <- diag(rep(x[9], 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- x[10]
+
+  Sigma.b <- diag(diag(Sigma.a))
+
+  Sigmae.a <- Sigmae.b <- diag(rep(x[11], 2))
+
+  H1 <- abind(H1.a, H1.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  H2 <- abind(H2.a, H2.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  Theta <- abind(Theta.a, Theta.b, along = 2, new.names = list(xy = NULL, regime = c("a", "b")))
+  Sigma <- abind(Sigma.a, Sigma.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+  Sigmae <- abind(Sigmae.a, Sigmae.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
+
+  model <- list(X0 = c(0, 0), H1 = H1, H2 = H2, Theta = Theta, Sigma = Sigma, Sigmae = Sigmae)
+  class(model) <- "TwoSpeedOU"
+  model
+}
+
+priorTwoSpeedOU <- function(model){
+  if(det(model$Sigma[,,1]) < 0 |
+     det(model$Sigmae[,,1]) < 0 |
+     det(model$H2[,,2]) < 0 |
+     det(model$Sigma[,,2]) < 0 |
+     det(model$Sigmae[,,2]) < 0) {
+    -Inf
+  } else {
+    sum(c(dnorm(model$H1[1,1,1], 0, .5, log = TRUE),
+          dnorm(model$H1[1,1,2], 0, .5, log = TRUE),
+          dnorm(model$H1[1,2,2], 0, .5, log = TRUE),
+          dexp(diag(model$H2[,,2]), rate = 1, log = TRUE),
+          dunif(model$H2[1,2,2],
+                min = -sqrt(model$H2[1,1,2] * model$H2[2,2,2]) * .9,
+                max = sqrt(model$H2[1,1,2] * model$H2[2,2,2]) * .9, log = TRUE),
+          dnorm(model$Theta[1,2], 1, .5, log = TRUE),
+          dnorm(model$Theta[2,2], 2, .5, log = TRUE),
+          dexp(model$Sigma[1,1,1], 1, log = TRUE),
+          dunif(model$Sigma[1,2,1],
+                min = -model$Sigma[1,1,1] * .9,
+                max = model$Sigma[1,1,1] * .9, log = TRUE),
+          dexp(model$Sigmae[1,1,1], 10, log = TRUE)))
+  }
+}
+
+genParamTwoSpeedOU <- function() {
+  H1.a <- diag(rnorm(1, 0, .5), nrow = 2, ncol = 2)
+  H1.b <- diag(rnorm(1, 0, .5), nrow = 2, ncol = 2)
+  H1.b[1,2] <- H1.b[2,1] <- rnorm(1, 0, .5)
+
+  H2.a <- matrix(0, 2, 2)
+  H2.b <- diag(rexp(2, rate = 1))
+  H2.b[1,2] <- H2.b[2,1] <- runif(1, min = -sqrt(H2.b[1,1]*H2.b[2,2])*.9, max = sqrt(H2.b[1,1]*H2.b[2,2])*.9)
+
+  Theta.b <- c(0, 0) # not part of arguments
+  Theta.b <- c(rnorm(1, 1, .5), rnorm(1, 2, .5))
+
+  Sigma.a <- diag(rep(rexp(1, rate = 1), 2))
+  Sigma.a[1,2] <- Sigma.a[2,1] <- runif(1, min = -Sigma.a[1,1] * .9, max = Sigma.a[1,1] * .9)
+  Sigma.b <- diag(diag(Sigma.a))
+
+  Sigmae.a <- Sigmae.b <- diag(rep(rexp(1, rate = 10), 2))
+
+  c("H1[a11]" = H1.a[1,1], "H1[b11]" = H1.b[1,1], "H1[b12]" = H1.b[1,2],
+    "H2[b11]" = H2.b[1,1], "H2[b22]" = H2.b[2,2], "H2[b12]" = H2.b[1,2],
+    "Theta[b1]" = Theta.b[1], "Theta[b2]" = Theta.b[2],
+    "Sigma[a11]" = Sigma.a[1,1], "Sigma[a12]" = Sigma.a[1,2],
+    "Sigmae[a11]" = Sigmae.a[1,1])
+}
+
 

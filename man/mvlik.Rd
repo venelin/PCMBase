@@ -2,12 +2,86 @@
 % Please edit documentation in R/MultivariatePCM.R
 \name{mvlik}
 \alias{mvlik}
-\title{Multivariate likelihood calculation}
+\title{Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages}
 \usage{
 mvlik(X, tree, model, metaI = validateModel(tree, model, verbose = verbose),
   pruneI = pruneTree(tree), pc = presentCoordinates(X, tree), log = TRUE,
-  verbose = FALSE, debug = FALSE)
+  verbose = FALSE)
+}
+\arguments{
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Depending on the value of the global option "PCMBase.Internal.PC.Full" \code{NA}
+entries are interpreted either as missing measurements or non-existing traits
+(see \code{\link{presentCoordinates}}).}
+
+\item{tree}{a phylo object with N tips.}
+
+\item{model}{an S3 object specifying both, the model type (class, e.g. "OU") as
+well as the concrete model parameter values at which the likelihood is to be
+calculated (see also Details).}
+
+\item{metaI}{a list returned from a call to \code{validateModel(tree, model)},
+containing meta-data such as N, M and k.}
+
+\item{pruneI}{a named list containing cached preprocessing data for the tree used
+to perform post-order traversal (pruning). By default, this is created
+using \code{pruneTree(tree)}. This will use the default R-implementation of the
+likelihood calculation, which is based on the default R-implementation of the
+function \code{\link{Lmr}} (\code{\link{Lmr.default}}) and the S3 specification
+of the function
+\code{\link{AbCdEf}} for the given model (a function called \code{AbCdEf.MODEL},
+where model is the name of the mode and the class attribute of the \code{model}
+argument. For a different implementation of the function \code{\link{Lmr}},
+provide an S3 object for which an S3 specification has been written (see Details
+and example section).}
+
+\item{pc}{a logical k x M matrix returned by \code{\link{presentCoordinates}}.}
+
+\item{log}{logical indicating whether a log-liklehood should be calculated. Default
+is TRUE.}
+
+\item{verbose}{logical indicating if some debug-messages should printed.}
+}
+\value{
+a numerical value with named attributes as follows:
+\item{X0}{A numerical vector of length k specifying the value at the root for which
+the likelihood value was calculated. If the model contains a member called X0, this
+vector is used; otherwise the value of X0 maximizing the likelihood for the given
+model parameters is calculated by maximizing the quadratic polynomial
+'X0 * L_root * X0 + m_root * X0 + r_root'.}
+\item{error}{A named list containing error information if a numerical or other
+logical error occured during likelihood calculation (this is a list returned by
+ \code{\link{parseErrorMessage}}.}
+ If an error occured during likelihood calculation, the default behavior is to
+ return NA with a non-NULL error attribute. This behavior can be changed in
+ using global options:
+ \item{"PCMBase.Value.NA"}{Allows to specify a different NA value such as \code{-Inf} or \code{-1e20} which can be used in compbination with \code{log = TRUE} when
+  using \code{optim} to maximize the log-likelihood;}
+ \item{"PCMBase.Errors.As.Warnings"}{Setting this option to FALSE will cause any
+ error to result in calling the \code{\link{stop}} R-base function. If not caught
+ in a \code{\link{tryCatch}}, this will cause the inference procedure to abort at the occurence of a numerical error. By default, this option is set to TRUE, which
+ means that \code{getOption("PCMBase.Value.NA", as.double(NA))} is returned with
+ an error attribute and a warning is issued.}
 }
 \description{
-Multivariate likelihood calculation
+The likelihood of a PCM represets the probability density function
+  of observed trait values (data) at the tips of a tree given the tree and
+  the model parameters. Seen as a function of the model parameters, the
+  likelihood is used to fit the model to the observed trait data and the
+  phylogenetic tree (which is typically inferred from another sort of data, such
+  as an alignment of genetic sequences for the species at the tips of the tree).
+  The \code{\link{mvlik}} function
+  provides a common interface for calculating the (log-)likelihood of different
+  PCMs.
+  Below we denote by N the number of tips, by M the total number of nodes in the
+  tree including tips, internal and root node, and by k - the number of traits.
+}
+\details{
+For efficiency, the arguments \code{metaI}, \code{pruneI} and \code{pc}
+  can be provided explicitly, because these are not supposed to change during a
+  model inference procedure such as likelihood maximization (see example).
+}
+\seealso{
+\code{\link{validateModel}} \code{\link{presentCoordinates}} \code{\link{pruneTree}} \code{\link{AbCdEf}} \code{\link{Lmr}} \code{\link{mvsim}} \code{\link{mvcond}} \code{\link{parseErrorMessage}}
 }

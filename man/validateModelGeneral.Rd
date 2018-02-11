@@ -16,6 +16,9 @@ validateModelGeneral(tree, model, modelSpec, verbose)
 \item{verbose}{a logical indicating if the log messges should be
 printed on the screen during validation.}
 }
+\value{
+a named list
+}
 \description{
 General function for validating a model
 }

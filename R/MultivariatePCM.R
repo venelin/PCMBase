@@ -7,6 +7,288 @@
 #'
 NULL
 
+#' Simulation of a phylogenetic comparative model on a tree
+#'
+#' @description Generate trait data on a tree according to a multivariate stochastic
+#' model with one or several regimes
+#'
+#' @param X0 a numeric vector of length k (the number of traits) specifying the
+#' trait values at the root of the tree.
+#' @param tree a phylo object specifying a rooted tree.
+#' @param model an S3 object specifying the model (see Details).
+#' @param metaI a named list containg meta-information about the data and the
+#' model.
+#'
+#' @details Internally, this function uses the \code{\link{mvcond}} iimplementation
+#'  for the given model class.
+#'
+#' @return a list with two members as follows:
+#' \item{values}{numeric M x k matrix of values at all nodes of the tree (root,
+#' internal and tip), where M is the number of nodes: M=dim(tree$edge)[1]+1,
+#' with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
+#' corresponding to the root and bigger than N+1 corresponding to internal nodes.}
+#' \item{errors}{numeric M x k matrix of errors at all nodes of the tree (root,
+#' internal and tip). Note that these errors are only simulated if the model contains
+#' a k x k x R matrix member with the name 'Sigmae'. In this case the errors are
+#' simulated as a random Gaussian noise with 0 mean and variance covariance matrix
+#' defined by Sigmae. Note also that the errors on the root- and the internal nodes
+#' are not used as input for the values/errors at their descending nodes, because
+#' they are treated as non-heritable components or measurement error.}
+#' The function will fail in case that the length of the argument vector X0 differs
+#' from the number of traits specified in \code{metaI$k}. Error message: "ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length ...".
+#'
+#' @importFrom mvtnorm rmvnorm
+#' @seealso \code{\link{mvlik}} \code{\link{validateModel}} \code{\link{mvcond}}
+#' @export
+mvsim <- function(
+  tree, model, X0,
+  metaI = validateModel(tree = tree, model = model,
+                        verbose = verbose),
+  verbose = FALSE) {
+
+  if(length(X0)!=metaI$k) {
+    stop(paste('ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length', metaI$k, '.'))
+  }
+
+  values <- errors <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
+  values[, metaI$N + 1] <- X0
+
+  ordBF <- orderBreadthFirst(tree)
+
+  # create a list of random generator functions for each regime
+  funMVCond <- lapply(1:metaI$R, function(r) {
+    mvcond(tree, model = model, r = r, verbose = verbose)$mvr
+  })
+
+  for(e in ordBF) {
+    values[, tree$edge[e, 2]] <-
+      funMVCond[[metaI$regimes[e]]](
+        n=1, x0 = values[, tree$edge[e,1]], t = tree$edge.length[e], e = e)
+    if(!is.null(model$Sigmae)) {
+      errors[, tree$edge[e, 2]] <-
+        rmvnorm(1, rep(0, metaI$k),
+                as.matrix(model$Sigmae[,, metaI$regimes[e]]))
+    }
+  }
+
+  list(values=values, errors=errors)
+}
+
+#' Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages
+#'
+#' @description The likelihood of a PCM represets the probability density function
+#'   of observed trait values (data) at the tips of a tree given the tree and
+#'   the model parameters. Seen as a function of the model parameters, the
+#'   likelihood is used to fit the model to the observed trait data and the
+#'   phylogenetic tree (which is typically inferred from another sort of data, such
+#'   as an alignment of genetic sequences for the species at the tips of the tree).
+#'   The \code{\link{mvlik}} function
+#'   provides a common interface for calculating the (log-)likelihood of different
+#'   PCMs.
+#'   Below we denote by N the number of tips, by M the total number of nodes in the
+#'   tree including tips, internal and root node, and by k - the number of traits.
+#'
+#' @param X a \code{k x N} numerical matrix with possible \code{NA} entries. Each
+#'   column of X contains the measured trait values for one species (tip in tree).
+#'   Depending on the value of the global option "PCMBase.Internal.PC.Full" \code{NA}
+#'   entries are interpreted either as missing measurements or non-existing traits
+#'   (see \code{\link{presentCoordinates}}).
+#' @param tree a phylo object with N tips.
+#' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
+#'   well as the concrete model parameter values at which the likelihood is to be
+#'   calculated (see also Details).
+#' @param metaI a list returned from a call to \code{validateModel(tree, model)},
+#'   containing meta-data such as N, M and k.
+#' @param pruneI a named list containing cached preprocessing data for the tree used
+#'   to perform post-order traversal (pruning). By default, this is created
+#'   using \code{pruneTree(tree)}. This will use the default R-implementation of the
+#'   likelihood calculation, which is based on the default R-implementation of the
+#'   function \code{\link{Lmr}} (\code{\link{Lmr.default}}) and the S3 specification
+#'   of the function
+#'   \code{\link{AbCdEf}} for the given model (a function called \code{AbCdEf.MODEL},
+#'   where model is the name of the mode and the class attribute of the \code{model}
+#'   argument. For a different implementation of the function \code{\link{Lmr}},
+#'   provide an S3 object for which an S3 specification has been written (see Details
+#'   and example section).
+#' @param pc a logical k x M matrix returned by \code{\link{presentCoordinates}}.
+#' @param log logical indicating whether a log-liklehood should be calculated. Default
+#'  is TRUE.
+#' @param verbose logical indicating if some debug-messages should printed.
+#'
+#' @return a numerical value with named attributes as follows:
+#' \item{X0}{A numerical vector of length k specifying the value at the root for which
+#' the likelihood value was calculated. If the model contains a member called X0, this
+#' vector is used; otherwise the value of X0 maximizing the likelihood for the given
+#' model parameters is calculated by maximizing the quadratic polynomial
+#' 'X0 * L_root * X0 + m_root * X0 + r_root'.}
+#' \item{error}{A named list containing error information if a numerical or other
+#' logical error occured during likelihood calculation (this is a list returned by
+#'  \code{\link{parseErrorMessage}}.}
+#'  If an error occured during likelihood calculation, the default behavior is to
+#'  return NA with a non-NULL error attribute. This behavior can be changed in
+#'  using global options:
+#'  \item{"PCMBase.Value.NA"}{Allows to specify a different NA value such as \code{-Inf} or \code{-1e20} which can be used in compbination with \code{log = TRUE} when
+#'   using \code{optim} to maximize the log-likelihood;}
+#'  \item{"PCMBase.Errors.As.Warnings"}{Setting this option to FALSE will cause any
+#'  error to result in calling the \code{\link{stop}} R-base function. If not caught
+#'  in a \code{\link{tryCatch}}, this will cause the inference procedure to abort at the occurence of a numerical error. By default, this option is set to TRUE, which
+#'  means that \code{getOption("PCMBase.Value.NA", as.double(NA))} is returned with
+#'  an error attribute and a warning is issued.}
+#'
+#' @details For efficiency, the arguments \code{metaI}, \code{pruneI} and \code{pc}
+#'   can be provided explicitly, because these are not supposed to change during a
+#'   model inference procedure such as likelihood maximization (see example).
+#'
+#' @seealso \code{\link{validateModel}} \code{\link{presentCoordinates}} \code{\link{pruneTree}} \code{\link{AbCdEf}} \code{\link{Lmr}} \code{\link{mvsim}} \code{\link{mvcond}} \code{\link{parseErrorMessage}}
+#' @export
+mvlik <- function(X, tree, model,
+                  metaI =validateModel(tree, model, verbose = verbose),
+                  pruneI = pruneTree(tree),
+                  pc = presentCoordinates(X, tree),
+                  log = TRUE,
+                  verbose = FALSE) {
+
+  # will change this value if there is no error
+  value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
+
+  Lmr <- try(Lmr(X, tree, model, metaI, pruneI, pc, verbose = verbose, root.only = TRUE),
+             silent = TRUE)
+
+  if(class(Lmr) == "try-error") {
+    errL <- parseErrorMessage(Lmr)
+    if(is.null(errL)) {
+      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating the coefficients L,m,r. Error message from call to Lmr: ", Lmr)
+      errL <- parseErrorMessage(err)
+    } else {
+      err <- Lmr
+    }
+    if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+      warning(err)
+    } else {
+      stop(err)
+    }
+    X0 <- model$X0
+    attr(value.NA, 'X0') <- X0
+    attr(value.NA, "error") <- errL
+
+    return(value.NA)
+
+  } else if(is.list(Lmr)) {
+
+    L_root <- Lmr$L
+    m_root <- Lmr$m
+    r_root <- Lmr$r
+
+    if(is.null(L_root) | is.null(m_root) | is.null(r_root)) {
+      err <- paste0("ERR:02042:PCMBase:MultivariatePCM.R:mvlik:: The list returned by Lmr did not contain elements 'L', 'm' and 'r'.")
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      errL <- parseErrorMessage(err)
+
+      X0 <- model$X0
+      attr(value.NA, 'X0') <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    }
+
+    if(is.null(model$X0)) {
+      # set the root value to the one that maximizes the likelihood
+      X0 <- try(solve(a=L_root + t(L_root), b = -m_root), silent = TRUE)
+      if(class(X0) == "try-error") {
+        err <- paste0(
+          "ERR:02043:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
+          ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0)
+
+        errL <- parseErrorMessage(err)
+        if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+          warning(err)
+        } else {
+          stop(err)
+        }
+        X0 <- NULL
+        attr(value.NA, "X0") <- X0
+        attr(value.NA, "error") <- errL
+
+        return(value.NA)
+
+      }
+
+    } else {
+
+      X0 <- model$X0
+
+    }
+
+    loglik <- try(X0 %*% L_root %*% X0 + m_root %*% X0 + r_root, silent = TRUE)
+    if(class(loglik) == "try-error") {
+      err <- paste0(
+        "ERR:02044:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
+        ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik)
+
+      errL <- parseErrorMessage(err)
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      attr(value.NA, "X0") <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    }
+
+    value <- try(as.vector(if(log) loglik else exp(loglik)), silent = TRUE)
+
+    if(class(value) == "try-error") {
+      err <- paste0(
+        "ERR:02045:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value)
+
+      errL <- parseErrorMessage(err)
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      attr(value.NA, "X0") <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    } else if(is.na(value)) {
+
+      err <- paste0(
+        "ERR:02046:PCMBase:MultivariatePCM.R:mvlik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to Lmr. Check for runtime warnings.")
+
+      errL <- parseErrorMessage(err)
+      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
+        warning(err)
+      } else {
+        stop(err)
+      }
+
+      attr(value.NA, "X0") <- X0
+      attr(value.NA, "error") <- errL
+
+      return(value.NA)
+
+    }
+
+    # no errors detected, returning the calculated likelihood value:
+    attr(value, "X0") <- X0
+    return(value)
+  }
+}
+
+
 #' Breadth-first tree traversal
 #' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
 #' one daughter node)
@@ -134,14 +416,36 @@ pruneTree <- function(tree) {
 }
 
 
-#' For every node (root, internal or tip) in tree, build a logical vector of
-#' length k with TRUE values for every present coordinate.
+#' Determine which traits are present (active) on each node of the tree
+#'
+#' @description For every node (root, internal or tip) in tree, build a logical
+#' vector of length k with TRUE values for every present coordinate. Non-present
+#' coordinates arize from NA-values in the trait data. These can occur in two cases:
+#' \describe{
+#' \item{Missing measurements for some traits at some tips:}{the present coordinates are FALSE for the corresponding
+#' tip and trait, but are full for all traits at all internal and root nodes.}
+#' \item{non-existent traits for some species:}{the FALSE present coordinates propagate towards the parent
+#' nodes - an internal or root node will have a present coordinate set to FALSE
+#' for a given trait, if all of its descendants have this coordinate set to FALSE.}
+#' }
+#' These two cases have different effect on the likelihood calculation: missing
+#' measurements are integrated out at the parent nodes; while non-existent traits
+#' are treated as reduced dimensionality of the vector at the parent node.
+#' The PCMBase package allows to specify the treatment of NA trait values using the
+#' global option "PCMBase.Internal.PC.Full", which is set to TRUE by default. This
+#' setting corresponds to assuming that all traits exist for all tips and NA values
+#' are integrated out during likelihood calculation. Setting this option to FALSE
+#' corresponds to assuming all NA values as non-existent.
+#'
 #' @param X numeric k x N matrix of observed values, with possible NA entries. The
 #' columns in X are in the order of tree$tip.label
 #' @param tree a phylo object
 #' @param pruneI a list returned by the pruneTree function. Either leave this
 #' as default or pass a previously computed pruneI for the same tree.
-#' @return a k x M logical matrix
+#' @return a k x M logical matrix which can be passed as a pc argument to the mvlik
+#' function. The function fails in case when all traits are NAs for some of the tips.
+#' In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
+#' @seealso \code{\link{mvlik}}
 #' @export
 presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
   edge <- tree$edge
@@ -194,79 +498,19 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
   pc
 }
 
-#' Generate trait data on a tree according to a multivariate stochastic
-#' model with one or several regimes
-#'
-#' @param x0 a numeric vector of length k (the number of traits) specifying the #' trait values at the root of the tree.
-#' @param tree a phylo object specifying a rooted tree.
-#' @param model an S3 object specifying the model.
-#' @param metaI a named list containg meta-information about the data and the
-#' model.
-#' A: numeric k x k matrix specifying the selection strengths of the OU process;
-#' Theta numeric k-vector specifying the long-term mean of the OU process
-#' @param Sigma numeric k x k matrix specifying the stochastic time-unit variance of the
-#' OU process;
-#'
-#' @param A,Theta,Sigma parameters of the OU process:
-#' A: a R x k x k array, where R is the number of regimes of the
-#' OU process, k is the number of variables (traits), each A[r,,]
-#' containing the matrix A for regime r;
-#' Theta: a R x k matrix, row Theta[r, ] containing the long-term
-#' mean theta for regime r;
-#' Sigma: a R x k x k array, each Sigma[r,,] containing the
-#' matrix Sigma for regime r;
-#' Sigmae: a R x k matrix, each Sigmae[r, ] containing the environmental
-#' variances for the k traits in regime r
-#'
-#' @param X0 numeric vector of length k indicating the root value
-#'
-#' @return a numeric M x k matrix of values at all nodes of the tree (root,
-#' internal and tip), where M is the number such nodes: M=dim(tree$edge)[1]+1,
-#' with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
-#' corresponding to the root and bigger than N+1 corresponding to internal nodes.
-#'
-#' @importFrom mvtnorm rmvnorm
-#' @export
-mvsim <- function(
-  tree, model, X0,
-  metaI = validateModel(tree = tree, model = model,
-                        verbose = verbose),
-  verbose = FALSE) {
-
-  if(length(X0)!=metaI$k) {
-    stop(paste('ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length', metaI$k, '.'))
-  }
-
-  values <- errors <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
-  values[, metaI$N + 1] <- X0
-
-  ordBF <- orderBreadthFirst(tree)
-
-  # create a list of random generator functions for each regime
-  funMVCond <- lapply(1:metaI$R, function(r) {
-    mvcond(tree, model = model, r = r, verbose = verbose)$mvr
-  })
-
-  for(e in ordBF) {
-    values[, tree$edge[e, 2]] <-
-      funMVCond[[metaI$regimes[e]]](
-        n=1, x0 = values[, tree$edge[e,1]], t = tree$edge.length[e], e = e)
-    if(!is.null(model$Sigmae)) {
-      errors[, tree$edge[e, 2]] <-
-        rmvnorm(1, rep(0, metaI$k),
-                as.matrix(model$Sigmae[,, metaI$regimes[e]]))
-    }
-  }
-
-  list(values=values, errors=errors)
-}
-
 
 # The specifics of every model are programmed in specifications of a
 # few S3 generic functions:
 
-#' An S3 generic function validating a model for a given tree.
-#' @description This function should be implemented for each model.
+#' Validating a phylogenetic comparative model
+#'
+#' @description An S3 generic function validating a model for a given tree. This
+#'   function should be implemented for each model class.
+#' @param tree a phylo object
+#' @param model an S3 object specifying a model (a list with a non-null class attribute).
+#' @param verbose a logical specifying if some information should be printed on
+#' the console.
+#' @return a logical value
 #' @export
 validateModel <- function(tree, model, verbose = FALSE) {
   UseMethod("validateModel", model)
@@ -400,7 +644,7 @@ specifyModel <- function(tree, modelName,
 #' @param modelSpec an object of S3 class ModelSpecification
 #' @param verbose a logical indicating if the log messges should be
 #'   printed on the screen during validation.
-#'
+#' @return a named list
 validateModelGeneral <- function(tree, model, modelSpec, verbose) {
   if(class(model)[[1]] != modelSpec$modelName) {
     stop(paste0("ERR:02020:PCMBase:MultivariatePCM.R:validateModelGeneral:: The model object should be of S3 class: ", modelSpec$modelName, " but was of class ", class(model)[[1]], "."))
@@ -497,20 +741,36 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
 }
 
 #' Multivariate normal distribution for a given tree and model
+#' @descirption An S3 generic function that has to be implemented for every model
+#'  class.
+#' @inheritParams mvlik
+#' @param r an integer specifying a model regime
+#' @return a list with the following members:
+#' \item{mvr}{}
+#' \item{mvd}{}
 #' @export
 mvcond <- function(tree, model, metaI, r=1, verbose = FALSE) {
   UseMethod("mvcond", model)
 }
 
 #' Quadratic polynomial parameters A, b, C, d, E, f for each node
-#' @description A generic function specified for every model class. This
-#' function is called by mvlik.
+#' @description An S3 generic function that has to be implemented for every
+#'  model class. This function is called by \code{\link{mvlik}}.
+#' @inheritParams mvlik
 #' @export
 AbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
   UseMethod("AbCdEf", model)
 }
 
 #' Quadratic polynomial parameters L, m, r
+#'
+#' @description
+#'
+#' @inheritParams mvlik
+#' @param root.only logical indicatin whether to return the calculated values of L,m,r
+#'  only for the root or for all nodes in the tree.
+#' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
+#'   only for the root if root.only=TRUE.
 #' @export
 Lmr <- function(X, tree, model,
                 metaI = validateModel(tree, model, verbose = verbose),
@@ -524,7 +784,9 @@ Lmr <- function(X, tree, model,
 #' @details This funciton is not a generic S3 implementation of Lmr - it needs
 #' additional raguments and is designed to be called by mvlik. It can still
 #' be called by the end-user for debugging purpose.
-#' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree.
+#' @inheritParams mvlik
+#' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
+#'   only for the root if root.only=TRUE.
 #' @export
 Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
                        pruneI = pruneTree(tree),
@@ -671,155 +933,6 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
 }
 
 
-#' Multivariate likelihood calculation
-#' @export
-mvlik <- function(X, tree, model,
-                metaI =validateModel(tree, model, verbose = verbose),
-                pruneI = pruneTree(tree),
-                pc = presentCoordinates(X, tree),
-                log = TRUE,
-                verbose = FALSE,
-                debug = FALSE) {
-
-  # will change this value if there is no error
-  value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
-
-  Lmr <- try(Lmr(X, tree, model, metaI, pruneI, pc, verbose = verbose, root.only = TRUE),
-             silent = TRUE)
-
-  if(class(Lmr) == "try-error") {
-    errL <- parseErrorMessage(Lmr)
-    if(is.null(errL)) {
-      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating the coefficients L,m,r. Error message from call to Lmr: ", Lmr)
-      errL <- parseErrorMessage(err)
-    } else {
-      err <- Lmr
-    }
-    if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
-      warning(err)
-    } else {
-      stop(err)
-    }
-    X0 <- model$X0
-    attr(value.NA, 'X0') <- X0
-    attr(value.NA, "error") <- errL
-
-    return(value.NA)
-
-  } else if(is.list(Lmr)) {
-
-    L_root <- Lmr$L
-    m_root <- Lmr$m
-    r_root <- Lmr$r
-
-    if(is.null(L_root) | is.null(m_root) | is.null(r_root)) {
-      err <- paste0("ERR:02042:PCMBase:MultivariatePCM.R:mvlik:: The list returned by Lmr did not contain elements 'L', 'm' and 'r'.")
-      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
-        warning(err)
-      } else {
-        stop(err)
-      }
-
-      errL <- parseErrorMessage(err)
-
-      X0 <- model$X0
-      attr(value.NA, 'X0') <- X0
-      attr(value.NA, "error") <- errL
-
-      return(value.NA)
-
-    }
-
-    if(is.null(model$X0)) {
-      # set the root value to the one that maximizes the likelihood
-      X0 <- try(solve(a=L_root + t(L_root), b = -m_root), silent = TRUE)
-      if(class(X0) == "try-error") {
-        err <- paste0(
-          "ERR:02043:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
-          ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0)
-
-        errL <- parseErrorMessage(err)
-        if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
-          warning(err)
-        } else {
-          stop(err)
-        }
-        X0 <- NULL
-        attr(value.NA, "X0") <- X0
-        attr(value.NA, "error") <- errL
-
-        return(value.NA)
-
-      }
-
-    } else {
-
-      X0 <- model$X0
-
-    }
-
-    loglik <- try(X0 %*% L_root %*% X0 + m_root %*% X0 + r_root, silent = TRUE)
-    if(class(loglik) == "try-error") {
-      err <- paste0(
-        "ERR:02044:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
-        ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik)
-
-      errL <- parseErrorMessage(err)
-      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
-        warning(err)
-      } else {
-        stop(err)
-      }
-
-      attr(value.NA, "X0") <- X0
-      attr(value.NA, "error") <- errL
-
-      return(value.NA)
-
-    }
-
-    value <- try(as.vector(if(log) loglik else exp(loglik)), silent = TRUE)
-
-    if(class(value) == "try-error") {
-      err <- paste0(
-        "ERR:02045:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value)
-
-      errL <- parseErrorMessage(err)
-      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
-        warning(err)
-      } else {
-        stop(err)
-      }
-
-      attr(value.NA, "X0") <- X0
-      attr(value.NA, "error") <- errL
-
-      return(value.NA)
-
-    } else if(is.na(value)) {
-
-      err <- paste0(
-        "ERR:02046:PCMBase:MultivariatePCM.R:mvlik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to Lmr. Check for runtime warnings.")
-
-      errL <- parseErrorMessage(err)
-      if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
-        warning(err)
-      } else {
-        stop(err)
-      }
-
-      attr(value.NA, "X0") <- X0
-      attr(value.NA, "error") <- errL
-
-      return(value.NA)
-
-    }
-
-    # no errors detected, returning the calculated likelihood value:
-    attr(value, "X0") <- X0
-    return(value)
-  }
-}
 
 #' Extract error information from a formatted error message.
 #' @param x character string representing the error message.
@@ -827,7 +940,15 @@ mvlik <- function(X, tree, model,
 #' 'ERR:5-digit-code:project-name:source-file:error-specifics:'. Specifically it
 #' searches for a regular expression pattern "ERR:[0-9]+:[^:]+:[^:]+:[^:]+:[^:]*:".
 #' @return a named list with the parsed error information or NULL, if no match
-#' was found.
+#' was found. The elements of this list are named as follows:
+#' \item{type}{The type of the error message. Usually this is ERROR, but could be
+#' WARNING or anything else.}
+#' \item{icode}{An integer code of the error.}
+#' \item{project}{The name of the project locating the code that raised the error.}
+#' \item{file}{The name of the source-file containing the code that raised the error.}
+#' \item{fun}{The name of the function raising the error}
+#' \item{info}{A character string containing additional error-specific information}
+#' \item{msg}{A verbal description of the error.}
 #' @export
 parseErrorMessage <- function(x) {
   res <- try({

@@ -6,6 +6,25 @@
 \usage{
 mvcond(tree, model, metaI, r = 1, verbose = FALSE)
 }
+\arguments{
+\item{tree}{a phylo object with N tips.}
+
+\item{model}{an S3 object specifying both, the model type (class, e.g. "OU") as
+well as the concrete model parameter values at which the likelihood is to be
+calculated (see also Details).}
+
+\item{metaI}{a list returned from a call to \code{validateModel(tree, model)},
+containing meta-data such as N, M and k.}
+
+\item{r}{an integer specifying a model regime}
+
+\item{verbose}{logical indicating if some debug-messages should printed.}
+}
+\value{
+a list with the following members:
+\item{mvr}{}
+\item{mvd}{}
+}
 \description{
 Multivariate normal distribution for a given tree and model
 }

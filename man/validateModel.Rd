@@ -2,10 +2,22 @@
 % Please edit documentation in R/MultivariatePCM.R
 \name{validateModel}
 \alias{validateModel}
-\title{An S3 generic function validating a model for a given tree.}
+\title{Validating a phylogenetic comparative model}
 \usage{
 validateModel(tree, model, verbose = FALSE)
 }
+\arguments{
+\item{tree}{a phylo object}
+
+\item{model}{an S3 object specifying a model (a list with a non-null class attribute).}
+
+\item{verbose}{a logical specifying if some information should be printed on
+the console.}
+}
+\value{
+a logical value
+}
 \description{
-This function should be implemented for each model.
+An S3 generic function validating a model for a given tree. This
+  function should be implemented for each model class.
 }
