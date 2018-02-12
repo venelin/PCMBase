@@ -16,7 +16,7 @@ columns in X are in the order of tree$tip.label}
 as default or pass a previously computed pruneI for the same tree.}
 }
 \value{
-a k x M logical matrix which can be passed as a pc argument to the mvlik
+a k x M logical matrix which can be passed as a pc argument to the PCMLik
 function. The function fails in case when all traits are NAs for some of the tips.
 In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
 }
@@ -41,5 +41,5 @@ are integrated out during likelihood calculation. Setting this option to FALSE
 corresponds to assuming all NA values as non-existent.
 }
 \seealso{
-\code{\link{mvlik}}
+\code{\link{PCMLik}}
 }

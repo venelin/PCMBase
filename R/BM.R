@@ -48,37 +48,37 @@ V.BM <- function(Sigma, threshold0=0) {
 #' Create a conditional multivariate BM distribution
 #' @param Sigma of the multivariate BM process; Sigma is a k x k matrix
 #' @return a list containging the passed parameters as well as
-#' a function mvr of arguments n (number of observation k-vectors to generate),
-#' x0 (initial k-vector of values), t (numeric time); and a function mvd for
+#' a function `random` of arguments n (number of observation k-vectors to generate),
+#' x0 (initial k-vector of values), t (numeric time); and a function `density` for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
 #' @importFrom mvtnorm rmvnorm dmvnorm
 #'
 #' @export
-mvcond.BM <- function(tree, model, r=1, verbose=FALSE) {
+PCMCond.BM <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     Sigma <- as.matrix(model$Sigma[,,r])
 
     if(length(unique(c(dim(Sigma))))!=1) {
       # this is a dummy check to evaluate Theta
       print(paste('dim(Sigma)=', dim(Sigma)))
-      stop('ERR:02102:PCMBase:BM.R:mvcond.BM:: Sigma has a wrong dimension.')
+      stop('ERR:02102:PCMBase:BM.R:PCMCond.BM:: Sigma has a wrong dimension.')
     }
 
     fV <- V.BM(Sigma)
 
-    mvr <- function(n=1, x0, t, e) {
+    random <- function(n=1, x0, t, e) {
       rmvnorm(n=n,
               mean=x0,
               sigma=fV(t))
     }
-    mvd <- function(x, x0, t, e, log=FALSE) {
+    density <- function(x, x0, t, e, log=FALSE) {
       dmvnorm(x,
               mean=x0,
               sigma=fV(t), log=log)
     }
 
-    list(Sigma=Sigma, mvr=mvr, mvd=mvd, vcov=fV)
+    list(Sigma=Sigma, random=random, density=density, vcov=fV)
   })
 }
 

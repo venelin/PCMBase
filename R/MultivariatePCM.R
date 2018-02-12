@@ -19,7 +19,7 @@ NULL
 #' @param metaI a named list containg meta-information about the data and the
 #' model.
 #'
-#' @details Internally, this function uses the \code{\link{mvcond}} iimplementation
+#' @details Internally, this function uses the \code{\link{PCMCond}} iimplementation
 #'  for the given model class.
 #'
 #' @return a list with two members as follows:
@@ -35,19 +35,19 @@ NULL
 #' are not used as input for the values/errors at their descending nodes, because
 #' they are treated as non-heritable components or measurement error.}
 #' The function will fail in case that the length of the argument vector X0 differs
-#' from the number of traits specified in \code{metaI$k}. Error message: "ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length ...".
+#' from the number of traits specified in \code{metaI$k}. Error message: "ERR:02002:PCMBase:MultivariatePCM.R:PCMSim:: X0 must be of length ...".
 #'
 #' @importFrom mvtnorm rmvnorm
-#' @seealso \code{\link{mvlik}} \code{\link{validateModel}} \code{\link{mvcond}}
+#' @seealso \code{\link{PCMLik}} \code{\link{validateModel}} \code{\link{PCMCond}}
 #' @export
-mvsim <- function(
+PCMSim <- function(
   tree, model, X0,
   metaI = validateModel(tree = tree, model = model,
                         verbose = verbose),
   verbose = FALSE) {
 
   if(length(X0)!=metaI$k) {
-    stop(paste('ERR:02002:PCMBase:MultivariatePCM.R:mvsim:: X0 must be of length', metaI$k, '.'))
+    stop(paste('ERR:02002:PCMBase:MultivariatePCM.R:PCMSim:: X0 must be of length', metaI$k, '.'))
   }
 
   values <- errors <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
@@ -57,7 +57,7 @@ mvsim <- function(
 
   # create a list of random generator functions for each regime
   funMVCond <- lapply(1:metaI$R, function(r) {
-    mvcond(tree, model = model, r = r, verbose = verbose)$mvr
+    PCMCond(tree, model = model, r = r, verbose = verbose)$random
   })
 
   for(e in ordBF) {
@@ -82,7 +82,7 @@ mvsim <- function(
 #'   likelihood is used to fit the model to the observed trait data and the
 #'   phylogenetic tree (which is typically inferred from another sort of data, such
 #'   as an alignment of genetic sequences for the species at the tips of the tree).
-#'   The \code{\link{mvlik}} function
+#'   The \code{\link{PCMLik}} function
 #'   provides a common interface for calculating the (log-)likelihood of different
 #'   PCMs.
 #'   Below we denote by N the number of tips, by M the total number of nodes in the
@@ -139,9 +139,9 @@ mvsim <- function(
 #'   can be provided explicitly, because these are not supposed to change during a
 #'   model inference procedure such as likelihood maximization (see example).
 #'
-#' @seealso \code{\link{validateModel}} \code{\link{presentCoordinates}} \code{\link{pruneTree}} \code{\link{AbCdEf}} \code{\link{Lmr}} \code{\link{mvsim}} \code{\link{mvcond}} \code{\link{parseErrorMessage}}
+#' @seealso \code{\link{validateModel}} \code{\link{presentCoordinates}} \code{\link{pruneTree}} \code{\link{AbCdEf}} \code{\link{Lmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{parseErrorMessage}}
 #' @export
-mvlik <- function(X, tree, model,
+PCMLik <- function(X, tree, model,
                   metaI =validateModel(tree, model, verbose = verbose),
                   pruneI = pruneTree(tree),
                   pc = presentCoordinates(X, tree),
@@ -157,7 +157,7 @@ mvlik <- function(X, tree, model,
   if(class(Lmr) == "try-error") {
     errL <- parseErrorMessage(Lmr)
     if(is.null(errL)) {
-      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating the coefficients L,m,r. Error message from call to Lmr: ", Lmr)
+      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to Lmr: ", Lmr)
       errL <- parseErrorMessage(err)
     } else {
       err <- Lmr
@@ -180,7 +180,7 @@ mvlik <- function(X, tree, model,
     r_root <- Lmr$r
 
     if(is.null(L_root) | is.null(m_root) | is.null(r_root)) {
-      err <- paste0("ERR:02042:PCMBase:MultivariatePCM.R:mvlik:: The list returned by Lmr did not contain elements 'L', 'm' and 'r'.")
+      err <- paste0("ERR:02042:PCMBase:MultivariatePCM.R:PCMLik:: The list returned by Lmr did not contain elements 'L', 'm' and 'r'.")
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
         warning(err)
       } else {
@@ -202,7 +202,7 @@ mvlik <- function(X, tree, model,
       X0 <- try(solve(a=L_root + t(L_root), b = -m_root), silent = TRUE)
       if(class(X0) == "try-error") {
         err <- paste0(
-          "ERR:02043:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
+          "ERR:02043:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
           ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0)
 
         errL <- parseErrorMessage(err)
@@ -228,7 +228,7 @@ mvlik <- function(X, tree, model,
     loglik <- try(X0 %*% L_root %*% X0 + m_root %*% X0 + r_root, silent = TRUE)
     if(class(loglik) == "try-error") {
       err <- paste0(
-        "ERR:02044:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
+        "ERR:02044:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
         ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik)
 
       errL <- parseErrorMessage(err)
@@ -249,7 +249,7 @@ mvlik <- function(X, tree, model,
 
     if(class(value) == "try-error") {
       err <- paste0(
-        "ERR:02045:PCMBase:MultivariatePCM.R:mvlik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value)
+        "ERR:02045:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value)
 
       errL <- parseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
@@ -266,7 +266,7 @@ mvlik <- function(X, tree, model,
     } else if(is.na(value)) {
 
       err <- paste0(
-        "ERR:02046:PCMBase:MultivariatePCM.R:mvlik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to Lmr. Check for runtime warnings.")
+        "ERR:02046:PCMBase:MultivariatePCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to Lmr. Check for runtime warnings.")
 
       errL <- parseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
@@ -342,7 +342,7 @@ orderBreadthFirst <- function(tree) {
 #' @details The function is very slow on strongly unbalanced trees due to the
 #' slow vector append() operation in R.
 #'
-#' @return a list of objects used by the R implementation of mvlik().
+#' @return a list of objects used by the R implementation of PCMLik().
 #' @export
 pruneTree <- function(tree) {
   # number of tips
@@ -442,10 +442,10 @@ pruneTree <- function(tree) {
 #' @param tree a phylo object
 #' @param pruneI a list returned by the pruneTree function. Either leave this
 #' as default or pass a previously computed pruneI for the same tree.
-#' @return a k x M logical matrix which can be passed as a pc argument to the mvlik
+#' @return a k x M logical matrix which can be passed as a pc argument to the PCMLik
 #' function. The function fails in case when all traits are NAs for some of the tips.
 #' In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
-#' @seealso \code{\link{mvlik}}
+#' @seealso \code{\link{PCMLik}}
 #' @export
 presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
   edge <- tree$edge
@@ -741,22 +741,22 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
 }
 
 #' Multivariate normal distribution for a given tree and model
-#' @descirption An S3 generic function that has to be implemented for every model
-#'  class.
-#' @inheritParams mvlik
+#' @description An S3 generic function that has to be implemented for every
+#'  model class.
+#' @inheritParams PCMLik
 #' @param r an integer specifying a model regime
 #' @return a list with the following members:
-#' \item{mvr}{}
-#' \item{mvd}{}
+#' \item{random}{}
+#' \item{density}{}
 #' @export
-mvcond <- function(tree, model, metaI, r=1, verbose = FALSE) {
-  UseMethod("mvcond", model)
+PCMCond <- function(tree, model, metaI, r=1, verbose = FALSE) {
+  UseMethod("PCMCond", model)
 }
 
 #' Quadratic polynomial parameters A, b, C, d, E, f for each node
 #' @description An S3 generic function that has to be implemented for every
-#'  model class. This function is called by \code{\link{mvlik}}.
-#' @inheritParams mvlik
+#'  model class. This function is called by \code{\link{PCMLik}}.
+#' @inheritParams PCMLik
 #' @export
 AbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
   UseMethod("AbCdEf", model)
@@ -766,7 +766,7 @@ AbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
 #'
 #' @description
 #'
-#' @inheritParams mvlik
+#' @inheritParams PCMLik
 #' @param root.only logical indicatin whether to return the calculated values of L,m,r
 #'  only for the root or for all nodes in the tree.
 #' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
@@ -782,9 +782,9 @@ Lmr <- function(X, tree, model,
 
 #' Defaut R-implementation of Lmr
 #' @details This funciton is not a generic S3 implementation of Lmr - it needs
-#' additional raguments and is designed to be called by mvlik. It can still
+#' additional raguments and is designed to be called by PCMLik. It can still
 #' be called by the end-user for debugging purpose.
-#' @inheritParams mvlik
+#' @inheritParams PCMLik
 #' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
 #'   only for the root if root.only=TRUE.
 #' @export

@@ -109,15 +109,15 @@ V.TwoSpeedOU <- function(
 #' @param H1,H2,Theta,Sigma parameters of the multivariate TwoSpeedOU process; H1,H2 are
 #'  k x k matrices, Theta is a k-vector and Sigma is a k x k matrix
 #' @return a list containging the passed parameters as well as
-#' a function mvr of arguments n (number of observation k-vectors to generate),
-#' x0 (initial k-vector of values), t (numeric time); and a function mvd for
+#' a function `random` of arguments n (number of observation k-vectors to generate),
+#' x0 (initial k-vector of values), t (numeric time); and a function `density` for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
 #' @importFrom mvtnorm rmvnorm dmvnorm
 #' @importFrom expm expm
 #'
 #' @export
-mvcond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
+PCMCond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     H1 <- as.matrix(model$H1[,,r])
     H2 <- as.matrix(model$H2[,,r])
@@ -125,19 +125,19 @@ mvcond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
     Sigma <- as.matrix(model$Sigma[,,r])
 
     if(length(unique(c(length(Theta), dim(H1), dim(H2), dim(Sigma))))!=1) {
-      stop('ERR:02421:PCMBase:TwoSpeedOU.R:mvcond.TwoSpeedOU:: Some of H1, H2, Theta or Sigma has a wrong dimension.')
+      stop('ERR:02421:PCMBase:TwoSpeedOU.R:PCMCond.TwoSpeedOU:: Some of H1, H2, Theta or Sigma has a wrong dimension.')
     }
     PLP_1 <- PLambdaP_1.TwoSpeedOU(H2)
     fV <- V.TwoSpeedOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
-    mvr <- function(n=1, x0, t, e) {
+    random <- function(n=1, x0, t, e) {
       e_H1t <- expm(-t*H1)
       I <- diag(nrow(H1))
       rmvnorm(n=n,
               mean=e_H1t%*%x0 + (I-e_H1t)%*%Theta,
               sigma=fV(t))
     }
-    mvd <- function(x, x0, t, e, log=FALSE) {
+    density <- function(x, x0, t, e, log=FALSE) {
       e_H1t <- expm(-t*H1)
       I <- diag(nrow(H1))
       dmvnorm(x,
@@ -145,7 +145,7 @@ mvcond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
               sigma=fV(t), log=log)
     }
 
-    list(H1=H1, H2 = H2, Theta=Theta, Sigma=Sigma, mvr=mvr, mvd=mvd, vcov=fV)
+    list(H1=H1, H2 = H2, Theta=Theta, Sigma=Sigma, random=random, density=density, vcov=fV)
   })
 }
 

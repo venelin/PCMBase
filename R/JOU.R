@@ -137,15 +137,15 @@ V.JOU <- function(
 #' matrix, Theta,mj are k-vectors and Sigma,Sigmaj are k x k matrices,xi is a vector of length equal to the number
 #' of edges in the tree
 #' @return a list containging the passed parameters as well as
-#' a function mvr of arguments n (number of observation k-vectors to generate),
-#' x0 (initial k-vector of values), t (numeric time); and a function mvd for
+#' a function `random` of arguments n (number of observation k-vectors to generate),
+#' x0 (initial k-vector of values), t (numeric time); and a function `density` for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
 #' @importFrom expm expm
 #' @importFrom mvtnorm rmvnorm dmvnorm
 #'
 #' @export
-mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
+PCMCond.JOU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     H <- as.matrix(model$H[,,r])
     Theta <- model$Theta[,r]
@@ -155,19 +155,19 @@ mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
     xi <- tree$edge.jump
 
     if(length(unique(c(length(Theta), dim(H), dim(mj), dim(Sigmaj), dim(Sigma))))!=1) {
-      stop('ERR:02321:PCMBase:JOU.R:mvcond.JOU:: Some of H, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
+      stop('ERR:02321:PCMBase:JOU.R:PCMCond.JOU:: Some of H, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
     }
     PLP_1 <- PLambdaP_1.JOU(H)
     fV <- V.JOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma, H, Sigmaj)
 
-    mvr <- function(n=1, x0, t, e) {
+    random <- function(n=1, x0, t, e) {
       e_Ht <- expm(-t*H)
       I <- diag(nrow(H))
       rmvnorm(n=n,
               mean=e_Ht%*%(x0 + xi[e]*mj) + (I-e_Ht)%*%Theta,
               sigma=fV(t, xi[e]))
     }
-    mvd <- function(x, x0, t, e, log=FALSE) {
+    density <- function(x, x0, t, e, log=FALSE) {
       e_Ht <- expm(-t*H)
       I <- diag(nrow(H))
       dmvnorm(x,
@@ -175,7 +175,7 @@ mvcond.JOU <- function(tree, model, r=1, verbose=FALSE) {
               sigma=fV(t, xi[e]), log=log)
     }
 
-    list(H=H, Theta=Theta, Sigma=Sigma, Sigmaj = Sigmaj, mj = mj, mvr=mvr, mvd=mvd, vcov=fV)
+    list(H=H, Theta=Theta, Sigma=Sigma, Sigmaj = Sigmaj, mj = mj, random=random, density=density, vcov=fV)
   })
 }
 

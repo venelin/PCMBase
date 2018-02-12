@@ -10,7 +10,7 @@ library(coda)
 generate.data.common <- function(params, input) {
   model <- input$modelFromVector(params)
   tree <- input$tree
-  X <- mvsim(tree, model, X0 = model$X0)
+  X <- PCMSim(tree, model, X0 = model$X0)
   cat("Generate.data.common called...\n")
   Z <- X$values[, 1:length(tree$tip.label)] + X$errors[, 1:length(tree$tip.label)]
 
@@ -39,7 +39,7 @@ analyze.data.common <- function(X, params.true, input) {
         #save(env.input, file=paste0("env.input.",pid,".RData"))
       }
 
-      value <- mvlik(
+      value <- PCMLik(
             X = NULL,
             tree = NULL,
             model = env.input$modelFromVector(par),

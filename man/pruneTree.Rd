@@ -11,7 +11,7 @@ pruneTree(tree)
 \item{tree}{a phylo object}
 }
 \value{
-a list of objects used by the R implementation of mvlik().
+a list of objects used by the R implementation of PCMLik().
 }
 \description{
 Extract information for pruning a tree used as cache during likelihood

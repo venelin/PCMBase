@@ -62,9 +62,9 @@ tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
 
 # generate traits
 
-traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
+traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
-BMlik = mvlik(X = traits.a.123$values + traits.a.123$errors,
+BMlik = PCMLik(X = traits.a.123$values + traits.a.123$errors,
       tree = tree.a,
       model = model.a.123)
 
@@ -113,11 +113,11 @@ tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
 
 # generate traits
 
-traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
+traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
 # tree with one regime
 
-BMlik = mvlik(X = traits.a.123$values + traits.a.123$errors,
+BMlik = PCMLik(X = traits.a.123$values + traits.a.123$errors,
               tree = tree.a,
               model = model.a.123)
 
@@ -188,11 +188,11 @@ N=400
 
 tree.b <- rtree(N) # phytools::pbtree(n=N, scale=1)
 
-traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
+traits.b.123 <- PCMSim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
 ## Calculate likelihood
-lik.BM = mvlik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123)
-lik.OU = mvlik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123.OU)
+lik.BM = PCMLik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123)
+lik.OU = PCMLik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123.OU)
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   traits.b.123$values[1,]+traits.b.123$errors[1,],
@@ -233,8 +233,8 @@ if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on BM:\n")
 
   test_that("a.123",
-            expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
-                         mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
+            expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
+                         PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
                                pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
@@ -248,8 +248,8 @@ if(require(PCMBaseCpp)) {
                                model.a.123)
 
   test_that("a.123 with missing values",
-            expect_equal(mvlik(values, tree.a, model.a.123),
-                         mvlik(tree = tree.a, model = model.a.123,
+            expect_equal(PCMLik(values, tree.a, model.a.123),
+                         PCMLik(tree = tree.a, model = model.a.123,
                                pruneI = pruneInfoCpp)))
 
 
@@ -258,13 +258,13 @@ if(require(PCMBaseCpp)) {
 
     options(PCMBase.Lmr.mode=11)
     print(microbenchmark(
-      mvlik(values, tree.a, model.a.123, pruneI = pruneInfoR),
-      mvlik(values, tree.a, model.a.123, pruneI = pruneInfoCpp), times = 10
+      PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoR),
+      PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp), times = 10
     ))
 
     options(PCMBase.Lmr.mode=21)
     print(microbenchmark(
-      mvlik(values, tree.a, model.a.123, pruneI = pruneInfoCpp)
+      PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp)
     ))
   }
 

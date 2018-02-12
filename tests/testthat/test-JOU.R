@@ -131,21 +131,21 @@ if(require(phytools)) {
 
 tree.ab.singles$edge.jump = sample(as.integer(0:1), size = nrow(tree.ab.singles$edge), replace = TRUE)
 
-traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
-traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
+traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
+traits.b.123 <- PCMSim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
 # The singles tree is used for the generation of the traits in this case. Since the singles tree will be used
 # for the likelihood calculation, the length of xi has to match the number of edges in the singles tree. Therefore
 # in case the tree.ab is used for the generation of the traits then the length of xi will not match the number of
 # edges which is less in this tree.
-traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
+traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
 
 # calculate likelihoods
 
-JOU.lik.a <-  mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
-JOU.lik.b <-  mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
-JOU.lik.ab <-  mvlik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
+JOU.lik.a <-  PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
+JOU.lik.b <-  PCMLik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
+JOU.lik.ab <-  PCMLik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
 
 
 
@@ -153,8 +153,8 @@ if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on JOU:\n")
 
   test_that("a.123",
-            expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
-                         mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
+            expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
+                         PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
                                pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
@@ -171,8 +171,8 @@ if(require(PCMBaseCpp)) {
                                  validateModel(tree.ab.singles, model.ab.123),
                                  presentCoordinates(values, tree.ab.singles))
   test_that("ab.123",
-            expect_equal(mvlik(values, tree.ab.singles, model.ab.123),
-                         mvlik(tree = tree.ab.singles, model = model.ab.123, pruneI = pruneI)))
+            expect_equal(PCMLik(values, tree.ab.singles, model.ab.123),
+                         PCMLik(tree = tree.ab.singles, model = model.ab.123, pruneI = pruneI)))
 
 }
 

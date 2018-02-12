@@ -97,13 +97,13 @@ tree.a$edge.regime <- names(tree.a$edge.length)
 
 # generate traits
 
-traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
+traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
 ## Calculate likelihood
 
-lik.OU = mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
+lik.OU = PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
 
-lik.TwoSpeedOU = mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123.TwoSpeedOU)
+lik.TwoSpeedOU = PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123.TwoSpeedOU)
 
 cat('OU likelihood=',lik.OU,'\n')
 cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
@@ -141,13 +141,13 @@ tree.b$edge.regime <- names(tree.b$edge.length)
 
 # generate traits
 
-traits.b.123 <- mvsim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
+traits.b.123 <- PCMSim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
 ## Calculate likelihood
 
-lik.OU = mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
+lik.OU = PCMLik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
 
-lik.TwoSpeedOU = mvlik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123.TwoSpeedOU)
+lik.TwoSpeedOU = PCMLik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123.TwoSpeedOU)
 
 cat('OU likelihood=',lik.OU,'\n')
 cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
@@ -180,22 +180,22 @@ model.ab.123 <- list(X0 = a.X0,
                      Sigmae=Sigmae[,,,drop=FALSE])
 class(model.ab.123) <- 'TwoSpeedOU'
 
-traits.ab.123 <- mvsim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
+traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
 
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on TwoSpeedOU:\n")
 
   test_that("a.123",
-            expect_equal(mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
-                         mvlik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
+            expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
+                         PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
                                pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   test_that("ab.123",
-            expect_equal(mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123),
-                         mvlik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
+            expect_equal(PCMLik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123),
+                         PCMLik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
                                pruneI = newCppObject(X = traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
                                                        traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)],
                                                      tree = tree.ab.singles,
@@ -211,14 +211,14 @@ if(require(PCMBaseCpp)) {
                                model.ab.123)
 
   test_that("ab.123 with missing values",
-            expect_equal(mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
-                         mvlik(values, tree.ab.singles, model.ab.123,
+            expect_equal(PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
+                         PCMLik(values, tree.ab.singles, model.ab.123,
                                pruneI = pruneInfoCpp)))
 
 
-  print(mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp))
+  print(PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp))
 
-  print(mvlik(values, tree.ab.singles, model.ab.123,
+  print(PCMLik(values, tree.ab.singles, model.ab.123,
               pruneI = newCppObject(X = values,
                                     tree = tree.ab.singles,
                                     model.ab.123)))
@@ -229,13 +229,13 @@ if(require(PCMBaseCpp)) {
 
     options(PCMBase.Lmr.mode=11)
     print(microbenchmark(
-      mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
-      mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp), times = 10
+      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
+      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp), times = 10
     ))
 
     options(PCMBase.Lmr.mode=21)
     print(microbenchmark(
-      mvlik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
+      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
     ))
   }
 }

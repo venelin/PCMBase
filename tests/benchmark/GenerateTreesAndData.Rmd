@@ -176,7 +176,7 @@ trees2 <- rbindlist(
     data[, num_traits:=k]
     data[, X:=lapply(1:.N, function(i) {
       cat("Generating data for N=", N[i], ", k=",k,"; p=",p[i], "\n")
-      mvsim(tree[[i]], model, model$X0)
+      PCMSim(tree[[i]], model, model$X0)
     })]
     
     data[, model:=list(list(model))]

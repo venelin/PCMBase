@@ -115,8 +115,8 @@ V.OU <- function(
 #' matrix, Theta is a k-vector and Sigma is a k x k matrix
 #'
 #' @return a list containging the passed parameters as well as
-#' a function mvr of arguments n (number of observation k-vectors to generate),
-#' x0 (initial k-vector of values), t (numeric time); and a function mvd for
+#' a function `random` of arguments n (number of observation k-vectors to generate),
+#' x0 (initial k-vector of values), t (numeric time); and a function `density` for
 #' calculating the density of multivariate vector under the specified distribution
 #' and given an initial value and time.
 #'
@@ -124,30 +124,30 @@ V.OU <- function(
 #' @importFrom expm expm
 #'
 #' @export
-mvcond.OU <- function(tree, model, r=1, verbose=FALSE) {
+PCMCond.OU <- function(tree, model, r=1, verbose=FALSE) {
   with(model, {
     H <- as.matrix(model$H[,,r])
     Theta <- model$Theta[,r]
     Sigma <- as.matrix(model$Sigma[,,r])
 
   if(length(unique(c(length(Theta), dim(H), dim(Sigma)))) != 1) {
-    stop('ERR:02221:PCMBase:OU.R:mvcond.OU:: Some of H, Theta or Sigma has a wrong dimension.')
+    stop('ERR:02221:PCMBase:OU.R:PCMCond.OU:: Some of H, Theta or Sigma has a wrong dimension.')
   }
   PLP_1 <- PLambdaP_1.OU(H)
   fV <- V.OU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
-  mvr <- function(n=1, x0, t, e) {
+  random <- function(n=1, x0, t, e) {
     e_Ht <- expm(-t*H)
     I <- diag(nrow(H))
     rmvnorm(n=n, mean=e_Ht%*%x0 + (I-e_Ht) %*% Theta, sigma=fV(t))
   }
-  mvd <- function(x, x0, t, e, log=FALSE) {
+  density <- function(x, x0, t, e, log=FALSE) {
     e_Ht <- expm(-t*H)
     I <- diag(nrow(H))
     dmvnorm(x, mean=e_Ht%*%x0 + (I-e_Ht) %*% Theta, sigma=fV(t), log=log)
   }
 
-  list(H=H, Theta=Theta, Sigma=Sigma, mvr=mvr, mvd=mvd, vcov=fV)
+  list(H=H, Theta=Theta, Sigma=Sigma, random=random, density=density, vcov=fV)
   })
 }
 

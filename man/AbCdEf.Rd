@@ -22,5 +22,5 @@ containing meta-data such as N, M and k.}
 }
 \description{
 An S3 generic function that has to be implemented for every
- model class. This function is called by \code{\link{mvlik}}.
+ model class. This function is called by \code{\link{PCMLik}}.
 }

@@ -49,6 +49,6 @@ Defaut R-implementation of Lmr
 }
 \details{
 This funciton is not a generic S3 implementation of Lmr - it needs
-additional raguments and is designed to be called by mvlik. It can still
+additional raguments and is designed to be called by PCMLik. It can still
 be called by the end-user for debugging purpose.
 }

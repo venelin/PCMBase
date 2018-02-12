@@ -75,7 +75,7 @@ timePCMBaseR <- function(X, tree, model) {
   timeLik <-
     system.time(
       for(i in 1:nTests)
-        PCMBase::mvlik(Z[, 1:metaI$N,drop=FALSE], tree, model, metaI= metaI, pruneI=pruneI)
+        PCMBase::PCMLik(Z[, 1:metaI$N,drop=FALSE], tree, model, metaI= metaI, pruneI=pruneI)
 )[3]*1000/nTests
 
   cat(timeLik, "ms\n")
@@ -97,7 +97,7 @@ timePCMBaseCpp <- function(X, tree, model, mode = 0) {
   timeLik <-
     system.time(
       for(i in 1:nTests)
-        PCMBase::mvlik(Z[,1:metaI$N,drop=FALSE], tree, model, metaI= metaI, pruneI=pruneI)
+        PCMBase::PCMLik(Z[,1:metaI$N,drop=FALSE], tree, model, metaI= metaI, pruneI=pruneI)
     )[3]*1000/nTests
 
   cat(timeLik, "ms\n")
