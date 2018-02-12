@@ -68,8 +68,8 @@ timePCMBaseR <- function(X, tree, model) {
 
   timeExtra <- system.time(
     {
-      pruneI <- PCMBase::pruneTree(tree)
-      metaI <- validateModel(tree, model)
+      pruneI <- PCMBase::PCMPruningOrder(tree)
+      metaI <- PCMValidate(tree, model)
     })[3]*1000
 
   timeLik <-
@@ -90,8 +90,8 @@ timePCMBaseCpp <- function(X, tree, model, mode = 0) {
   Z <- X$values + X$errors
   timeExtra <- system.time(
     {
-      metaI <- validateModel(tree, model)
-      pruneI <- PCMBaseCpp::newCppObject(Z[,1:metaI$N,drop=FALSE], tree, model, metaI)
+      metaI <- PCMValidate(tree, model)
+      pruneI <- PCMBaseCpp::PCMCppPruningObject(Z[,1:metaI$N,drop=FALSE], tree, model, metaI)
     })[3]*1000
 
   timeLik <-

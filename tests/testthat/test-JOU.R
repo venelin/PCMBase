@@ -155,7 +155,7 @@ if(require(PCMBaseCpp)) {
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
                          PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
+                               pruneI = PCMCppPruningObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
@@ -165,11 +165,12 @@ if(require(PCMBaseCpp)) {
   values <- traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
     traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)]
 
-  pruneI <- newCppObject(X = values, tree = tree.ab.singles, model.ab.123)
+  pruneI <- PCMCppPruningObject(X = values, tree = tree.ab.singles, model.ab.123)
 
-  QuadrPolyCoefsAbCdEf <- AbCdEf(tree.ab.singles, model.ab.123,
-                                 validateModel(tree.ab.singles, model.ab.123),
-                                 presentCoordinates(values, tree.ab.singles))
+  PCMAbCdEf(tree.ab.singles, model.ab.123,
+            PCMValidate(tree.ab.singles, model.ab.123),
+            PCMPresentCoordinates(values, tree.ab.singles))
+
   test_that("ab.123",
             expect_equal(PCMLik(values, tree.ab.singles, model.ab.123),
                          PCMLik(tree = tree.ab.singles, model = model.ab.123, pruneI = pruneI)))

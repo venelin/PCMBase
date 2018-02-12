@@ -4,16 +4,16 @@
 \alias{PCMLik}
 \title{Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages}
 \usage{
-PCMLik(X, tree, model, metaI = validateModel(tree, model, verbose = verbose),
-  pruneI = pruneTree(tree), pc = presentCoordinates(X, tree), log = TRUE,
-  verbose = FALSE)
+PCMLik(X, tree, model, metaI = PCMValidate(tree, model, verbose = verbose),
+  pruneI = PCMPruningOrder(tree), pc = PCMPresentCoordinates(X, tree),
+  log = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} entries. Each
 column of X contains the measured trait values for one species (tip in tree).
 Depending on the value of the global option "PCMBase.Internal.PC.Full" \code{NA}
 entries are interpreted either as missing measurements or non-existing traits
-(see \code{\link{presentCoordinates}}).}
+(see \code{\link{PCMPresentCoordinates}}).}
 
 \item{tree}{a phylo object with N tips.}
 
@@ -21,22 +21,22 @@ entries are interpreted either as missing measurements or non-existing traits
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
 
-\item{metaI}{a list returned from a call to \code{validateModel(tree, model)},
+\item{metaI}{a list returned from a call to \code{PCMValidate(tree, model)},
 containing meta-data such as N, M and k.}
 
 \item{pruneI}{a named list containing cached preprocessing data for the tree used
 to perform post-order traversal (pruning). By default, this is created
-using \code{pruneTree(tree)}. This will use the default R-implementation of the
+using \code{PCMPruningOrder(tree)}. This will use the default R-implementation of the
 likelihood calculation, which is based on the default R-implementation of the
-function \code{\link{Lmr}} (\code{\link{Lmr.default}}) and the S3 specification
+function \code{\link{PCMLmr}} (\code{\link{PCMLmr.default}}) and the S3 specification
 of the function
-\code{\link{AbCdEf}} for the given model (a function called \code{AbCdEf.MODEL},
+\code{\link{PCMAbCdEf}} for the given model (a function called \code{PCMAbCdEf.MODEL},
 where model is the name of the mode and the class attribute of the \code{model}
-argument. For a different implementation of the function \code{\link{Lmr}},
+argument. For a different implementation of the function \code{\link{PCMLmr}},
 provide an S3 object for which an S3 specification has been written (see Details
 and example section).}
 
-\item{pc}{a logical k x M matrix returned by \code{\link{presentCoordinates}}.}
+\item{pc}{a logical k x M matrix returned by \code{\link{PCMPresentCoordinates}}.}
 
 \item{log}{logical indicating whether a log-liklehood should be calculated. Default
 is TRUE.}
@@ -52,7 +52,7 @@ model parameters is calculated by maximizing the quadratic polynomial
 'X0 * L_root * X0 + m_root * X0 + r_root'.}
 \item{error}{A named list containing error information if a numerical or other
 logical error occured during likelihood calculation (this is a list returned by
- \code{\link{parseErrorMessage}}.}
+ \code{\link{PCMParseErrorMessage}}.}
  If an error occured during likelihood calculation, the default behavior is to
  return NA with a non-NULL error attribute. This behavior can be changed in
  using global options:
@@ -83,5 +83,5 @@ For efficiency, the arguments \code{metaI}, \code{pruneI} and \code{pc}
   model inference procedure such as likelihood maximization (see example).
 }
 \seealso{
-\code{\link{validateModel}} \code{\link{presentCoordinates}} \code{\link{pruneTree}} \code{\link{AbCdEf}} \code{\link{Lmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{parseErrorMessage}}
+\code{\link{PCMValidate}} \code{\link{PCMPresentCoordinates}} \code{\link{PCMPruningOrder}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{PCMParseErrorMessage}}
 }

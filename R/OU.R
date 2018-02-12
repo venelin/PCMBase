@@ -1,6 +1,6 @@
 #' Validate OU parameters,
 #' @export
-validateModel.OU <- function(tree, model, verbose = FALSE) {
+PCMValidate.OU <- function(tree, model, verbose = FALSE) {
   if(verbose) {
     print('Validating model...')
   }
@@ -8,7 +8,7 @@ validateModel.OU <- function(tree, model, verbose = FALSE) {
   if(is.null(model$Sigmae) |
      is.null(dim(model$Sigmae)) |
      length(dim(model$Sigmae)) != 3) {
-    stop("ERR:02201:PCMBase:OU.R:validateModel.OU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
+    stop("ERR:02201:PCMBase:OU.R:PCMValidate.OU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
   }
 
   R <- dim(model$Sigmae)[3]
@@ -19,9 +19,9 @@ validateModel.OU <- function(tree, model, verbose = FALSE) {
     regimesUnique <- 1:dim(model$Sigmae)[[3]]
   }
 
-  validateModelGeneral(
+  PCMValidateGeneral(
     tree = tree, model = model,
-    modelSpec = specifyModel(
+    modelSpec = PCMSpecify(
       tree = tree, modelName = "OU",
       k = k, R = R, regimesUnique = regimesUnique,
       paramNames = list("H", "Theta", "Sigma", "Sigmae"),
@@ -184,8 +184,8 @@ PCMCond.OU <- function(tree, model, r=1, verbose=FALSE) {
 #'
 #' @importFrom expm expm
 #' @export
-AbCdEf.OU <- function(tree, model,
-                      metaI=validateModel.OU(tree, model, verbose=verbose),
+PCMAbCdEf.OU <- function(tree, model,
+                      metaI=PCMValidate.OU(tree, model, verbose=verbose),
                       pc, verbose=FALSE) {
   # number of regimes
   R <- metaI$R
@@ -260,7 +260,7 @@ AbCdEf.OU <- function(tree, model,
     V_1[ki,ki,i] <- solve(V[ki,ki,i])
     e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[e]]))
 
-    # now compute AbCdEf according to eq (8) in doc.
+    # now compute PCMAbCdEf according to eq (8) in doc.
     # here A is from the general form (not the alpa from OU process)
     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
 

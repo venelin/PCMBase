@@ -235,15 +235,15 @@ if(require(PCMBaseCpp)) {
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
                          PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = newCppObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
+                               pruneI = PCMCppPruningObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   values <- traits.a.123$values[, 1:length(tree.a$tip.label)] + traits.a.123$errors[, 1:length(tree.a$tip.label)]
   values[sample(x=1:length(values), 50)] <- NA
 
-  pruneInfoR <- pruneTree(tree.a)
-  pruneInfoCpp <- newCppObject(X = values,
+  pruneInfoR <- PCMPruningOrder(tree.a)
+  pruneInfoCpp <- PCMCppPruningObject(X = values,
                                tree = tree.a,
                                model.a.123)
 
@@ -253,20 +253,20 @@ if(require(PCMBaseCpp)) {
                                pruneI = pruneInfoCpp)))
 
 
-  if(require(microbenchmark)) {
-    cat("microbenchmark test")
-
-    options(PCMBase.Lmr.mode=11)
-    print(microbenchmark(
-      PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoR),
-      PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp), times = 10
-    ))
-
-    options(PCMBase.Lmr.mode=21)
-    print(microbenchmark(
-      PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp)
-    ))
-  }
+  # if(require(microbenchmark)) {
+  #   cat("microbenchmark test")
+  #
+  #   options(PCMBase.PCMLmr.mode=11)
+  #   print(microbenchmark(
+  #     PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoR),
+  #     PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp), times = 10
+  #   ))
+  #
+  #   options(PCMBase.PCMLmr.mode=21)
+  #   print(microbenchmark(
+  #     PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp)
+  #   ))
+  # }
 
 }
 

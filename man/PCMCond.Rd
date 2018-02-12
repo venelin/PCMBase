@@ -13,7 +13,7 @@ PCMCond(tree, model, metaI, r = 1, verbose = FALSE)
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
 
-\item{metaI}{a list returned from a call to \code{validateModel(tree, model)},
+\item{metaI}{a list returned from a call to \code{PCMValidate(tree, model)},
 containing meta-data such as N, M and k.}
 
 \item{r}{an integer specifying a model regime}

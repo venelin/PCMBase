@@ -1,11 +1,11 @@
 #' Validate TwoSpeedOU parameters
 #' @export
-validateModel.TwoSpeedOU <- function(tree, model, verbose = FALSE) {
+PCMValidate.TwoSpeedOU <- function(tree, model, verbose = FALSE) {
   if(verbose) {
     cat('Validating model...')
   }
   if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("ERR:02401:PCMBase:TwoSpeedOU.R:validateModel.TwoSpeedOU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
+    stop("ERR:02401:PCMBase:TwoSpeedOU.R:PCMValidate.TwoSpeedOU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
   }
 
   R <- dim(model$Sigmae)[3]
@@ -16,9 +16,9 @@ validateModel.TwoSpeedOU <- function(tree, model, verbose = FALSE) {
     regimesUnique <- 1:dim(model$Sigmae)[[3]]
   }
 
-  validateModelGeneral(
+  PCMValidateGeneral(
     tree = tree, model = model,
-    modelSpec = specifyModel(
+    modelSpec = PCMSpecify(
       tree = tree, modelName = "TwoSpeedOU",
       k = k, R = R, regimesUnique = regimesUnique,
       paramNames = list("H1", "H2", "Theta", "Sigma", "Sigmae"),
@@ -183,8 +183,8 @@ PCMCond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
 #'
 #' @export
 #' @importFrom expm expm
-AbCdEf.TwoSpeedOU <- function(tree, model,
-                      metaI=validateModel.TwoSpeedOU(tree, model, verbose=verbose),
+PCMAbCdEf.TwoSpeedOU <- function(tree, model,
+                      metaI=PCMValidate.TwoSpeedOU(tree, model, verbose=verbose),
                       pc, verbose=FALSE) {
   # number of regimes
   R <- metaI$R
@@ -260,7 +260,7 @@ AbCdEf.TwoSpeedOU <- function(tree, model,
     V_1[ki,ki,i] <- solve(V[ki,ki,i])
     e_H1t[,,i] <- expm(-ti*as.matrix(model$H1[,,r[e]]))
 
-    # now compute AbCdEf
+    # now compute PCMAbCdEf
     # here A is from the general form
     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
 

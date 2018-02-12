@@ -165,9 +165,9 @@ tree.a <- phytools::pbtree(n=N, scale=1)
 plot(tree.a)
 
 # generate traits
-traits.a.1 <- mvsim(tree.a, model.a.1, 0)
-traits.a.2 <- mvsim(tree.a, model.a.2, 0)
-traits.a.3 <- mvsim(tree.a, model.a.2, 0)
+traits.a.1 <- PCMSim(tree.a, model.a.1, 0)
+traits.a.2 <- PCMSim(tree.a, model.a.2, 0)
+traits.a.3 <- PCMSim(tree.a, model.a.2, 0)
 ```
 
 ## Two regimes simulations
@@ -189,15 +189,15 @@ tree.ab <- map.to.singleton(tree.ab)
 
 plotTree.singletons(tree.ab)
 
-traits.a.123 <- mvsim(tree.a, model.a.123, c(0,0,0))
+traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0))
 ```
 
 # Calculating likelihoods
 ```{r}
-# For the single trait models the likelihoods calculated with mvlik and 
+# For the single trait models the likelihoods calculated with PCMLik and 
 # POUMM::likPOUMMGivenTreeVTips should match exactly:
 cat("PCMBase: \n")
-mvlik(traits.a.1$values + traits.a.1$errors, tree.a,
+PCMLik(traits.a.1$values + traits.a.1$errors, tree.a,
               model.a.1)
 cat("POUMM: \n")
 POUMM::likPOUMMGivenTreeVTips(
@@ -210,7 +210,7 @@ POUMM::likPOUMMGivenTreeVTips(
             g0 = a.X0[1])
 
 cat("PCMBase: \n")
-mvlik(traits.a.2$values + traits.a.2$errors, tree.a,
+PCMLik(traits.a.2$values + traits.a.2$errors, tree.a,
               model.a.2)
 cat("POUMM: \n")
 POUMM::likPOUMMGivenTreeVTips(
@@ -223,7 +223,7 @@ POUMM::likPOUMMGivenTreeVTips(
             g0 = a.X0[2])
 
 cat("PCMBase: \n")
-mvlik(traits.a.3$values + traits.a.3$errors, tree.a,
+PCMLik(traits.a.3$values + traits.a.3$errors, tree.a,
               model.a.3)
 cat("POUMM: \n")
 POUMM::likPOUMMGivenTreeVTips(
@@ -239,7 +239,7 @@ POUMM::likPOUMMGivenTreeVTips(
 # corresponding univariate likelihoods since the traits are independent:
 
 cat("PCMBase: \n")
-mvlik(X = traits.a.123$values + traits.a.123$errors, 
+PCMLik(X = traits.a.123$values + traits.a.123$errors, 
       tree = tree.a, 
       model = model.a.123)
 cat("POUMM: \n")

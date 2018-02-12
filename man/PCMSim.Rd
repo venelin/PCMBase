@@ -4,7 +4,7 @@
 \alias{PCMSim}
 \title{Simulation of a phylogenetic comparative model on a tree}
 \usage{
-PCMSim(tree, model, X0, metaI = validateModel(tree = tree, model = model,
+PCMSim(tree, model, X0, metaI = PCMValidate(tree = tree, model = model,
   verbose = verbose), verbose = FALSE)
 }
 \arguments{
@@ -43,5 +43,5 @@ Internally, this function uses the \code{\link{PCMCond}} iimplementation
  for the given model class.
 }
 \seealso{
-\code{\link{PCMLik}} \code{\link{validateModel}} \code{\link{PCMCond}}
+\code{\link{PCMLik}} \code{\link{PCMValidate}} \code{\link{PCMCond}}
 }

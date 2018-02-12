@@ -31,8 +31,8 @@ analyze.data.common <- function(X, params.true, input) {
       if(!isTRUE(all.equal(env.input$.RENEW.CACHE, FALSE))) {
         cat("Creating Cpp object on process with pid ", pid, "\n")
         model <- env.input$modelFromVector(par)
-        env.input$metaI <- validateModel(env.input$tree, model)
-        env.input$pruneInfoObj <- newCppObject(X, env.input$tree, model)
+        env.input$metaI <- PCMValidate(env.input$tree, model)
+        env.input$pruneInfoObj <- PCMCppPruningObject(X, env.input$tree, model)
         options("PCMBase.Value.NA"=-1e20)
         options("splittree.postorder.mode" = 11)
         env.input$.RENEW.CACHE <- FALSE

@@ -1,11 +1,11 @@
 #' Validate BM parameters
 #' @export
-validateModel.BM <- function(tree, model, verbose=FALSE) {
+PCMValidate.BM <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')
   }
   if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("ERR:02101:PCMBase:BM.R:validateModel.BM:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
+    stop("ERR:02101:PCMBase:BM.R:PCMValidate.BM:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
   }
 
   R <- dim(model$Sigmae)[3]
@@ -16,9 +16,9 @@ validateModel.BM <- function(tree, model, verbose=FALSE) {
     regimesUnique <- 1:dim(model$Sigmae)[[3]]
   }
 
-  validateModelGeneral(
+  PCMValidateGeneral(
     tree = tree, model = model,
-    modelSpec = specifyModel(
+    modelSpec = PCMSpecify(
       tree = tree, modelName = "BM",
       k = k, R = R, regimesUnique = regimesUnique,
       paramNames = list("Sigma", "Sigmae"),
@@ -111,8 +111,8 @@ PCMCond.BM <- function(tree, model, r=1, verbose=FALSE) {
 #' f: a vector, f[i] correspondign to fi
 #'
 #' @export
-AbCdEf.BM <- function(tree, model,
-                      metaI=validateModel.BM(tree, model, verbose=verbose),
+PCMAbCdEf.BM <- function(tree, model,
+                      metaI=PCMValidate.BM(tree, model, verbose=verbose),
                       pc, verbose=FALSE) {
   # number of regimes
   R <- metaI$R
@@ -178,7 +178,7 @@ AbCdEf.BM <- function(tree, model,
 
     V_1[ki,ki,i] <- solve(V[ki,ki,i])
 
-    # now compute AbCdEf according to eq (16) in doc.
+    # now compute PCMAbCdEf according to eq (16) in doc.
     # here A is from the general form
     A[ki,ki,i] <- (-0.5*V_1[ki,ki,i])
 

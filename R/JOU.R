@@ -1,11 +1,11 @@
 #' Validate JOU parameters
 #' @export
-validateModel.JOU <- function(tree, model, verbose=FALSE) {
+PCMValidate.JOU <- function(tree, model, verbose=FALSE) {
   if(verbose) {
     print('Validating model...')
   }
   if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("ERR:02301:PCMBase:JOU.R:validateModel.JOU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
+    stop("ERR:02301:PCMBase:JOU.R:PCMValidate.JOU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
   }
 
   R <- dim(model$Sigmae)[3]
@@ -17,20 +17,20 @@ validateModel.JOU <- function(tree, model, verbose=FALSE) {
   }
 
   if(is.null(tree$edge.jump)) {
-    stop("ERR:02302:PCMBase:JOU.R:validateModel.JOU:: Expecting the tree to have a member edge.jump - an integer vector of 0's and 1's describing if there is a jump for each branch of the tree.")
+    stop("ERR:02302:PCMBase:JOU.R:PCMValidate.JOU:: Expecting the tree to have a member edge.jump - an integer vector of 0's and 1's describing if there is a jump for each branch of the tree.")
   }
 
   if(!all(tree$edge.jump %in% as.integer(0:1))) {
-    stop("ERR:02303:PCMBase:JOU.R:validateModel.JOU:: Check that tree$edge.jump is an integer vector of 0's and 1's")
+    stop("ERR:02303:PCMBase:JOU.R:PCMValidate.JOU:: Check that tree$edge.jump is an integer vector of 0's and 1's")
   }
 
   if(length(tree$edge.jump) != nrow(tree$edge)) {
-    stop("ERR:02304:PCMBase:JOU.R:validateModel.JOU:: Check that tree$edge.jump has nrow(tree$edge) elements.")
+    stop("ERR:02304:PCMBase:JOU.R:PCMValidate.JOU:: Check that tree$edge.jump has nrow(tree$edge) elements.")
   }
 
-  validateModelGeneral(
+  PCMValidateGeneral(
     tree = tree, model = model,
-    modelSpec = specifyModel(
+    modelSpec = PCMSpecify(
       tree = tree, modelName = "JOU",
       k = k, R = R, regimesUnique = regimesUnique,
       paramNames = list("H", "Theta", "Sigma", "Sigmae", "mj", "Sigmaj"),
@@ -219,8 +219,8 @@ PCMCond.JOU <- function(tree, model, r=1, verbose=FALSE) {
 #' @importFrom expm expm
 #'
 #' @export
-AbCdEf.JOU <- function(tree, model,
-                       metaI=validateModel.JOU(tree, model, verbose=verbose),
+PCMAbCdEf.JOU <- function(tree, model,
+                       metaI=PCMValidate.JOU(tree, model, verbose=verbose),
                        pc, verbose=FALSE) {
   # number of regimes
   R <- metaI$R
@@ -297,7 +297,7 @@ AbCdEf.JOU <- function(tree, model,
     V_1[ki,ki,i] <- solve(V[ki,ki,i])
     e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[e]]))
 
-    # now compute AbCdEf
+    # now compute PCMAbCdEf
     # here A is from the general form (not the alpha from JOU process)
     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
 

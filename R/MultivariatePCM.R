@@ -38,11 +38,11 @@ NULL
 #' from the number of traits specified in \code{metaI$k}. Error message: "ERR:02002:PCMBase:MultivariatePCM.R:PCMSim:: X0 must be of length ...".
 #'
 #' @importFrom mvtnorm rmvnorm
-#' @seealso \code{\link{PCMLik}} \code{\link{validateModel}} \code{\link{PCMCond}}
+#' @seealso \code{\link{PCMLik}} \code{\link{PCMValidate}} \code{\link{PCMCond}}
 #' @export
 PCMSim <- function(
   tree, model, X0,
-  metaI = validateModel(tree = tree, model = model,
+  metaI = PCMValidate(tree = tree, model = model,
                         verbose = verbose),
   verbose = FALSE) {
 
@@ -53,7 +53,7 @@ PCMSim <- function(
   values <- errors <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
   values[, metaI$N + 1] <- X0
 
-  ordBF <- orderBreadthFirst(tree)
+  ordBF <- PCMBreadthFirstOrder(tree)
 
   # create a list of random generator functions for each regime
   funMVCond <- lapply(1:metaI$R, function(r) {
@@ -92,25 +92,25 @@ PCMSim <- function(
 #'   column of X contains the measured trait values for one species (tip in tree).
 #'   Depending on the value of the global option "PCMBase.Internal.PC.Full" \code{NA}
 #'   entries are interpreted either as missing measurements or non-existing traits
-#'   (see \code{\link{presentCoordinates}}).
+#'   (see \code{\link{PCMPresentCoordinates}}).
 #' @param tree a phylo object with N tips.
 #' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
 #'   well as the concrete model parameter values at which the likelihood is to be
 #'   calculated (see also Details).
-#' @param metaI a list returned from a call to \code{validateModel(tree, model)},
+#' @param metaI a list returned from a call to \code{PCMValidate(tree, model)},
 #'   containing meta-data such as N, M and k.
 #' @param pruneI a named list containing cached preprocessing data for the tree used
 #'   to perform post-order traversal (pruning). By default, this is created
-#'   using \code{pruneTree(tree)}. This will use the default R-implementation of the
+#'   using \code{PCMPruningOrder(tree)}. This will use the default R-implementation of the
 #'   likelihood calculation, which is based on the default R-implementation of the
-#'   function \code{\link{Lmr}} (\code{\link{Lmr.default}}) and the S3 specification
+#'   function \code{\link{PCMLmr}} (\code{\link{PCMLmr.default}}) and the S3 specification
 #'   of the function
-#'   \code{\link{AbCdEf}} for the given model (a function called \code{AbCdEf.MODEL},
+#'   \code{\link{PCMAbCdEf}} for the given model (a function called \code{PCMAbCdEf.MODEL},
 #'   where model is the name of the mode and the class attribute of the \code{model}
-#'   argument. For a different implementation of the function \code{\link{Lmr}},
+#'   argument. For a different implementation of the function \code{\link{PCMLmr}},
 #'   provide an S3 object for which an S3 specification has been written (see Details
 #'   and example section).
-#' @param pc a logical k x M matrix returned by \code{\link{presentCoordinates}}.
+#' @param pc a logical k x M matrix returned by \code{\link{PCMPresentCoordinates}}.
 #' @param log logical indicating whether a log-liklehood should be calculated. Default
 #'  is TRUE.
 #' @param verbose logical indicating if some debug-messages should printed.
@@ -123,7 +123,7 @@ PCMSim <- function(
 #' 'X0 * L_root * X0 + m_root * X0 + r_root'.}
 #' \item{error}{A named list containing error information if a numerical or other
 #' logical error occured during likelihood calculation (this is a list returned by
-#'  \code{\link{parseErrorMessage}}.}
+#'  \code{\link{PCMParseErrorMessage}}.}
 #'  If an error occured during likelihood calculation, the default behavior is to
 #'  return NA with a non-NULL error attribute. This behavior can be changed in
 #'  using global options:
@@ -139,28 +139,28 @@ PCMSim <- function(
 #'   can be provided explicitly, because these are not supposed to change during a
 #'   model inference procedure such as likelihood maximization (see example).
 #'
-#' @seealso \code{\link{validateModel}} \code{\link{presentCoordinates}} \code{\link{pruneTree}} \code{\link{AbCdEf}} \code{\link{Lmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{parseErrorMessage}}
+#' @seealso \code{\link{PCMValidate}} \code{\link{PCMPresentCoordinates}} \code{\link{PCMPruningOrder}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{PCMParseErrorMessage}}
 #' @export
 PCMLik <- function(X, tree, model,
-                  metaI =validateModel(tree, model, verbose = verbose),
-                  pruneI = pruneTree(tree),
-                  pc = presentCoordinates(X, tree),
+                  metaI =PCMValidate(tree, model, verbose = verbose),
+                  pruneI = PCMPruningOrder(tree),
+                  pc = PCMPresentCoordinates(X, tree),
                   log = TRUE,
                   verbose = FALSE) {
 
   # will change this value if there is no error
   value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
 
-  Lmr <- try(Lmr(X, tree, model, metaI, pruneI, pc, verbose = verbose, root.only = TRUE),
+  PCMLmr <- try(PCMLmr(X, tree, model, metaI, pruneI, pc, verbose = verbose, root.only = TRUE),
              silent = TRUE)
 
-  if(class(Lmr) == "try-error") {
-    errL <- parseErrorMessage(Lmr)
+  if(class(PCMLmr) == "try-error") {
+    errL <- PCMParseErrorMessage(PCMLmr)
     if(is.null(errL)) {
-      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to Lmr: ", Lmr)
-      errL <- parseErrorMessage(err)
+      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr)
+      errL <- PCMParseErrorMessage(err)
     } else {
-      err <- Lmr
+      err <- PCMLmr
     }
     if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
       warning(err)
@@ -173,21 +173,21 @@ PCMLik <- function(X, tree, model,
 
     return(value.NA)
 
-  } else if(is.list(Lmr)) {
+  } else if(is.list(PCMLmr)) {
 
-    L_root <- Lmr$L
-    m_root <- Lmr$m
-    r_root <- Lmr$r
+    L_root <- PCMLmr$L
+    m_root <- PCMLmr$m
+    r_root <- PCMLmr$r
 
     if(is.null(L_root) | is.null(m_root) | is.null(r_root)) {
-      err <- paste0("ERR:02042:PCMBase:MultivariatePCM.R:PCMLik:: The list returned by Lmr did not contain elements 'L', 'm' and 'r'.")
+      err <- paste0("ERR:02042:PCMBase:MultivariatePCM.R:PCMLik:: The list returned by PCMLmr did not contain elements 'L', 'm' and 'r'.")
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
         warning(err)
       } else {
         stop(err)
       }
 
-      errL <- parseErrorMessage(err)
+      errL <- PCMParseErrorMessage(err)
 
       X0 <- model$X0
       attr(value.NA, 'X0') <- X0
@@ -205,7 +205,7 @@ PCMLik <- function(X, tree, model,
           "ERR:02043:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
           ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0)
 
-        errL <- parseErrorMessage(err)
+        errL <- PCMParseErrorMessage(err)
         if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
           warning(err)
         } else {
@@ -231,7 +231,7 @@ PCMLik <- function(X, tree, model,
         "ERR:02044:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
         ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik)
 
-      errL <- parseErrorMessage(err)
+      errL <- PCMParseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
         warning(err)
       } else {
@@ -251,7 +251,7 @@ PCMLik <- function(X, tree, model,
       err <- paste0(
         "ERR:02045:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value)
 
-      errL <- parseErrorMessage(err)
+      errL <- PCMParseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
         warning(err)
       } else {
@@ -266,9 +266,9 @@ PCMLik <- function(X, tree, model,
     } else if(is.na(value)) {
 
       err <- paste0(
-        "ERR:02046:PCMBase:MultivariatePCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to Lmr. Check for runtime warnings.")
+        "ERR:02046:PCMBase:MultivariatePCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to PCMLmr. Check for runtime warnings.")
 
-      errL <- parseErrorMessage(err)
+      errL <- PCMParseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
         warning(err)
       } else {
@@ -293,7 +293,7 @@ PCMLik <- function(X, tree, model,
 #' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
 #' one daughter node)
 #' @return a vector of indices of edges in tree$edge in breadth-first order.
-orderBreadthFirst <- function(tree) {
+PCMBreadthFirstOrder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
 
@@ -344,7 +344,7 @@ orderBreadthFirst <- function(tree) {
 #'
 #' @return a list of objects used by the R implementation of PCMLik().
 #' @export
-pruneTree <- function(tree) {
+PCMPruningOrder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
   # number of all nodes
@@ -440,14 +440,14 @@ pruneTree <- function(tree) {
 #' @param X numeric k x N matrix of observed values, with possible NA entries. The
 #' columns in X are in the order of tree$tip.label
 #' @param tree a phylo object
-#' @param pruneI a list returned by the pruneTree function. Either leave this
+#' @param pruneI a list returned by the PCMPruningOrder function. Either leave this
 #' as default or pass a previously computed pruneI for the same tree.
 #' @return a k x M logical matrix which can be passed as a pc argument to the PCMLik
 #' function. The function fails in case when all traits are NAs for some of the tips.
-#' In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
+#' In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
 #' @seealso \code{\link{PCMLik}}
 #' @export
-presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
+PCMPresentCoordinates <- function(X, tree, pruneI=PCMPruningOrder(tree)) {
   edge <- tree$edge
   endingAt <- pruneI$endingAt
   nodesVector <- pruneI$nodesVector
@@ -492,7 +492,7 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
       }
     }
     if(any(rowSums(pc) == 0)) {
-      stop("ERR:02001:PCMBase:MultivariatePCM.R:presentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.")
+      stop("ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.")
     }
   }
   pc
@@ -512,8 +512,8 @@ presentCoordinates <- function(X, tree, pruneI=pruneTree(tree)) {
 #' the console.
 #' @return a logical value
 #' @export
-validateModel <- function(tree, model, verbose = FALSE) {
-  UseMethod("validateModel", model)
+PCMValidate <- function(tree, model, verbose = FALSE) {
+  UseMethod("PCMValidate", model)
 }
 
 #' Specify a phylogenetic comparative model for a given tree
@@ -552,7 +552,7 @@ validateModel <- function(tree, model, verbose = FALSE) {
 #' @seealso \code{\link{storage.mode}}
 #' @return an S3 object of class ModelSpecification.
 #' @export
-specifyModel <- function(tree, modelName,
+PCMSpecify <- function(tree, modelName,
                          k, R, regimesUnique,
                          paramNames,
                          paramStorageModes,
@@ -560,11 +560,11 @@ specifyModel <- function(tree, modelName,
                          ...) {
 
   if(class(tree) != "phylo") {
-    stop("ERR:02003:PCMBase:MultivariatePCM.R:specifyModel:: tree should be an object of S3 class 'phylo'.")
+    stop("ERR:02003:PCMBase:MultivariatePCM.R:PCMSpecify:: tree should be an object of S3 class 'phylo'.")
   }
 
   if(!is.character(modelName) & length(modelName) == 1) {
-    stop("ERR:02004:PCMBase:MultivariatePCM.R:specifyModel:: modelName should be a character string.")
+    stop("ERR:02004:PCMBase:MultivariatePCM.R:PCMSpecify:: modelName should be a character string.")
   }
 
   spec <- list(
@@ -579,12 +579,12 @@ specifyModel <- function(tree, modelName,
   )
 
   if(! (storage.mode(regimesUnique) %in% c("integer", "character")) ) {
-    stop("ERR:02005:PCMBase:MultivariatePCM.R:specifyModel:: the storage mode of regimesUnique should be either integer or character")
+    stop("ERR:02005:PCMBase:MultivariatePCM.R:PCMSpecify:: the storage mode of regimesUnique should be either integer or character")
   }
 
   if( storage.mode(regimesUnique) == "integer" ) {
     if(!identical(regimesUnique, 1:max(regimesUnique)))
-      stop("ERR:02006:PCMBase:MultivariatePCM.R:specifyModel:: when regimesUnique is integer it should be an integer vector from 1 to max(regimesUnique), so it can be used as index in an array.")
+      stop("ERR:02006:PCMBase:MultivariatePCM.R:PCMSpecify:: when regimesUnique is integer it should be an integer vector from 1 to max(regimesUnique), so it can be used as index in an array.")
   }
 
   paramDims = with(
@@ -600,38 +600,38 @@ specifyModel <- function(tree, modelName,
   spec[["paramDims"]] <- paramDims
 
   if(spec[["k"]] <= 0) {
-    stop(paste0("ERR:02007:PCMBase:MultivariatePCM.R:specifyModel:: k should be a positive integer but was ", spec[["k"]], "."))
+    stop(paste0("ERR:02007:PCMBase:MultivariatePCM.R:PCMSpecify:: k should be a positive integer but was ", spec[["k"]], "."))
   }
   if(spec[["R"]] <= 0) {
-    stop(paste0("ERR:02008:PCMBase:MultivariatePCM.R:specifyModel:: R should be a positive integer but was", spec[["R"]], "."))
+    stop(paste0("ERR:02008:PCMBase:MultivariatePCM.R:PCMSpecify:: R should be a positive integer but was", spec[["R"]], "."))
   }
 
   if(spec[["N"]] <= 0) {
-    stop(paste0("ERR:02009:PCMBase:MultivariatePCM.R:specifyModel:: The tree should have at least one tip but N was ", spec[["N"]], "."))
+    stop(paste0("ERR:02009:PCMBase:MultivariatePCM.R:PCMSpecify:: The tree should have at least one tip but N was ", spec[["N"]], "."))
   }
 
   if(spec[["M"]] <= 1) {
-    stop(paste0("ERR:02010:PCMBase:MultivariatePCM.R:specifyModel:: The tree should have at least two nodes, that is, a minimum of one tip and one root-node but M was ", spec[["M"]], "."))
+    stop(paste0("ERR:02010:PCMBase:MultivariatePCM.R:PCMSpecify:: The tree should have at least two nodes, that is, a minimum of one tip and one root-node but M was ", spec[["M"]], "."))
   }
 
   lapply(spec[["paramDims"]], function(dim) {
    if(any(is.na(dim)) | any(dim <= 0)) {
-     stop(paste0("ERR:02011:PCMBase:MultivariatePCM.R:specifyModel:: paramDims should be a list of  positive integer vectors or a vector of characters, each of which can be parsed into a positive  integer vector, but was ", toString(paramDims)))
+     stop(paste0("ERR:02011:PCMBase:MultivariatePCM.R:PCMSpecify:: paramDims should be a list of  positive integer vectors or a vector of characters, each of which can be parsed into a positive  integer vector, but was ", toString(paramDims)))
    }
   })
 
   nParams <- length(paramNames)
 
   if(length(paramStorageModes) != nParams) {
-    stop(paste0("ERR:02012:PCMBase:MultivariatePCM.R:specifyModel:: paramStorageModes should be the same length as paramNames but its length was ", length(paramStorageModes), "."))
+    stop(paste0("ERR:02012:PCMBase:MultivariatePCM.R:PCMSpecify:: paramStorageModes should be the same length as paramNames but its length was ", length(paramStorageModes), "."))
   }
 
   if(!all(paramStorageModes %in% c("character", "integer", "double", "complex", "logical"))) {
-    stop('ERR:02013:PCMBase:MultivariatePCM.R:specifyModel:: all paramStorageModes should be in {"character", "integer", "double", "complex", "logical"}.')
+    stop('ERR:02013:PCMBase:MultivariatePCM.R:PCMSpecify:: all paramStorageModes should be in {"character", "integer", "double", "complex", "logical"}.')
   }
 
   if(length(paramDims) != nParams) {
-    stop("ERR:02014:PCMBase:MultivariatePCM.R:specifyModel:: paramDims should be the same length as paramNames but its length was ", length(paramDims), ".")
+    stop("ERR:02014:PCMBase:MultivariatePCM.R:PCMSpecify:: paramDims should be the same length as paramNames but its length was ", length(paramDims), ".")
   }
 
   class(spec) <- "ModelSpecification"
@@ -645,14 +645,14 @@ specifyModel <- function(tree, modelName,
 #' @param verbose a logical indicating if the log messges should be
 #'   printed on the screen during validation.
 #' @return a named list
-validateModelGeneral <- function(tree, model, modelSpec, verbose) {
+PCMValidateGeneral <- function(tree, model, modelSpec, verbose) {
   if(class(model)[[1]] != modelSpec$modelName) {
-    stop(paste0("ERR:02020:PCMBase:MultivariatePCM.R:validateModelGeneral:: The model object should be of S3 class: ", modelSpec$modelName, " but was of class ", class(model)[[1]], "."))
+    stop(paste0("ERR:02020:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: The model object should be of S3 class: ", modelSpec$modelName, " but was of class ", class(model)[[1]], "."))
   }
   nParams <- length(modelSpec$paramNames)
 
   if(!all(modelSpec$paramNames %in% names(model))) {
-    stop(paste0("ERR:02021:PCMBase:MultivariatePCM.R:validateModelGeneral:: model should be a named list with elements ", toString(modelSpec$paramNames)))
+    stop(paste0("ERR:02021:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: model should be a named list with elements ", toString(modelSpec$paramNames)))
   }
 
   # number of tips
@@ -665,7 +665,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
   }
 
   if(N != modelSpec$N | M != modelSpec$M) {
-    stop("ERR:02022:PCMBase:MultivariatePCM.R:validateModelGeneral:: the numbers of tips and nodes in tree do not match modelSpec$N and modelSpec$M.")
+    stop("ERR:02022:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: the numbers of tips and nodes in tree do not match modelSpec$N and modelSpec$M.")
   }
 
   # number of regimes
@@ -698,7 +698,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
   } else {
     regimes <- match(tree$edge.regime, modelSpec$regimesUnique)
     if(any(is.na(regimes))) {
-      stop(paste0("ERR:02023:PCMBase:MultivariatePCM.R:validateModelGeneral::: ",
+      stop(paste0("ERR:02023:PCMBase:MultivariatePCM.R:PCMValidateGeneral::: ",
                   " Some of the regimes in tree$edge.regime not found in",
                   "modelSpec$regimesUnique.\n",
                   "tree$edge.regime=", toString(tree$edge.regime), "\n",
@@ -712,7 +712,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
     paramDim_i <- modelSpec$paramDims[[i]]
     if(storage.mode(model[[paramName_i]]) != storageMode_i) {
       stop(paste0(
-        "ERR:02024:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
+        "ERR:02024:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: ",
         paramName_i, " should have a storage mode ", storageMode_i,
         " but has storageMode", storage.mode(model[[paramName_i]]), "."))
     }
@@ -720,7 +720,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
       # a vector or an atom
       if(length(model[[paramName_i]]) != paramDim_i) {
         stop(paste0(
-          "ERR:02025:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
+          "ERR:02025:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: ",
           paramName_i, " should be a vector of length ", paramDim_i,
           " but has length ", length(model[[paramName_i]])
         ))
@@ -728,7 +728,7 @@ validateModelGeneral <- function(tree, model, modelSpec, verbose) {
     } else {
       if(!identical(dim(model[[paramName_i]]), paramDim_i)) {
         stop(paste0(
-          "ERR:02024:PCMBase:MultivariatePCM.R:validateModelGeneral:: ",
+          "ERR:02024:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: ",
           paramName_i, " should have dimension ", toString(paramDim_i),
           " but has dimension ", dim(model[[paramName_i]]), "."
         ))
@@ -758,8 +758,8 @@ PCMCond <- function(tree, model, metaI, r=1, verbose = FALSE) {
 #'  model class. This function is called by \code{\link{PCMLik}}.
 #' @inheritParams PCMLik
 #' @export
-AbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
-  UseMethod("AbCdEf", model)
+PCMAbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
+  UseMethod("PCMAbCdEf", model)
 }
 
 #' Quadratic polynomial parameters L, m, r
@@ -772,25 +772,25 @@ AbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
 #' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
 #'   only for the root if root.only=TRUE.
 #' @export
-Lmr <- function(X, tree, model,
-                metaI = validateModel(tree, model, verbose = verbose),
-                pruneI = pruneTree(tree),
-                pc = presentCoordinates(X, tree, pruneI),
+PCMLmr <- function(X, tree, model,
+                metaI = PCMValidate(tree, model, verbose = verbose),
+                pruneI = PCMPruningOrder(tree),
+                pc = PCMPresentCoordinates(X, tree, pruneI),
                 root.only = TRUE, verbose = FALSE) {
-  UseMethod("Lmr", pruneI)
+  UseMethod("PCMLmr", pruneI)
 }
 
-#' Defaut R-implementation of Lmr
-#' @details This funciton is not a generic S3 implementation of Lmr - it needs
+#' Defaut R-implementation of PCMLmr
+#' @details This funciton is not a generic S3 implementation of PCMLmr - it needs
 #' additional raguments and is designed to be called by PCMLik. It can still
 #' be called by the end-user for debugging purpose.
 #' @inheritParams PCMLik
 #' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
 #'   only for the root if root.only=TRUE.
 #' @export
-Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
-                       pruneI = pruneTree(tree),
-                       pc = presentCoordinates(X, tree, pruneI),
+PCMLmr.default <- function(X, tree, model, metaI=PCMValidate(tree, model),
+                       pruneI = PCMPruningOrder(tree),
+                       pc = PCMPresentCoordinates(X, tree, pruneI),
                        root.only = FALSE,
                        verbose = FALSE) {
   unJ <- 1
@@ -812,7 +812,7 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
   r <- array(0, dim=c(M))
 
 
-  AbCdEf <- AbCdEf(tree = tree, model = model,
+  PCMAbCdEf <- PCMAbCdEf(tree = tree, model = model,
                    metaI = metaI,
                    pc = pc, verbose = verbose)
 
@@ -826,7 +826,7 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
 
     if(nodes[1] <= N) {
       # all es pointing to tips
-      #L[nodes,,] <- AbCdEf$C[nodes,,]
+      #L[nodes,,] <- PCMAbCdEf$C[nodes,,]
 
       for(e in es) {
         # parent and daughter nodes
@@ -836,10 +836,10 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
 
 
         # check that V[ki,ki,] is non-singular
-        svdV = svd(matrix(AbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
+        svdV = svd(matrix(PCMAbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
         if(min(svdV)/max(svdV) < threshold_SV) {
           err <- paste0(
-            "ERR:02031:PCMBase:MultivariatePCM.R:Lmr.default:",i,":",
+            "ERR:02031:PCMBase:MultivariatePCM.R:PCMLmr.default:",i,":",
             " The matrix V for node ", i,
             " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
             ". Check the model parameters and the length of the branch",
@@ -848,14 +848,14 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
         }
 
         # ensure symmetry of L[,,i]
-        L[,,i] <- 0.5 * (AbCdEf$C[,,i] + t(AbCdEf$C[,,i]))
+        L[,,i] <- 0.5 * (PCMAbCdEf$C[,,i] + t(PCMAbCdEf$C[,,i]))
 
-        r[i] <- with(AbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
+        r[i] <- with(PCMAbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
                        t(X[ki,i]) %*% b[ki,i] + f[i])
 
-        m[kj,i] <- with(AbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
+        m[kj,i] <- with(PCMAbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
 
-        #logDetV[i] <- with(AbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
+        #logDetV[i] <- with(PCMAbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
 
         #K <- K + sum(ki)
       }
@@ -869,13 +869,13 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
         kj <- pc[, j]; ki <- pc[, i];
 
         # check that V[i,ki,ki] is non-singular
-        svdV = svd(matrix(AbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
+        svdV = svd(matrix(PCMAbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
         if(min(svdV)/max(svdV) < threshold_SV) {
           err <- paste0(
-            "ERR:02031:PCMBase:MultivariatePCM.R:Lmr.default:",i,":",
+            "ERR:02031:PCMBase:MultivariatePCM.R:PCMLmr.default:",i,":",
             " The matrix V for node ", i,
             " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-            ", det(V)=", det(matrix(AbCdEf$V[i,ki,ki], sum(ki))),
+            ", det(V)=", det(matrix(PCMAbCdEf$V[i,ki,ki], sum(ki))),
             ". Check the model parameters and the length of the branch",
             " leading to the node. For details on this error, read the User Guide.")
           stop(err)
@@ -884,26 +884,26 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
 
 
         # auxilary variables to avoid redundant evaluation
-        AplusL <- as.matrix(AbCdEf$A[ki,ki,i] + L[ki,ki,i])
+        AplusL <- as.matrix(PCMAbCdEf$A[ki,ki,i] + L[ki,ki,i])
         # ensure symmetry of AplusL, this should guarantee that AplusL_1 is symmetric
         # as well (unless solve-implementation is buggy.)
         AplusL <- 0.5 * (AplusL + t(AplusL))
 
         AplusL_1 <- solve(AplusL)
 
-        EAplusL_1 <- matrix(AbCdEf$E[kj,ki,i], sum(kj), sum(ki)) %*% AplusL_1
+        EAplusL_1 <- matrix(PCMAbCdEf$E[kj,ki,i], sum(kj), sum(ki)) %*% AplusL_1
         logDetVNode <- log(det(-2*AplusL))
 
         # here it is important that we first evaluate r[i] and then m[i,kj]
         # since the expression for r[i] refers to to the value of m[i,ki]
         # before updating it.
-        r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
+        r[i] <- with(PCMAbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
                        .25*t(b[ki,i]+m[ki,i]) %*% AplusL_1 %*% (b[ki,i]+m[ki,i]))
 
-        m[kj,i] <- with(AbCdEf, d[kj,i] - .5*EAplusL_1 %*% (b[ki,i]+m[ki,i]))
+        m[kj,i] <- with(PCMAbCdEf, d[kj,i] - .5*EAplusL_1 %*% (b[ki,i]+m[ki,i]))
 
         L[kj,kj,i] <- with(
-          AbCdEf,
+          PCMAbCdEf,
           C[kj,kj,i] -.25*EAplusL_1 %*% t(matrix(E[kj,ki,i], sum(kj), sum(ki))))
 
         # ensure symmetry of L:
@@ -927,7 +927,7 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
          m = m[,N+1],
          r = r[N+1])
   } else {
-    c(AbCdEf[c("A", "b", "C", "d", "E", "f", "V", "V_1")],
+    c(PCMAbCdEf[c("A", "b", "C", "d", "E", "f", "V", "V_1")],
       list(L = L, m = m, r = r))
   }
 }
@@ -950,7 +950,7 @@ Lmr.default <- function(X, tree, model, metaI=validateModel(tree, model),
 #' \item{info}{A character string containing additional error-specific information}
 #' \item{msg}{A verbal description of the error.}
 #' @export
-parseErrorMessage <- function(x) {
+PCMParseErrorMessage <- function(x) {
   res <- try({
     if(is.character(x)) {
       code <- regmatches(x, regexpr("ERR:[0-9]+:[^:]+:[^:]+:[^:]+:[^:]*:", x))
