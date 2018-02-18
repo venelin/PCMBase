@@ -157,7 +157,8 @@ PCMLik <- function(X, tree, model,
   if(class(PCMLmr) == "try-error") {
     errL <- PCMParseErrorMessage(PCMLmr)
     if(is.null(errL)) {
-      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr)
+      err <- paste0("ERR:02041:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr, "; print(model):",
+                    do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
       errL <- PCMParseErrorMessage(err)
     } else {
       err <- PCMLmr
@@ -203,7 +204,8 @@ PCMLik <- function(X, tree, model,
       if(class(X0) == "try-error") {
         err <- paste0(
           "ERR:02043:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
-          ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0)
+          ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0, "; print(model):",
+          do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
         errL <- PCMParseErrorMessage(err)
         if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
@@ -229,7 +231,8 @@ PCMLik <- function(X, tree, model,
     if(class(loglik) == "try-error") {
       err <- paste0(
         "ERR:02044:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
-        ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik)
+        ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik, "; print(model):",
+        do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
       errL <- PCMParseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
@@ -249,7 +252,8 @@ PCMLik <- function(X, tree, model,
 
     if(class(value) == "try-error") {
       err <- paste0(
-        "ERR:02045:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value)
+        "ERR:02045:PCMBase:MultivariatePCM.R:PCMLik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value, "; print(model):",
+        do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
       errL <- PCMParseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
@@ -266,7 +270,8 @@ PCMLik <- function(X, tree, model,
     } else if(is.na(value)) {
 
       err <- paste0(
-        "ERR:02046:PCMBase:MultivariatePCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), ". No error message was returned from the call to PCMLmr. Check for runtime warnings.")
+        "ERR:02046:PCMBase:MultivariatePCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), "; print(model):",
+        do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))), ". No error message was returned from the call to PCMLmr. Check for runtime warnings.")
 
       errL <- PCMParseErrorMessage(err)
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
