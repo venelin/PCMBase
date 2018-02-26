@@ -161,6 +161,8 @@ N <- trees$N[[id]]
 k <- trees$num_traits[[id]]
 model <- trees$model[[id]]
 
+print(model)
+
 collessNorm <- trees$collessNorm[[id]]
 
 pSymb <- trees$pSymb[[id]]

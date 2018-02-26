@@ -101,7 +101,7 @@ randomOUModel <- function(k) {
   
   while(TRUE) {
     X0 <- rnorm(k)
-    Alpha <- randomPDSymMatrix(k)
+    H <- randomPDSymMatrix(k)
     
     Theta <- rep(1, k)
     
@@ -109,20 +109,20 @@ randomOUModel <- function(k) {
     
     Sigmae2 <- matrix(0, k, k)
     
-    Alpha <- abind::abind(Alpha, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
+    H <- abind::abind(H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
     Theta <- abind::abind(Theta, along=2, new.names=list(xy=NULL, regime=c('a')))
     Sigma <- abind::abind(Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
     Sigmae <- abind::abind(Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
     
     model <- list(X0 = X0,
-                  Alpha=Alpha[,,,drop=FALSE],
+                  H=H[,,,drop=FALSE],
                   Theta=Theta[,,drop=FALSE],
                   Sigma=Sigma[,,,drop=FALSE],
                   Sigmae=Sigmae[,,,drop=FALSE])
     class(model) <- 'OU'
   
-    cond <- mvcond(NULL, model)
-    eig <- eigen(cond$vcov(0.01))
+    cond <- PCMCond(NULL, model)
+    eig <- eigen(cond$V(0.01))
     
     if(isTRUE(all(eig$values > 0))) {
       return(model)    

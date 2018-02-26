@@ -104,8 +104,8 @@ V.OU <- function(
   force(P)
   force(P_1)
 
-  function(time) {
-    Re(P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P))
+  function(t, edgeIndex = NA) {
+    Re(P %*% (fLambda_ij(t)*P_1SigmaP_t) %*% t(P))
   }
 }
 
@@ -130,24 +130,35 @@ PCMCond.OU <- function(tree, model, r=1, verbose=FALSE) {
     Theta <- model$Theta[,r]
     Sigma <- as.matrix(model$Sigma[,,r])
 
-  if(length(unique(c(length(Theta), dim(H), dim(Sigma)))) != 1) {
-    stop('ERR:02221:PCMBase:OU.R:PCMCond.OU:: Some of H, Theta or Sigma has a wrong dimension.')
-  }
-  PLP_1 <- PLambdaP_1.OU(H)
-  fV <- V.OU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
+    if(length(unique(c(length(Theta), dim(H), dim(Sigma)))) != 1) {
+      stop('ERR:02221:PCMBase:OU.R:PCMCond.OU:: Some of H, Theta or Sigma has a wrong dimension.')
+    }
+    PLP_1 <- PLambdaP_1.OU(H)
+    V <- V.OU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
+    omega <- function(t, edgeIndex, e_Ht = NULL) {
+      if(is.null(e_Ht)) {
+        e_Ht <- expm(-t*H)
+      }
+      I <- diag(nrow(H))
+      (I-e_Ht) %*% Theta
+    }
+    Phi <- function(t, edgeIndex, e_Ht = NULL) {
+      if(is.null(e_Ht)) {
+        expm(-t*H)
+      } else {
+        e_Ht
+      }
+    }
+    random <- function(n=1, x0, t, edgeIndex) {
+      e_Ht <- expm(-t*H)
+      rmvnorm(n=n, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht) %*% x0, sigma=V(t, edgeIndex))
+    }
+    density <- function(x, x0, t, edgeIndex, log=FALSE) {
+      e_Ht <- expm(-t*H)
+      dmvnorm(x, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht)%*%x0, sigma=V(t, edgeIndex), log=log)
+    }
 
-  random <- function(n=1, x0, t, e) {
-    e_Ht <- expm(-t*H)
-    I <- diag(nrow(H))
-    rmvnorm(n=n, mean=e_Ht%*%x0 + (I-e_Ht) %*% Theta, sigma=fV(t))
-  }
-  density <- function(x, x0, t, e, log=FALSE) {
-    e_Ht <- expm(-t*H)
-    I <- diag(nrow(H))
-    dmvnorm(x, mean=e_Ht%*%x0 + (I-e_Ht) %*% Theta, sigma=fV(t), log=log)
-  }
-
-  list(H=H, Theta=Theta, Sigma=Sigma, random=random, density=density, vcov=fV)
+    list(omega = omega, Phi = Phi, V = V, random=random, density=density)
   })
 }
 
@@ -184,99 +195,97 @@ PCMCond.OU <- function(tree, model, r=1, verbose=FALSE) {
 #'
 #' @importFrom expm expm
 #' @export
-PCMAbCdEf.OU <- function(tree, model,
-                      metaI=PCMValidate.OU(tree, model, verbose=verbose),
-                      pc, verbose=FALSE) {
-  # number of regimes
-  R <- metaI$R
-
-  # number of tips
-  N <- metaI$N
-
-  # number of traits (variables)
-  k <- metaI$k
-
-  # number of nodes
-  M <- metaI$M
-
-  tree <- tree
-
-  P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
-  P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
-  lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H)[-2])
-
-  fV.OU <- list()
-
-  for(r in 1:R) {
-    PLambdaP_1 <- PLambdaP_1.OU(model$H[,,r])
-    P[,,r] <- PLambdaP_1$P
-    P_1[,,r] <- PLambdaP_1$P_1
-    lambda[,r] <- PLambdaP_1$lambda
-
-    # create the V.OU function for regime r
-    fV.OU[[r]] <- V.OU(lambda[,r], as.matrix(P[,,r]), as.matrix(P_1[,,r]),
-                       as.matrix(model$Sigma[,,r]))
-  }
-
-  V <- array(NA, dim=c(k, k, M))
-  V_1 <- array(NA, dim=c(k, k, M))
-  e_Ht <- array(NA, dim=c(k, k, M))
-
-  # returned general form parameters
-  A <- array(NA, dim=c(k, k, M))
-  b <- array(NA, dim=c(k, M))
-  C <- array(NA, dim=c(k, k, M))
-  d <- array(NA, dim=c(k, M))
-  E <- array(NA, dim=c(k, k, M))
-  f <- array(NA, dim=c(M))
-
-  # vector of regime indices for each branch
-  r <- metaI$regimes
-
-  # identity k x k matrix
-  I <- diag(k)
-
-  # iterate over the edges
-  for(e in 1:(M-1)) {
-    # parent node
-    j <- tree$edge[e, 1]
-    # daughter node
-    i <- tree$edge[e, 2]
-
-    # length of edge leading to i
-    ti <- tree$edge.length[e]
-
-    # present coordinates in parent and daughter nodes
-    kj <- pc[,j]
-    ki <- pc[,i]
-
-    V[,,i] <- fV.OU[[r[e]]](ti)
-
-    if(i <= N) {
-      # add environmental variance at each tip node
-      V[,,i] <- V[,,i] + model$Sigmae[,,r[e]]
-    }
-
-    V_1[ki,ki,i] <- solve(V[ki,ki,i])
-    e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[e]]))
-
-    # now compute PCMAbCdEf according to eq (8) in doc.
-    # here A is from the general form (not the alpa from OU process)
-    A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
-
-    b[ki,i] <- V_1[ki,ki,i] %*% (I[ki,]-e_Ht[ki,,i]) %*% model$Theta[,r[e]]
-
-    C[kj,kj,i] <- -0.5*t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% e_Ht[ki,kj,i]
-
-    d[kj,i] <- -t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% (matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]]
-
-    E[kj,ki,i] <- t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
-
-    f[i] <-
-      -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
-              t(model$Theta[,r[e]]) %*% t(matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*%
-              V_1[ki,ki,i] %*% (matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]])
-  }
-
-  list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
-}
+# PCMAbCdEf.OU <- function(tree, model,
+#                       metaI=PCMValidate.OU(tree, model, verbose=verbose),
+#                       pc, verbose=FALSE) {
+#   # number of regimes
+#   R <- metaI$R
+#
+#   # number of tips
+#   N <- metaI$N
+#
+#   # number of traits (variables)
+#   k <- metaI$k
+#
+#   # number of nodes
+#   M <- metaI$M
+#
+#   tree <- tree
+#
+#   P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+#   P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+#   lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H)[-2])
+#
+#   fV.OU <- list()
+#
+#   for(r in 1:R) {
+#     PLambdaP_1 <- PLambdaP_1.OU(model$H[,,r])
+#     P[,,r] <- PLambdaP_1$P
+#     P_1[,,r] <- PLambdaP_1$P_1
+#     lambda[,r] <- PLambdaP_1$lambda
+#
+#     # create the V.OU function for regime r
+#     fV.OU[[r]] <- V.OU(lambda[,r], as.matrix(P[,,r]), as.matrix(P_1[,,r]),
+#                        as.matrix(model$Sigma[,,r]))
+#   }
+#
+#   V <- array(NA, dim=c(k, k, M))
+#   V_1 <- array(NA, dim=c(k, k, M))
+#   e_Ht <- array(NA, dim=c(k, k, M))
+#
+#   # returned general form parameters
+#   A <- array(NA, dim=c(k, k, M))
+#   b <- array(NA, dim=c(k, M))
+#   C <- array(NA, dim=c(k, k, M))
+#   d <- array(NA, dim=c(k, M))
+#   E <- array(NA, dim=c(k, k, M))
+#   f <- array(NA, dim=c(M))
+#
+#   # vector of regime indices for each branch
+#   r <- metaI$regimes
+#
+#   # identity k x k matrix
+#   I <- diag(k)
+#
+#   # iterate over the edges
+#   for(edgeIndex in 1:(M-1)) {
+#     # parent node
+#     j <- tree$edge[edgeIndex, 1]
+#     # daughter node
+#     i <- tree$edge[edgeIndex, 2]
+#
+#     # length of edge leading to i
+#     ti <- tree$edge.length[edgeIndex]
+#
+#     # present coordinates in parent and daughter nodes
+#     kj <- pc[,j]
+#     ki <- pc[,i]
+#
+#     V[,,i] <- fV.OU[[r[edgeIndex]]](ti)
+#
+#     if(i <= N) {
+#       # add environmental variance at each tip node
+#       V[,,i] <- V[,,i] + model$Sigmae[,,r[edgeIndex]]
+#     }
+#
+#     V_1[ki,ki,i] <- solve(V[ki,ki,i])
+#     e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[edgeIndex]]))
+#
+#     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
+#
+#     b[ki,i] <- V_1[ki,ki,i] %*% (I[ki,]-e_Ht[ki,,i]) %*% model$Theta[,r[edgeIndex]]
+#
+#     C[kj,kj,i] <- -0.5*t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% e_Ht[ki,kj,i]
+#
+#     d[kj,i] <- -t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% (matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[edgeIndex]]
+#
+#     E[kj,ki,i] <- t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
+#
+#     f[i] <-
+#       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
+#               t(model$Theta[,r[edgeIndex]]) %*% t(matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*%
+#               V_1[ki,ki,i] %*% (matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[edgeIndex]])
+#   }
+#
+#   list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
+# }

@@ -336,7 +336,7 @@ if(require(PCMBaseCpp)) {
 
 
   values <- traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] + traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)]
-  #values[sample(x=1:length(values), 88)] <- NA
+  values[sample(x=1:length(values), 88)] <- NA
 
   pruneInfoR <- PCMPruningOrder(tree.ab.singles)
   pruneInfoCpp <- PCMCppPruningObject(X = values,
@@ -360,20 +360,20 @@ if(require(PCMBaseCpp)) {
                                     model.ab.123)))
 
 
-  # if(require(microbenchmark)) {
-  #   cat("microbenchmark test")
-  #
-  #   options(PCMBase.PCMLmr.mode=11)
-  #   print(microbenchmark(
-  #     PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
-  #     PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp),
-  #     times = 10
-  #   ))
-  #
-  #   options(PCMBase.PCMLmr.mode=21)
-  #   print(microbenchmark(
-  #     PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
-  #   ))
-  # }
+  if(require(microbenchmark)) {
+    cat("microbenchmark test")
+
+    options(PCMBase.PCMLmr.mode=11)
+    print(microbenchmark(
+      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
+      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp),
+      times = 10
+    ))
+
+    options(PCMBase.PCMLmr.mode=21)
+    print(microbenchmark(
+      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
+    ))
+  }
 }
 

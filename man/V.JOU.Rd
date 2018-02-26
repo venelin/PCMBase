@@ -4,7 +4,7 @@
 \alias{V.JOU}
 \title{Generate a multivariate (MV) JOU variance-covariance function}
 \usage{
-V.JOU(lambda, P, P_1, Sigma, H, Sigmaj,
+V.JOU(lambda, P, P_1, Sigma, H, Sigmaj, xi,
   threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-08))
 }
 \arguments{

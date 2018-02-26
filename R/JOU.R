@@ -113,7 +113,7 @@ texp.JOU <- function(H){
 #' the specified arguments.
 #' @export
 V.JOU <- function(
-  lambda, P, P_1, Sigma, H, Sigmaj,
+  lambda, P, P_1, Sigma, H, Sigmaj, xi,
   threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8)) {
 
   Lambda_ij <- Lambda_ij.JOU(lambda)
@@ -126,9 +126,9 @@ V.JOU <- function(
   force(P)
   force(P_1)
 
-  function(time, xi) {
-    e_Hti <- e_Ht(time)
-    Re((P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P)) + xi*(e_Hti %*% Sigmaj %*% t(e_Hti)))
+  function(t, edgeIndex) {
+    e_Hti <- e_Ht(t)
+    Re((P %*% (fLambda_ij(t)*P_1SigmaP_t) %*% t(P)) + xi[edgeIndex]*(e_Hti %*% Sigmaj %*% t(e_Hti)))
   }
 }
 
@@ -158,24 +158,32 @@ PCMCond.JOU <- function(tree, model, r=1, verbose=FALSE) {
       stop('ERR:02321:PCMBase:JOU.R:PCMCond.JOU:: Some of H, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
     }
     PLP_1 <- PLambdaP_1.JOU(H)
-    fV <- V.JOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma, H, Sigmaj)
 
-    random <- function(n=1, x0, t, e) {
-      e_Ht <- expm(-t*H)
+    V <- V.JOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma, H, Sigmaj, xi)
+    omega <- function(t, edgeIndex, e_Ht = NULL) {
+      if(is.null(e_Ht)) {
+        e_Ht <- expm(-t*H)
+      }
       I <- diag(nrow(H))
-      rmvnorm(n=n,
-              mean=e_Ht%*%(x0 + xi[e]*mj) + (I-e_Ht)%*%Theta,
-              sigma=fV(t, xi[e]))
+      xi[edgeIndex] * e_Ht%*%mj +  (I-e_Ht)%*%Theta
     }
-    density <- function(x, x0, t, e, log=FALSE) {
+    Phi <- function(t, edgeIndex, e_Ht = NULL) {
+      if(is.null(e_Ht)) {
+        expm(-t*H)
+      } else {
+        e_Ht
+      }
+    }
+    random <- function(n=1, x0, t, edgeIndex) {
       e_Ht <- expm(-t*H)
-      I <- diag(nrow(H))
-      dmvnorm(x,
-              mean=e_Ht%*%(x0 + xi[e]*mj) + (I-e_Ht)%*%Theta,
-              sigma=fV(t, xi[e]), log=log)
+      rmvnorm(n=n, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht) %*% x0, sigma=V(t, edgeIndex))
+    }
+    density <- function(x, x0, t, edgeIndex, log=FALSE) {
+      e_Ht <- expm(-t*H)
+      dmvnorm(x, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht)%*%x0, sigma=V(t, edgeIndex), log=log)
     }
 
-    list(H=H, Theta=Theta, Sigma=Sigma, Sigmaj = Sigmaj, mj = mj, random=random, density=density, vcov=fV)
+    list(omega = omega, Phi = Phi, V = V, random=random, density=density)
   })
 }
 
@@ -219,104 +227,104 @@ PCMCond.JOU <- function(tree, model, r=1, verbose=FALSE) {
 #' @importFrom expm expm
 #'
 #' @export
-PCMAbCdEf.JOU <- function(tree, model,
-                       metaI=PCMValidate.JOU(tree, model, verbose=verbose),
-                       pc, verbose=FALSE) {
-  # number of regimes
-  R <- metaI$R
-  # number of tips
-  N <- metaI$N
-
-  # number of traits (variables)
-  k <- metaI$k
-
-  # number of nodes
-  M <- metaI$M
-
-  tree <- tree
-  P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
-  P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
-  lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H)[-2])
-
-  fV.JOU <- list()
-
-  for(r in 1:R) {
-    PLambdaP_1 <- PLambdaP_1.JOU(model$H[,,r])
-    P[,,r] <- PLambdaP_1$P
-    P_1[,,r] <- PLambdaP_1$P_1
-    lambda[,r] <- PLambdaP_1$lambda
-
-    fV.JOU[[r]] <- V.JOU(lambda[,r],
-                         as.matrix(P[,,r]),
-                         as.matrix(P_1[,,r]),
-                         as.matrix(model$Sigma[,,r]),
-                         as.matrix(model$H[,,r]),
-                         as.matrix(model$Sigmaj[,,r]))
-  }
-
-  V <- array(NA, dim=c(k, k, M))
-  V_1 <- array(NA, dim=c(k, k, M))
-  e_Ht <- array(NA, dim=c(k, k, M))
-  e_HTt <- array(NA, dim=c(k, k, M))
-
-  # returned general form parameters
-  A <- array(NA, dim=c(k, k, M))
-  b <- array(NA, dim=c(k, M))
-  C <- array(NA, dim=c(k, k, M))
-  d <- array(NA, dim=c(k, M))
-  E <- array(NA, dim=c(k, k, M))
-  f <- array(NA, dim=c(M))
-
-  # vector of regime indices for each branch
-  r <- metaI$regimes
-
-  # identity k x k matrix
-  I <- diag(k)
-
-  # iterate over the edges
-  for(e in 1:(M-1)) {
-    # parent node
-    j <- tree$edge[e, 1]
-    # daughter node
-    i <- tree$edge[e, 2]
-
-    # length of edge leading to i
-    ti <- tree$edge.length[e]
-    # binary vector indicating jump or not per edge
-    xi <- tree$edge.jump
-    # present coordinates in parent and daughte nodes
-    kj <- pc[,j]
-    ki <- pc[,i]
-    V[,,i] <- fV.JOU[[r[e]]](ti, xi[e])
-
-    if(i<=N) {
-      # add environmental variance at each tip node
-      V[,,i] <- V[,,i] + model$Sigmae[,,r[e]]
-    }
-
-    V_1[ki,ki,i] <- solve(V[ki,ki,i])
-    e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[e]]))
-
-    # now compute PCMAbCdEf
-    # here A is from the general form (not the alpha from JOU process)
-    A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
-
-    b[ki,i] <- V_1[ki,ki,i] %*%
-      ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_Ht[ki,,i] %*% model$mj[,r[e]]*xi[e])
-
-    C[kj,kj,i] <- -0.5*t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))
-
-    d[kj,i] <- -t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*%
-      ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_Ht[ki,,i] %*% model$mj[,r[e]] * xi[e])
-
-    E[kj,ki,i] <- t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
-
-    f[i] <-
-      -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
-              (t(model$Theta[,r[e]]) %*% t(matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) + t(model$mj[,r[e]]) %*% t(matrix(e_Ht[ki,,i], sum(ki)))*xi[e]) %*%
-              V_1[ki,ki,i] %*% ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[e]] + e_Ht[ki,,i] %*% model$mj[,r[e]]*xi[e]))
-  }
-
-  list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
-}
-
+# PCMAbCdEf.JOU <- function(tree, model,
+#                        metaI=PCMValidate.JOU(tree, model, verbose=verbose),
+#                        pc, verbose=FALSE) {
+#   # number of regimes
+#   R <- metaI$R
+#   # number of tips
+#   N <- metaI$N
+#
+#   # number of traits (variables)
+#   k <- metaI$k
+#
+#   # number of nodes
+#   M <- metaI$M
+#
+#   tree <- tree
+#   P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+#   P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H))
+#   lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H)[-2])
+#
+#   fV.JOU <- list()
+#
+#   for(r in 1:R) {
+#     PLambdaP_1 <- PLambdaP_1.JOU(model$H[,,r])
+#     P[,,r] <- PLambdaP_1$P
+#     P_1[,,r] <- PLambdaP_1$P_1
+#     lambda[,r] <- PLambdaP_1$lambda
+#
+#     fV.JOU[[r]] <- V.JOU(lambda[,r],
+#                          as.matrix(P[,,r]),
+#                          as.matrix(P_1[,,r]),
+#                          as.matrix(model$Sigma[,,r]),
+#                          as.matrix(model$H[,,r]),
+#                          as.matrix(model$Sigmaj[,,r]))
+#   }
+#
+#   V <- array(NA, dim=c(k, k, M))
+#   V_1 <- array(NA, dim=c(k, k, M))
+#   e_Ht <- array(NA, dim=c(k, k, M))
+#   e_HTt <- array(NA, dim=c(k, k, M))
+#
+#   # returned general form parameters
+#   A <- array(NA, dim=c(k, k, M))
+#   b <- array(NA, dim=c(k, M))
+#   C <- array(NA, dim=c(k, k, M))
+#   d <- array(NA, dim=c(k, M))
+#   E <- array(NA, dim=c(k, k, M))
+#   f <- array(NA, dim=c(M))
+#
+#   # vector of regime indices for each branch
+#   r <- metaI$regimes
+#
+#   # identity k x k matrix
+#   I <- diag(k)
+#
+#   # iterate over the edges
+#   for(edgeIndex in 1:(M-1)) {
+#     # parent node
+#     j <- tree$edge[edgeIndex, 1]
+#     # daughter node
+#     i <- tree$edge[edgeIndex, 2]
+#
+#     # length of edge leading to i
+#     ti <- tree$edge.length[edgeIndex]
+#     # binary vector indicating jump or not per edge
+#     xi <- tree$edge.jump
+#     # present coordinates in parent and daughte nodes
+#     kj <- pc[,j]
+#     ki <- pc[,i]
+#     V[,,i] <- fV.JOU[[r[edgeIndex]]](ti, xi[edgeIndex])
+#
+#     if(i<=N) {
+#       # add environmental variance at each tip node
+#       V[,,i] <- V[,,i] + model$Sigmae[,,r[edgeIndex]]
+#     }
+#
+#     V_1[ki,ki,i] <- solve(V[ki,ki,i])
+#     e_Ht[,,i] <- expm(-ti*as.matrix(model$H[,,r[edgeIndex]]))
+#
+#     # now compute PCMAbCdEf
+#     # here A is from the general form (not the alpha from JOU process)
+#     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
+#
+#     b[ki,i] <- V_1[ki,ki,i] %*%
+#       ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[edgeIndex]] + e_Ht[ki,,i] %*% model$mj[,r[edgeIndex]]*xi[edgeIndex])
+#
+#     C[kj,kj,i] <- -0.5*t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))
+#
+#     d[kj,i] <- -t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*%
+#       ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[edgeIndex]] + e_Ht[ki,,i] %*% model$mj[,r[edgeIndex]] * xi[edgeIndex])
+#
+#     E[kj,ki,i] <- t(matrix(e_Ht[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
+#
+#     f[i] <-
+#       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
+#               (t(model$Theta[,r[edgeIndex]]) %*% t(matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) + t(model$mj[,r[edgeIndex]]) %*% t(matrix(e_Ht[ki,,i], sum(ki)))*xi[edgeIndex]) %*%
+#               V_1[ki,ki,i] %*% ((matrix(I[ki,]-e_Ht[ki,,i], sum(ki))) %*% model$Theta[,r[edgeIndex]] + e_Ht[ki,,i] %*% model$mj[,r[edgeIndex]]*xi[edgeIndex]))
+#   }
+#
+#   list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
+# }
+#

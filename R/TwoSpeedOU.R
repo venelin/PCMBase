@@ -100,8 +100,8 @@ V.TwoSpeedOU <- function(
   force(P)
   force(P_1)
 
-  function(time) {
-    Re(P %*% (fLambda_ij(time)*P_1SigmaP_t) %*% t(P))
+  function(t, edgeIndex = NA) {
+    Re(P %*% (fLambda_ij(t)*P_1SigmaP_t) %*% t(P))
   }
 }
 
@@ -128,24 +128,31 @@ PCMCond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
       stop('ERR:02421:PCMBase:TwoSpeedOU.R:PCMCond.TwoSpeedOU:: Some of H1, H2, Theta or Sigma has a wrong dimension.')
     }
     PLP_1 <- PLambdaP_1.TwoSpeedOU(H2)
-    fV <- V.TwoSpeedOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
 
-    random <- function(n=1, x0, t, e) {
-      e_H1t <- expm(-t*H1)
+    V <- V.TwoSpeedOU(PLP_1$lambda, PLP_1$P, PLP_1$P_1, Sigma)
+    omega <- function(t, edgeIndex, e_H1t = NULL) {
+      if(is.null(e_H1t)) {
+        e_H1t <- expm(-t*H1)
+      }
       I <- diag(nrow(H1))
-      rmvnorm(n=n,
-              mean=e_H1t%*%x0 + (I-e_H1t)%*%Theta,
-              sigma=fV(t))
+      (I-e_H1t) %*% Theta
     }
-    density <- function(x, x0, t, e, log=FALSE) {
+    Phi <- function(t, edgeIndex, e_H1t = NULL) {
+      if(is.null(e_H1t)) {
+        expm(-t*H1)
+      } else {
+        e_H1t
+      }
+    }
+    random <- function(n=1, x0, t, edgeIndex) {
       e_H1t <- expm(-t*H1)
-      I <- diag(nrow(H1))
-      dmvnorm(x,
-              mean=e_H1t%*%x0 + (I-e_H1t)%*%Theta,
-              sigma=fV(t), log=log)
+      rmvnorm(n=n, mean = omega(t, edgeIndex, e_H1t) + Phi(t, edgeIndex, e_H1t)%*%x0, sigma=V(t, edgeIndex))
     }
-
-    list(H1=H1, H2 = H2, Theta=Theta, Sigma=Sigma, random=random, density=density, vcov=fV)
+    density <- function(x, x0, t, edgeIndex, log=FALSE) {
+      e_H1t <- expm(-t*H1)
+      dmvnorm(x, mean=omega(t, edgeIndex, e_H1t) + Phi(t, edgeIndex, e_H1t)%*%x0, sigma=V(t, edgeIndex), log=log)
+    }
+    list(omega = omega, Phi = Phi, V = V, random=random, density=density)
   })
 }
 
@@ -183,100 +190,100 @@ PCMCond.TwoSpeedOU <- function(tree, model, r=1, verbose=FALSE) {
 #'
 #' @export
 #' @importFrom expm expm
-PCMAbCdEf.TwoSpeedOU <- function(tree, model,
-                      metaI=PCMValidate.TwoSpeedOU(tree, model, verbose=verbose),
-                      pc, verbose=FALSE) {
-  # number of regimes
-  R <- metaI$R
-
-  # number of tips
-  N <- metaI$N
-
-  # number of traits (variables)
-  k <- metaI$k
-
-  # number of nodes
-  M <- metaI$M
-
-  tree <- tree
-
-  P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H2))
-  P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H2))
-  lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H2)[-2])
-
-  fV.TwoSpeedOU <- list()
-
-  for(r in 1:R) {
-    PLambdaP_1 <- PLambdaP_1.TwoSpeedOU(model$H2[,,r])
-    P[,,r] <- PLambdaP_1$P
-    P_1[,,r] <- PLambdaP_1$P_1
-    lambda[,r] <- PLambdaP_1$lambda
-
-    # create the V.TwoSpeedOU function for regime r
-    fV.TwoSpeedOU[[r]] <- V.TwoSpeedOU(
-      lambda[,r], as.matrix(P[,,r]), as.matrix(P_1[,,r]),
-      as.matrix(model$Sigma[,,r]))
-  }
-
-  V <- array(NA, dim=c(k, k, M))
-  V_1 <- array(NA, dim=c(k, k, M))
-  e_H1t <- array(NA, dim=c(k, k, M))
-
-  # returned general form parameters
-  A <- array(NA, dim=c(k, k, M))
-  b <- array(NA, dim=c(k, M))
-  C <- array(NA, dim=c(k, k, M))
-  d <- array(NA, dim=c(k, M))
-  E <- array(NA, dim=c(k, k, M))
-  f <- array(NA, dim=c(M))
-
-  # vector of regime indices for each branch
-  r <- metaI$regimes
-
-  # identity k x k matrix
-  I <- diag(k)
-
-  # iterate over the edges
-  for(e in 1:(M-1)) {
-    # parent node
-    j <- tree$edge[e, 1]
-    # daughter node
-    i <- tree$edge[e, 2]
-
-    # length of edge leading to i
-    ti <- tree$edge.length[e]
-
-    # present coordinates in parent and daughte nodes
-    kj <- pc[,j]
-    ki <- pc[,i]
-
-    V[,,i] <- fV.TwoSpeedOU[[r[e]]](ti)
-
-    if(i<=N) {
-      # add environmental variance at each tip node
-      V[,,i] <- V[,,i] + model$Sigmae[,,r[e]]
-    }
-
-    V_1[ki,ki,i] <- solve(V[ki,ki,i])
-    e_H1t[,,i] <- expm(-ti*as.matrix(model$H1[,,r[e]]))
-
-    # now compute PCMAbCdEf
-    # here A is from the general form
-    A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
-
-    b[ki,i] <- V_1[ki,ki,i] %*% (I[ki,]-e_H1t[ki,,i]) %*% model$Theta[,r[e]]
-
-    C[kj,kj,i] <- -0.5*t(matrix(e_H1t[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% e_H1t[ki,kj,i]
-
-    d[kj,i] <- -t(matrix(e_H1t[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% (I[ki,]-e_H1t[ki,,i]) %*% model$Theta[,r[e]]
-
-    E[kj,ki,i] <- t(matrix(e_H1t[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
-
-    f[i] <-
-      -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
-              t(model$Theta[,r[e]]) %*% t(matrix(I[ki,]-e_H1t[ki,,i], sum(ki))) %*%
-              V_1[ki,ki,i] %*% (matrix(I[ki,]-e_H1t[ki,,i], sum(ki))) %*% model$Theta[,r[e]])
-  }
-
-  list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
-}
+# PCMAbCdEf.TwoSpeedOU <- function(tree, model,
+#                       metaI=PCMValidate.TwoSpeedOU(tree, model, verbose=verbose),
+#                       pc, verbose=FALSE) {
+#   # number of regimes
+#   R <- metaI$R
+#
+#   # number of tips
+#   N <- metaI$N
+#
+#   # number of traits (variables)
+#   k <- metaI$k
+#
+#   # number of nodes
+#   M <- metaI$M
+#
+#   tree <- tree
+#
+#   P <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H2))
+#   P_1 <- array(NA, dim=c(k, k, R), dimnames=dimnames(model$H2))
+#   lambda <- array(NA, dim=c(k, R), dimnames=dimnames(model$H2)[-2])
+#
+#   fV.TwoSpeedOU <- list()
+#
+#   for(r in 1:R) {
+#     PLambdaP_1 <- PLambdaP_1.TwoSpeedOU(model$H2[,,r])
+#     P[,,r] <- PLambdaP_1$P
+#     P_1[,,r] <- PLambdaP_1$P_1
+#     lambda[,r] <- PLambdaP_1$lambda
+#
+#     # create the V.TwoSpeedOU function for regime r
+#     fV.TwoSpeedOU[[r]] <- V.TwoSpeedOU(
+#       lambda[,r], as.matrix(P[,,r]), as.matrix(P_1[,,r]),
+#       as.matrix(model$Sigma[,,r]))
+#   }
+#
+#   V <- array(NA, dim=c(k, k, M))
+#   V_1 <- array(NA, dim=c(k, k, M))
+#   e_H1t <- array(NA, dim=c(k, k, M))
+#
+#   # returned general form parameters
+#   A <- array(NA, dim=c(k, k, M))
+#   b <- array(NA, dim=c(k, M))
+#   C <- array(NA, dim=c(k, k, M))
+#   d <- array(NA, dim=c(k, M))
+#   E <- array(NA, dim=c(k, k, M))
+#   f <- array(NA, dim=c(M))
+#
+#   # vector of regime indices for each branch
+#   r <- metaI$regimes
+#
+#   # identity k x k matrix
+#   I <- diag(k)
+#
+#   # iterate over the edges
+#   for(edgeIndex in 1:(M-1)) {
+#     # parent node
+#     j <- tree$edge[edgeIndex, 1]
+#     # daughter node
+#     i <- tree$edge[edgeIndex, 2]
+#
+#     # length of edge leading to i
+#     ti <- tree$edge.length[edgeIndex]
+#
+#     # present coordinates in parent and daughte nodes
+#     kj <- pc[,j]
+#     ki <- pc[,i]
+#
+#     V[,,i] <- fV.TwoSpeedOU[[r[edgeIndex]]](ti)
+#
+#     if(i<=N) {
+#       # add environmental variance at each tip node
+#       V[,,i] <- V[,,i] + model$Sigmae[,,r[edgeIndex]]
+#     }
+#
+#     V_1[ki,ki,i] <- solve(V[ki,ki,i])
+#     e_H1t[,,i] <- expm(-ti*as.matrix(model$H1[,,r[edgeIndex]]))
+#
+#     # now compute PCMAbCdEf
+#     # here A is from the general form
+#     A[ki,ki,i] <- -0.5*V_1[ki,ki,i]
+#
+#     b[ki,i] <- V_1[ki,ki,i] %*% (I[ki,]-e_H1t[ki,,i]) %*% model$Theta[,r[edgeIndex]]
+#
+#     C[kj,kj,i] <- -0.5*t(matrix(e_H1t[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% e_H1t[ki,kj,i]
+#
+#     d[kj,i] <- -t(matrix(e_H1t[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i] %*% (I[ki,]-e_H1t[ki,,i]) %*% model$Theta[,r[edgeIndex]]
+#
+#     E[kj,ki,i] <- t(matrix(e_H1t[ki,kj,i], sum(ki), sum(kj))) %*% V_1[ki,ki,i]
+#
+#     f[i] <-
+#       -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))) +
+#               t(model$Theta[,r[edgeIndex]]) %*% t(matrix(I[ki,]-e_H1t[ki,,i], sum(ki))) %*%
+#               V_1[ki,ki,i] %*% (matrix(I[ki,]-e_H1t[ki,,i], sum(ki))) %*% model$Theta[,r[edgeIndex]])
+#   }
+#
+#   list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
+# }

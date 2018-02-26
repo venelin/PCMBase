@@ -60,14 +60,14 @@ PCMSim <- function(
     PCMCond(tree, model = model, r = r, verbose = verbose)$random
   })
 
-  for(e in ordBF) {
-    values[, tree$edge[e, 2]] <-
-      funMVCond[[metaI$regimes[e]]](
-        n=1, x0 = values[, tree$edge[e,1]], t = tree$edge.length[e], e = e)
+  for(edgeIndex in ordBF) {
+    values[, tree$edge[edgeIndex, 2]] <-
+      funMVCond[[metaI$regimes[edgeIndex]]](
+        n=1, x0 = values[, tree$edge[edgeIndex,1]], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex)
     if(!is.null(model$Sigmae)) {
-      errors[, tree$edge[e, 2]] <-
+      errors[, tree$edge[edgeIndex, 2]] <-
         rmvnorm(1, rep(0, metaI$k),
-                as.matrix(model$Sigmae[,, metaI$regimes[e]]))
+                as.matrix(model$Sigmae[,, metaI$regimes[edgeIndex]]))
     }
   }
 
@@ -767,6 +767,84 @@ PCMAbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
   UseMethod("PCMAbCdEf", model)
 }
 
+#' Defaut R-implementation of PCMAbCdEf
+#' @inheritParams PCMLik
+#' @export
+PCMAbCdEf.default <- function(tree, model, metaI, pc, verbose = FALSE) {
+  # number of regimes
+  R <- metaI$R
+  # number of tips
+  N <- metaI$N
+  # number of traits (variables)
+  k <- metaI$k
+  # number of nodes
+  M <- metaI$M
+
+  cond <- list()
+
+  for(r in 1:R) {
+    # create the conditional distribution for regime r
+    cond[[r]] <- PCMCond(tree, model, r, verbose)
+  }
+
+  omega <- array(NA, dim=c(k, M))
+  Phi <- array(NA, dim=c(k, k, M))
+  V <- array(NA, dim=c(k, k, M))
+  V_1 <- array(NA, dim=c(k, k, M))
+
+
+  # returned general form parameters
+  A <- array(NA, dim=c(k, k, M))
+  b <- array(NA, dim=c(k, M))
+  C <- array(NA, dim=c(k, k, M))
+  d <- array(NA, dim=c(k, M))
+  E <- array(NA, dim=c(k, k, M))
+  f <- array(NA, dim=c(M))
+
+  # vector of regime indices for each branch
+  r <- metaI$regimes
+
+  # identity k x k matrix
+  I <- diag(k)
+
+  # iterate over the edges
+  for(edgeIndex in 1:(M-1)) {
+    # parent node
+    j <- tree$edge[edgeIndex, 1]
+    # daughter node
+    i <- tree$edge[edgeIndex, 2]
+
+    # length of edge leading to i
+    ti <- tree$edge.length[edgeIndex]
+
+    # present coordinates in parent and daughte nodes
+    kj <- pc[,j]
+    ki <- pc[,i]
+
+    omega[,i] <- cond[[r[edgeIndex]]]$omega(ti, edgeIndex)
+    Phi[,,i] <- cond[[r[edgeIndex]]]$Phi(ti, edgeIndex)
+    V[,,i] <- cond[[r[edgeIndex]]]$V(ti, edgeIndex)
+
+    if(i<=N) {
+      # add environmental variance at each tip node
+      V[,,i] <- V[,,i] + model$Sigmae[,,r[edgeIndex]]
+    }
+
+    V_1[ki,ki,i] <- solve(V[ki,ki,i])
+
+    `%op%` <- if(sum(ki) > 1) `%*%` else `*`
+
+    A[ki,ki,i] <- (-0.5*V_1[ki,ki,i])
+    E[kj,ki,i] <- t(Phi[ki,kj,i]) %op% V_1[ki,ki,i]
+    b[ki,i] <- V_1[ki,ki,i] %*% omega[ki,i]
+    C[kj,kj,i] <- -0.5 * matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% matrix(Phi[ki,kj,i], sum(ki), sum(kj))
+    d[kj,i] <- -E[kj,ki,i] %op% omega[ki,i]
+    f[i] <- -0.5 * (t(omega[ki,i]) %*% V_1[ki,ki,i] %*% omega[ki,i] + sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))))
+  }
+
+  list(A=A, b=b, C=C, d=d, E=E, f=f, omega=omega, Phi=Phi, V=V, V_1=V_1)
+}
+
 #' Quadratic polynomial parameters L, m, r
 #'
 #' @description
@@ -833,9 +911,9 @@ PCMLmr.default <- function(X, tree, model, metaI=PCMValidate(tree, model),
       # all es pointing to tips
       #L[nodes,,] <- PCMAbCdEf$C[nodes,,]
 
-      for(e in es) {
+      for(edgeIndex in es) {
         # parent and daughter nodes
-        j <- edge[e, 1]; i <- edge[e, 2];
+        j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
         # present coordinates
         kj <- pc[, j]; ki <- pc[, i];
 
@@ -867,9 +945,9 @@ PCMLmr.default <- function(X, tree, model, metaI=PCMValidate(tree, model),
     } else {
       # edges pointing to internal nodes, for which all children
       # nodes have been visited
-      for(e in es) {
+      for(edgeIndex in es) {
         # parent and daughter nodes
-        j <- edge[e, 1]; i <- edge[e, 2];
+        j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
         # present coordinates
         kj <- pc[, j]; ki <- pc[, i];
 
