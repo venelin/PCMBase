@@ -1,6 +1,7 @@
 library(ape)
 library(testthat)
 library(PCMBase)
+library(abind)
 
 set.seed(1)
 
@@ -57,10 +58,10 @@ b.Sigmae2 <- rbind(
   c(0, .3, 0),
   c(0, 0, .4))
 
-H <- abind::abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Theta <- abind::abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a','b')))
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+H <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a','b')))
+Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 
 ## Simulations of trait data

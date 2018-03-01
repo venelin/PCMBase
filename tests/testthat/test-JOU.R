@@ -2,6 +2,7 @@ library(ape)
 library(testthat)
 library(mvtnorm)
 library(PCMBase)
+library(abind)
 
 
 set.seed(1)
@@ -60,12 +61,12 @@ b.mj <- c(11, 17, 42)
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
-H <- abind::abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Theta <- abind::abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmaj <- abind::abind(a.Sigmaj, b.Sigmaj, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-mj <- abind::abind(a.mj, b.mj, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
+H <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
+Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmaj <- abind(a.Sigmaj, b.Sigmaj, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+mj <- abind(a.mj, b.mj, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
 
 
 # regime 'a', traits 1, 2 and 3

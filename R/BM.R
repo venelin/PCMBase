@@ -28,21 +28,6 @@ PCMValidate.BM <- function(tree, model, verbose=FALSE) {
     verbose = verbose)
 }
 
-
-#' Generate a multivariate (MV) BM variance-covariance function
-#' @param Sigma the matrix Sigma of a MV BM process.
-#' @param threshold0
-#' @return a function of one numerical argument (time), which calculates the
-#' expected variance covariance matrix of a MV-BM process after time, given
-#' the specified arguments.
-
-V.BM <- function(Sigma, threshold0=0) {
-  force(Sigma)
-  function(t, edgeIndex = NA) {
-    t*Sigma
-  }
-}
-
 #' Create a conditional multivariate BM distribution
 #' @param Sigma of the multivariate BM process; Sigma is a k x k matrix
 #' @return a list containging the passed parameters as well as
@@ -63,7 +48,7 @@ PCMCond.BM <- function(tree, model, r=1, verbose=FALSE) {
       stop('ERR:02102:PCMBase:BM.R:PCMCond.BM:: Sigma has a wrong dimension.')
     }
 
-    V <- V.BM(Sigma)
+    V <- PCMCondVOU(matrix(0, nrow(Sigma), ncol(Sigma)), Sigma)
     omega <- function(t, edgeIndex) {
       rep(0, nrow(Sigma))
     }
@@ -77,120 +62,6 @@ PCMCond.BM <- function(tree, model, r=1, verbose=FALSE) {
       dmvnorm(x, mean=x0, sigma=V(t), log=log)
     }
 
-    list(omega = omega, Phi = Phi, V = V, Sigma=Sigma, random=random, density=density)
+    list(omega = omega, Phi = Phi, V = V, random=random, density=density)
   })
 }
-
-
-
-#' Calculate the coefficients A, b, C, d, E, f of the general
-#' form (eq. 1) for each edge in a tree
-#'
-#' @param tree a phylo object (see details)
-#' @param model parameters of the BM process. This must be a
-#' named list with the following elements:
-#' Sigma: a k x k x R array, each Sigma[,,r] containing the
-#' matrix Sigma for regime r;
-#' Sigmae: a k x k x R array, each Sigmae[,,r] representing a diagonal matrix
-#' with elements on the diagona corresponding to the environmental variances for
-#' the k traits in regime r
-#' @param presentCoords a k x M logical matrix representing the present coordinates at each
-#' node
-#'
-#' @details The dimnames
-#'
-#' @return a named list containing the following elements:
-#' A: a k x k x M array, A[,,i] corresponding to Ai for
-#' each branch ending at node or tip i;
-#' b: a k x M matrix, b[,i] corresponding to the vectors bi;
-#' C: a k x k x M array, C[,,i] corresponding to the
-#' matrices Ci;
-#' d: a k x M matrix, d[,i] corresponding to the vectors di;
-#' E: a k x k x M array, E[,,i] corresponding to the matrices Ei;
-#' f: a vector, f[i] correspondign to fi
-#'
-#' @export
-# PCMAbCdEf.BM <- function(tree, model,
-#                       metaI=PCMValidate.BM(tree, model, verbose=verbose),
-#                       pc, verbose=FALSE) {
-#   # number of regimes
-#   R <- metaI$R
-#
-#   # number of tips
-#   N <- metaI$N
-#
-#   # number of traits (variables)
-#   k <- metaI$k
-#
-#   # number of nodes
-#   M <- metaI$M
-#
-#   tree <- tree
-#
-#   fV.BM <- list()
-#
-#   for(r in 1:R) {
-#
-#     # create the V.BM function for regime r
-#     fV.BM[[r]] <- V.BM(as.matrix(model$Sigma[,,r]))
-#
-#   }
-#
-#   V <- array(NA, dim=c(k, k, M))
-#   V_1 <- array(NA, dim=c(k, k, M))
-#
-#   # returned general form parameters
-#   A <- array(NA, dim=c(k, k, M))
-#   b <- array(NA, dim=c(k, M))
-#   C <- array(NA, dim=c(k, k, M))
-#   d <- array(NA, dim=c(k, M))
-#   E <- array(NA, dim=c(k, k, M))
-#   f <- array(NA, dim=c(M))
-#
-#   # vector of regime indices for each branch
-#   r <- metaI$regimes
-#
-#   # identity k x k matrix
-#   I <- diag(k)
-#
-#   # iterate over the edges
-#   for(edgeIndex in 1:(M-1)) {
-#     # parent node
-#     j <- tree$edge[edgeIndex, 1]
-#     # daughter node
-#     i <- tree$edge[edgeIndex, 2]
-#
-#     # length of edge leading to i
-#     ti <- tree$edge.length[edgeIndex]
-#
-#     # present coordinates in parent and daughte nodes
-#     kj <- pc[,j]
-#     ki <- pc[,i]
-#
-#     V[,,i] <- fV.BM[[r[edgeIndex]]](ti)
-#
-#
-#     if(i<=N) {
-#       # add environmental variance at each tip node
-#       V[,,i] <- V[,,i] + model$Sigmae[,,r[edgeIndex]]
-#     }
-#
-#     V_1[ki,ki,i] <- solve(V[ki,ki,i])
-#
-#     # now compute PCMAbCdEf according to eq (16) in doc.
-#     # here A is from the general form
-#     A[ki,ki,i] <- (-0.5*V_1[ki,ki,i])
-#
-#     b[ki,i] <- 0
-#
-#     C[kj,kj,i] <- (-0.5*(t(matrix(I[ki,kj], sum(ki), sum(kj))) %*% V_1[ki,ki,i]) %*% matrix(I[ki,kj], sum(ki), sum(kj)))
-#
-#     d[kj,i] <- 0
-#
-#     E[kj,ki,i] <- (t(matrix(I[ki,kj], sum(ki), sum(kj)))%*%V_1[ki,ki,i])
-#
-#     f[i] <- -0.5*(sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))))
-#   }
-#
-#   list(A=A, b=b, C=C, d=d, E=E, f=f, V=V, V_1=V_1)
-# }

@@ -1,6 +1,7 @@
 library(ape)
 library(testthat)
 library(PCMBase)
+library(abind)
 
 
 set.seed(1)
@@ -61,11 +62,11 @@ b.Sigmae2 <- rbind(c(.2, 0, 0),
 # dimension is the regime
 
 
-H1 <- abind::abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-H2 <- abind::abind(a.H2, b.H2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Theta <- abind::abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+H1 <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+H2 <- abind(a.H2, b.H2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
+Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 
 # regime 'a', traits 1, 2 and 3
@@ -240,5 +241,14 @@ if(require(PCMBaseCpp)) {
   # }
 }
 
-
-
+# a logical test for the variance of a univariate TwoSpeedOU process:
+model <- list(H1=abind(matrix(5.670849e+01, 1, 1), along = 3),
+              H2=abind(matrix(1.026642e+01, 1, 1), along = 3),
+              Theta = abind(4.479180e+00, along = 2),
+              Sigma = abind(matrix(9.102055e+00, 1, 1), along = 3),
+              Sigmae = abind(matrix(5.317612e-01, 1, 1), along = 3))
+class(model) <- "TwoSpeedOU"
+tree <- phytools::starTree(species = 1:1000, branch.lengths = rep(0.14, 1000))
+#tree$edge.regime <- rep(1, length(tree$edge.length))
+data <- PCMSim(tree, model, X0 = 9)
+var(as.vector(data$values))/var(as.vector(data$values+data$errors))

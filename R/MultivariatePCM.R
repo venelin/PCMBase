@@ -673,32 +673,30 @@ PCMValidateGeneral <- function(tree, model, modelSpec, verbose) {
     stop("ERR:02022:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: the numbers of tips and nodes in tree do not match modelSpec$N and modelSpec$M.")
   }
 
-  # number of regimes
+  # number unique regimes
   if(is.null(tree$edge.regime)) {
     if(!is.null(names(tree$edge.length))) {
       tree$edge.regime <- names(tree$edge.length)
-      regimes <- unique(tree$edge.regime)
-      R <- length(regimes)
+      regimesUniqueTree <- unique(tree$edge.regime)
     } else {
-      regimes <- 1
-      R <- 1
+      regimesUniqueTree <- 1
     }
 
   } else {
-    regimes <- unique(tree$edge.regime)
-    R <- length(regimes)
+    regimesUniqueTree <- unique(tree$edge.regime)
   }
+
+  R <- length(regimesUniqueTree)
 
   if(verbose) {
     cat('R=',R,'\n')
   }
 
-  if(verbose) {
-    cat("Regimes found in tree$edge.regime: ")
-    print(regimes)
-  }
 
   if(R==1) {
+    if(verbose) {
+      cat("setting regimes to rep(1, length(tree$edge.length).\n")
+    }
     regimes <- rep(1, length(tree$edge.length))
   } else {
     regimes <- match(tree$edge.regime, modelSpec$regimesUnique)
@@ -1063,4 +1061,125 @@ PCMParseErrorMessage <- function(x) {
   } else {
     res
   }
+}
+
+
+#' Sums of pairs of elements in a vector
+#' @param lambda a numeric vector
+#' @return a squared symmetric matrix with elem_ij=lambda_i+lambda_j.
+#'
+PCMPairSums <- function(lambda) {
+  sapply(lambda, function(li) sapply(lambda, function(lj) li+lj))
+}
+
+#' Eigen-decomposition of a matrix H
+#' @param H a numeric matrix
+#' @return a list with elements as follows:
+#' \item{lambda}{a vector of the eigenvalues of H}
+#' \item{P}{a squared matrix with column vectors, the eigenvectors of H corresponding to the
+#' eigenvalues in \code{lambda}}
+#' \item{P_1}{the inverse matrix of \code{P}}.
+#' @details The function fails with an error message if H is defective, that is, if its matrix of
+#' eigenvectors is computationally singular. The test for singularity is based on the \code{\link{rcond}} function.
+#'
+PCMPLambdaP_1 <- function(H) {
+  # here the argument H is a matrix specifying the alphas in a OU process
+  r <- eigen(H)
+  if(isTRUE(all.equal(rcond(r$vectors),0))) {
+    stop(paste0("ERR:02211:PCMBase:OU.R:PCMPLambdaP_1:: The provided H matrix is defective. Its matrix of eigenvectors is computationally singular. H=", toString(H)))
+  }
+  list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
+}
+
+
+#' Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
+#' for every element lambda_{ij} of the input matrix Lambda_ij.
+#'
+#' @param Lambda_ij a squared numerical matrix of dimension k x k
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i
+#'   and Lambda_j are eigenvalues of the parameter matrix H. This
+#'   threshold-value is used as a condition to
+#'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
+#'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch
+#'    lengths bigger than 1e-6. For smaller branch lengths, you are may want to
+#'    increase the threshold value using, e.g.
+#'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
+#' @details the function (1-exp(-lambda_{ij}*time))/lambda_{ij} corresponds to the product
+#' of the CDF of an exponential distribution with rate Lambda_{ij} multiplied by its mean value (mean waiting time).
+#' @return a function of time returning a matrix with entries formed from the
+#'  above function or the limit, time, if |Lambda_{ij}|<=trehshold0.
+PCMPExpxMeanExp <- function(
+  Lambda_ij,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8) ) {
+
+  idx0 <- which(abs(Lambda_ij)<=threshold.Lambda_ij)
+  function(time) {
+    res <- (1-exp(-Lambda_ij*time))/Lambda_ij
+    if(length(idx0)>0) {
+      res[idx0] <- time
+    }
+    res
+  }
+}
+
+
+#' Variance-covariance matrix of an OU process with optional jump at the start
+#' @param H a numerical k x k matrix - selection strength parameter.
+#' @param Sigma a numerical k x k matrix - neutral dift unit-time variance-covariance matrix.
+#' @param Sigmaj is the variance matrix of the normal jump distribution (default is NULL).
+#' @param xi a vector of 0's and 1's corresponding to each branch in the tree. A value of 1
+#' indicates that a jump takes place at the beginning of the branch. This arugment is only
+#' used if Sigmaj is not NULL. Default is NULL.
+#'
+#' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i
+#' and Lambda_j are eigenvalues of the parameter matrix H. This threshold-values is used as
+#' a condition to take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij`
+#' as `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
+#' "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch lengths
+#' bigger than 1e-6. For smaller branch lengths, you may want to increase the threshold
+#' value using, e.g.  `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
+#' @return a function of one numerical argument (time) and an integer indicating the branch-index
+#' that is used to check the corresponding element in xi.
+#' @export
+PCMCondVOU <- function(
+  H, Sigma , Sigmaj=NULL, xi=NULL,
+  e_Ht = NULL,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8)) {
+
+  force(H)
+  force(Sigma)
+  force(Sigmaj)
+  force(xi)
+  force(e_Ht)
+
+  PLP_1 <- PCMPLambdaP_1(H)
+
+  Lambda_ij <- PCMPairSums(PLP_1$lambda)
+  fLambda_ij <- PCMPExpxMeanExp(Lambda_ij, threshold.Lambda_ij)
+  P_1SigmaP_t <- PLP_1$P_1 %*% Sigma %*% t(PLP_1$P_1)
+
+
+  function(t, edgeIndex, e_Ht = NULL) {
+    res <- PLP_1$P %*% (fLambda_ij(t) * P_1SigmaP_t) %*% t(PLP_1$P)
+    if(!is.null(Sigmaj)) {
+      if(is.null(e_Ht)) {
+        e_Ht <- expm(-t*H)
+      }
+      res <- res + xi[edgeIndex]*(e_Ht %*% Sigmaj %*% t(e_Ht))
+    }
+    Re(res)
+  }
+}
+
+PCMCondRandom <- function(PCMCondObject, n=1, x0, t, edgeIndex) {
+  with(PCMCondObject, {
+    rmvnorm(n=n, mean = omega(t, edgeIndex) + Phi(t, edgeIndex)%*%x0, sigma=V(t, edgeIndex))
+  })
+}
+
+PCMCondDensity <- function(PCMCondObject, x, x0, t, edgeIndex, log=FALSE) {
+  with(PCMCondObject, {
+    dmvnorm(x, mean=omega(t, edgeIndex) + Phi(t, edgeIndex)%*%x0, sigma=V(t, edgeIndex), log=log)
+  })
 }

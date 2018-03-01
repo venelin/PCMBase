@@ -1,7 +1,7 @@
 library(ape)
 library(testthat)
 library(PCMBase)
-
+library(abind)
 
 set.seed(1)
 
@@ -40,8 +40,8 @@ b.Sigmae2 <- rbind(c(.2, 0, 0),
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 # regime 'a', traits 1, 2 and 3
 
@@ -165,10 +165,10 @@ b.OU.H <- rbind(c(EPS, 0, 0),
 b.OU.Theta <- c(0, 0, 0)
 
 
-H <- abind::abind(b.OU.H, b.OU.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
-Theta <- abind::abind(b.OU.Theta, b.OU.Theta, along=2, new.names=list(xy=NULL, regime=c('b', 'b.OU')))
-Sigma <- abind::abind(b.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
-Sigmae <- abind::abind(b.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
+H <- abind(b.OU.H, b.OU.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
+Theta <- abind(b.OU.Theta, b.OU.Theta, along=2, new.names=list(xy=NULL, regime=c('b', 'b.OU')))
+Sigma <- abind(b.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
+Sigmae <- abind(b.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
 
 model.b.123 <- list(X0 = b.X0,
                     Sigma=Sigma[,,'b',drop=FALSE],
