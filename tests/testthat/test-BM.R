@@ -45,10 +45,9 @@ Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, re
 
 # regime 'a', traits 1, 2 and 3
 
-model.a.123 <- list(X0 = a.X0,
-                    Sigma=Sigma[,,'a',drop=FALSE],
-                    Sigmae=Sigmae[,,'a',drop=FALSE])
-class(model.a.123) <- 'BM'
+model.a.123 <- PCM("BM", k = 3, regimes = "a",
+                   params = list(X0 = a.X0, Sigma = Sigma[,, "a", drop = FALSE],
+                                 Sigmae = Sigmae[,, "a", drop = FALSE]))
 
 ################ 1st Validation ######################################################
 
@@ -170,17 +169,19 @@ Theta <- abind(b.OU.Theta, b.OU.Theta, along=2, new.names=list(xy=NULL, regime=c
 Sigma <- abind(b.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
 Sigmae <- abind(b.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('b','b.OU')))
 
-model.b.123 <- list(X0 = b.X0,
-                    Sigma=Sigma[,,'b',drop=FALSE],
-                    Sigmae=Sigmae[,,'b',drop=FALSE])
-class(model.b.123) <- 'BM'
+model.b.123 <- PCM("BM", k = 3, regimes = "b",
+                   params = list(X0 = b.X0,
+                                 Sigma=Sigma[,,'b',drop=FALSE],
+                                 Sigmae=Sigmae[,,'b',drop=FALSE]))
 
-model.b.123.OU <- list(X0 = b.X0,
-                       H=H[,,'b.OU',drop=FALSE],
-                       Theta=Theta[,'b.OU',drop=FALSE],
-                       Sigma=Sigma[,,'b.OU',drop=FALSE],
-                       Sigmae=Sigmae[,,'b.OU',drop=FALSE])
-class(model.b.123.OU) <- 'OU'
+
+model.b.123.OU <- PCM("OU", k = 3, regimes = "b", params =
+                        list(X0 = b.X0,
+                             H=H[,,'b.OU',drop=FALSE],
+                             Theta=Theta[,'b.OU',drop=FALSE],
+                             Sigma=Sigma[,,'b.OU',drop=FALSE],
+                             Sigmae=Sigmae[,,'b.OU',drop=FALSE]))
+
 
 context(ctx <- "R=1/k=3/N=400")
 

@@ -1,67 +1,60 @@
-#' Validate BM parameters
+# Copyright 2018 Venelin Mitov
+#
+# This file is part of PCMBase.
+#
+# PCMBase is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PCMBase is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
+
+#' Conditional multivariate BM distribution
+#' @inheritParams PCMCond
+#'
+#' @return a named list as specified in \code{\link{PCMCond}}
 #' @export
-PCMValidate.BM <- function(tree, model, verbose=FALSE) {
-  if(verbose) {
-    print('Validating model...')
-  }
-  if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("ERR:02101:PCMBase:BM.R:PCMValidate.BM:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
-  }
+PCMCond.BM <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+  Sigma <- as.matrix(model$Sigma[,,r])
 
-  R <- dim(model$Sigmae)[3]
-  k <- dim(model$Sigmae)[1]
-  regimesUnique <- dimnames(model$Sigmae)[[3]]
-
-  if(is.null(regimesUnique)) {
-    regimesUnique <- 1:dim(model$Sigmae)[[3]]
+  V <- PCMCondVOU(matrix(0, nrow(Sigma), ncol(Sigma)), Sigma)
+  omega <- function(t, edgeIndex) {
+    rep(0, nrow(Sigma))
   }
-
-  PCMValidateGeneral(
-    tree = tree, model = model,
-    modelSpec = PCMSpecify(
-      tree = tree, modelName = "BM",
-      k = k, R = R, regimesUnique = regimesUnique,
-      paramNames = list("Sigma", "Sigmae"),
-      paramStorageModes = list("double", "double"),
-      paramDims = list(c(k, k, R), c(k, k, R))
-    ),
-    verbose = verbose)
+  Phi <- function(t, edgeIndex, e_Ht = NULL) {
+    diag(nrow(Sigma))
+  }
+  list(omega = omega, Phi = Phi, V = V)
 }
 
-#' Create a conditional multivariate BM distribution
-#' @param Sigma of the multivariate BM process; Sigma is a k x k matrix
-#' @return a list containging the passed parameters as well as
-#' a function `random` of arguments n (number of observation k-vectors to generate),
-#' x0 (initial k-vector of values), t (numeric time); and a function `density` for
-#' calculating the density of multivariate vector under the specified distribution
-#' and given an initial value and time.
-#' @importFrom mvtnorm rmvnorm dmvnorm
-#'
+
+#' @describeIn PCMDescribe
 #' @export
-PCMCond.BM <- function(tree, model, r=1, verbose=FALSE) {
-  with(model, {
-    Sigma <- as.matrix(model$Sigma[,,r])
+PCMDescribe.BM <- function(model, ...) {
+  "Brownian motion (BM) branching stochastic process model with a non-phylogenetic variance component"
+}
 
-    if(length(unique(c(dim(Sigma))))!=1) {
-      # this is a dummy check to evaluate Theta
-      print(paste('dim(Sigma)=', dim(Sigma)))
-      stop('ERR:02102:PCMBase:BM.R:PCMCond.BM:: Sigma has a wrong dimension.')
-    }
+#' @describeIn PCMSpecifyParams
+#' @export
+PCMSpecifyParams.BM <- function(model, ...) {
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
 
-    V <- PCMCondVOU(matrix(0, nrow(Sigma), ncol(Sigma)), Sigma)
-    omega <- function(t, edgeIndex) {
-      rep(0, nrow(Sigma))
-    }
-    Phi <- function(t, edgeIndex, e_Ht = NULL) {
-      diag(nrow(Sigma))
-    }
-    random <- function(n=1, x0, t, edgeIndex) {
-      rmvnorm(n=n, mean=x0, sigma=V(t))
-    }
-    density <- function(x, x0, t, edgeIndex, log=FALSE) {
-      dmvnorm(x, mean=x0, sigma=V(t), log=log)
-    }
-
-    list(omega = omega, Phi = Phi, V = V, random=random, density=density)
-  })
+  list(
+    X0 = list(default = rep(0, k),
+              type = c("gvector", "full"),
+              description = "trait vector at the root; global for all model regimes"),
+    Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric"),
+                 description = "unit-time variance-covariance matrix of the BM-process"),
+    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "symmetric"),
+                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
 }

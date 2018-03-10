@@ -4,7 +4,7 @@
 \alias{PCMPresentCoordinates}
 \title{Determine which traits are present (active) on each node of the tree}
 \usage{
-PCMPresentCoordinates(X, tree, pruneI = PCMPruningOrder(tree))
+PCMPresentCoordinates(X, tree, metaI = PCMPruningOrder(tree))
 }
 \arguments{
 \item{X}{numeric k x N matrix of observed values, with possible NA entries. The
@@ -12,22 +12,26 @@ columns in X are in the order of tree$tip.label}
 
 \item{tree}{a phylo object}
 
-\item{pruneI}{a list returned by the PCMPruningOrder function. Either leave this
-as default or pass a previously computed pruneI for the same tree.}
+\item{metaI}{a list returned by the PCMInfo function. Either leave this
+as default or pass a previously computed metaI for the same X, tree and model.}
 }
 \value{
 a k x M logical matrix which can be passed as a pc argument to the PCMLik
 function. The function fails in case when all traits are NAs for some of the tips.
-In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
+In that case an error message is issued
+"ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips have 0
+present coordinates. Consider removing these tips.".
 }
 \description{
 For every node (root, internal or tip) in tree, build a logical
 vector of length k with TRUE values for every present coordinate. Non-present
 coordinates arize from NA-values in the trait data. These can occur in two cases:
 \describe{
-\item{Missing measurements for some traits at some tips:}{the present coordinates are FALSE for the corresponding
-tip and trait, but are full for all traits at all internal and root nodes.}
-\item{non-existent traits for some species:}{the FALSE present coordinates propagate towards the parent
+\item{Missing measurements for some traits at some tips:}{the present coordinates
+are FALSE for the corresponding tip and trait, but are full for all traits
+at all internal and root nodes.}
+\item{non-existent traits for some species:}{the FALSE present coordinates
+propagate towards the parent
 nodes - an internal or root node will have a present coordinate set to FALSE
 for a given trait, if all of its descendants have this coordinate set to FALSE.}
 }

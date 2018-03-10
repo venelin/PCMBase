@@ -1,0 +1,198 @@
+bs-mbpr33:PCMBase vmitov$
+bs-mbpr33:PCMBase vmitov$ R
+
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> devtools::test()
+Loading PCMBase
+Loading required package: testthat
+Testing PCMBase
+R=1/k=3/N=2: [1] "Validating model..."
+M= 3
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+Error in isTRUE(all.equal(c(dim(H), dim(Sigma))), k) :
+  unused argument (k)
+
+DONE ===========================================================================
+> all.equal(rep(3, 3), 3
++ )
+[1] "Numeric: lengths (3, 1) differ"
+R
+
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> devtools::test()
+Loading PCMBase
+Loading required package: testthat
+Testing PCMBase
+R=1/k=3/N=2: [1] "Validating model..."
+M= 3
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+BM likelihood= -33.1661
+POUMM likelihood= -33.1661
+.
+R=1/k=3/N=400: [1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+BM likelihood= -2203.891
+POUMM likelihood= -2203.891
+.
+R=1/k=3/N=400: [1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+BM likelihood= -2111.71
+OU likelihood= -2111.71
+POUMM likelihood= -2206.284
+.Loading required package: PCMBaseCpp
+Loading required package: Rcpp
+Testing PCMBaseCpp on BM:
+..
+R=1/k=1/N=5: Loading required package: phytools
+Loading required package: maps
+Done simulation(s).
+[1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+[1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+[1] "Validating model..."
+M= 1178
+R= 2
+Testing PCMBaseCpp on JOU:
+.Testing PCMBaseCpp on JOU with missing values:
+.
+R=1/k=1/N=2: [1] "Validating model..."
+M= 3
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+[1] "Validating model..."
+M= 3
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+[1] "Validating model..."
+M= 3
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+...
+R=1/k=1/N=400: [1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+[1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+[1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+...
+R=1/k=3/N=2: [1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+.
+R=1/k=3/N=400: [1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+.[1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+Done simulation(s).
+[1] "Validating model..."
+M= 1224
+R= 2
+Testing PCMBaseCpp on OU:
+...[1] -1556.45
+attr(,"X0")
+[1] 5 2 1
+[1] -1453.387
+attr(,"X0")
+[1] 5 2 1
+Loading required package: microbenchmark
+microbenchmark testUnit: milliseconds
+                                                                 expr
+   PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR)
+ PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
+        min         lq       mean     median         uq       max neval
+ 865.231511 884.785144 921.396323 918.358349 957.749732 985.80191    10
+   2.994428   3.173237   5.595993   4.728813   7.606239  13.34647    10
+Unit: milliseconds
+                                                                 expr      min
+ PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp) 2.840635
+       lq     mean   median       uq      max neval
+ 2.998131 3.630338 3.071986 3.429893 20.71368   100
+
+R=1/k=3/N=400: [1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+OU likelihood= -1554.429
+TwoSpeedOU likelihood= -1554.429
+.
+R=1/k=3/N=400: [1] "Validating model..."
+M= 799
+R= 1
+setting regimes to rep(1, length(tree$edge.length).
+OU likelihood= -1585.932
+TwoSpeedOU likelihood= -1585.932
+.Done simulation(s).
+Validating model...M= 1185
+R= 2
+Testing PCMBaseCpp on TwoSpeedOU:
+...[1] -1492.707
+attr(,"X0")
+[1] 5 2 1
+[1] -1492.707
+attr(,"X0")
+[1] 5 2 1
+
+
+DONE ===========================================================================
+> ?OUwie
+No documentation for ‘OUwie’ in specified packages and libraries:
+you could try ‘??OUwie’
+>
+>
+>

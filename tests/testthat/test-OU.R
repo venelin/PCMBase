@@ -67,54 +67,48 @@ Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, re
 ## Simulations of trait data
 
 # regime 'a', trait 1
-model.a.1 <- list(X0 = a.X0[1],
-                  H=H[1,1,'a',drop=FALSE],
-                  Theta=Theta[1,'a',drop=FALSE],
-                  Sigma=Sigma[1,1,'a',drop=FALSE],
-                  Sigmae=Sigmae[1,1,'a',drop=FALSE])
-class(model.a.1) <- 'OU'
+model.a.1 <- PCM("OU", 1, "a", params = list(X0 = a.X0[1],
+                                             H=H[1,1,'a',drop=FALSE],
+                                             Theta=Theta[1,'a',drop=FALSE],
+                                             Sigma=Sigma[1,1,'a',drop=FALSE],
+                                             Sigmae=Sigmae[1,1,'a',drop=FALSE]))
+
 
 # regime 'a', trait 2
-model.a.2 <- list(X0 = a.X0[2],
-                  H=H[2,2,'a',drop=FALSE],
-                  Theta=Theta[2,'a',drop=FALSE],
-                  Sigma=Sigma[2,2,'a',drop=FALSE],
-                  Sigmae=Sigmae[2,2,'a',drop=FALSE])
-class(model.a.2) <- 'OU'
+model.a.2 <- PCM("OU", 1, "a", params = list(X0 = a.X0[2],
+                                             H=H[2,2,'a',drop=FALSE],
+                                             Theta=Theta[2,'a',drop=FALSE],
+                                             Sigma=Sigma[2,2,'a',drop=FALSE],
+                                             Sigmae=Sigmae[2,2,'a',drop=FALSE]))
 
 # regime 'a', trait 3
-model.a.3 <- list(X0 = a.X0[3],
-                  H=H[3,3,'a',drop=FALSE],
-                  Theta=Theta[3,'a',drop=FALSE],
-                  Sigma=Sigma[3,3,'a',drop=FALSE],
-                  Sigmae=Sigmae[3,3,'a',drop=FALSE])
-class(model.a.3) <- 'OU'
+model.a.3 <- PCM("OU", 1, "a", params = list(X0 = a.X0[3],
+                                             H=H[3,3,'a',drop=FALSE],
+                                             Theta=Theta[3,'a',drop=FALSE],
+                                             Sigma=Sigma[3,3,'a',drop=FALSE],
+                                             Sigmae=Sigmae[3,3,'a',drop=FALSE]))
 
 # regime 'a', traits 1, 2 and 3
-model.a.123 <- list(X0 = a.X0,
-                    H=H[,,'a',drop=FALSE],
-                    Theta=Theta[,'a',drop=FALSE],
-                    Sigma=Sigma[,,'a',drop=FALSE],
-                    Sigmae=Sigmae[,,'a',drop=FALSE])
-class(model.a.123) <- 'OU'
+model.a.123 <- PCM("OU", 3, "a", params = list(X0 = a.X0,
+                                               H=H[,,'a',drop=FALSE],
+                                               Theta=Theta[,'a',drop=FALSE],
+                                               Sigma=Sigma[,,'a',drop=FALSE],
+                                               Sigmae=Sigmae[,,'a',drop=FALSE]))
 
 
 # regime 'b', traits 1, 2 and 3
-model.b.123 <- list(X0 = b.X0,
-                    H=H[,,'b',drop=FALSE],
-                    Theta=Theta[,'b',drop=FALSE],
-                    Sigma=Sigma[,,'b',drop=FALSE],
-                    Sigmae=Sigmae[,,'b',drop=FALSE])
-class(model.b.123) <- 'OU'
+model.b.123 <- PCM("OU", 3, "b", params = list(X0 = b.X0,
+                                               H=H[,,'b',drop=FALSE],
+                                               Theta=Theta[,'b',drop=FALSE],
+                                               Sigma=Sigma[,,'b',drop=FALSE],
+                                               Sigmae=Sigmae[,,'b',drop=FALSE]))
 
 # regimes 'a' and 'b', traits 1, 2 and 3
-model.ab.123 <- list(X0 = a.X0,
-                     H=H[,,,drop=FALSE],
-                     Theta=Theta[,,drop=FALSE],
-                     Sigma=Sigma[,,,drop=FALSE],
-                     Sigmae=Sigmae[,,,drop=FALSE])
-class(model.ab.123) <- 'OU'
-
+model.ab.123 <- PCM("OU", 3, c("a", "b"), params = list(X0 = a.X0,
+                                                        H=H[,,,drop=FALSE],
+                                                        Theta=Theta[,,drop=FALSE],
+                                                        Sigma=Sigma[,,,drop=FALSE],
+                                                        Sigmae=Sigmae[,,,drop=FALSE]))
 
 context(ctx <- "R=1/k=1/N=2")
 
@@ -376,5 +370,20 @@ if(require(PCMBaseCpp)) {
       PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
     ))
   }
+}
+
+if(require(OUwie)) {
+  data(tworegime)
+
+  #Calculate the likelihood based on known values of
+  #alpha, sigma^2, and theta:
+  alpha=c(0.5632459,0.1726052)
+  sigma.sq=c(0.1064417,0.3461386)
+  theta=c(1.678196,0.4185894)
+
+  OUwie.fixed(tree,trait,model=c("OUMVA"), simmap.tree=FALSE, scaleHeight=FALSE,
+              clade=NULL, alpha=alpha,sigma.sq=sigma.sq,theta=theta)
+
+
 }
 

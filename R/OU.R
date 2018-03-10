@@ -1,86 +1,76 @@
-#' Validate OU parameters,
-#' @export
-PCMValidate.OU <- function(tree, model, verbose = FALSE) {
-  if(verbose) {
-    print('Validating model...')
-  }
+# Copyright 2018 Venelin Mitov
+#
+# This file is part of PCMBase.
+#
+# PCMBase is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PCMBase is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-  if(is.null(model$Sigmae) |
-     is.null(dim(model$Sigmae)) |
-     length(dim(model$Sigmae)) != 3) {
-    stop("ERR:02201:PCMBase:OU.R:PCMValidate.OU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
-  }
-
-  R <- dim(model$Sigmae)[3]
-  k <- dim(model$Sigmae)[1]
-  regimesUnique <- dimnames(model$Sigmae)[[3]]
-
-  if(is.null(regimesUnique)) {
-    regimesUnique <- 1:dim(model$Sigmae)[[3]]
-  }
-
-  PCMValidateGeneral(
-    tree = tree, model = model,
-    modelSpec = PCMSpecify(
-      tree = tree, modelName = "OU",
-      k = k, R = R, regimesUnique = regimesUnique,
-      paramNames = list("H", "Theta", "Sigma", "Sigmae"),
-      paramStorageModes = list("double", "double", "double", "double"),
-      paramDims = list(c(k, k, R), c(k, R), c(k, k, R), c(k, k, R))
-    ),
-    verbose = verbose)
-}
-
-#' Create a conditional multivariate OU distribution
+#' Conditional multivariate OU distribution
+#' @inheritParams PCMCond
 #'
-#' @param H,Theta,Sigma parameters of the multivariate OU process; H is a k x k
-#' matrix, Theta is a k-vector and Sigma is a k x k matrix
-#'
-#' @return a list containging the passed parameters as well as
-#' a function `random` of arguments n (number of observation k-vectors to generate),
-#' x0 (initial k-vector of values), t (numeric time); and a function `density` for
-#' calculating the density of multivariate vector under the specified distribution
-#' and given an initial value and time.
-#'
-#' @importFrom mvtnorm rmvnorm dmvnorm
+#' @return a named list as specified in \code{\link{PCMCond}}
 #' @importFrom expm expm
-#'
 #' @export
-PCMCond.OU <- function(tree, model, r=1, verbose=FALSE) {
-  with(model, {
-    H <- as.matrix(model$H[,,r])
-    Theta <- model$Theta[,r]
-    Sigma <- as.matrix(model$Sigma[,,r])
+PCMCond.OU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+  H <- as.matrix(model$H[,, r])
+  Theta <- model$Theta[, r]
+  Sigma <- as.matrix(model$Sigma[,,r])
 
-    if(length(unique(c(length(Theta), dim(H), dim(Sigma)))) != 1) {
-      stop('ERR:02221:PCMBase:OU.R:PCMCond.OU:: Some of H, Theta or Sigma has a wrong dimension.')
-    }
-
-    V <- PCMCondVOU(H, Sigma)
-    omega <- function(t, edgeIndex, e_Ht = NULL) {
-      if(is.null(e_Ht)) {
-        e_Ht <- expm(-t*H)
-      }
-      I <- diag(nrow(H))
-      (I-e_Ht) %*% Theta
-    }
-    Phi <- function(t, edgeIndex, e_Ht = NULL) {
-      if(is.null(e_Ht)) {
-        expm(-t*H)
-      } else {
-        e_Ht
-      }
-    }
-    random <- function(n=1, x0, t, edgeIndex) {
+  V <- PCMCondVOU(H, Sigma)
+  omega <- function(t, edgeIndex, e_Ht = NULL) {
+    if(is.null(e_Ht)) {
       e_Ht <- expm(-t*H)
-      rmvnorm(n=n, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht) %*% x0, sigma=V(t, edgeIndex))
     }
-    density <- function(x, x0, t, edgeIndex, log=FALSE) {
-      e_Ht <- expm(-t*H)
-      dmvnorm(x, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht)%*%x0, sigma=V(t, edgeIndex), log=log)
+    I <- diag(nrow(H))
+    (I-e_Ht) %*% Theta
+  }
+  Phi <- function(t, edgeIndex, e_Ht = NULL) {
+    if(is.null(e_Ht)) {
+      expm(-t*H)
+    } else {
+      e_Ht
     }
-
-    list(omega = omega, Phi = Phi, V = V, random=random, density=density)
-  })
+  }
+  list(omega = omega, Phi = Phi, V = V)
 }
 
+#' @describeIn PCMDescribe
+#' @export
+PCMDescribe.OU <- function(model, ...) {
+  "Ornstein-Uhlenbeck branching stochastic process model and a non-phylogenetic variance component"
+}
+
+#' @describeIn PCMSpecifyParams
+#' @export
+PCMSpecifyParams.OU <- function(model, ...) {
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  list(
+    X0 = list(default = rep(0, k),
+              type = c("gvector", "full"),
+              description = "trait vector at the root; global for all model regimes"),
+    H = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+             type = c("matrix", "full"),
+             description = "Selection strength matirx"),
+    Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                 type = c("vector", "full"),
+                 description = "long-term optimum trait values"),
+    Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric"),
+                 description = "unit-time variance-covariance matrix of the BM-process"),
+    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "symmetric"),
+                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
+}

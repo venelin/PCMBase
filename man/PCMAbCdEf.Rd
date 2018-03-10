@@ -4,7 +4,8 @@
 \alias{PCMAbCdEf}
 \title{Quadratic polynomial parameters A, b, C, d, E, f for each node}
 \usage{
-PCMAbCdEf(tree, model, metaI, pc, verbose = FALSE)
+PCMAbCdEf(tree, model, metaI = PCMInfo(NULL, tree, model, verbose),
+  verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}
@@ -15,8 +16,6 @@ calculated (see also Details).}
 
 \item{metaI}{a list returned from a call to \code{PCMValidate(tree, model)},
 containing meta-data such as N, M and k.}
-
-\item{pc}{a logical k x M matrix returned by \code{\link{PCMPresentCoordinates}}.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
 }

@@ -1,3 +1,20 @@
+# Copyright 2018 Venelin Mitov
+#
+# This file is part of PCMBase.
+#
+# PCMBase is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PCMBase is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
+
 #' @name PCMBase
 #'
 #' @title A General Framework for Gaussian Phylogenetic Comparative Models
@@ -6,6 +23,571 @@
 #'
 #'
 NULL
+
+#' @name PCM
+#' @title PCM S3 objects
+#' @param model This argument can take one of the following forms:
+#' \item a character vector of the S3-classes of the model object to be
+#' created (one model object can have one or more S3-classes);
+#' \item a list of character vectors as above denoting the S3 classes of each
+#' regime in a generalized multiple regime model. If available, the names of the
+#' list-members will be used as regime names;
+#' \item an S3 object representing a PCM model
+#' @return an object of S3 class as defined by the model argument.
+#' @export
+PCM <- function(model, k = 1, regimes = 1,
+                params = NULL, vecParams = NULL, offset = 0, ...) {
+  UseMethod("PCM", model)
+}
+
+#' @describeIn PCM
+#' @export
+PCM.default <- function(model, k = 1, regimes = 1,
+                        params = NULL, vecParams = NULL, offset = 0, ...) {
+  stop(paste0("ERR:02091:PCMBase:MultivariatePCM.R:PCM.default:: You should provide a PCM object, but provided a ", class(model)[1]))
+}
+
+#' Create a PCM
+#' @inheritParams PCM
+#' @export
+PCM.PCM <- function(model, k = 1, regimes = 1,
+                    params = NULL, vecParams = NULL, offset = 0, ...) {
+
+  if(is.null(attr(model, "description", exact = TRUE))) {
+    attr(model, "description") <- PCMDescribe(model, ...)
+  }
+
+  if(is.null(attr(model, "specParams", exact = TRUE))) {
+    attr(model, "specParams") <- PCMSpecifyParams(model, ...)
+  }
+
+  if(is.null(attr(model, "p", exact = TRUE))) {
+    attr(model, "p") <- PCMNumParams(model)
+  }
+
+  specParams <- attr(model, "specParams")
+
+  # TODO: parameter validation checks
+  for(name in names(specParams)) {
+    model[[name]] <- specParams[[name]][["default"]]
+  }
+
+  if(!is.null(params)) {
+    PCMSetParams(model, params, ...)
+  }
+
+  if(!is.null(vecParams)) {
+    PCMSetOrGetVecParams(model, vecParams, offset, ...)
+  }
+
+  model
+}
+
+#' @describeIn PCM
+#' @export
+PCM.character <- function(model, k = 1, regimes = 1,
+                          params = NULL, vecParams = NULL, offset = 0, ...) {
+  modelObj <- list()
+  if(! (model %in% "PCM") ) {
+    model <- c(model, "PCM")
+  }
+  class(modelObj) <- model
+  attr(modelObj, "k") <- k
+  attr(modelObj, "regimes") <- regimes
+
+  PCM(modelObj, k, regimes, params, vecParams, offset, ...)
+}
+
+#' @describeIn PCM
+#' @export
+is.PCM <- function(x) inherits(x, "PCM")
+
+#' @describeIn PCM
+#' @export
+print.PCM <- function(x, ...) cat (format(x, ...), "\n")
+
+#' @describeIn PCM
+#' @export
+format.PCM <- function(x, ...) {
+  if(!is.PCM(x)) {
+    stop("ERR:02061:PCMBase:MultivariatePCM.R:format.PCM:: x must inherit from S3 class PCM.")
+  }
+  res <- paste0("PCM of S3 class ", class(x)[1],
+                "; k=", attr(x, "k"),
+                "; p=", attr(x, "p"),
+                "; regimes: ", toString(attr(x, "regimes")), ". Parameters:\n")
+  for(name in names(x)) {
+    strList <- as.list(capture.output(print(x[[name]])))
+    strList$sep = "\n"
+    res <- paste0(res, name, ":\n", do.call(paste, strList))
+    res <- paste0(res, "\n")
+  }
+  res
+}
+
+#' Human friendly description of a PCM
+#' @param model a PCM model object
+#' @details This S3 generic function is intended to be specified for user models
+#' @return a character string
+#' @export
+PCMDescribe <- function(model, ...) {
+  UseMethod("PCMDescribe", model)
+}
+
+#' @describeIn PCMDescribe
+#' @export
+PCMDescribe.PCM <- function(model, ...) {
+  "PCM base class model with no parameters; serves as a basis for PCM model classes"
+}
+
+#' Parameter specification of PCM model
+#' @param model a PCM model object
+#' @return a list
+#' @export
+PCMSpecifyParams <- function(model, ...) {
+  UseMethod("PCMSpecifyParams", model)
+}
+
+#' @describeIn PCMSpecifyParams
+#' @export
+PCMSpecifyParams.PCM <- function(model, ...) {
+  list()
+}
+
+#' Number of traits modeled by a PCM
+#' @param model a PCM object
+#' @return an integer
+#' @export
+PCMNumTraits <- function(model) {
+  UseMethod("PCMNumTraits", model)
+}
+
+#' @describeIn PCMNumTraits
+#' @export
+PCMNumTraits.PCM <- function(model) {
+  attr(model, "k")
+}
+
+#' Number of free parameters describing fully a PCM
+#' @param model a PCM object
+#' @param ... other arguments (possible future use)
+#' @return an integer
+#' @export
+PCMNumParams <- function(model, ...) {
+  UseMethod("PCMNumParams", model)
+}
+
+#' @describeIn PCMNumParams
+#' @export
+PCMNumParams.PCM <- function(model, ...) {
+  k <- attr(model, "k")
+  R <- length(attr(model, "regimes"))
+  specParams <- attr(model, "specParams")
+
+  vecParamSizes <- c(rep = 1, full = k)
+  matParamSizes <- c(diag1 = 1, diag = k, upper.tri = .5*k*(k-1), upper.tri.diag = .5*k*(k+1),
+                     lower.tri = .5*k*(k-1), lower.tri.diag = .5*k*(k+1), symmetric = .5*k*(k+1), full=k*k)
+  p <- 0
+  for(name in names(specParams)) {
+    type <- specParams[[name]]$type
+    indices <- specParams[[name]]$indices
+
+    if(type[1] == "model") {
+      p <- p + PCMNumParams(model[[name]], ...)
+    } else if(type[1] == "gvector") {
+      if(type[2] == "custom") {
+        ind <- indices(p, k)
+        p <- p + length(unique(ind[ind>p]))
+      } else {
+        p <- p + vecParamSizes[type[2]]
+      }
+    } else if(type[1] == "gmatrix") {
+      if(type[2] == "custom") {
+        ind <- indices(p, k)
+        p <- p + length(unique(ind[ind>p]))
+      } else {
+        p <- p + matParamSizes[type[2]]
+      }
+    } else if(type[1] == "vector") {
+      if(type[2] == "custom") {
+        for(r in 1:R) {
+          ind <- indices(p, k)
+          p <- p + length(unique(ind[ind>p]))
+        }
+      } else {
+        p <- p + R*vecParamSizes[type[2]]
+      }
+    } else if(type[1] == "matrix") {
+      if(type[2] == "custom") {
+        for(r in 1:R) {
+          ind <- indices(p, k)
+          p <- p + length(unique(ind[ind>p]))
+        }
+      } else {
+        p <- p + R*matParamSizes[type[2]]
+      }
+    }
+  }
+  p
+}
+
+#' Wrapper for length(tree$tip.label)
+#' @param tree a phylo object
+#' @return the number of tips in tree
+#' @export
+PCMNumTips <- function(tree) {
+  length(tree$tip.label)
+}
+
+#' Number of all nodes in a tree
+#'
+#' @details Wrapper for nrow(tree$edge) + 1
+#' @param tree a phylo object
+#' @return the number of nodes in tree including root, internal and tips.
+#' @export
+PCMNumNodes <- function(tree) {
+  nrow(tree$edge) + 1
+}
+
+#' Number of regimes on a tree modeled with PCM
+#' @param tree a phylo object
+#' @return the number of different regimes encountered on the tree branches
+#' @export
+PCMNumRegimes <- function(tree) {
+  # number unique regimes
+  if(is.null(tree$edge.regime)) {
+    if(!is.null(names(tree$edge.length))) {
+      tree$edge.regime <- names(tree$edge.length)
+      regimesUniqueTree <- unique(tree$edge.regime)
+    } else {
+      regimesUniqueTree <- 1
+    }
+  } else {
+    regimesUniqueTree <- unique(tree$edge.regime)
+  }
+
+  length(regimesUniqueTree)
+}
+
+#' Jumps in modeled traits associated with branches in a tree
+#' @inheritParams PCMNumTips
+#' @return an integer vector of 0's and 1's with entries correspondin to the
+#' denoting if a jump took place at the beginning of a branch.
+PCMJumps <- function(tree) {
+  if(!is.null(tree$edge.jump)) {
+    if(length(tree$edge.jump) != nrow(tree$edge) |
+       !isTRUE(all(tree$edge.jump %in% c(0L, 1L)))) {
+      stop("ERR:02081:PCMBase:MultivariatePCM.R:PCMJumps:: tree$edge.jump should
+           be an integer vector of 0's and 1's with with length equal to the
+           number of rows in tree$edge.")
+    }
+    as.integer(tree$edge.jump)
+  } else {
+    rep(0L, nrow(tree$edge))
+  }
+}
+
+#' Regimes associated with branches in a tree
+#' @param tree a phylo object
+#' @param model a PCM object
+#' @return an integer vector with entries corresponding to the rows in tree$edge
+#'   denoting the regime on each branch in the tree
+#' @export
+PCMRegimes <- function(tree, model) {
+  R <- PCMNumRegimes(tree)
+  if(R == 1) {
+    regimes <- rep(1, length(tree$edge.length))
+  } else {
+    regimes <- match(tree$edge.regime, attr(model, "regimes"))
+    if(any(is.na(regimes))) {
+      stop(paste0("ERR:02071:PCMBase:MultivariatePCM.R:PCMRegimes:: ",
+                  " Some of the regimes in tree$edge.regime not found in",
+                  "attr(model, 'regimes').\n",
+                  "tree$edge.regime=", toString(tree$edge.regime), "\n",
+                  "attr(model, 'regimes')", toString(attr(model, 'regimes'))))
+    }
+  }
+  regimes
+}
+
+
+
+#' Load/store a vector parameter from/to a vector of all parameters in a model.
+#'
+#' @details This function has both, a returned value and side effects. By default the function
+#' loads elements from vecParams into v. This behavior is reversed if the argument load
+#' is set to FALSE.
+#'
+#' @param v numeric k-vector. If load==TRUE (default) this has to be a vector-object in
+#' the calling environment (not a temporary object such as the result from an algebraic expression).
+#' @param vecParams numeric vector containing all parameters in the model. If load==FALSE, this
+#' has to be a vector in the calling environment (not a temporary object such as the result from
+#' an algebraic expression).
+#' @param offset integer denoting the offset in vecParams (0 means start from vecParams[1] onwards).
+#' @param k integer denoting the dimensionality (length) of the resulting vector.
+#' @param type a character string indicating the type of loading. possible values are:
+#' \item{"rep"}{repeat \code{vecParams[offset+1]} k times}
+#' \item{"full"}{copy \code{vecParams[offset + (1:k)]}}
+#' \item{"custom"}{use a custom template vector which elements specified by mask are
+#' to be replaced with \code{vecParams[indices(offset, k)]}}.
+#' @param mask a logical vecgtor pointing to elements in template to be replaced. used only with type=="custom".
+#' @param indices a function of the form function(offset, k) returning an integer vector of
+#' length equal to the number of TRUE elements in mask, indicating the position in vecParams to
+#' be copyed from. used only with type=="custom".
+#' @param load a logical indicating if loading from or storing to vecParams should be done.
+#' @return an integer denoting the number of elemnents read or written from/to vecParams.
+#' In the case of type=="custom",
+#' the number of indices bigger than offset returned by the function indices(offset, k).
+#' @export
+PCMLoadVectorParameter <- function(
+  v, vecParams, offset, k,
+  type = c("rep", "full", "custom"),
+  mask = rep(TRUE, k), indices = function(offset, k) offset + (1:k),
+  load = TRUE) {
+
+  if(load) {
+    "%op%" <- `<-`
+    maskRep <- 1:k
+  } else {
+    "%op%"<- function(a,b) eval(substitute(b<-a), parent.frame())
+    maskRep <- 1
+  }
+
+  if(type[1] == "rep") {
+    num <- 1
+    eval(substitute(v[maskRep] %op% vecParams[offset + 1]), parent.frame())
+  } else if(type[1] == "full") {
+    num <- k
+    eval(substitute(v[] %op% vecParams[offset + (1:k)]), parent.frame())
+  } else if(type[1] == "custom") {
+    if(is.function(indices)) {
+      ind <- indices(offset, k)
+      num <- length(unique(ind[ind>offset]))
+      maskCustom <- mask
+      eval(substitute(v[maskCustom] %op% vecParams[ind]), parent.frame())
+    } else {
+      stop("ERR:020a1:PCMBase:MultivariatePCM.R:PCMLoadVectorParameter:: indices should be a
+           function(offset, k) returning an integer vector.")
+    }
+  } else if(type[1] == "fixed") {
+    num <- 0
+  } else {
+    stop(paste0("ERR:020a2:PCMBase:MultivariatePCM.R:PCMLoadVectorParameter:: type ", type[1], " not recognized."))
+  }
+  num
+}
+
+#' Load/store a matrix parameter from/to a vector of all parameters in a model.
+#'
+#' @details This function has both, a returned value and side effects. By default the function
+#' loads elements from vecParams into m. This behavior is reversed if the argument load
+#' is set to FALSE.
+#'
+#' @param m numeric k x k matrix. If load==TRUE (default) this has to be a matrix-object in
+#' the calling environment (not a temporary object such as the result from an algebraic expression).
+#' @param vecParams numeric vector containing all parameters in the model. If load==FALSE, this
+#' has to be a vector in the calling environment (not a temporary object such as the result from
+#' an algebraic expression).
+#' @param k integer denoting the dimensionality (number of rows and colums) of the resulting matrix.
+#' @param offset integer denoting the offset in vecParams (0 means start from vecParams[1] onwards).
+#' @param type a character string indicating the type of loading. possible values are:
+#' \item{"diag1"}{create a diagonal matrix with all diagonal elements repeating \code{vecParams[offset+1]}.}
+#' \item{"diag"}{create a diagonal matrix with a diagonal copied from \code{vecParams[offset + (1:k)]}.}
+#' \item{"upper.tri"}{load an upper triangular matrix with zero diagonal.}
+#' \item{"upper.tri.diag"}{load an upper triangular matrix including diagonal.}
+#' \item{"lower.tri"}{load a lower triangular matrix with zero diagonal.}
+#' \item{"lower.tri.diag"}{load a lower triangular matrix including diagonal.}
+#' \item{"symmetric"}{load a symmetric matrix. Only the elements of the upper triangle and diagonal are
+#' loaded from vecParams.}
+#' \item{"full"}{load a full.}
+#' \item{"custom"}{use a custom template matrix which's elements specified by mask are
+#' to be replaced with \code{vecParams[offset + indices]}}.
+#' @param mask a logical k x k matrix pointing to elements in template to be replaced. used only with type=="custom".
+#' @param indices a function of the form function(offset, k) returning an integer vector of
+#' length equal to the number of TRUE elements in mask, indicating the position in vecParams to
+#' be copyed from. used only with type=="custom".
+#' @param load a logical indicating if loading from or storing to vecParams should be done.
+#'
+#' @return an integer denoting the number of elemnents read or written from/to vecParams.
+#' In the case of type=="custom",
+#' the number of indices bigger than offset returned by the function indices(offset, k).
+#' @export
+PCMLoadMatrixParameter <- function(
+  m, vecParams, offset, k,
+  type = c("diag1", "diag", "upper.tri", "upper.tri.diag", "lower.tri", "lower.tri.diag", "symmetric", "full", "custom", "fixed"),
+  mask = matrix(TRUE, k, k),
+  indices = function(offset, k) offset + (1:(k*k)),
+  load = TRUE) {
+
+  if(load) {
+    "%op%" <- `<-`
+    maskDiag1 <- 1:k
+  } else {
+    "%op%" <- function(a,b) eval(substitute(b<-a), parent.frame())
+    maskDiag1 <- 1
+  }
+
+  if(type[1] == "diag1") {
+    num <- 1
+    eval(substitute(diag(m)[maskDiag1] %op% vecParams[offset + (1:num)]), parent.frame())
+  } else if(type[1] == "diag") {
+    num <- k
+    eval(substitute(diag(m) %op% vecParams[offset + (1:num)]), parent.frame())
+  } else if(type[1] == "upper.tri") {
+    num <- k*(k-1)/2
+    eval(substitute(m[upper.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
+  } else if(type[1] == "upper.tri.diag") {
+    num <- k*(k+1)/2
+    eval(substitute(m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
+  } else if(type[1] == "lower.tri") {
+    num <- k*(k-1)/2
+    eval(substitute(m[lower.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
+  } else if(type[1] == "lower.tri.diag") {
+    num <- k*(k+1)/2
+    eval(substitute(m[lower.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
+  } else if(type[1] == "symmetric") {
+    num <- k*(k+1)/2
+    eval(substitute({
+      m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]
+      }), parent.frame())
+    if(load) {
+      eval(substitute({
+        m[lower.tri(m)] <- 0
+        m <- m+t(m)
+        diag(m) <- 0.5 * diag(m)
+      }), parent.frame())
+    }
+  } else if(type[1] == "full") {
+    num <- k*k
+    eval(substitute(m[,] %op% vecParams[offset+(1:num)]), parent.frame())
+  } else if(type[1] == "custom") {
+    if(is.function(indices)) {
+      ind <- indices(offset, k)
+      num <- length(unique(ind[ind>offset]))
+      maskCustom <- mask
+      eval(substitute(m[maskCustom] %op% vecParams[ind]), parent.frame())
+    } else {
+      stop("ERR:020b1:PCMBase:MultivariatePCM.R:PCMLoadMatrixParameter:: indices should be a
+           function(offset, k) returning an integer vector.")
+    }
+  } else if(type[1] == "fixed") {
+    num <- 0
+  } else {
+    stop(paste0("ERR:020b2:PCMBase:MultivariatePCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
+  }
+  num
+}
+
+#' Set model parameters from a named list
+#' @param tree a phylo object (possible future use)
+#' @param model a PCM model object
+#' @param params a named list with elements among the names found in attr(model, "specParams")
+#' @param inplace logical indicating if the parameters should be set "inplace" for the
+#' model object in the calling environment or a new model object with the parameters set
+#' as specified should be returned. Defaults to TRUE
+#' @return If inplace is TRUE, the function only has a side effect of setting the
+#' parameters of the model object in the calling environment; otherwise the function
+#' returns a modified copy of the model object.
+#' @export
+PCMSetParams <- function(model, params, inplace = TRUE, ...) {
+  UseMethod("PCMSetParams", model)
+}
+
+#' @describeIn PCMSetParams
+#' @export
+PCMSetParams.PCM <- function(model, params, inplace = TRUE, ...) {
+  specParams <- attr(model, "specParams")
+  for(name in names(params)) {
+    if(! (name%in%names(specParams)) ) {
+      stop(paste0("ERR:020c1:PCMBase:MultivariatePCM.R:PCMSetParams:: ", name,
+                  " is not a settable parameter of the model, check attr(model, 'specParams')."))
+    }
+    type <- specParams[[name]]$type
+
+    if(type != "model") {
+      if(! identical(length(model[[name]]), length(params[[name]])) ) {
+        stop(paste0("ERR:020c2:PCMBase:MultivariatePCM.R:PCMSetParams:: params[[", name,
+                    "]] is not the same length as model[[", name, "]]; ",
+                    "length(params[[", name, "]])=", length(params[[name]]),
+                    ", length(model[[", name, "]])=", length(model[[name]]), "."))
+      }
+      if(! identical(dim(model[[name]]), dim(params[[name]])) ) {
+        stop(paste0("ERR:020c3:PCMBase:MultivariatePCM.R:PCMSetParams:: params[[", name,
+                    "]] is not the same dimension as model[[", name, "]]; ",
+                    "dim(params[[", name, "]])=", str(dim(params[[name]])),
+                    ", length(model[[", name, "]])=", str(dim(model[[name]])), "."))
+      }
+    }
+  }
+  for(name in names(params)) {
+    if(inplace) {
+      eval(substitute(model[[name]] <- params[[name]]), parent.frame())
+    } else {
+      model[[name]] <- params[[name]]
+    }
+  }
+
+  if(!inplace) {
+    model
+  }
+}
+
+#' Inplace set or get the parameters of a PCM from or into a numeric vector
+#'
+#' @export
+PCMSetOrGetVecParams <- function(
+  model, vecParams, offset = 0, set = TRUE, ...) {
+  UseMethod("PCMSetOrGetVecParams", model)
+}
+
+#' Set or get the parameters of a BM model from or into a numeric vector
+#' @inheritParams PCMSetOrGetVecParams
+#'
+#' @export
+PCMSetOrGetVecParams.PCM <- function(
+  model, vecParams, offset = 0, set = TRUE, ... ) {
+
+  p <- 0
+
+  specParams <- attr(model, "specParams")
+  k <- attr(model, "k")
+
+  for(name in names(specParams)) {
+    type <- specParams[[name]]$type
+    mask <- specParams[[name]]$mask
+    indices <- specParams[[name]]$indices
+
+
+    if(type[1] == "vector") {
+      for(r in 1:length(attr(model, "regimes"))) {
+        p <- p + eval(substitute(PCMLoadVectorParameter(
+          model[[name]][, r], vecParams, offset + p, k, type = type[2], mask = mask, indices = indices, load = set)),
+          parent.frame())
+      }
+    } else if(type[1] == "matrix") {
+      for(r in 1:length(attr(model, "regimes"))) {
+        p <- p + eval(substitute(PCMLoadMatrixParameter(
+          model[[name]][,, r], vecParams, offset + p, k, type = type[2], mask = mask, indices = indices, load = set)),
+          parent.frame())
+      }
+    } else if(type[1] == "gvector") {
+      # global vector for all regimes
+      p <- p + eval(substitute(PCMLoadVectorParameter(
+        model[[name]], vecParams, offset + p, k, type=type[2], mask = mask, indices = indices, load = set)),
+        parent.frame())
+    } else if(type[1] == "gmatrix") {
+      # global vector for all regimes
+      p <- p + eval(substitute(PCMLoadMatrixParameter(
+        model[[name]], vecParams, offset + p, k, type=type[2], mask = mask, indices = indices, load = set)),
+        parent.frame())
+    } else if(type[1] == "model") {
+      # nested PCM corresponding to a regime
+      p <- p + eval(substitute(PCMSetOrGetVecParams(
+        model[[name]], vecParams, offset + p, set, ...)), parent.frame())
+    }
+  }
+  p
+}
 
 #' Simulation of a phylogenetic comparative model on a tree
 #'
@@ -35,15 +617,15 @@ NULL
 #' are not used as input for the values/errors at their descending nodes, because
 #' they are treated as non-heritable components or measurement error.}
 #' The function will fail in case that the length of the argument vector X0 differs
-#' from the number of traits specified in \code{metaI$k}. Error message: "ERR:02002:PCMBase:MultivariatePCM.R:PCMSim:: X0 must be of length ...".
+#' from the number of traits specified in \code{metaI$k}. Error message:
+#' "ERR:02002:PCMBase:MultivariatePCM.R:PCMSim:: X0 must be of length ...".
 #'
 #' @importFrom mvtnorm rmvnorm
 #' @seealso \code{\link{PCMLik}} \code{\link{PCMValidate}} \code{\link{PCMCond}}
 #' @export
 PCMSim <- function(
   tree, model, X0,
-  metaI = PCMValidate(tree = tree, model = model,
-                        verbose = verbose),
+  metaI = PCMInfo(X = NULL, tree = tree, model = model, verbose = verbose),
   verbose = FALSE) {
 
   if(length(X0)!=metaI$k) {
@@ -53,21 +635,27 @@ PCMSim <- function(
   values <- errors <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
   values[, metaI$N + 1] <- X0
 
-  ordBF <- PCMBreadthFirstOrder(tree)
+  ordBF <- metaI$preorder
 
   # create a list of random generator functions for each regime
-  funMVCond <- lapply(1:metaI$R, function(r) {
-    PCMCond(tree, model = model, r = r, verbose = verbose)$random
+  PCMCondObjects <- lapply(1:metaI$R, function(r) {
+    PCMCond(tree, model = model, r = r, metaI = metaI, verbose = verbose)
   })
 
   for(edgeIndex in ordBF) {
-    values[, tree$edge[edgeIndex, 2]] <-
-      funMVCond[[metaI$regimes[edgeIndex]]](
-        n=1, x0 = values[, tree$edge[edgeIndex,1]], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex)
+    obj <- PCMCondObjects[[metaI$r[edgeIndex]]]
+    if(!is.null(obj$random)) {
+      values[, tree$edge[edgeIndex, 2]] <-
+        obj$random(n=1, x0 = values[, tree$edge[edgeIndex,1]], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex)
+    } else {
+      values[, tree$edge[edgeIndex, 2]] <-
+        PCMCondRandom(obj, n=1, x0 = values[, tree$edge[edgeIndex,1]], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex)
+    }
+
     if(!is.null(model$Sigmae)) {
       errors[, tree$edge[edgeIndex, 2]] <-
         rmvnorm(1, rep(0, metaI$k),
-                as.matrix(model$Sigmae[,, metaI$regimes[edgeIndex]]))
+                as.matrix(model$Sigmae[,, metaI$r[edgeIndex]]))
     }
   }
 
@@ -141,17 +729,16 @@ PCMSim <- function(
 #'
 #' @seealso \code{\link{PCMValidate}} \code{\link{PCMPresentCoordinates}} \code{\link{PCMPruningOrder}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{PCMParseErrorMessage}}
 #' @export
-PCMLik <- function(X, tree, model,
-                  metaI =PCMValidate(tree, model, verbose = verbose),
-                  pruneI = PCMPruningOrder(tree),
-                  pc = PCMPresentCoordinates(X, tree),
-                  log = TRUE,
-                  verbose = FALSE) {
+PCMLik <- function(
+  X, tree, model,
+  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  log = TRUE,
+  verbose = FALSE) {
 
   # will change this value if there is no error
   value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
 
-  PCMLmr <- try(PCMLmr(X, tree, model, metaI, pruneI, pc, verbose = verbose, root.only = TRUE),
+  PCMLmr <- try(PCMLmr(X, tree, model, metaI, verbose = verbose, root.only = TRUE),
              silent = TRUE)
 
   if(class(PCMLmr) == "try-error") {
@@ -298,7 +885,7 @@ PCMLik <- function(X, tree, model,
 #' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
 #' one daughter node)
 #' @return a vector of indices of edges in tree$edge in breadth-first order.
-PCMBreadthFirstOrder <- function(tree) {
+PCMPreorder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
 
@@ -321,9 +908,9 @@ PCMBreadthFirstOrder <- function(tree) {
     cnNext <- c()
     for(n in cn) {
       # if not a tip
-      if(n>N) {
+      if(n > N) {
         # indices in ordFrom of edges starting from the current node
-        if(n<M) {
+        if(n < M) {
           es <- iFrom[n]:(iFrom[n+1]-1)
         } else {
           es <- iFrom[n]:(M-1)
@@ -427,9 +1014,11 @@ PCMPruningOrder <- function(tree) {
 #' vector of length k with TRUE values for every present coordinate. Non-present
 #' coordinates arize from NA-values in the trait data. These can occur in two cases:
 #' \describe{
-#' \item{Missing measurements for some traits at some tips:}{the present coordinates are FALSE for the corresponding
-#' tip and trait, but are full for all traits at all internal and root nodes.}
-#' \item{non-existent traits for some species:}{the FALSE present coordinates propagate towards the parent
+#' \item{Missing measurements for some traits at some tips:}{the present coordinates
+#' are FALSE for the corresponding tip and trait, but are full for all traits
+#' at all internal and root nodes.}
+#' \item{non-existent traits for some species:}{the FALSE present coordinates
+#' propagate towards the parent
 #' nodes - an internal or root node will have a present coordinate set to FALSE
 #' for a given trait, if all of its descendants have this coordinate set to FALSE.}
 #' }
@@ -445,29 +1034,33 @@ PCMPruningOrder <- function(tree) {
 #' @param X numeric k x N matrix of observed values, with possible NA entries. The
 #' columns in X are in the order of tree$tip.label
 #' @param tree a phylo object
-#' @param pruneI a list returned by the PCMPruningOrder function. Either leave this
-#' as default or pass a previously computed pruneI for the same tree.
+#' @param metaI a list returned by the PCMInfo function. Either leave this
+#' as default or pass a previously computed metaI for the same X, tree and model.
 #' @return a k x M logical matrix which can be passed as a pc argument to the PCMLik
 #' function. The function fails in case when all traits are NAs for some of the tips.
-#' In that case an error message is issued "ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.".
+#' In that case an error message is issued
+#' "ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips have 0
+#' present coordinates. Consider removing these tips.".
 #' @seealso \code{\link{PCMLik}}
 #' @export
-PCMPresentCoordinates <- function(X, tree, pruneI=PCMPruningOrder(tree)) {
+PCMPresentCoordinates <- function(X, tree, metaI=PCMPruningOrder(tree)) {
+
+  N <- metaI$N
+  M <- metaI$M
+  k <- metaI$k
+
   edge <- tree$edge
-  endingAt <- pruneI$endingAt
-  nodesVector <- pruneI$nodesVector
-  nodesIndex <- pruneI$nodesIndex
-  nLevels <- pruneI$nLevels
-  unVector <- pruneI$unVector
-  unIndex <- pruneI$unIndex
+  endingAt <- metaI$endingAt
+  nodesVector <- metaI$nodesVector
+  nodesIndex <- metaI$nodesIndex
+  nLevels <- metaI$nLevels
+  unVector <- metaI$unVector
+  unIndex <- metaI$unIndex
   unJ <- 1
 
-  N <- length(tree$tip.label)
-  M <- nrow(edge)+1
-  k <- dim(X)[1]
-
-
-  if(getOption("PCMBase.Internal.PC.Full", TRUE)) {
+  if(is.null(X)) {
+    pc <- rep(TRUE, k*M)
+  } else if(getOption("PCMBase.Internal.PC.Full", TRUE)) {
     pc <- rep(TRUE, k*M)
     dim(pc) <- c(k, M)
     pc[, 1:N] <- !is.na(X[, 1:N])
@@ -497,250 +1090,52 @@ PCMPresentCoordinates <- function(X, tree, pruneI=PCMPruningOrder(tree)) {
       }
     }
     if(any(rowSums(pc) == 0)) {
-      stop("ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider removing these tips.")
+      stop("ERR:02001:PCMBase:MultivariatePCM.R:PCMPresentCoordinates:: Some tips
+           have 0 present coordinates. Consider removing these tips.")
     }
   }
   pc
 }
 
-
-# The specifics of every model are programmed in specifications of a
-# few S3 generic functions:
-
-#' Validating a phylogenetic comparative model
+#' Meta-information about a tree associated with a PCM
 #'
-#' @description An S3 generic function validating a model for a given tree. This
-#'   function should be implemented for each model class.
-#' @param tree a phylo object
-#' @param model an S3 object specifying a model (a list with a non-null class attribute).
-#' @param verbose a logical specifying if some information should be printed on
-#' the console.
-#' @return a logical value
+#' @description
+#' @inheritParams PCMLik
+#' @return a named list with the following elements:
+#' \item{M}{total number of nodes in the tree;}
+#' \item{N}{number of tips;}
+#' \item{k}{number of traits;}
+#' \item{R}{number of regimes;}
+#' \item{p}{number of free parameters describing the model;}
+#' \item{r}{an integer vector corresponding to tree$edge with the regime for each
+#' branch in tree;}
+#' \item{xi}{an integer vector of 0's and 1's corresponding to the rows in tree$edge
+#' indicating the presence of a jump at the corresponding branch;}
+#' \item{pc}{a logical matrix of dimension k x M denoting the present coordinates
+#' for each node;}
+#'
 #' @export
-PCMValidate <- function(tree, model, verbose = FALSE) {
-  UseMethod("PCMValidate", model)
+PCMInfo <- function(X, tree, model, verbose = FALSE) {
+  UseMethod("PCMInfo", model)
 }
 
-#' Specify a phylogenetic comparative model for a given tree
-#'
-#' @param tree a phylo object
-#' @param modelName a character specifying the name of the model. The
-#' name of the model should be used as an S3 class of all model
-#' instances.
-#' @param k integer, specifying the number of traits;
-#' @param R integer, specifying the number of regimes;
-#' @param paramNames a list of characters specifying the names of
-#'  the model parameters. The length of the list is used to
-#'  determine the number of parameters.
-#' @param paramStorageModes a list of characters of the same length
-#'  as `paramNames` specifying the storage.mode (native type) for
-#'  each parameter. Each element of this list should be one of
-#'  "double", "integer", "logical", "character", "complex", "raw".
-#' @param paramDims a list of integer vectors, or character
-#'   strings evaluating as integer vectors specifying the
-#'   dimension of each model parameter for all model regimes.
-#'   This list should be the same length as `paramNames`. If an element of the
-#'   list is a character string it must evaluate to a vector of positive
-#'   integers, based on the objects accessible from the model parameters
-#'   (including k, R and ...) and
-#'   the symbols N and M, where N stays for the number of tips in the
-#'   tree, and M denotes the number of nodes. For example, if
-#'   there are 5 traits and 2 regimes, the dimension of the parameter Alpha of
-#'   an OU model should be specified as c(5, 5, 2) or "c(5, 5, 2)" or
-#'   "c(k, k, R)". If a parameter is a flat vector or an atom, for which the
-#'   dimension is NULL, specify an integer corresponding to its length, e.g.
-#'   the parameter specifying the presence of jumps in an OU model with jumps,
-#'   should have a dimension "M-1" corresponding to the number of edges in the
-#'   tree.
-#' @param ... additional arguments used in the evaluation of
-#'   `paramDims`.
-#' @seealso \code{\link{storage.mode}}
-#' @return an S3 object of class ModelSpecification.
+#' Default PCMInfo implementation
+#' @describeIn PCMInfo
 #' @export
-PCMSpecify <- function(tree, modelName,
-                         k, R, regimesUnique,
-                         paramNames,
-                         paramStorageModes,
-                         paramDims,
-                         ...) {
-
-  if(class(tree) != "phylo") {
-    stop("ERR:02003:PCMBase:MultivariatePCM.R:PCMSpecify:: tree should be an object of S3 class 'phylo'.")
-  }
-
-  if(!is.character(modelName) & length(modelName) == 1) {
-    stop("ERR:02004:PCMBase:MultivariatePCM.R:PCMSpecify:: modelName should be a character string.")
-  }
-
-  spec <- list(
-    modelName = as.character(modelName)[1],
-    k = as.integer(k),
-    R = as.integer(R),
-    regimesUnique = regimesUnique,
-    N = as.integer(length(tree$tip.label)),
-    M = as.integer(nrow(tree$edge) + 1),
-    paramNames = lapply(paramNames, as.character),
-    paramStorageModes = lapply(paramStorageModes, as.character)
+PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
+  res <- list(
+    M = PCMNumNodes(tree),
+    N = PCMNumTips(tree),
+    k = PCMNumTraits(model),
+    R = PCMNumRegimes(tree),
+    p = PCMNumParams(model),
+    r = PCMRegimes(tree, model),
+    xi = PCMJumps(tree),
+    preorder = PCMPreorder(tree)
   )
-
-  if(! (storage.mode(regimesUnique) %in% c("integer", "character")) ) {
-    stop("ERR:02005:PCMBase:MultivariatePCM.R:PCMSpecify:: the storage mode of regimesUnique should be either integer or character")
-  }
-
-  if( storage.mode(regimesUnique) == "integer" ) {
-    if(!identical(regimesUnique, 1:max(regimesUnique)))
-      stop("ERR:02006:PCMBase:MultivariatePCM.R:PCMSpecify:: when regimesUnique is integer it should be an integer vector from 1 to max(regimesUnique), so it can be used as index in an array.")
-  }
-
-  paramDims = with(
-    c(spec, list(...)),
-    lapply(paramDims, function(dim) {
-      if(is.character(dim)) {
-        as.integer(eval(parse(text = dim)))
-      } else {
-        as.integer(dim)
-      }
-    }))
-
-  spec[["paramDims"]] <- paramDims
-
-  if(spec[["k"]] <= 0) {
-    stop(paste0("ERR:02007:PCMBase:MultivariatePCM.R:PCMSpecify:: k should be a positive integer but was ", spec[["k"]], "."))
-  }
-  if(spec[["R"]] <= 0) {
-    stop(paste0("ERR:02008:PCMBase:MultivariatePCM.R:PCMSpecify:: R should be a positive integer but was", spec[["R"]], "."))
-  }
-
-  if(spec[["N"]] <= 0) {
-    stop(paste0("ERR:02009:PCMBase:MultivariatePCM.R:PCMSpecify:: The tree should have at least one tip but N was ", spec[["N"]], "."))
-  }
-
-  if(spec[["M"]] <= 1) {
-    stop(paste0("ERR:02010:PCMBase:MultivariatePCM.R:PCMSpecify:: The tree should have at least two nodes, that is, a minimum of one tip and one root-node but M was ", spec[["M"]], "."))
-  }
-
-  lapply(spec[["paramDims"]], function(dim) {
-   if(any(is.na(dim)) | any(dim <= 0)) {
-     stop(paste0("ERR:02011:PCMBase:MultivariatePCM.R:PCMSpecify:: paramDims should be a list of  positive integer vectors or a vector of characters, each of which can be parsed into a positive  integer vector, but was ", toString(paramDims)))
-   }
-  })
-
-  nParams <- length(paramNames)
-
-  if(length(paramStorageModes) != nParams) {
-    stop(paste0("ERR:02012:PCMBase:MultivariatePCM.R:PCMSpecify:: paramStorageModes should be the same length as paramNames but its length was ", length(paramStorageModes), "."))
-  }
-
-  if(!all(paramStorageModes %in% c("character", "integer", "double", "complex", "logical"))) {
-    stop('ERR:02013:PCMBase:MultivariatePCM.R:PCMSpecify:: all paramStorageModes should be in {"character", "integer", "double", "complex", "logical"}.')
-  }
-
-  if(length(paramDims) != nParams) {
-    stop("ERR:02014:PCMBase:MultivariatePCM.R:PCMSpecify:: paramDims should be the same length as paramNames but its length was ", length(paramDims), ".")
-  }
-
-  class(spec) <- "ModelSpecification"
-  spec
-}
-
-#' General function for validating a model
-#' @param tree an object of S3 class "phylo"
-#' @param model a model object of S3 class the name of the model
-#' @param modelSpec an object of S3 class ModelSpecification
-#' @param verbose a logical indicating if the log messges should be
-#'   printed on the screen during validation.
-#' @return a named list
-PCMValidateGeneral <- function(tree, model, modelSpec, verbose) {
-  if(class(model)[[1]] != modelSpec$modelName) {
-    stop(paste0("ERR:02020:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: The model object should be of S3 class: ", modelSpec$modelName, " but was of class ", class(model)[[1]], "."))
-  }
-  nParams <- length(modelSpec$paramNames)
-
-  if(!all(modelSpec$paramNames %in% names(model))) {
-    stop(paste0("ERR:02021:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: model should be a named list with elements ", toString(modelSpec$paramNames)))
-  }
-
-  # number of tips
-  N <- length(tree$tip.label)
-
-  # number of nodes including the root
-  M <- nrow(tree$edge)+1
-  if(verbose) {
-    cat('M=', M, '\n')
-  }
-
-  if(N != modelSpec$N | M != modelSpec$M) {
-    stop("ERR:02022:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: the numbers of tips and nodes in tree do not match modelSpec$N and modelSpec$M.")
-  }
-
-  # number unique regimes
-  if(is.null(tree$edge.regime)) {
-    if(!is.null(names(tree$edge.length))) {
-      tree$edge.regime <- names(tree$edge.length)
-      regimesUniqueTree <- unique(tree$edge.regime)
-    } else {
-      regimesUniqueTree <- 1
-    }
-
-  } else {
-    regimesUniqueTree <- unique(tree$edge.regime)
-  }
-
-  R <- length(regimesUniqueTree)
-
-  if(verbose) {
-    cat('R=',R,'\n')
-  }
-
-
-  if(R==1) {
-    if(verbose) {
-      cat("setting regimes to rep(1, length(tree$edge.length).\n")
-    }
-    regimes <- rep(1, length(tree$edge.length))
-  } else {
-    regimes <- match(tree$edge.regime, modelSpec$regimesUnique)
-    if(any(is.na(regimes))) {
-      stop(paste0("ERR:02023:PCMBase:MultivariatePCM.R:PCMValidateGeneral::: ",
-                  " Some of the regimes in tree$edge.regime not found in",
-                  "modelSpec$regimesUnique.\n",
-                  "tree$edge.regime=", toString(tree$edge.regime), "\n",
-                  "modelSpec$regimesUnique=", toString(modelSpec$regimesUnique)))
-    }
-  }
-
-  for(i in 1:nParams) {
-    paramName_i <- modelSpec$paramNames[[i]]
-    storageMode_i <- modelSpec$paramStorageModes[[i]]
-    paramDim_i <- modelSpec$paramDims[[i]]
-    if(storage.mode(model[[paramName_i]]) != storageMode_i) {
-      stop(paste0(
-        "ERR:02024:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: ",
-        paramName_i, " should have a storage mode ", storageMode_i,
-        " but has storageMode", storage.mode(model[[paramName_i]]), "."))
-    }
-    if(length(paramDim_i) == 1) {
-      # a vector or an atom
-      if(length(model[[paramName_i]]) != paramDim_i) {
-        stop(paste0(
-          "ERR:02025:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: ",
-          paramName_i, " should be a vector of length ", paramDim_i,
-          " but has length ", length(model[[paramName_i]])
-        ))
-      }
-    } else {
-      if(!identical(dim(model[[paramName_i]]), paramDim_i)) {
-        stop(paste0(
-          "ERR:02024:PCMBase:MultivariatePCM.R:PCMValidateGeneral:: ",
-          paramName_i, " should have dimension ", toString(paramDim_i),
-          " but has dimension ", dim(model[[paramName_i]]), "."
-        ))
-      }
-    }
-  }
-
-  list(N = modelSpec$N, M = modelSpec$M, R = modelSpec$R, k=modelSpec$k,
-       regimes = regimes, regimesUnique = modelSpec$regimesUnique)
+  res <- c(res, PCMPruningOrder(tree))
+  res$pc <- PCMPresentCoordinates(X, tree, res)
+  res
 }
 
 #' Multivariate normal distribution for a given tree and model
@@ -749,10 +1144,11 @@ PCMValidateGeneral <- function(tree, model, modelSpec, verbose) {
 #' @inheritParams PCMLik
 #' @param r an integer specifying a model regime
 #' @return a list with the following members:
-#' \item{random}{}
-#' \item{density}{}
+#' \item{omega}{}
+#' \item{Phi}{}
+#' \item{V}{}
 #' @export
-PCMCond <- function(tree, model, metaI, r=1, verbose = FALSE) {
+PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
   UseMethod("PCMCond", model)
 }
 
@@ -761,14 +1157,14 @@ PCMCond <- function(tree, model, metaI, r=1, verbose = FALSE) {
 #'  model class. This function is called by \code{\link{PCMLik}}.
 #' @inheritParams PCMLik
 #' @export
-PCMAbCdEf <- function(tree, model, metaI, pc, verbose = FALSE) {
+PCMAbCdEf <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
   UseMethod("PCMAbCdEf", model)
 }
 
 #' Defaut R-implementation of PCMAbCdEf
 #' @inheritParams PCMLik
 #' @export
-PCMAbCdEf.default <- function(tree, model, metaI, pc, verbose = FALSE) {
+PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
   # number of regimes
   R <- metaI$R
   # number of tips
@@ -777,12 +1173,14 @@ PCMAbCdEf.default <- function(tree, model, metaI, pc, verbose = FALSE) {
   k <- metaI$k
   # number of nodes
   M <- metaI$M
+  # present coordinates
+  pc <- metaI$pc
 
   cond <- list()
 
   for(r in 1:R) {
     # create the conditional distribution for regime r
-    cond[[r]] <- PCMCond(tree, model, r, verbose)
+    cond[[r]] <- PCMCond(tree, model, r, metaI, verbose)
   }
 
   omega <- array(NA, dim=c(k, M))
@@ -800,7 +1198,7 @@ PCMAbCdEf.default <- function(tree, model, metaI, pc, verbose = FALSE) {
   f <- array(NA, dim=c(M))
 
   # vector of regime indices for each branch
-  r <- metaI$regimes
+  r <- metaI$r
 
   # identity k x k matrix
   I <- diag(k)
@@ -854,14 +1252,13 @@ PCMAbCdEf.default <- function(tree, model, metaI, pc, verbose = FALSE) {
 #'   only for the root if root.only=TRUE.
 #' @export
 PCMLmr <- function(X, tree, model,
-                metaI = PCMValidate(tree, model, verbose = verbose),
-                pruneI = PCMPruningOrder(tree),
-                pc = PCMPresentCoordinates(X, tree, pruneI),
+                metaI = PCMInfo(X, tree, model, verbose = verbose),
                 root.only = TRUE, verbose = FALSE) {
-  UseMethod("PCMLmr", pruneI)
+  UseMethod("PCMLmr", metaI)
 }
 
-#' Defaut R-implementation of PCMLmr
+
+#' Old defaut R-implementation of PCMLmr
 #' @details This funciton is not a generic S3 implementation of PCMLmr - it needs
 #' additional raguments and is designed to be called by PCMLik. It can still
 #' be called by the end-user for debugging purpose.
@@ -869,22 +1266,24 @@ PCMLmr <- function(X, tree, model,
 #' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
 #'   only for the root if root.only=TRUE.
 #' @export
-PCMLmr.default <- function(X, tree, model, metaI=PCMValidate(tree, model),
-                       pruneI = PCMPruningOrder(tree),
-                       pc = PCMPresentCoordinates(X, tree, pruneI),
-                       root.only = FALSE,
-                       verbose = FALSE) {
+PCMLmr.default <- function(
+  X, tree, model,
+  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  root.only = FALSE,
+  verbose = FALSE) {
+
   unJ <- 1
 
   N <- metaI$N; M <- metaI$M; k <- metaI$k;
 
   edge <- tree$edge
-  endingAt <- pruneI$endingAt
-  nodesVector <- pruneI$nodesVector
-  nodesIndex <- pruneI$nodesIndex
-  nLevels <- pruneI$nLevels
-  unVector <- pruneI$unVector
-  unIndex <- pruneI$unIndex
+  endingAt <- metaI$endingAt
+  nodesVector <- metaI$nodesVector
+  nodesIndex <- metaI$nodesIndex
+  nLevels <- metaI$nLevels
+  unVector <- metaI$unVector
+  unIndex <- metaI$unIndex
+  pc <- metaI$pc
 
   threshold_SV <- getOption("PCMBase.Threshold.SV", 1e-6)
 
@@ -893,9 +1292,7 @@ PCMLmr.default <- function(X, tree, model, metaI=PCMValidate(tree, model),
   r <- array(0, dim=c(M))
 
 
-  PCMAbCdEf <- PCMAbCdEf(tree = tree, model = model,
-                   metaI = metaI,
-                   pc = pc, verbose = verbose)
+  PCMAbCdEf <- PCMAbCdEf(tree = tree, model = model, metaI = metaI, verbose = verbose)
 
 
   # avoid redundant calculation
@@ -1018,13 +1415,14 @@ PCMLmr.default <- function(X, tree, model, metaI=PCMValidate(tree, model),
 #' Extract error information from a formatted error message.
 #' @param x character string representing the error message.
 #' @description The function searches x for a pattern matching the format
-#' 'ERR:5-digit-code:project-name:source-file:error-specifics:'. Specifically it
-#' searches for a regular expression pattern "ERR:[0-9]+:[^:]+:[^:]+:[^:]+:[^:]*:".
+#' 'ERR:5-alphanumeric-character-code:project-name:source-file:error-specifics:'.
+#' Specifically it
+#' searches for a regular expression pattern "ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:".
 #' @return a named list with the parsed error information or NULL, if no match
 #' was found. The elements of this list are named as follows:
 #' \item{type}{The type of the error message. Usually this is ERROR, but could be
 #' WARNING or anything else.}
-#' \item{icode}{An integer code of the error.}
+#' \item{icode}{An an alphanumeric code of the error.}
 #' \item{project}{The name of the project locating the code that raised the error.}
 #' \item{file}{The name of the source-file containing the code that raised the error.}
 #' \item{fun}{The name of the function raising the error}
@@ -1034,7 +1432,7 @@ PCMLmr.default <- function(X, tree, model, metaI=PCMValidate(tree, model),
 PCMParseErrorMessage <- function(x) {
   res <- try({
     if(is.character(x)) {
-      code <- regmatches(x, regexpr("ERR:[0-9]+:[^:]+:[^:]+:[^:]+:[^:]*:", x))
+      code <- regmatches(x, regexpr("ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:", x))
       if(length(code) > 0) {
         code <- code[1]
         codeL <- strsplit(code, split=":")[[1]]
@@ -1086,7 +1484,7 @@ PCMPLambdaP_1 <- function(H) {
   # here the argument H is a matrix specifying the alphas in a OU process
   r <- eigen(H)
   if(isTRUE(all.equal(rcond(r$vectors),0))) {
-    stop(paste0("ERR:02211:PCMBase:OU.R:PCMPLambdaP_1:: The provided H matrix is defective. Its matrix of eigenvectors is computationally singular. H=", toString(H)))
+    stop(paste0("ERR:02041:PCMBase:MultivariatePCM.R:PCMPLambdaP_1:: The provided H matrix is defective. Its matrix of eigenvectors is computationally singular. H=", toString(H)))
   }
   list(lambda=r$values, P=r$vectors, P_1=solve(r$vectors))
 }
@@ -1152,6 +1550,24 @@ PCMCondVOU <- function(
   force(Sigmaj)
   force(xi)
   force(e_Ht)
+
+  if(is.null(dim(H)) | is.null(dim(Sigma))) {
+    stop('ERR:02051:PCMBase:MultivariatePCM.R:PCMCondVOU:: H and Sigma must be k x k matrices.')
+  }
+
+  k <- dim(Sigma)[1]
+
+  if(!is.matrix(Sigma) | !is.matrix(H) | !isTRUE(all.equal(c(dim(H), dim(Sigma)), rep(k, 4)))) {
+    stop(paste0("ERR:02052:PCMBase:MultivariatePCM.R:PCMCondVOU:: H and Sigma must be  ", k, " x ", k, " matrices."))
+  }
+
+  if(!is.null(Sigmaj) & !is.matrix(Sigmaj) & !isTRUE(all.equal(dim(Sigmaj), rep(k, 2)))) {
+    stop(paste0("ERR:02053:PCMBase:MultivariatePCM.R:PCMCondVOU:: Sigmaj must be NULL or a ", k, " x ", k, " matrix."))
+  }
+
+  if(!is.null(e_Ht) & !is.matrix(e_Ht) & !isTRUE(all.equal(dim(e_Ht), rep(k, 2)))) {
+    stop(paste0("ERR:02054:PCMBase:MultivariatePCM.R:PCMCondVOU:: e_Ht must be NULL or a ", k, " x ", k, " matrix."))
+  }
 
   PLP_1 <- PCMPLambdaP_1(H)
 

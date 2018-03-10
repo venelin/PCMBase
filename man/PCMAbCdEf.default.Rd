@@ -4,7 +4,8 @@
 \alias{PCMAbCdEf.default}
 \title{Defaut R-implementation of PCMAbCdEf}
 \usage{
-\method{PCMAbCdEf}{default}(tree, model, metaI, pc, verbose = FALSE)
+\method{PCMAbCdEf}{default}(tree, model, metaI = PCMInfo(NULL, tree, model,
+  verbose), verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}
@@ -15,8 +16,6 @@ calculated (see also Details).}
 
 \item{metaI}{a list returned from a call to \code{PCMValidate(tree, model)},
 containing meta-data such as N, M and k.}
-
-\item{pc}{a logical k x M matrix returned by \code{\link{PCMPresentCoordinates}}.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
 }

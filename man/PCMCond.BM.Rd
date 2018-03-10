@@ -2,20 +2,28 @@
 % Please edit documentation in R/BM.R
 \name{PCMCond.BM}
 \alias{PCMCond.BM}
-\title{Create a conditional multivariate BM distribution}
+\title{Conditional multivariate BM distribution}
 \usage{
-\method{PCMCond}{BM}(tree, model, r = 1, verbose = FALSE)
+\method{PCMCond}{BM}(tree, model, r = 1, metaI = PCMInfo(NULL, tree, model,
+  verbose), verbose = FALSE)
 }
 \arguments{
-\item{Sigma}{of the multivariate BM process; Sigma is a k x k matrix}
+\item{tree}{a phylo object with N tips.}
+
+\item{model}{an S3 object specifying both, the model type (class, e.g. "OU") as
+well as the concrete model parameter values at which the likelihood is to be
+calculated (see also Details).}
+
+\item{r}{an integer specifying a model regime}
+
+\item{metaI}{a list returned from a call to \code{PCMValidate(tree, model)},
+containing meta-data such as N, M and k.}
+
+\item{verbose}{logical indicating if some debug-messages should printed.}
 }
 \value{
-a list containging the passed parameters as well as
-a function `random` of arguments n (number of observation k-vectors to generate),
-x0 (initial k-vector of values), t (numeric time); and a function `density` for
-calculating the density of multivariate vector under the specified distribution
-and given an initial value and time.
+a named list as specified in \code{\link{PCMCond}}
 }
 \description{
-Create a conditional multivariate BM distribution
+Conditional multivariate BM distribution
 }

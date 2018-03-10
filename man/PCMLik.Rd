@@ -4,8 +4,7 @@
 \alias{PCMLik}
 \title{Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages}
 \usage{
-PCMLik(X, tree, model, metaI = PCMValidate(tree, model, verbose = verbose),
-  pruneI = PCMPruningOrder(tree), pc = PCMPresentCoordinates(X, tree),
+PCMLik(X, tree, model, metaI = PCMInfo(X, tree, model, verbose = verbose),
   log = TRUE, verbose = FALSE)
 }
 \arguments{
@@ -24,6 +23,11 @@ calculated (see also Details).}
 \item{metaI}{a list returned from a call to \code{PCMValidate(tree, model)},
 containing meta-data such as N, M and k.}
 
+\item{log}{logical indicating whether a log-liklehood should be calculated. Default
+is TRUE.}
+
+\item{verbose}{logical indicating if some debug-messages should printed.}
+
 \item{pruneI}{a named list containing cached preprocessing data for the tree used
 to perform post-order traversal (pruning). By default, this is created
 using \code{PCMPruningOrder(tree)}. This will use the default R-implementation of the
@@ -37,11 +41,6 @@ provide an S3 object for which an S3 specification has been written (see Details
 and example section).}
 
 \item{pc}{a logical k x M matrix returned by \code{\link{PCMPresentCoordinates}}.}
-
-\item{log}{logical indicating whether a log-liklehood should be calculated. Default
-is TRUE.}
-
-\item{verbose}{logical indicating if some debug-messages should printed.}
 }
 \value{
 a numerical value with named attributes as follows:

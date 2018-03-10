@@ -1,95 +1,89 @@
-#' Validate JOU parameters
-#' @export
-PCMValidate.JOU <- function(tree, model, verbose=FALSE) {
-  if(verbose) {
-    print('Validating model...')
-  }
-  if(is.null(model$Sigmae) | is.null(dim(model$Sigmae))) {
-    stop("ERR:02301:PCMBase:JOU.R:PCMValidate.JOU:: Expecting the model to have a member called Sigmae with dimensions k x k x R, where R is the number of regimes and k is the number of traits.")
-  }
+# Copyright 2018 Venelin Mitov
+#
+# This file is part of PCMBase.
+#
+# PCMBase is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PCMBase is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-  R <- dim(model$Sigmae)[3]
-  k <- dim(model$Sigmae)[1]
-  regimesUnique <- dimnames(model$Sigmae)[[3]]
 
-  if(is.null(regimesUnique)) {
-    regimesUnique <- 1:dim(model$Sigmae)[[3]]
-  }
 
-  if(is.null(tree$edge.jump)) {
-    stop("ERR:02302:PCMBase:JOU.R:PCMValidate.JOU:: Expecting the tree to have a member edge.jump - an integer vector of 0's and 1's describing if there is a jump for each branch of the tree.")
-  }
-
-  if(!all(tree$edge.jump %in% as.integer(0:1))) {
-    stop("ERR:02303:PCMBase:JOU.R:PCMValidate.JOU:: Check that tree$edge.jump is an integer vector of 0's and 1's")
-  }
-
-  if(length(tree$edge.jump) != nrow(tree$edge)) {
-    stop("ERR:02304:PCMBase:JOU.R:PCMValidate.JOU:: Check that tree$edge.jump has nrow(tree$edge) elements.")
-  }
-
-  PCMValidateGeneral(
-    tree = tree, model = model,
-    modelSpec = PCMSpecify(
-      tree = tree, modelName = "JOU",
-      k = k, R = R, regimesUnique = regimesUnique,
-      paramNames = list("H", "Theta", "Sigma", "Sigmae", "mj", "Sigmaj"),
-      paramStorageModes = list("double", "double", "double", "double", "double", "double"),
-      paramDims = list(c(k, k, R), c(k, R), c(k, k, R), c(k, k, R), c(k, R), c(k, k, R))
-    ),
-    verbose = verbose)
-}
-
-#' Create a conditional multivariate JOU distribution
-#' @param H,Theta,Sigma,Sigmaj,mj,xi parameters of the multivariate JOU process; H is a k x k
-#' matrix, Theta,mj are k-vectors and Sigma,Sigmaj are k x k matrices,xi is a vector of length equal to the number
-#' of edges in the tree
-#' @return a list containging the passed parameters as well as
-#' a function `random` of arguments n (number of observation k-vectors to generate),
-#' x0 (initial k-vector of values), t (numeric time); and a function `density` for
-#' calculating the density of multivariate vector under the specified distribution
-#' and given an initial value and time.
-#' @importFrom expm expm
-#' @importFrom mvtnorm rmvnorm dmvnorm
+#' Conditional multivariate JOU distribution
+#' @inheritParams PCMCond
 #'
+#' @return a named list as specified in \code{\link{PCMCond}}
+#' @importFrom expm expm
 #' @export
-PCMCond.JOU <- function(tree, model, r=1, verbose=FALSE) {
-  with(model, {
-    H <- as.matrix(model$H[,,r])
-    Theta <- model$Theta[,r]
-    Sigma <- as.matrix(model$Sigma[,,r])
-    Sigmaj <- as.matrix(model$Sigmaj[,,r])
-    mj <- model$mj[,r]
-    xi <- tree$edge.jump
+PCMCond.JOU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+  H <- as.matrix(model$H[,,r])
+  Theta <- model$Theta[,r]
+  Sigma <- as.matrix(model$Sigma[,,r])
+  Sigmaj <- as.matrix(model$Sigmaj[,,r])
+  mj <- model$mj[,r]
+  xi <- metaI$xi
 
-    if(length(unique(c(length(Theta), dim(H), dim(mj), dim(Sigmaj), dim(Sigma))))!=1) {
-      stop('ERR:02321:PCMBase:JOU.R:PCMCond.JOU:: Some of H, Theta, Sigma,  Sigmaj or mj have a wrong dimension.')
-    }
-
-    V <- PCMCondVOU(H, Sigma, Sigmaj, xi)
-    omega <- function(t, edgeIndex, e_Ht = NULL) {
-      if(is.null(e_Ht)) {
-        e_Ht <- expm(-t*H)
-      }
-      I <- diag(nrow(H))
-      xi[edgeIndex] * e_Ht%*%mj +  (I-e_Ht)%*%Theta
-    }
-    Phi <- function(t, edgeIndex, e_Ht = NULL) {
-      if(is.null(e_Ht)) {
-        expm(-t*H)
-      } else {
-        e_Ht
-      }
-    }
-    random <- function(n=1, x0, t, edgeIndex) {
+  V <- PCMCondVOU(H, Sigma, Sigmaj, xi)
+  omega <- function(t, edgeIndex, e_Ht = NULL) {
+    if(is.null(e_Ht)) {
       e_Ht <- expm(-t*H)
-      rmvnorm(n=n, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht) %*% x0, sigma=V(t, edgeIndex, e_Ht))
     }
-    density <- function(x, x0, t, edgeIndex, log=FALSE) {
-      e_Ht <- expm(-t*H)
-      dmvnorm(x, mean = omega(t, edgeIndex, e_Ht) + Phi(t, edgeIndex, e_Ht) %*% x0, sigma=V(t, edgeIndex, e_Ht), log=log)
+    I <- diag(nrow(H))
+    xi[edgeIndex] * e_Ht%*%mj +  (I-e_Ht)%*%Theta
+  }
+  Phi <- function(t, edgeIndex, e_Ht = NULL) {
+    if(is.null(e_Ht)) {
+      expm(-t*H)
+    } else {
+      e_Ht
     }
-
-    list(omega = omega, Phi = Phi, V = V, random=random, density=density)
-  })
+  }
+  list(omega = omega, Phi = Phi, V = V)
 }
+
+#' @describeIn PCMDescribe
+#' @export
+PCMDescribe.JOU <- function(model, ...) {
+  "Ornstein-Uhlenbeck branching stochastic process model with jumps at the starting points of some of the branches and a non-phylogenetic variance component"
+}
+
+#' @describeIn PCMSpecifyParams
+#' @export
+PCMSpecifyParams.JOU <- function(model, ...) {
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  list(
+    X0 = list(default = rep(0, k),
+              type = c("gvector", "full"),
+              description = "trait vector at the root; global for all model regimes"),
+    H = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full"),
+                 description = "Selection strength matirx"),
+    Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+              type = c("vector", "full"),
+              description = "long-term optimum trait values"),
+    Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric"),
+                 description = "unit-time variance-covariance matrix of the BM-process"),
+    mj = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+              type = c("vector", "full"),
+              description = "jump mean"),
+    Sigmaj = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric"),
+                 description = "jum variance-covariance matrix"),
+    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "symmetric"),
+                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
+}
+
+

@@ -70,34 +70,31 @@ mj <- abind(a.mj, b.mj, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
 
 
 # regime 'a', traits 1, 2 and 3
-model.a.123 <- list(X0 = a.X0,
-                  H=H[,,'a',drop=FALSE],
-                  Theta=Theta[,'a',drop=FALSE],
-                  Sigma=Sigma[,,'a',drop=FALSE],
-                  Sigmae=Sigmae[,,'a',drop=FALSE],
-                  Sigmaj=Sigmaj[,,'a',drop=FALSE],
-                  mj=mj[,'a',drop=FALSE])
-class(model.a.123) <- 'JOU'
+model.a.123 <- PCM("JOU", 3, "a", list(X0 = a.X0,
+                                       H=H[,,'a',drop=FALSE],
+                                       Theta=Theta[,'a',drop=FALSE],
+                                       Sigma=Sigma[,,'a',drop=FALSE],
+                                       Sigmae=Sigmae[,,'a',drop=FALSE],
+                                       Sigmaj=Sigmaj[,,'a',drop=FALSE],
+                                       mj=mj[,'a',drop=FALSE]))
 
 # regime 'b', traits 1, 2 and 3
-model.b.123 <- list(X0 = b.X0,
-                    H=H[,,'b',drop=FALSE],
-                    Theta=Theta[,'b',drop=FALSE],
-                    Sigma=Sigma[,,'b',drop=FALSE],
-                    Sigmae=Sigmae[,,'b',drop=FALSE],
-                    Sigmaj=Sigmaj[,,'b',drop=FALSE],
-                    mj=mj[,'b',drop=FALSE])
-class(model.b.123) <- 'JOU'
+model.b.123 <- PCM("JOU", 3, "b", list(X0 = b.X0,
+                                       H=H[,,'b',drop=FALSE],
+                                       Theta=Theta[,'b',drop=FALSE],
+                                       Sigma=Sigma[,,'b',drop=FALSE],
+                                       Sigmae=Sigmae[,,'b',drop=FALSE],
+                                       Sigmaj=Sigmaj[,,'b',drop=FALSE],
+                                       mj=mj[,'b',drop=FALSE]))
 
 # regimes 'a' and 'b', traits 1, 2 and 3
-model.ab.123 <- list(X0 = a.X0,
-                     H=H[,,,drop=FALSE],
-                     Theta=Theta[,,drop=FALSE],
-                     Sigma=Sigma[,,,drop=FALSE],
-                     Sigmae=Sigmae[,,,drop=FALSE],
-                     Sigmaj=Sigmaj[,,,drop=FALSE],
-                     mj=mj[,,drop=FALSE])
-class(model.ab.123) <- 'JOU'
+model.ab.123 <- PCM("JOU", 3, c("a", "b"), list(X0 = a.X0,
+                                                H=H[,,,drop=FALSE],
+                                                Theta=Theta[,,drop=FALSE],
+                                                Sigma=Sigma[,,,drop=FALSE],
+                                                Sigmae=Sigmae[,,,drop=FALSE],
+                                                Sigmaj=Sigmaj[,,,drop=FALSE],
+                                                mj=mj[,,drop=FALSE]))
 
 
 context(ctx <- "R=1/k=1/N=5")

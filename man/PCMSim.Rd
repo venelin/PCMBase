@@ -4,7 +4,7 @@
 \alias{PCMSim}
 \title{Simulation of a phylogenetic comparative model on a tree}
 \usage{
-PCMSim(tree, model, X0, metaI = PCMValidate(tree = tree, model = model,
+PCMSim(tree, model, X0, metaI = PCMInfo(X = NULL, tree = tree, model = model,
   verbose = verbose), verbose = FALSE)
 }
 \arguments{
@@ -32,7 +32,8 @@ defined by Sigmae. Note also that the errors on the root- and the internal nodes
 are not used as input for the values/errors at their descending nodes, because
 they are treated as non-heritable components or measurement error.}
 The function will fail in case that the length of the argument vector X0 differs
-from the number of traits specified in \code{metaI$k}. Error message: "ERR:02002:PCMBase:MultivariatePCM.R:PCMSim:: X0 must be of length ...".
+from the number of traits specified in \code{metaI$k}. Error message:
+"ERR:02002:PCMBase:MultivariatePCM.R:PCMSim:: X0 must be of length ...".
 }
 \description{
 Generate trait data on a tree according to a multivariate stochastic
