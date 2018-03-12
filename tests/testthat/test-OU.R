@@ -117,7 +117,8 @@ N <- 2
 
 # tree with one regime
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
-tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
+PCMSetDefaultRegime(tree.a, model.a.123)
+#tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 # generate traits
 traits.a.1 <- PCMSim(tree.a, model.a.1, 0, verbose=TRUE)
@@ -128,10 +129,10 @@ traits.a.3 <- PCMSim(tree.a, model.a.2, 0, verbose=TRUE)
 # test likelihood
 test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
   expect_true(
-    abs(PCMLik(traits.a.1$values + traits.a.1$errors, tree.a,
+    abs(PCMLik(traits.a.1, tree.a,
             model.a.1) -
           POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.1$values[1,] + traits.a.1$errors[1,],
+            z = traits.a.1[1,],
             tree = tree.a,
             alpha = model.a.1$H[1,1,1],
             theta = model.a.1$Theta[1,1],
@@ -140,10 +141,10 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             g0 = a.X0[1])
         ) < EPS)
   expect_true(
-    abs(PCMLik(traits.a.2$values + traits.a.2$errors, tree.a,
+    abs(PCMLik(traits.a.2, tree.a,
         model.a.2) -
           POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.2$values[1,] + traits.a.2$errors[1,],
+            z = traits.a.2[1,],
             tree = tree.a,
             alpha = model.a.2$H[1,1,1],
             theta = model.a.2$Theta[1,1],
@@ -152,10 +153,10 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             g0 = a.X0[2])
         ) < EPS)
   expect_true(
-    abs(PCMLik(traits.a.3$values + traits.a.3$errors, tree.a,
+    abs(PCMLik(traits.a.3, tree.a,
         model.a.3) -
           POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.3$values[1,] + traits.a.3$errors[1,],
+            z = traits.a.3[1,],
             tree = tree.a,
             alpha = model.a.3$H[1,1,1],
             theta = model.a.3$Theta[1,1],
@@ -171,7 +172,9 @@ N <- 400
 
 # tree with one regime
 tree.a <- rtree(N) # pbtree(n=N, scale=1)
-tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
+PCMSetDefaultRegime(tree.a, model.a.1)
+
+#tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 # generate traits
 traits.a.1 <- PCMSim(tree.a, model.a.1, 0, verbose=TRUE)
@@ -180,10 +183,10 @@ traits.a.3 <- PCMSim(tree.a, model.a.2, 0, verbose=TRUE)
 
 test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
   expect_true(
-    abs(PCMLik(traits.a.1$values + traits.a.1$errors, tree.a,
+    abs(PCMLik(traits.a.1, tree.a,
               model.a.1) -
           POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.1$values[1,] + traits.a.1$errors[1,],
+            z = traits.a.1[1,],
             tree = tree.a,
             alpha = model.a.1$H[1,1,1],
             theta = model.a.1$Theta[1,1],
@@ -192,10 +195,10 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             g0 = a.X0[1])
     ) < EPS)
   expect_true(
-    abs(PCMLik(traits.a.2$values + traits.a.2$errors, tree.a,
+    abs(PCMLik(traits.a.2, tree.a,
               model.a.2) -
           POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.2$values[1,] + traits.a.2$errors[1,],
+            z = traits.a.2[1,],
             tree = tree.a,
             alpha = model.a.2$H[1,1,1],
             theta = model.a.2$Theta[1,1],
@@ -204,10 +207,10 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             g0 = a.X0[2])
     ) < EPS)
   expect_true(
-    abs(PCMLik(traits.a.3$values + traits.a.3$errors, tree.a,
+    abs(PCMLik(traits.a.3, tree.a,
               model.a.3) -
           POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.3$values[1,] + traits.a.3$errors[1,],
+            z = traits.a.3[1,],
             tree = tree.a,
             alpha = model.a.3$H[1,1,1],
             theta = model.a.3$Theta[1,1],
@@ -222,9 +225,9 @@ traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime a"), {
   expect_true(
-    abs(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123) -
+    abs(PCMLik(traits.a.123, tree.a, model.a.123) -
           (POUMM::likPOUMMGivenTreeVTips(
-            traits.a.123$values[1,]+traits.a.123$errors[1,],
+            traits.a.123[1,],
             tree.a,
             model.a.123$H[1,1,1],
             model.a.123$Theta[1,1],
@@ -233,7 +236,7 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
             a.X0[1]) +
 
              POUMM::likPOUMMGivenTreeVTips(
-               traits.a.123$values[2,]+traits.a.123$errors[2,],
+               traits.a.123[2,],
                tree.a,
                model.a.123$H[2,2,1],
                model.a.123$Theta[2,1],
@@ -241,7 +244,7 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
                sqrt(model.a.123$Sigmae[2,2,1]),
                a.X0[2]) +
 
-             POUMM::likPOUMMGivenTreeVTips(traits.a.123$values[3,]+traits.a.123$errors[3,],
+             POUMM::likPOUMMGivenTreeVTips(traits.a.123[3,],
                               tree.a,
                               model.a.123$H[3,3,1],
                               model.a.123$Theta[3,1],
@@ -261,9 +264,9 @@ traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 ## Calculate likelihood
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime a"), {
   expect_true(
-    abs(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123) -
+    abs(PCMLik(traits.a.123, tree.a, model.a.123) -
           (POUMM::likPOUMMGivenTreeVTips(
-            traits.a.123$values[1,]+traits.a.123$errors[1,],
+            traits.a.123[1,],
             tree.a,
             model.a.123$H[1,1,1],
             model.a.123$Theta[1,1],
@@ -271,7 +274,7 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
             sqrt(model.a.123$Sigmae[1,1,1]),
             a.X0[1]) +
              POUMM::likPOUMMGivenTreeVTips(
-               traits.a.123$values[2,] + traits.a.123$errors[2,],
+               traits.a.123[2,],
                tree.a,
                model.a.123$H[2,2,1],
                model.a.123$Theta[2,1],
@@ -279,7 +282,7 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
                sqrt(model.a.123$Sigmae[2,2,1]),
                a.X0[2]) +
              POUMM::likPOUMMGivenTreeVTips(
-               traits.a.123$values[3,]+traits.a.123$errors[3,],
+               traits.a.123[3,],
                tree.a,
                model.a.123$H[3,3,1],
                model.a.123$Theta[3,1],
@@ -289,9 +292,7 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
         ) < EPS)
 })
 
-plot(traits.a.1$values)
-
-
+PCMSetDefaultRegime(tree.a, model.b.123)
 traits.b.123 <- PCMSim(tree.a, model.b.123, c(0,0,0), verbose=TRUE)
 
 if(require(phytools)) {
@@ -315,22 +316,21 @@ if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on OU:\n")
 
   test_that("a.123",
-            expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
-                         PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = PCMCppPruningObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
+            expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
+                         PCMLik(traits.a.123, tree.a, model.a.123,
+                               metaI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   test_that("ab.123",
-            expect_equal(PCMLik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123),
-                         PCMLik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
-                               pruneI = PCMCppPruningObject(X = traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
-                                                       traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)],
+            expect_equal(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123),
+                         PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
+                               metaI = PCMCppPruningObject(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
                                                      tree = tree.ab.singles,
                                                      model.ab.123))))
 
 
-  values <- traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] + traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)]
+  values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
   values[sample(x=1:length(values), 88)] <- NA
 
   pruneInfoR <- PCMPruningOrder(tree.ab.singles)
@@ -343,9 +343,8 @@ if(require(PCMBaseCpp)) {
                          PCMLik(values, tree.ab.singles, model.ab.123,
                                pruneI = pruneInfoCpp)))
 
-  print(PCMLik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
-        pruneI = PCMCppPruningObject(X = traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
-                                traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)],
+  print(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
+        pruneI = PCMCppPruningObject(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
                               tree = tree.ab.singles,
                               model.ab.123)))
 

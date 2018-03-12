@@ -105,8 +105,9 @@ N <- 400
 # tree with one regime
 
 tree.a <- rtree(N) #phytools::pbtree(n=N, scale=1)
+PCMSetDefaultRegime(tree.a, model.a.123)
 tree.b <- rtree(N) #phytools::pbtree(n=N, scale=1)
-
+PCMSetDefaultRegime(tree.b, model.b.123)
 
 tree.a$edge.jump <- sample(as.integer(0:1), size = nrow(tree.a$edge), replace = TRUE)
 tree.b$edge.jump <- tree.a$edge.jump
@@ -141,9 +142,9 @@ traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
 # calculate likelihoods
 
-JOU.lik.a <-  PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
-JOU.lik.b <-  PCMLik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
-JOU.lik.ab <-  PCMLik(traits.ab.123$values+traits.ab.123$errors, tree.ab.singles, model.ab.123)
+JOU.lik.a <-  PCMLik(traits.a.123, tree.a, model.a.123)
+JOU.lik.b <-  PCMLik(traits.b.123, tree.b, model.b.123)
+JOU.lik.ab <-  PCMLik(traits.ab.123, tree.ab.singles, model.ab.123)
 
 
 
@@ -151,17 +152,16 @@ if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on JOU:\n")
 
   test_that("a.123",
-            expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
-                         PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = PCMCppPruningObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
+            expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
+                         PCMLik(traits.a.123, tree.a, model.a.123,
+                               pruneI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
 
   cat("Testing PCMBaseCpp on JOU with missing values:\n")
 
-  values <- traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
-    traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)]
+  values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
 
   pruneI <- PCMCppPruningObject(X = values, tree = tree.ab.singles, model.ab.123)
 

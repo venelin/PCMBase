@@ -15,26 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' Conditional multivariate OU distribution
-#' @inheritParams PCMCond
-#'
-#' @return a named list as specified in \code{\link{PCMCond}}
+#' @export
+PCMParentClasses.OU <- function(model) {
+  c("GaussianPCM", "PCM")
+}
+
 #' @importFrom expm expm
 #' @export
 PCMCond.OU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   H <- as.matrix(model$H[,, r])
   Theta <- model$Theta[, r]
   Sigma <- as.matrix(model$Sigma[,,r])
+  if(!is.null(model$Sigmae)) {
+    Sigmae <- as.matrix(model$Sigmae[,,r])
+  } else {
+    Sigmae <- NULL
+  }
 
-  V <- PCMCondVOU(H, Sigma)
-  omega <- function(t, edgeIndex, e_Ht = NULL) {
+  V <- PCMCondVOU(H, Sigma, Sigmae)
+  omega <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(is.null(e_Ht)) {
       e_Ht <- expm(-t*H)
     }
     I <- diag(nrow(H))
     (I-e_Ht) %*% Theta
   }
-  Phi <- function(t, edgeIndex, e_Ht = NULL) {
+  Phi <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(is.null(e_Ht)) {
       expm(-t*H)
     } else {
@@ -44,13 +50,11 @@ PCMCond.OU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbos
   list(omega = omega, Phi = Phi, V = V)
 }
 
-#' @describeIn PCMDescribe
 #' @export
 PCMDescribe.OU <- function(model, ...) {
   "Ornstein-Uhlenbeck branching stochastic process model and a non-phylogenetic variance component"
 }
 
-#' @describeIn PCMSpecifyParams
 #' @export
 PCMSpecifyParams.OU <- function(model, ...) {
   k <- attr(model, "k")
@@ -73,4 +77,16 @@ PCMSpecifyParams.OU <- function(model, ...) {
     Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
                   type = c("matrix", "symmetric"),
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
+}
+
+
+#' @export
+PCMDescribe.OU1 <- function(model, ...) "OU without X0."
+#' @export
+PCMParentClasses.OU1 <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec[!sapply(spec, is.null)]
 }

@@ -58,17 +58,18 @@ N <- 2
 
 # tree with one regime
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
+PCMSetDefaultRegime(tree.a, model.a.123)
 
 # generate traits
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
-BMlik = PCMLik(X = traits.a.123$values + traits.a.123$errors,
+BMlik = PCMLik(X = traits.a.123,
       tree = tree.a,
       model = model.a.123)
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
-  traits.a.123$values[1,]+traits.a.123$errors[1,],
+  traits.a.123[1,],
   tree.a,
   0,
   0,
@@ -77,7 +78,7 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   a.X0[1]) +
 
   POUMM::likPOUMMGivenTreeVTips(
-    traits.a.123$values[2,]+traits.a.123$errors[2,],
+    traits.a.123[2,],
     tree.a,
     0,
     0,
@@ -85,7 +86,7 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
     sqrt(model.a.123$Sigmae[2,2,1]),
     a.X0[2]) +
 
-  POUMM::likPOUMMGivenTreeVTips(traits.a.123$values[3,]+traits.a.123$errors[3,],
+  POUMM::likPOUMMGivenTreeVTips(traits.a.123[3,],
                                 tree.a,
                                 0,
                                 0,
@@ -109,19 +110,19 @@ context(ctx <- "R=1/k=3/N=400")
 N <- 400
 
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
-
+PCMSetDefaultRegime(tree.a, model.a.123)
 # generate traits
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
 # tree with one regime
 
-BMlik = PCMLik(X = traits.a.123$values + traits.a.123$errors,
+BMlik = PCMLik(X = traits.a.123,
               tree = tree.a,
               model = model.a.123)
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
-  traits.a.123$values[1,]+traits.a.123$errors[1,],
+  traits.a.123[1,],
   tree.a,
   0,
   0,
@@ -130,7 +131,7 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   a.X0[1]) +
 
     POUMM::likPOUMMGivenTreeVTips(
-      traits.a.123$values[2,]+traits.a.123$errors[2,],
+      traits.a.123[2,],
       tree.a,
       0,
       0,
@@ -138,7 +139,7 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
       sqrt(model.a.123$Sigmae[2,2,1]),
       a.X0[2]) +
 
-    POUMM::likPOUMMGivenTreeVTips(traits.a.123$values[3,]+traits.a.123$errors[3,],
+    POUMM::likPOUMMGivenTreeVTips(traits.a.123[3,],
                                   tree.a,
                                   0,
                                   0,
@@ -189,14 +190,16 @@ N=400
 
 tree.b <- rtree(N) # phytools::pbtree(n=N, scale=1)
 
+PCMSetDefaultRegime(tree.b, model.b.123)
+
 traits.b.123 <- PCMSim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
 ## Calculate likelihood
-lik.BM = PCMLik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123)
-lik.OU = PCMLik(X = traits.b.123$values + traits.b.123$errors, tree = tree.b, model = model.b.123.OU)
+lik.BM = PCMLik(X = traits.b.123, tree = tree.b, model = model.b.123)
+lik.OU = PCMLik(X = traits.b.123, tree = tree.b, model = model.b.123.OU)
 
 POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
-  traits.b.123$values[1,]+traits.b.123$errors[1,],
+  traits.b.123[1,],
   tree.b,
   0,
   0,
@@ -205,7 +208,7 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
   b.X0[1]) +
 
     POUMM::likPOUMMGivenTreeVTips(
-      traits.b.123$values[2,]+traits.b.123$errors[2,],
+      traits.b.123[2,],
       tree.b,
       0,
       0,
@@ -213,7 +216,7 @@ POUMMlik = (POUMM::likPOUMMGivenTreeVTips(
       sqrt(model.b.123$Sigmae[2,2,1]),
       b.X0[2]) +
 
-    POUMM::likPOUMMGivenTreeVTips(traits.b.123$values[3,]+traits.b.123$errors[3,],
+    POUMM::likPOUMMGivenTreeVTips(traits.b.123[3,],
                                   tree.b,
                                   0,
                                   0,
@@ -234,13 +237,13 @@ if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on BM:\n")
 
   test_that("a.123",
-            expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
-                         PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = PCMCppPruningObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
+            expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
+                         PCMLik(traits.a.123, tree.a, model.a.123,
+                               pruneI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
-  values <- traits.a.123$values[, 1:length(tree.a$tip.label)] + traits.a.123$errors[, 1:length(tree.a$tip.label)]
+  values <- traits.a.123[, 1:length(tree.a$tip.label)]
   values[sample(x=1:length(values), 50)] <- NA
 
   pruneInfoR <- PCMPruningOrder(tree.a)

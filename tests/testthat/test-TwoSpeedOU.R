@@ -92,7 +92,8 @@ N <- 400
 
 # tree with one regime
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
-tree.a$edge.regime <- names(tree.a$edge.length)
+PCMSetDefaultRegime(tree.a, model.a.123)
+#tree.a$edge.regime <- names(tree.a$edge.length)
 
 # generate traits
 
@@ -100,9 +101,9 @@ traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
 ## Calculate likelihood
 
-lik.OU = PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123)
+lik.OU = PCMLik(traits.a.123, tree.a, model.a.123)
 
-lik.TwoSpeedOU = PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123.TwoSpeedOU)
+lik.TwoSpeedOU = PCMLik(traits.a.123, tree.a, model.a.123.TwoSpeedOU)
 
 cat('OU likelihood=',lik.OU,'\n')
 cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
@@ -134,7 +135,8 @@ N <- 400
 
 # tree with one regime
 tree.b <- rtree(N) # phytools::pbtree(n=N, scale=1)
-tree.b$edge.regime <- names(tree.b$edge.length)
+PCMSetDefaultRegime(tree.b, model.b.123)
+#tree.b$edge.regime <- names(tree.b$edge.length)
 
 # generate traits
 
@@ -142,9 +144,9 @@ traits.b.123 <- PCMSim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
 ## Calculate likelihood
 
-lik.OU = PCMLik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123)
+lik.OU = PCMLik(traits.b.123, tree.b, model.b.123)
 
-lik.TwoSpeedOU = PCMLik(traits.b.123$values+traits.b.123$errors, tree.b, model.b.123.TwoSpeedOU)
+lik.TwoSpeedOU = PCMLik(traits.b.123, tree.b, model.b.123.TwoSpeedOU)
 
 cat('OU likelihood=',lik.OU,'\n')
 cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
@@ -183,22 +185,21 @@ if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on TwoSpeedOU:\n")
 
   test_that("a.123",
-            expect_equal(PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123),
-                         PCMLik(traits.a.123$values+traits.a.123$errors, tree.a, model.a.123,
-                               pruneI = PCMCppPruningObject(X = traits.a.123$values[, 1:length(tree.a$tip.label)],
+            expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
+                         PCMLik(traits.a.123, tree.a, model.a.123,
+                               pruneI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   test_that("ab.123",
-            expect_equal(PCMLik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123),
-                         PCMLik(traits.ab.123$values + traits.ab.123$errors, tree.ab.singles, model.ab.123,
-                               pruneI = PCMCppPruningObject(X = traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] +
-                                                       traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)],
+            expect_equal(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123),
+                         PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
+                               pruneI = PCMCppPruningObject(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
                                                      tree = tree.ab.singles,
                                                      model.ab.123))))
 
 
-  values <- traits.ab.123$values[, 1:length(tree.ab.singles$tip.label)] + traits.ab.123$errors[, 1:length(tree.ab.singles$tip.label)]
+  values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
   values[sample(x=1:length(values), 50)] <- NA
 
   pruneInfoR <- PCMPruningOrder(tree.ab.singles)
@@ -244,6 +245,6 @@ model <- PCM("TwoSpeedOU", 1, 1, list(H1=abind(matrix(5.670849e+01, 1, 1), along
                                       Sigmae = abind(matrix(5.317612e-01, 1, 1), along = 3)))
 
 tree <- phytools::starTree(species = 1:1000, branch.lengths = rep(0.14, 1000))
+PCMSetDefaultRegime(tree, model)
 #tree$edge.regime <- rep(1, length(tree$edge.length))
 data <- PCMSim(tree, model, X0 = 9)
-var(as.vector(data$values))/var(as.vector(data$values+data$errors))

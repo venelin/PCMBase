@@ -15,13 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
+#' @export
+PCMParentClasses.JOU <- function(model) {
+  c("GaussianPCM", "PCM")
+}
 
 
-#' Conditional multivariate JOU distribution
-#' @inheritParams PCMCond
-#'
-#' @return a named list as specified in \code{\link{PCMCond}}
-#' @importFrom expm expm
 #' @export
 PCMCond.JOU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   H <- as.matrix(model$H[,,r])
@@ -30,16 +29,21 @@ PCMCond.JOU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbo
   Sigmaj <- as.matrix(model$Sigmaj[,,r])
   mj <- model$mj[,r]
   xi <- metaI$xi
+  if(!is.null(model$Sigmae)) {
+    Sigmae <- as.matrix(model$Sigmae[,,r])
+  } else {
+    Sigmae <- NULL
+  }
 
-  V <- PCMCondVOU(H, Sigma, Sigmaj, xi)
-  omega <- function(t, edgeIndex, e_Ht = NULL) {
+  V <- PCMCondVOU(H, Sigma, Sigmae, Sigmaj, xi)
+  omega <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(is.null(e_Ht)) {
       e_Ht <- expm(-t*H)
     }
     I <- diag(nrow(H))
     xi[edgeIndex] * e_Ht%*%mj +  (I-e_Ht)%*%Theta
   }
-  Phi <- function(t, edgeIndex, e_Ht = NULL) {
+  Phi <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(is.null(e_Ht)) {
       expm(-t*H)
     } else {
@@ -49,13 +53,11 @@ PCMCond.JOU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbo
   list(omega = omega, Phi = Phi, V = V)
 }
 
-#' @describeIn PCMDescribe
 #' @export
 PCMDescribe.JOU <- function(model, ...) {
   "Ornstein-Uhlenbeck branching stochastic process model with jumps at the starting points of some of the branches and a non-phylogenetic variance component"
 }
 
-#' @describeIn PCMSpecifyParams
 #' @export
 PCMSpecifyParams.JOU <- function(model, ...) {
   k <- attr(model, "k")

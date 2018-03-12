@@ -15,32 +15,44 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' Conditional multivariate BM distribution
-#' @inheritParams PCMCond
+#' @name BM
+#' @title Brownian motion PCMs
+NULL
+
+#' @inherit PCMParentClasses
+#' @export
+PCMParentClasses.BM <- function(model) {
+  c("GaussianPCM", "PCM")
+}
+
+#' @inherit PCMDescribe
 #'
-#' @return a named list as specified in \code{\link{PCMCond}}
+#' @export
+PCMDescribe.BM <- function(model, ...) {
+  "Brownian motion (BM) branching stochastic process model with a non-phylogenetic variance component"
+}
+
 #' @export
 PCMCond.BM <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   Sigma <- as.matrix(model$Sigma[,,r])
+  if(!is.null(model$Sigmae)) {
+    Sigmae <- as.matrix(model$Sigmae[,,r])
+  } else {
+    Sigmae <- NULL
+  }
 
-  V <- PCMCondVOU(matrix(0, nrow(Sigma), ncol(Sigma)), Sigma)
-  omega <- function(t, edgeIndex) {
+  V <- PCMCondVOU(matrix(0, nrow(Sigma), ncol(Sigma)), Sigma, Sigmae)
+  omega <- function(t, edgeIndex, metaI) {
     rep(0, nrow(Sigma))
   }
-  Phi <- function(t, edgeIndex, e_Ht = NULL) {
+  Phi <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     diag(nrow(Sigma))
   }
   list(omega = omega, Phi = Phi, V = V)
 }
 
 
-#' @describeIn PCMDescribe
-#' @export
-PCMDescribe.BM <- function(model, ...) {
-  "Brownian motion (BM) branching stochastic process model with a non-phylogenetic variance component"
-}
-
-#' @describeIn PCMSpecifyParams
+#' @inherit PCMSpecifyParams
 #' @export
 PCMSpecifyParams.BM <- function(model, ...) {
   k <- attr(model, "k")
@@ -57,4 +69,15 @@ PCMSpecifyParams.BM <- function(model, ...) {
     Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
                   type = c("matrix", "symmetric"),
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
+}
+
+#' @export
+PCMDescribe.BM1 <- function(model, ...) "BM without X0."
+#' @export
+PCMParentClasses.BM1 <- function(model) c("BM", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.BM1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec[!sapply(spec, is.null)]
 }

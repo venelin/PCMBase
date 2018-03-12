@@ -15,27 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' Conditional multivariate TwoSpeedOU distribution
-#' @inheritParams PCMCond
-#'
-#' @return a named list as specified in \code{\link{PCMCond}}
-#' @importFrom expm expm
+#' @export
+PCMParentClasses.TwoSpeedOU <- function(model) {
+  c("GaussianPCM", "PCM")
+}
+
 #' @export
 PCMCond.TwoSpeedOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   H1 <- as.matrix(model$H1[,,r])
   H2 <- as.matrix(model$H2[,,r])
   Theta <- model$Theta[,r]
   Sigma <- as.matrix(model$Sigma[,,r])
+  if(!is.null(model$Sigmae)) {
+    Sigmae <- as.matrix(model$Sigmae[,,r])
+  } else {
+    Sigmae <- NULL
+  }
 
-  V <- PCMCondVOU(H2, Sigma)
-  omega <- function(t, edgeIndex, e_H1t = NULL) {
+  V <- PCMCondVOU(H2, Sigma, Sigmae)
+  omega <- function(t, edgeIndex, metaI, e_H1t = NULL) {
     if(is.null(e_H1t)) {
       e_H1t <- expm(-t*H1)
     }
     I <- diag(nrow(H1))
     (I-e_H1t) %*% Theta
   }
-  Phi <- function(t, edgeIndex, e_H1t = NULL) {
+  Phi <- function(t, edgeIndex, metaI, e_H1t = NULL) {
     if(is.null(e_H1t)) {
       expm(-t*H1)
     } else {
@@ -45,13 +50,11 @@ PCMCond.TwoSpeedOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, mod
   list(omega = omega, Phi = Phi, V = V)
 }
 
-#' @describeIn PCMDescribe
 #' @export
 PCMDescribe.TwoSpeedOU <- function(model, ...) {
   "Two-speed Ornstein-Uhlenbeck branching stochastic process model with a non-phylogenetic variance component"
 }
 
-#' @describeIn PCMSpecifyParams
 #' @export
 PCMSpecifyParams.TwoSpeedOU <- function(model, ...) {
   k <- attr(model, "k")
