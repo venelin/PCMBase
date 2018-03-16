@@ -53,7 +53,7 @@ PCMSim.GaussianPCM <- function(
   ordBF <- metaI$preorder
 
   # create a list of random generator functions for each regime
-  PCMCondObjects <- lapply(1:metaI$R, function(r) {
+  PCMCondObjects <- lapply(1:metaI$RModel, function(r) {
     PCMCond(tree, model = model, r = r, metaI = metaI, verbose = verbose)
   })
 
@@ -237,8 +237,11 @@ PCMAbCdEf <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), ve
 
 #' @export
 PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
+  threshold_SV <- getOption("PCMBase.Threshold.SV", 1e-6)
+  skip_singular <- getOption("PCMBase.Singular.Skip", TRUE)
+
   # number of regimes
-  R <- metaI$R
+  R <- metaI$RModel
   # number of tips
   N <- metaI$N
   # number of traits (variables)
@@ -269,6 +272,8 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
   E <- array(NA, dim=c(k, k, M))
   f <- array(NA, dim=c(M))
 
+  singular <- rep(FALSE, M)
+
   # vector of regime indices for each branch
   r <- metaI$r
 
@@ -293,19 +298,38 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
     Phi[,,i] <- cond[[r[edgeIndex]]]$Phi(ti, edgeIndex, metaI)
     V[,,i] <- cond[[r[edgeIndex]]]$V(ti, edgeIndex, metaI)
 
-    V_1[ki,ki,i] <- solve(V[ki,ki,i])
 
-    `%op%` <- if(sum(ki) > 1) `%*%` else `*`
+    # check that V[ki,ki,] is non-singular
+    svdV = svd(matrix(V[ki,ki,i], sum(ki)), 0, 0)$d
 
-    A[ki,ki,i] <- (-0.5*V_1[ki,ki,i])
-    E[kj,ki,i] <- t(Phi[ki,kj,i]) %op% V_1[ki,ki,i]
-    b[ki,i] <- V_1[ki,ki,i] %*% omega[ki,i]
-    C[kj,kj,i] <- -0.5 * matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% matrix(Phi[ki,kj,i], sum(ki), sum(kj))
-    d[kj,i] <- -E[kj,ki,i] %op% omega[ki,i]
-    f[i] <- -0.5 * (t(omega[ki,i]) %*% V_1[ki,ki,i] %*% omega[ki,i] + sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))))
+    if(is.na(min(svdV)/max(svdV)) || min(svdV)/max(svdV) < threshold_SV) {
+      singular[edgeIndex] <- TRUE
+      if(!skip_singular) {
+        err <- paste0(
+          "ERR:02131:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+          " The matrix V for node ", i,
+          " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
+          ". Check the model parameters and the length of the branch",
+          " leading to the node. For details on this error, read the User Guide.")
+        stop(err)
+      }
+    }
+
+    if(!singular[edgeIndex]) {
+      V_1[ki,ki,i] <- solve(V[ki,ki,i])
+
+      `%op%` <- if(sum(ki) > 1) `%*%` else `*`
+
+      A[ki,ki,i] <- (-0.5*V_1[ki,ki,i])
+      E[kj,ki,i] <- t(Phi[ki,kj,i]) %op% V_1[ki,ki,i]
+      b[ki,i] <- V_1[ki,ki,i] %*% omega[ki,i]
+      C[kj,kj,i] <- -0.5 * matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% matrix(Phi[ki,kj,i], sum(ki), sum(kj))
+      d[kj,i] <- -E[kj,ki,i] %op% omega[ki,i]
+      f[i] <- -0.5 * (t(omega[ki,i]) %*% V_1[ki,ki,i] %*% omega[ki,i] + sum(ki)*log(2*pi) + log(det(as.matrix(V[ki,ki,i]))))
+    }
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f, omega=omega, Phi=Phi, V=V, V_1=V_1)
+  list(A=A, b=b, C=C, d=d, E=E, f=f, omega=omega, Phi=Phi, V=V, V_1=V_1, singular = singular)
 }
 
 #' Quadratic polynomial parameters L, m, r
@@ -345,14 +369,12 @@ PCMLmr.default <- function(
   unIndex <- metaI$unIndex
   pc <- metaI$pc
 
-  threshold_SV <- getOption("PCMBase.Threshold.SV", 1e-6)
-
   L <- array(0, dim=c(k, k, M))
   m <- array(0, dim=c(k, M))
   r <- array(0, dim=c(M))
 
 
-  PCMAbCdEf <- PCMAbCdEf(tree = tree, model = model, metaI = metaI, verbose = verbose)
+  AbCdEf <- PCMAbCdEf(tree = tree, model = model, metaI = metaI, verbose = verbose)
 
 
   # avoid redundant calculation
@@ -364,88 +386,59 @@ PCMLmr.default <- function(
 
     if(nodes[1] <= N) {
       # all es pointing to tips
-      #L[nodes,,] <- PCMAbCdEf$C[nodes,,]
 
       for(edgeIndex in es) {
-        # parent and daughter nodes
-        j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
-        # present coordinates
-        kj <- pc[, j]; ki <- pc[, i];
+        if(!AbCdEf$singular[edgeIndex]) {
+          # parent and daughter nodes
+          j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
+          # present coordinates
+          kj <- pc[, j]; ki <- pc[, i];
 
+          # ensure symmetry of L[,,i]
+          L[,,i] <- 0.5 * (AbCdEf$C[,,i] + t(AbCdEf$C[,,i]))
 
-        # check that V[ki,ki,] is non-singular
-        svdV = svd(matrix(PCMAbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
-        if(min(svdV)/max(svdV) < threshold_SV) {
-          err <- paste0(
-            "ERR:02131:PCMBase:GaussianPCM.R:PCMLmr.default:",i,":",
-            " The matrix V for node ", i,
-            " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-            ". Check the model parameters and the length of the branch",
-            " leading to the node. For details on this error, read the User Guide.")
-          stop(err)
+          r[i] <- with(AbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
+                         t(X[ki,i]) %*% b[ki,i] + f[i])
+
+          m[kj,i] <- with(AbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
         }
-
-        # ensure symmetry of L[,,i]
-        L[,,i] <- 0.5 * (PCMAbCdEf$C[,,i] + t(PCMAbCdEf$C[,,i]))
-
-        r[i] <- with(PCMAbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
-                       t(X[ki,i]) %*% b[ki,i] + f[i])
-
-        m[kj,i] <- with(PCMAbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
-
-        #logDetV[i] <- with(PCMAbCdEf, det(-2*(A[i,ki,ki]+L[i,ki,ki])))
-
-        #K <- K + sum(ki)
       }
     } else {
       # edges pointing to internal nodes, for which all children
       # nodes have been visited
       for(edgeIndex in es) {
-        # parent and daughter nodes
-        j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
-        # present coordinates
-        kj <- pc[, j]; ki <- pc[, i];
+        if(!AbCdEf$singular[edgeIndex]) {
+          # parent and daughter nodes
+          j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
+          # present coordinates
+          kj <- pc[, j]; ki <- pc[, i];
 
-        # check that V[i,ki,ki] is non-singular
-        svdV = svd(matrix(PCMAbCdEf$V[ki,ki,i], sum(ki)), 0, 0)$d
-        if(min(svdV)/max(svdV) < threshold_SV) {
-          err <- paste0(
-            "ERR:02131:PCMBase:GaussianPCM.R:PCMLmr.default:",i,":",
-            " The matrix V for node ", i,
-            " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-            ", det(V)=", det(matrix(PCMAbCdEf$V[i,ki,ki], sum(ki))),
-            ". Check the model parameters and the length of the branch",
-            " leading to the node. For details on this error, read the User Guide.")
-          stop(err)
+          # auxilary variables to avoid redundant evaluation
+          AplusL <- as.matrix(AbCdEf$A[ki,ki,i] + L[ki,ki,i])
+          # ensure symmetry of AplusL, this should guarantee that AplusL_1 is symmetric
+          # as well (unless solve-implementation is buggy.)
+          AplusL <- 0.5 * (AplusL + t(AplusL))
+
+          AplusL_1 <- solve(AplusL)
+
+          EAplusL_1 <- matrix(AbCdEf$E[kj,ki,i], sum(kj), sum(ki)) %*% AplusL_1
+          logDetVNode <- log(det(-2*AplusL))
+
+          # here it is important that we first evaluate r[i] and then m[i,kj]
+          # since the expression for r[i] refers to to the value of m[i,ki]
+          # before updating it.
+          r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
+                         .25*t(b[ki,i]+m[ki,i]) %*% AplusL_1 %*% (b[ki,i]+m[ki,i]))
+
+          m[kj,i] <- with(AbCdEf, d[kj,i] - .5*EAplusL_1 %*% (b[ki,i]+m[ki,i]))
+
+          L[kj,kj,i] <- with(
+            AbCdEf,
+            C[kj,kj,i] -.25*EAplusL_1 %*% t(matrix(E[kj,ki,i], sum(kj), sum(ki))))
+
+          # ensure symmetry of L:
+          L[kj,kj,i] <- 0.5 * (L[kj,kj,i] + t(L[kj,kj,i]))
         }
-
-
-
-        # auxilary variables to avoid redundant evaluation
-        AplusL <- as.matrix(PCMAbCdEf$A[ki,ki,i] + L[ki,ki,i])
-        # ensure symmetry of AplusL, this should guarantee that AplusL_1 is symmetric
-        # as well (unless solve-implementation is buggy.)
-        AplusL <- 0.5 * (AplusL + t(AplusL))
-
-        AplusL_1 <- solve(AplusL)
-
-        EAplusL_1 <- matrix(PCMAbCdEf$E[kj,ki,i], sum(kj), sum(ki)) %*% AplusL_1
-        logDetVNode <- log(det(-2*AplusL))
-
-        # here it is important that we first evaluate r[i] and then m[i,kj]
-        # since the expression for r[i] refers to to the value of m[i,ki]
-        # before updating it.
-        r[i] <- with(PCMAbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
-                       .25*t(b[ki,i]+m[ki,i]) %*% AplusL_1 %*% (b[ki,i]+m[ki,i]))
-
-        m[kj,i] <- with(PCMAbCdEf, d[kj,i] - .5*EAplusL_1 %*% (b[ki,i]+m[ki,i]))
-
-        L[kj,kj,i] <- with(
-          PCMAbCdEf,
-          C[kj,kj,i] -.25*EAplusL_1 %*% t(matrix(E[kj,ki,i], sum(kj), sum(ki))))
-
-        # ensure symmetry of L:
-        L[kj,kj,i] <- 0.5 * (L[kj,kj,i] + t(L[kj,kj,i]))
       }
     }
 
@@ -465,7 +458,7 @@ PCMLmr.default <- function(
          m = m[,N+1],
          r = r[N+1])
   } else {
-    c(PCMAbCdEf[c("A", "b", "C", "d", "E", "f", "V", "V_1")],
+    c(AbCdEf[c("A", "b", "C", "d", "E", "f", "V", "V_1")],
       list(L = L, m = m, r = r))
   }
 }
@@ -508,7 +501,7 @@ PCMPLambdaP_1 <- function(H) {
 #'   take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 #'   `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
 #'   "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch
-#'    lengths bigger than 1e-6. For smaller branch lengths, you are may want to
+#'    lengths bigger than 1e-6. For smaller branch lengths, you may want to
 #'    increase the threshold value using, e.g.
 #'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
 #' @details the function (1-exp(-lambda_{ij}*time))/lambda_{ij} corresponds to the product

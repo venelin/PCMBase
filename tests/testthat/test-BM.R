@@ -49,6 +49,7 @@ model.a.123 <- PCM("BM", k = 3, regimes = "a",
                    params = list(X0 = a.X0, Sigma = Sigma[,, "a", drop = FALSE],
                                  Sigmae = Sigmae[,, "a", drop = FALSE]))
 
+
 ################ 1st Validation ######################################################
 
 context(ctx <- "R=1/k=3/N=2")
@@ -64,7 +65,7 @@ PCMSetDefaultRegime(tree.a, model.a.123)
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
-BMlik = PCMLik(X = traits.a.123,
+BMlik = PCMLik(X = traits.a.123[,1:N],
       tree = tree.a,
       model = model.a.123)
 
@@ -154,7 +155,6 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
   expect_true(abs(BMlik - POUMMlik) < EPS)
 })
 
-
 ######################################################################################
 
 ################ 2nd Validation ######################################################
@@ -228,50 +228,67 @@ cat('BM likelihood=',lik.BM,'\n')
 cat('OU likelihood=',lik.OU,'\n')
 cat('POUMM likelihood=',POUMMlik,'\n')
 
-
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime b"),{
   expect_true( abs(lik.BM - lik.OU ) < EPS*1000)
-  })
+})
+
+### WHITE MODEL TEST ###
+model.a.123.white <- PCMSetParams(model.a.123, params = list(Sigma = abind(matrix(0, 3, 3), along = 3),
+                                        Sigmae = abind(diag(1:3, 3, 3), along = 3)), inplace = FALSE)
+
+lik.white <- PCMLik(traits.a.123[,1:N], tree.a, model.a.123.white)
+cat("White likelihood=", lik.white, "\n")
+
+lik.white.true <- sum(
+  apply(traits.a.123[, 1:N], 2,
+        function(xi) mvtnorm::dmvnorm(x = xi, mean = c(5, 2, 1),
+                                      sigma = model.a.123.white$Sigmae[,,1], log = TRUE )))
+
+test_that("Match white likelihoods", expect_true(abs(lik.white-lik.white.true) < EPS))
+
 
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on BM:\n")
 
+  lik.white <- PCMLik(tree = tree.a, model = model.a.123.white,
+                      metaI = PCMInfoCpp(X = traits.a.123[, 1:N], tree = tree.a, model = model.a.123.white))
+
+  test_that("Match white likelihoods", expect_true(abs(lik.white-lik.white.true) < EPS))
+
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
                          PCMLik(traits.a.123, tree.a, model.a.123,
-                               pruneI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
+                               metaI = PCMInfoCpp(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   values <- traits.a.123[, 1:length(tree.a$tip.label)]
   values[sample(x=1:length(values), 50)] <- NA
 
-  pruneInfoR <- PCMPruningOrder(tree.a)
-  pruneInfoCpp <- PCMCppPruningObject(X = values,
-                               tree = tree.a,
-                               model.a.123)
+  metaIR <- PCMInfo(X = values, tree = tree.a, model = model.a.123)
+  metaICpp <- PCMInfoCpp(X = values, tree = tree.a, model = model.a.123)
 
   test_that("a.123 with missing values",
             expect_equal(PCMLik(values, tree.a, model.a.123),
-                         PCMLik(tree = tree.a, model = model.a.123,
-                               pruneI = pruneInfoCpp)))
+                         PCMLik(tree = tree.a, model = model.a.123, metaI = metaICpp)))
 
 
-  # if(require(microbenchmark)) {
-  #   cat("microbenchmark test")
-  #
-  #   options(PCMBase.PCMLmr.mode=11)
-  #   print(microbenchmark(
-  #     PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoR),
-  #     PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp), times = 10
-  #   ))
-  #
-  #   options(PCMBase.PCMLmr.mode=21)
-  #   print(microbenchmark(
-  #     PCMLik(values, tree.a, model.a.123, pruneI = pruneInfoCpp)
-  #   ))
-  # }
+
+
+  if(require(microbenchmark)) {
+    cat("microbenchmark test")
+
+    options(PCMBase.PCMLmr.mode=11)
+    print(microbenchmark(
+      PCMLik(values, tree.a, model.a.123, metaI = metaIR),
+      PCMLik(values, tree.a, model.a.123, metaI = metaICpp), times = 10
+    ))
+
+    options(PCMBase.PCMLmr.mode=21)
+    print(microbenchmark(
+      PCMLik(values, tree.a, model.a.123, metaI = metaICpp)
+    ))
+  }
 
 }
-
 

@@ -137,18 +137,22 @@ if(require(phytools)) {
   tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
   tree.ab$edge.regime <- names(tree.ab$edge.length)
 
+
   # convert the simmap tree to a normal phylo object with singleton nodes at the
   # within-branch regime changes. The regimes are encoded as names of the edge.length
   # vector
   tree.ab.singles <- map.to.singleton(tree.ab)
   tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
+  tree.ab.singles$edge.jump <- rep(0, length(tree.ab.singles$edge.length))
 } else {
   tree.ab <- tree.a
   tree.ab$edge.regime <- sample(c("a", "b"), size = length(tree.ab$edge.length), replace = TRUE)
+  tree.ab$edge.jump <- rep(0, length(tree.ab$edge.length))
   tree.ab.singles <- tree.ab
 }
 
 traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
+traits.ab.123 <- traits.ab.123[, 1:N]
 
 
 test_that("Equal OU and MRG likelihoods", expect_equal(
@@ -158,5 +162,14 @@ test_that("Equal OU and MRG likelihoods", expect_equal(
 
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on MRG model:\n")
+  test_that("Equal OU and MRG likelihoods", expect_equal(
+    PCMLik(traits.ab.123, tree.ab.singles, model_MRG_ab,
+           metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MRG_ab)),
+    PCMLik(traits.ab.123, tree.ab.singles, model.ab.123)
+  ))
+
+  metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MRG_ab)
+  microbenchmark::microbenchmark(PCMLik(traits.ab.123, tree.ab.singles, model_MRG_ab,
+         metaI = metaI))
 }
 

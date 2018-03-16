@@ -24,6 +24,48 @@
 #'
 NULL
 
+#' Global options for the PCMBase package
+#'
+#'
+#' @return a named list with the currently set values of the following global
+#' options:
+#' \itemize{
+#' \item{\code{PCMBase.Value.NA }}{NA value for the likelihood; used in GaussianPCM to
+#' return this value in case of an error occuring
+#' during likelihood calculation. By default, this is set to \code{as.double(NA)}.}
+#' \item{\code{PCMBase.Errors.As.Warnings }}{a logical flag indicating if errors
+#' (occuring, e.g. during likelihood calculation) should be treated as warnings
+#' and added as an attribute "error" to returne likelihood values. Default TRUE.}
+#' \item{\code{PCMBase.Threshold.Lambda_ij }}{a 0-threshold for abs(Lambda_i + Lambda_j),
+#' where Lambda_i and Lambda_j are eigenvalues of the parameter matrix H of an OU or
+#' other model. Default 1e-8. See \link{\code{PCMPExpxMeanExp}}.}
+#' \item{\code{PCMBase.Threshold.SV }}{A 0-threshold for min(svdV)/max(svdV), where
+#' svdV is the vector of eigenvalues of the matrix V for a given branch. The V matrix
+#' is considered singular if it has eigenvalues equal to 0 or when the ratio
+#' min(svdV)/max(svdV) is below PCMBase.Threshold.SV. Default is 1e-6. Treatment
+#' of branches with singular V matrix is defined by the option \code{PCMBase.Singular.Skip}.}
+#' \item{\code{PCMBase.Singular.Skip }}{A logical value indicating whether branches with
+#' singular matrix V should be skipped during likelihood calculation, adding their children
+#' L,m,r values to their parent node. Default TRUE. Note, that setting this option to FALSE
+#' may cause some models to stop working, e.g. the White model. Setting this option to FALSE
+#' will also cause errors or NA likelihood values in the case of trees with very short or
+#' 0-length branches.}
+#' \item{\code{PCMBase.Internal.PC.Full }}{A logical value indicating whether NA trait values
+#' are treated as missing measurements which are integrated out during likelihood calculation.
+#' Default TRUE. Setting this option to FALSE will cause NA values to be treated as
+#' non-existing traits and these will be ignored instead of integrated out.}
+#' }
+#' @export
+PCMOptions <- function() {
+  list(PCMBase.Value.NA = getOption("PCMBase.Value.NA", as.double(NA)),
+       PCMBase.Errors.As.Warnings = getOption("PCMBase.Errors.As.Warnings", TRUE),
+       PCMBase.Threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8),
+       PCMBase.Threshold.SV = getOption("PCMBase.Threshold.SV", 1e-6),
+       PCMBase.Singular.Skip = getOption("PCMBase.Singular.Skip", TRUE),
+       PCMBase.Internal.PC.Full = getOption("PCMBase.Internal.PC.Full", TRUE)
+       )
+}
+
 #' @name PCM
 #' @title Create a phylogenetic comparative model object
 #'
@@ -198,19 +240,6 @@ PCMNumTraits.PCM <- function(model) {
   attr(model, "k")
 }
 
-#' Number of regimes in a model
-#' @param model a PCM object
-#' @return an integer
-#' @export
-PCMNumRegimes <- function(model) {
-  UseMethod("PCMNumRegimes", model)
-}
-
-#' @export
-PCMNumRegimes.PCM <- function(model) {
-  length(attr(model, "regimes"))
-}
-
 #' Regimes in a model
 #' @param model a PCM object
 #' @return a character or an integer vector giving the regime names of the models
@@ -222,6 +251,19 @@ PCMRegimes <- function(model) {
 #' @export
 PCMRegimes.PCM <- function(model) {
   attr(model, "regimes")
+}
+
+#' Number of regimes in a model
+#' @param model a PCM object
+#' @return an integer
+#' @export
+PCMNumRegimes <- function(model) {
+  UseMethod("PCMNumRegimes", model)
+}
+
+#' @export
+PCMNumRegimes.PCM <- function(model) {
+  length(PCMRegimes(model))
 }
 
 #' Number of free parameters describing fully a PCM
@@ -283,7 +325,7 @@ PCMNumParams.PCM <- function(model, ...) {
       }
     }
   }
-  p
+  unname(p)
 }
 
 #' Wrapper for length(tree$tip.label)
@@ -555,6 +597,32 @@ PCMLoadMatrixParameter <- function(
   num
 }
 
+
+#' Get a vector with all model parameters unrolled
+#' @param model a PCM model object
+#' @return a numerical vector
+#' @export
+PCMGetVecParamsFull <- function(model, ...) {
+  UseMethod("PCMGetVecParamsFull", model)
+}
+
+#' @export
+PCMGetVecParamsFull.PCM <- function(model, ...) {
+  specParams <- attr(model, "specParams", exact = TRUE)
+  R <- PCMNumRegimes(model)
+  res <- do.call(c, lapply(names(model), function(name) {
+    if(specParams[[name]]$type[1]=="model") {
+      PCMGetVecParamsFull(model[[name]], ...)
+    } else if(specParams[[name]]$type[1] %in% c("gscalar", "gvector", "gmatrix") ) {
+      rep(as.vector(model[[name]]), R)
+    } else {
+      as.vector(model[[name]])
+    }
+  }))
+  unname(res)
+}
+
+
 #' Set model parameters from a named list
 #' @param tree a phylo object (possible future use)
 #' @param model a PCM model object
@@ -794,10 +862,10 @@ PCMLik <- function(
   UseMethod("PCMLik", model)
 }
 
-#' Breadth-first tree traversal
+#' Pre-order tree traversal
 #' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
 #' one daughter node)
-#' @return a vector of indices of edges in tree$edge in breadth-first order.
+#' @return a vector of indices of edges in tree$edge in pre-order.
 PCMPreorder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
@@ -1040,15 +1108,19 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
     N = PCMNumTips(tree),
     k = PCMNumTraits(model),
     RTree = PCMNumUniqueRegimesTree(tree),
-    p = PCMNumParams(model),
+    RModel = PCMNumRegimes(model),
     r = PCMMatchRegimesModelTree(tree, model),
+    p = PCMNumParams(model),
     xi = PCMJumps(tree),
     edge = tree$edge,
     edge.length = tree$edge.length,
     preorder = PCMPreorder(tree)
   )
   res <- c(res, PCMPruningOrder(tree))
+  res <- c(res, PCMOptions())
+
   res$pc <- PCMPresentCoordinates(X, tree, res)
+
   res
 }
 

@@ -110,7 +110,17 @@ model.ab.123 <- PCM("OU", 3, c("a", "b"), params = list(X0 = a.X0,
                                                         Sigma=Sigma[,,,drop=FALSE],
                                                         Sigmae=Sigmae[,,,drop=FALSE]))
 
-context(ctx <- "R=1/k=1/N=2")
+cat("PCMNumParams(model.ab.123)=", PCMNumParams(model.ab.123), "\n")
+cat("length(PCMGetVecParamsFull(model.ab.123)=", length(PCMGetVecParamsFull(model.ab.123)), "\n")
+
+test_that("Check correctness of PCMGetVecParamsFull",
+          expect_equal(length(PCMGetVecParamsFull(model.ab.123)), 2*(3 + 3*3 + 3 + 3*3 + 3*3)))
+
+test_that("Check correctness of PCMNumParams",
+          expect_equal(PCMNumParams(model.ab.123), 3 + 2*(3*3 + 3 + 6 + 6)))
+
+
+context(ctx <- "OU: R=1/k=1/N=2")
 
 # number of tips
 N <- 2
@@ -165,7 +175,7 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             g0 = a.X0[3])) < EPS)
 })
 
-context(ctx <- "R=1/k=1/N=400")
+context(ctx <- "OU: R=1/k=1/N=400")
 
 # number of tips
 N <- 400
@@ -219,7 +229,7 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             g0 = a.X0[3])) < EPS)
 })
 
-context(ctx <- "R=1/k=3/N=2")
+context(ctx <- "OU: R=1/k=3/N=2")
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
@@ -256,40 +266,43 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 
 
 
-context(ctx <- "R=1/k=3/N=400")
+context(ctx <- "OU: R=1/k=3/N=400")
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
+OUlik <- PCMLik(traits.a.123, tree.a, model.a.123)
+POUMMlik <- (POUMM::likPOUMMGivenTreeVTips(
+  traits.a.123[1,],
+  tree.a,
+  model.a.123$H[1,1,1],
+  model.a.123$Theta[1,1],
+  sqrt(model.a.123$Sigma[1,1,1]),
+  sqrt(model.a.123$Sigmae[1,1,1]),
+  a.X0[1]) +
+    POUMM::likPOUMMGivenTreeVTips(
+      traits.a.123[2,],
+      tree.a,
+      model.a.123$H[2,2,1],
+      model.a.123$Theta[2,1],
+      sqrt(model.a.123$Sigma[2,2,1]),
+      sqrt(model.a.123$Sigmae[2,2,1]),
+      a.X0[2]) +
+    POUMM::likPOUMMGivenTreeVTips(
+      traits.a.123[3,],
+      tree.a,
+      model.a.123$H[3,3,1],
+      model.a.123$Theta[3,1],
+      sqrt(model.a.123$Sigma[3,3,1]),
+      sqrt(model.a.123$Sigmae[3,3,1]),
+      a.X0[3]))
+
+
+cat('OU likelihood=',OUlik,'\n')
+cat('POUMM likelihood=',POUMMlik,'\n')
 
 ## Calculate likelihood
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime a"), {
-  expect_true(
-    abs(PCMLik(traits.a.123, tree.a, model.a.123) -
-          (POUMM::likPOUMMGivenTreeVTips(
-            traits.a.123[1,],
-            tree.a,
-            model.a.123$H[1,1,1],
-            model.a.123$Theta[1,1],
-            sqrt(model.a.123$Sigma[1,1,1]),
-            sqrt(model.a.123$Sigmae[1,1,1]),
-            a.X0[1]) +
-             POUMM::likPOUMMGivenTreeVTips(
-               traits.a.123[2,],
-               tree.a,
-               model.a.123$H[2,2,1],
-               model.a.123$Theta[2,1],
-               sqrt(model.a.123$Sigma[2,2,1]),
-               sqrt(model.a.123$Sigmae[2,2,1]),
-               a.X0[2]) +
-             POUMM::likPOUMMGivenTreeVTips(
-               traits.a.123[3,],
-               tree.a,
-               model.a.123$H[3,3,1],
-               model.a.123$Theta[3,1],
-               sqrt(model.a.123$Sigma[3,3,1]),
-               sqrt(model.a.123$Sigmae[3,3,1]),
-               a.X0[3]))
-        ) < EPS)
+  expect_true(abs(OUlik - POUMMlik) < EPS)
 })
 
 PCMSetDefaultRegime(tree.a, model.b.123)
@@ -315,17 +328,18 @@ traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on OU:\n")
 
+  PCMSetDefaultRegime(tree.a, model.a.123)
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
                          PCMLik(traits.a.123, tree.a, model.a.123,
-                               metaI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
+                               metaI = PCMInfoCpp(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   test_that("ab.123",
             expect_equal(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123),
                          PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
-                               metaI = PCMCppPruningObject(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
+                               metaI = PCMInfoCpp(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
                                                      tree = tree.ab.singles,
                                                      model.ab.123))))
 
@@ -333,23 +347,26 @@ if(require(PCMBaseCpp)) {
   values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
   values[sample(x=1:length(values), 88)] <- NA
 
-  pruneInfoR <- PCMPruningOrder(tree.ab.singles)
-  pruneInfoCpp <- PCMCppPruningObject(X = values,
+  metaIR <- PCMInfo(X = values,
+                     tree = tree.ab.singles,
+                     model.ab.123)
+  metaICpp <- PCMInfoCpp(X = values,
                                tree = tree.ab.singles,
                                model.ab.123)
   test_that("ab.123 with missing values",
             expect_equal(PCMLik(values, tree.ab.singles, model.ab.123,
-                               pruneI = pruneInfoR),
+                               metaI = metaIR),
                          PCMLik(values, tree.ab.singles, model.ab.123,
-                               pruneI = pruneInfoCpp)))
+                               metaI = metaICpp)))
 
   print(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
-        pruneI = PCMCppPruningObject(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
-                              tree = tree.ab.singles,
-                              model.ab.123)))
+               metaI = PCMInfoCpp(
+                 X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
+                 tree = tree.ab.singles,
+                 model.ab.123)))
 
   print(PCMLik(values, tree.ab.singles, model.ab.123,
-              pruneI = PCMCppPruningObject(X = values,
+              metaI = PCMInfoCpp(X = values,
                                     tree = tree.ab.singles,
                                     model.ab.123)))
 
@@ -359,14 +376,14 @@ if(require(PCMBaseCpp)) {
 
     options(PCMBase.PCMLmr.mode=11)
     print(microbenchmark(
-      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
-      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp),
+      PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaIR),
+      PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaICpp),
       times = 10
     ))
 
     options(PCMBase.PCMLmr.mode=21)
     print(microbenchmark(
-      PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
+      PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaICpp)
     ))
   }
 }

@@ -187,14 +187,14 @@ if(require(PCMBaseCpp)) {
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
                          PCMLik(traits.a.123, tree.a, model.a.123,
-                               pruneI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
+                               metaI = PCMInfoCpp(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
   test_that("ab.123",
             expect_equal(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123),
                          PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
-                               pruneI = PCMCppPruningObject(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
+                               metaI = PCMInfoCpp(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
                                                      tree = tree.ab.singles,
                                                      model.ab.123))))
 
@@ -202,21 +202,23 @@ if(require(PCMBaseCpp)) {
   values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
   values[sample(x=1:length(values), 50)] <- NA
 
-  pruneInfoR <- PCMPruningOrder(tree.ab.singles)
-  pruneInfoCpp <- PCMCppPruningObject(X = values,
+  metaIR <- PCMInfo(X = values,
+                   tree = tree.ab.singles,
+                   model.ab.123)
+  metaICpp <- PCMInfoCpp(X = values,
                                tree = tree.ab.singles,
                                model.ab.123)
 
   test_that("ab.123 with missing values",
-            expect_equal(PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
+            expect_equal(PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaIR),
                          PCMLik(values, tree.ab.singles, model.ab.123,
-                               pruneI = pruneInfoCpp)))
+                                metaI = metaICpp)))
 
 
-  print(PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp))
+  print(PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaICpp))
 
   print(PCMLik(values, tree.ab.singles, model.ab.123,
-              pruneI = PCMCppPruningObject(X = values,
+               metaI = PCMInfoCpp(X = values,
                                     tree = tree.ab.singles,
                                     model.ab.123)))
 
@@ -226,13 +228,13 @@ if(require(PCMBaseCpp)) {
   #
   #   options(PCMBase.PCMLmr.mode=11)
   #   print(microbenchmark(
-  #     PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoR),
-  #     PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp), times = 10
+  #     PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaIR),
+  #     PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaICpp), times = 10
   #   ))
   #
   #   options(PCMBase.PCMLmr.mode=21)
   #   print(microbenchmark(
-  #     PCMLik(values, tree.ab.singles, model.ab.123, pruneI = pruneInfoCpp)
+  #     PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaICpp)
   #   ))
   # }
 }

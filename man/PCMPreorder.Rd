@@ -2,7 +2,7 @@
 % Please edit documentation in R/PCM.R
 \name{PCMPreorder}
 \alias{PCMPreorder}
-\title{Breadth-first tree traversal}
+\title{Pre-order tree traversal}
 \usage{
 PCMPreorder(tree)
 }
@@ -11,8 +11,8 @@ PCMPreorder(tree)
 one daughter node)}
 }
 \value{
-a vector of indices of edges in tree$edge in breadth-first order.
+a vector of indices of edges in tree$edge in pre-order.
 }
 \description{
-Breadth-first tree traversal
+Pre-order tree traversal
 }

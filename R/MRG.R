@@ -45,3 +45,36 @@ PCMCond.MRG <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, ver
   PCMCond(tree, model[[r]], 1, metaI, verbose)
 }
 
+#' @export
+PCMGetVecParamsFull.MRG <- function(model, ...) {
+  specParams <- attr(model, "specParams", exact = TRUE)
+  R <- PCMNumRegimes(model)
+
+  types <- sapply(names(model), function(name) specParams[[name]]$type[1])
+
+  # the order of types is important!
+  # gscalars, gvectors, gmatrices, which appear before the first model are
+  # prepended to each model; gscalars, gvectors, gmatrices, which appear after the last model
+  # are appended to each model.
+  # the vector gmask below is TRUE for prependable g-params and FALSE for models and append-able g-params
+  gmask <- !(cumsum(as.integer(types=="model")))
+  names(gmask) <- names(model)
+
+  gprep <- c()
+  gapp <- c()
+  for(name in names(model)) {
+    if(gmask[name]) {
+      gprep <- c(gprep, as.vector(model[[name]]))
+    } else if(types[[name]] != "model") {
+      gapp <- c(gapp, as.vector(model[[name]]))
+    }
+  }
+
+  res <- do.call(c, lapply(names(model), function(name) {
+    if(specParams[[name]]$type[1]=="model") {
+      c(gprep, PCMGetVecParamsFull(model[[name]], ...), gapp)
+    }
+  }))
+  unname(res)
+}
+

@@ -64,9 +64,9 @@ b.mj <- c(11, 17, 42)
 H <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
 Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmaj <- abind(a.Sigmaj, b.Sigmaj, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 mj <- abind(a.mj, b.mj, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
+Sigmaj <- abind(a.Sigmaj, b.Sigmaj, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 
 # regime 'a', traits 1, 2 and 3
@@ -74,27 +74,27 @@ model.a.123 <- PCM("JOU", 3, "a", list(X0 = a.X0,
                                        H=H[,,'a',drop=FALSE],
                                        Theta=Theta[,'a',drop=FALSE],
                                        Sigma=Sigma[,,'a',drop=FALSE],
-                                       Sigmae=Sigmae[,,'a',drop=FALSE],
+                                       mj=mj[,'a',drop=FALSE],
                                        Sigmaj=Sigmaj[,,'a',drop=FALSE],
-                                       mj=mj[,'a',drop=FALSE]))
+                                       Sigmae=Sigmae[,,'a',drop=FALSE]))
 
 # regime 'b', traits 1, 2 and 3
 model.b.123 <- PCM("JOU", 3, "b", list(X0 = b.X0,
                                        H=H[,,'b',drop=FALSE],
                                        Theta=Theta[,'b',drop=FALSE],
                                        Sigma=Sigma[,,'b',drop=FALSE],
-                                       Sigmae=Sigmae[,,'b',drop=FALSE],
+                                       mj=mj[,'b',drop=FALSE],
                                        Sigmaj=Sigmaj[,,'b',drop=FALSE],
-                                       mj=mj[,'b',drop=FALSE]))
+                                       Sigmae=Sigmae[,,'b',drop=FALSE]))
 
 # regimes 'a' and 'b', traits 1, 2 and 3
 model.ab.123 <- PCM("JOU", 3, c("a", "b"), list(X0 = a.X0,
                                                 H=H[,,,drop=FALSE],
                                                 Theta=Theta[,,drop=FALSE],
                                                 Sigma=Sigma[,,,drop=FALSE],
-                                                Sigmae=Sigmae[,,,drop=FALSE],
+                                                mj=mj[,,drop=FALSE],
                                                 Sigmaj=Sigmaj[,,,drop=FALSE],
-                                                mj=mj[,,drop=FALSE]))
+                                                Sigmae=Sigmae[,,,drop=FALSE]))
 
 
 context(ctx <- "R=1/k=1/N=5")
@@ -154,7 +154,7 @@ if(require(PCMBaseCpp)) {
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
                          PCMLik(traits.a.123, tree.a, model.a.123,
-                               pruneI = PCMCppPruningObject(X = traits.a.123[, 1:length(tree.a$tip.label)],
+                               metaI = PCMInfoCpp(X = traits.a.123[, 1:length(tree.a$tip.label)],
                                                      tree = tree.a,
                                                      model.a.123))))
 
@@ -163,15 +163,13 @@ if(require(PCMBaseCpp)) {
 
   values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
 
-  pruneI <- PCMCppPruningObject(X = values, tree = tree.ab.singles, model.ab.123)
+  metaI <- PCMInfoCpp(X = values, tree = tree.ab.singles, model.ab.123)
 
-  PCMAbCdEf(tree.ab.singles, model.ab.123,
-            PCMValidate(tree.ab.singles, model.ab.123),
-            PCMPresentCoordinates(values, tree.ab.singles))
+  PCMAbCdEf(tree.ab.singles, model.ab.123, PCMInfo(X = values, tree.ab.singles, model.ab.123))
 
   test_that("ab.123",
             expect_equal(PCMLik(values, tree.ab.singles, model.ab.123),
-                         PCMLik(tree = tree.ab.singles, model = model.ab.123, pruneI = pruneI)))
+                         PCMLik(tree = tree.ab.singles, model = model.ab.123, metaI = metaI)))
 
 }
 

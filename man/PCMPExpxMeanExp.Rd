@@ -17,7 +17,7 @@ threshold-value is used as a condition to
 take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 `(Lambda_i+Lambda_j) --> 0`. You can control this value by the global option
 "PCMBase.Threshold.Lambda_ij". The default value (1e-8) is suitable for branch
- lengths bigger than 1e-6. For smaller branch lengths, you are may want to
+ lengths bigger than 1e-6. For smaller branch lengths, you may want to
  increase the threshold value using, e.g.
 `options(PCMBase.Threshold.Lambda_ij=1e-6)`.}
 }
