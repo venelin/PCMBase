@@ -93,6 +93,29 @@ modelBM.ab$Sigmae[,, "b"] <- rbind(c(.1, 0),
                                    c(0, .4))
 ```
 
+The above way of setting values for model parameters, while human readable, is not handy during model fitting procedures, such as likelihood maximization. Thus, there is another way to set (or get) the model parameter values from a numerical vector:
+
+```{r}
+param <- double(PCMNumParams(modelBM.ab))
+
+# load the current model parameters into param
+PCMSetOrGetVecParams(modelBM.ab, param, set = FALSE)
+
+print(param)
+
+# modify slightly the model parameters
+param2 <- jitter(param)
+
+print(param2)
+
+# set the new parameter vector
+PCMSetOrGetVecParams(modelBM.ab, param2)
+
+print(modelBM.ab)
+```
+
+
+
 # Simulating data on a phylogenetic tree
 The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM. 
 
@@ -137,3 +160,19 @@ Calculating a model likelihood for a given tree and data is the other key functi
 ```{r}
 PCMLik(traits, tree.ab.singles, modelBM.ab)
 ```
+
+For faster and repeated likelihood evaluation, I recommend creating a likelihood function for a given 
+data, tree and model object. Passing this function object to `optim` would save the need for pre-processing the data and tree at every 
+likelihood evaluation.
+
+```{r}
+# a function of a numerical parameter vector:
+likFun <- PCMCreateLikelihood(traits, tree.ab.singles, modelBM.ab)
+
+likFun(param2)
+```
+
+# Fitting PCMs
+TODO
+
+
