@@ -18,7 +18,7 @@ during likelihood calculation. By default, this is set to \code{as.double(NA)}.}
 and added as an attribute "error" to returne likelihood values. Default TRUE.}
 \item{\code{PCMBase.Threshold.Lambda_ij }}{a 0-threshold for abs(Lambda_i + Lambda_j),
 where Lambda_i and Lambda_j are eigenvalues of the parameter matrix H of an OU or
-other model. Default 1e-8. See \link{\code{PCMPExpxMeanExp}}.}
+other model. Default 1e-8. See \code{\link{PCMPExpxMeanExp}}.}
 \item{\code{PCMBase.Threshold.SV }}{A 0-threshold for min(svdV)/max(svdV), where
 svdV is the vector of eigenvalues of the matrix V for a given branch. The V matrix
 is considered singular if it has eigenvalues equal to 0 or when the ratio

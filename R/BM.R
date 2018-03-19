@@ -81,3 +81,26 @@ PCMSpecifyParams.BM1 <- function(model, ...) {
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
+
+#' @export
+PCMDescribe.BM2 <- function(model, ...) "BM without Sigmae."
+#' @export
+PCMParentClasses.BM2 <- function(model) c("BM", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.BM2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.BM3 <- function(model, ...) "BM without X0 and Sigmae."
+#' @export
+PCMParentClasses.BM3 <- function(model) c("BM", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.BM3 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}

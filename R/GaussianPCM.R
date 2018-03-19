@@ -128,7 +128,7 @@ PCMLik.GaussianPCM <- function(
 
     }
 
-    if(is.null(model$X0)) {
+    if(is.null(model$X0) || isTRUE(all(is.na(model$X0)))) {
       # set the root value to the one that maximizes the likelihood
       X0 <- try(solve(a=L_root + t(L_root), b = -m_root), silent = TRUE)
       if(class(X0) == "try-error") {

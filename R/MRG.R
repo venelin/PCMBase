@@ -78,3 +78,65 @@ PCMGetVecParamsFull.MRG <- function(model, ...) {
   unname(res)
 }
 
+
+#' Create a multi-regime Gaussian model (MRG)
+#' @param k integer defining the number of traits.
+#' @param models a character string vector with the class names of the possible
+#' models included in the MRG, e.g. c("BM3", "OU3").
+#' @param mapping a character string vector with elements from models or an
+#' integer vector with elements between 1 and length(models)
+#' mapping models to regimes (the positions in the mapping vector), e.g.
+#' c(a = 1, b = 1, c = 2, d = 1) defines an MRG with four different regimes with
+#' models BM3, BM3, OU3 and BM3, corresponding to each regime.
+#' @param className a character string definingn a valid class name for the
+#' resulting MRG object.
+#' @param X0 NULL or a list defining a global vector X0 to be used by all
+#' models in the MRG.
+#' @param Sigmae NULL or a list defining a global matrix to be used as element
+#' Sigmae by all models in the MRG.
+#' @return an object of S3 class className inheriting from MRG, GaussianPCM and
+#' PCM.
+#'
+#' @details If X0 is not NULL it has no sense to use models including X0 as a
+#' parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae is
+#' not NULL there is no meaning in using models including Sigmae as a parameter,
+#' (e.g. use OU2 or OU3 instead of OU or OU1).
+#' @export
+MRG <- function(
+  k,
+  models,
+  mapping,
+  className = paste0("MRG_", do.call(paste0, as.list(mapping))),
+  X0 = list(default = rep(0, k),
+            type = c("gvector", "full"),
+            description = "trait vector at the root; global for all regimes"),
+  Sigmae = list(default = matrix(0, nrow = k, ncol = k),
+                type = c("gmatrix", "symmetric"),
+                description = "variance-covariance matrix for the non-phylogenetic trait component")) {
+
+  regimes <- if(is.null(names(mapping))) as.character(1:length(mapping)) else names(mapping)
+
+  if(is.character(mapping)) {
+    mapping2 <- match(mapping, models)
+    if(any(is.na(mapping2))) {
+      stop(paste0("ERR:02511:PCMBase:MRG.R:MRG:: some of the model-names in mapping not found in models: ",
+                  "models = ", toString(models), ", mapping =", toString(mapping)))
+    } else {
+      mapping <- mapping2
+    }
+  }
+
+  mappingModelRegime <- models[mapping]
+
+  specParams <- list(X0 = X0)
+
+  for(m in 1:length(mapping)) {
+    specParams[[regimes[m]]] <- list(default = PCM(mappingModelRegime[m], k, 1), type = "model")
+  }
+
+  specParams[["Sigmae"]] <- Sigmae
+  specParams <- specParams[!sapply(specParams, is.null)]
+
+  PCM(model = c(className, "MRG", "GaussianPCM", "PCM"), k = k, regimes = regimes, specParams = specParams)
+}
+

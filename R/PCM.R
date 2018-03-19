@@ -38,7 +38,7 @@ NULL
 #' and added as an attribute "error" to returne likelihood values. Default TRUE.}
 #' \item{\code{PCMBase.Threshold.Lambda_ij }}{a 0-threshold for abs(Lambda_i + Lambda_j),
 #' where Lambda_i and Lambda_j are eigenvalues of the parameter matrix H of an OU or
-#' other model. Default 1e-8. See \link{\code{PCMPExpxMeanExp}}.}
+#' other model. Default 1e-8. See \code{\link{PCMPExpxMeanExp}}.}
 #' \item{\code{PCMBase.Threshold.SV }}{A 0-threshold for min(svdV)/max(svdV), where
 #' svdV is the vector of eigenvalues of the matrix V for a given branch. The V matrix
 #' is considered singular if it has eigenvalues equal to 0 or when the ratio
@@ -87,31 +87,42 @@ PCMOptions <- function() {
 #' @param vecParams NULL (default) or a numeric vector the vector
 #' representation of the variable parameters in the model. See details.
 #' @param offset integer offset in vecParams; see Details.
+#' @param specParams NULL or a list specifying the model parameters (see \code{\link{PCMSpecifyParams}}). If NULL (default), the generic PCMSpecifyParams
+#' is called on the created object of class \code{model}.
 #' @param ... additional parameters intended for use by sub-classes of the PCM
 #' class.
 #'
 #' @details
 #' @return an object of S3 class as defined by the argument model.
 #' @export
-PCM <- function(model, k = 1, regimes = 1,
-                params = NULL, vecParams = NULL, offset = 0, ...) {
+PCM <- function(
+  model, k = 1, regimes = 1,
+  params = NULL, vecParams = NULL, offset = 0,
+  specParams = NULL, ...) {
   UseMethod("PCM", model)
 }
 
 #' @export
-PCM.default <- function(model, k = 1, regimes = 1,
-                        params = NULL, vecParams = NULL, offset = 0, ...) {
+PCM.default <- function(
+  model, k = 1, regimes = 1,
+  params = NULL, vecParams = NULL, offset = 0,
+  specParams = NULL, ...) {
   stop(paste0("ERR:02091:PCMBase:PCM.R:PCM.default:: You should provide a PCM object, but provided a ", class(model)[1]))
 }
 
 #' Common constructor for all PCM classes
 #' @inheritParams PCM
 #' @export
-PCM.PCM <- function(model, k = 1, regimes = 1,
-                    params = NULL, vecParams = NULL, offset = 0, ...) {
+PCM.PCM <- function(
+  model, k = 1, regimes = 1,
+  params = NULL, vecParams = NULL, offset = 0,
+  specParams = NULL, ...) {
 
   if(is.null(attr(model, "specParams", exact = TRUE))) {
-    attr(model, "specParams") <- PCMSpecifyParams(model, ...)
+    if(is.null(specParams)) {
+      specParams <- PCMSpecifyParams(model, ...)
+    }
+    attr(model, "specParams") <- specParams
   }
 
   if(is.null(attr(model, "p", exact = TRUE))) {
@@ -137,8 +148,11 @@ PCM.PCM <- function(model, k = 1, regimes = 1,
 
 #' @inherit PCM
 #' @export
-PCM.character <- function(model, k = 1, regimes = 1,
-                          params = NULL, vecParams = NULL, offset = 0, ...) {
+PCM.character <- function(
+  model, k = 1, regimes = 1,
+  params = NULL, vecParams = NULL, offset = 0,
+  specParams = NULL, ...) {
+
   modelObj <- list()
   class(modelObj) <- model
   if(length(model) == 1) {
@@ -147,7 +161,7 @@ PCM.character <- function(model, k = 1, regimes = 1,
   attr(modelObj, "k") <- k
   attr(modelObj, "regimes") <- regimes
 
-  PCM(modelObj, k, regimes, params, vecParams, offset, ...)
+  PCM(modelObj, k, regimes, params, vecParams, offset, specParams, ...)
 }
 
 #' @export
@@ -281,9 +295,10 @@ PCMNumParams.PCM <- function(model, ...) {
   R <- length(attr(model, "regimes"))
   specParams <- attr(model, "specParams")
 
-  vecParamSizes <- c(rep = 1, full = k)
+  vecParamSizes <- c(rep = 1, full = k, fixed = 0)
   matParamSizes <- c(diag1 = 1, diag = k, upper.tri = .5*k*(k-1), upper.tri.diag = .5*k*(k+1),
-                     lower.tri = .5*k*(k-1), lower.tri.diag = .5*k*(k+1), symmetric = .5*k*(k+1), full=k*k)
+                     lower.tri = .5*k*(k-1), lower.tri.diag = .5*k*(k+1), symmetric = .5*k*(k+1),
+                     full=k*k, fixed = 0)
   p <- 0
   for(name in names(specParams)) {
     type <- specParams[[name]]$type
@@ -364,6 +379,41 @@ PCMSetDefaultRegime <- function(tree, regime) {
     regime <- PCMRegimes(regime)
   }
   eval(substitute(tree$edge.regime <- rep(regime[1], length(tree$edge.length))), parent.frame())
+}
+
+#' Assign R regimes on a tree given a set of nodes
+#' @param tree a phylo object
+#' @param nodes an integer vector denoting tip or internal nodes in tree - the
+#' regimes change at the start of the branches leading to these nodes.
+#' @return an integer vector of length nrow(tree$edge), with elements from
+#' 1 to (length(nodes) + 1) naming the regime for each edge in the tree. For
+#' use in the PCM simulation and
+#' likelihood calculation functions, this vector can be converted to character
+#' and assigned as a member 'edge.regime' of the tree.
+#' @export
+PCMSetRegimesAuto <- function(tree, nodes) {
+  if(!inherits(tree, "phylo")) {
+    stop("ERR:020d0:PCMBase:PCM.R:PCMSetRegimesAuto:: argument tree should be a phylo.")
+  }
+  preorder <- PCMPreorder(tree)
+  edge.regime <- rep(1, nrow(tree$edge))
+  nextRegime <- 2
+
+  endingAt <- order(rbind(tree$edge, c(0, N+1))[, 2])
+
+  for(ei in preorder) {
+    i <- tree$edge[ei, 2]
+    j <- tree$edge[ei, 1]
+    ej <- endingAt[j]
+
+    if(i %in% nodes) {
+      edge.regime[ei] <- nextRegime
+      nextRegime <- nextRegime + 1
+    } else {
+      edge.regime[ei] <- edge.regime[ej]
+    }
+  }
+  edge.regime
 }
 
 #' Unique regimes on a tree
@@ -691,6 +741,7 @@ PCMSetOrGetVecParams <- function(
 PCMSetOrGetVecParams.PCM <- function(
   model, vecParams, offset = 0, set = TRUE, ... ) {
 
+  #force(vecParams)
   p <- 0
 
   specParams <- attr(model, "specParams")

@@ -82,3 +82,39 @@ PCMSpecifyParams.TwoSpeedOU <- function(model, ...) {
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
 }
 
+
+
+#' @export
+PCMDescribe.TwoSpeedOU1 <- function(model, ...) "TwoSpeedOU without X0."
+#' @export
+PCMParentClasses.TwoSpeedOU1 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.TwoSpeedOU1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.TwoSpeedOU2 <- function(model, ...) "TwoSpeedOU without Sigmae."
+#' @export
+PCMParentClasses.TwoSpeedOU2 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.TwoSpeedOU2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.TwoSpeedOU3 <- function(model, ...) "TwoSpeedOU without X0 and Sigmae."
+#' @export
+PCMParentClasses.TwoSpeedOU3 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.TwoSpeedOU3 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}
+

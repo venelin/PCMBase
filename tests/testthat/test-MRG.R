@@ -111,7 +111,7 @@ PCMSpecifyParams.MRG_ab <<- function(model, ...) {
       description = "Stabilizing selection"))
 }
 
-model_MRG_ab <- PCM("MRG_ab", k = 3, regimes = c("a", "b"))
+model_MRG_ab <- MRG(k = 3, models = "OU1", mapping = c(a = 1, b = 1), className = "MRG_ab", Sigmae = NULL)
 PCMSetParams(model_MRG_ab, list(X0 = a.X0, a = model.a.123, b = model.b.123))
 
 

@@ -89,3 +89,38 @@ PCMSpecifyParams.JOU <- function(model, ...) {
 }
 
 
+#' @export
+PCMDescribe.JOU1 <- function(model, ...) "JOU without X0."
+#' @export
+PCMParentClasses.JOU1 <- function(model) c("JOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.JOU1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.JOU2 <- function(model, ...) "JOU without Sigmae."
+#' @export
+PCMParentClasses.JOU2 <- function(model) c("JOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.JOU2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.JOU3 <- function(model, ...) "JOU without X0 and Sigmae."
+#' @export
+PCMParentClasses.JOU3 <- function(model) c("JOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.JOU3 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+

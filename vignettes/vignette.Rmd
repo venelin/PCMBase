@@ -3,7 +3,7 @@ title: "A User Guide to the PCMBase R-package"
 author: "Venelin Mitov"
 date: '`r Sys.Date()`'
 output: 
-  rmarkdown::html_vignette:
+  rmarkdown::pdf_document:
     fig_caption: yes
     toc: true
     toc_depth: 2
@@ -15,9 +15,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 
 library(phytools)
-library(abind)
 library(PCMBase)
-library(POUMM)
 ```
 
 
@@ -34,238 +32,108 @@ A *model* is defined by a set of parameters and a rule stating how these paramet
 - ```Sigma``` : a $k\times k$ matrix denoting the stochastic drift variance-covariances;
 - ```Sigmae``` : a $k\times k$ matrix denoting the non-genetic (non-heritable) variance covariance;
 
-The rule defining how the above OU-parameters should be fit to the data is defined by the multivariate OU Gaussian distribution, as described in (insert reference);
+The rule defining how the above OU-parameters should be fit to the data is defined by the multivariate OU Gaussian distribution, as described in (insert reference); Currently, PCMBase supports multivariate Gaussian models satisfying the following two conditions:
+
+a. the mean of the underlying stochastic process at the end of a time interval on a branch of the tree depends linearly on the ancestral value at the beginning of the branch;
+b. the variance-covariance matrix of the stochastic process after a time interval does not depend on the ancestral value.
+
+In PCMBase, models are specified as S3 objects, i.e. ordinary R-lists with a class attribute. The base S3 class of all models is called `"PCM"`, which is inherited by more specific model-classes. Let us create a BM PCM for two traits:
+
+```{r}
+modelBM <- PCM(model = "BM", k = 2)
+```
+
+Printing the model object shows a short verbal description, the S3-class, the number of traits, k, the number of numerical parameters of the model, p, the model regimes and the current values of the parameters for each regime (more on regimes in the next sub-section):
+
+```{r}
+modelBM
+```
+
+One may wonder why in the above description, p = 8 instead of 10 (see also `?PCMNumParams`). The reason is that both, the matrix Sigma and the matrix Sigmae, are symmetric matrices and their matching off-diagonal elements are counted only one time. This is specified in the attribute specParams of the model object (see `?PCMSpecifyParams`). Manipulating the `specParams` attribute of the PCM object is an advanced topic but, quickly, here is how it looks like for the model we've just created:
+
+```{r}
+attr(modelBM, "specParams", exact = TRUE)
+```
+
+As you can see, the `specParams` attribute of the model is a list with the same named entries as the model itself. Each of these entries defines a scalar, vector or matrix parameter of the model. 
 
 ## Model regimes
-Model *regimes* are different instances of the model parameters, which are associated with different branches of the phylogenetic tree. 
-
-## Examples 
-
-In PCMBase, models are specified as S3 objects, i.e. ordinary R-lists with a class attribute. Below we show how to specify an OU model:
+Model *regimes* are different models associated with different branches of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a BM model with two regimes called a and b:
 
 ```{r}
-# number of regimes
-R <- 2
-# number of traits
-k <- 3
-
-## Specifying a trivariate OU process for each regime
-# First, specify the X0, H, Theta, Sigma and Sigmae2 parameters for each regime.
-# Then we use the abind function to stack the parameters into arrays which's last
-# dimension is the regime
-
-# regimes
-
-# in regime 'a' the three traits evolve according to three independent OU processes
-a.X0 <- c(5, 2, 1)
-a.H <- rbind(c(0, 0, 0),
-             c(0, 2, 0),
-             c(0, 0, 3))
-a.Theta <- c(10, 6, 2)
-a.Sigma <- rbind(c(1.6, 0, 0),
-                 c(0, 2.4, 0),
-                 c(0, 0, 2))
-a.Sigmae2 <- rbind(c(0, 0, 0),
-                   c(0, 0, 0),
-                   c(0, 0, 0))
-
-# in regime 'b' there is a correlation between the traits
-b.X0 <- c(12, 4, 3)
-b.H <- rbind(c(2, .1, .2),
-             c(.1, .6, .2),
-             c(.2, .2, .3))
-b.Theta <- c(10, 6, 2)
-b.Sigma <- rbind(c(1.6, .3, .3),
-                 c(.3, 0.3, .4),
-                 c(.3, .4, 2))
-b.Sigmae2 <- rbind(c(.2, 0, 0),
-                   c(0, .3, 0),
-                   c(0, 0, .4))
-
-H <- abind::abind(a.H, b.H, along=3, 
-                      new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Theta <- abind::abind(a.Theta, b.Theta, along=2, 
-                      new.names=list(xy=NULL, regime=c('a', 'b')))
-Sigma <- abind::abind(a.Sigma, b.Sigma, along=3, 
-                      new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind::abind(a.Sigmae2, b.Sigmae2, along=3, 
-                       new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-
-
-## Simulations of trait data
-
-# regime 'a', trait 1
-model.a.1 <- list(X0 = a.X0[1], 
-                  H=H[1,1,'a',drop=FALSE],
-                  Theta=Theta[1,'a',drop=FALSE],
-                  Sigma=Sigma[1,1,'a',drop=FALSE],
-                  Sigmae=Sigmae[1,1,'a',drop=FALSE])
-class(model.a.1) <- 'OU'
-
-# regime 'a', trait 2
-model.a.2 <- list(X0 = a.X0[2], 
-                  H=H[2,2,'a',drop=FALSE],
-                  Theta=Theta[2,'a',drop=FALSE],
-                  Sigma=Sigma[2,2,'a',drop=FALSE],
-                  Sigmae=Sigmae[2,2,'a',drop=FALSE])
-class(model.a.2) <- 'OU'
-
-# regime 'a', trait 3
-model.a.3 <- list(X0 = a.X0[3], 
-                  H=H[3,3,'a',drop=FALSE],
-                  Theta=Theta[3,'a',drop=FALSE],
-                  Sigma=Sigma[3,3,'a',drop=FALSE],
-                  Sigmae=Sigmae[3,3,'a',drop=FALSE])
-class(model.a.3) <- 'OU'
-
-# regime 'a', traits 1, 2 and 3
-model.a.123 <- list(X0 = a.X0,
-                    H=H[,,'a',drop=FALSE],
-                    Theta=Theta[,'a',drop=FALSE],
-                    Sigma=Sigma[,,'a',drop=FALSE],
-                    Sigmae=Sigmae[,,'a',drop=FALSE])
-class(model.a.123) <- 'OU'
-
-
-# regime 'b', traits 1, 2 and 3
-model.b.123 <- list(X0 = b.X0,
-                    H=H[,,'b',drop=FALSE],
-                    Theta=Theta[,'b',drop=FALSE],
-                    Sigma=Sigma[,,'b',drop=FALSE],
-                    Sigmae=Sigmae[,,'b',drop=FALSE])
-class(model.b.123) <- 'OU'
-
-# regimes 'a' and 'b', traits 1, 2 and 3
-model.ab.123 <- list(X0 = a.X0, 
-                     H=H[,,,drop=FALSE],
-                     Theta=Theta[,,drop=FALSE],
-                     Sigma=Sigma[,,,drop=FALSE],
-                     Sigmae=Sigmae[,,,drop=FALSE])
-class(model.ab.123) <- 'OU'
-
+modelBM.ab <- PCM("BM", 2, regimes = c("a", "b"))
+modelBM.ab
 ```
 
+Now, we can set some different values for the parameters of the model we've just created. First, let us specify an initial value vector different from the default 0-vector:
 
-# Simulating data
+```{r}
+modelBM.ab$X0 <- c(5, 2)
+```
 
-## Single regime simulations
-```{r phylo}
-set.seed(1)
+X0 is defined as a parameter of type "gvector", which stays for a global vector parameter shared by all model regimes. This is also the reason, why the number of parameters is not the double of the number of parameters in the first model:
 
+```{r}
+PCMNumParams(modelBM)
+PCMNumParams(modelBM.ab)
+```
+
+The other parameters, Sigma and Sigmae are local for each regime:
+
+```{r}
+# in regime 'a' the traits evolve according to two independent BM processes (starting from the global vecto X0).
+modelBM.ab$Sigma[,, "a"] <- rbind(c(1.6, 0),
+                                  c(0, 2.4))
+modelBM.ab$Sigmae[,, "a"] <- rbind(c(.1, 0),
+                                   c(0, .4))
+# in regime 'b' there is a correlation between the traits
+modelBM.ab$Sigma[,, "b"] <- rbind(c(1.6, .8),
+                                  c(.8, 2.4))
+modelBM.ab$Sigmae[,, "b"] <- rbind(c(.1, 0),
+                                   c(0, .4))
+```
+
+# Simulating data on a phylogenetic tree
+The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM. 
+
+For this example, first we simulate a birth death tree with two regimes "a" and "b" using the `phytools` R-package:
+
+```{r}
 library(phytools)
 
-# number of tips
-N <- 30
+# make results reproducible
+set.seed(2)
 
-tree.a <- phytools::pbtree(n=N, scale=1)
-
-# tree with one regime
-tree.a <- phytools::pbtree(n=N, scale=1)
-
-plot(tree.a)
-
-# generate traits
-traits.a.1 <- PCMSim(tree.a, model.a.1, 0)
-traits.a.2 <- PCMSim(tree.a, model.a.2, 0)
-traits.a.3 <- PCMSim(tree.a, model.a.2, 0)
-```
-
-## Two regimes simulations
-```{r}
 # number of regimes
 R <- 2
 
+# number of extant tips
+N <- 100
+
 # rate mtrix of transition from one regime to another
-Q <- matrix(c(-1, 1, 1, -1), R, R)
-colnames(Q) <- rownames(Q) <- letters[1:R]
+Q <- matrix(c(-0.1, 0.1, 0.01, -0.01), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
+tree.a <- pbtree(n=N, scale=1, b = 1, d = 0.4)
 tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
 
 # convert the simmap tree to a normal phylo object with singleton nodes at the
-# within-branch regime changes. The regimes are encoded as names of the 
-# edge.length vector
-tree.ab <- map.to.singleton(tree.ab)
+# within-branch regime changes. The regimes are encoded as names of the edge.length
+# vector
+tree.ab.singles <- map.to.singleton(tree.ab)
+tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
+plotTree.singletons(tree.ab.singles)
+```
 
-plotTree.singletons(tree.ab)
+Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:
 
-traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0))
+```{r}
+traits <- PCMSim(tree.ab.singles, modelBM.ab, modelBM.ab$X0)
 ```
 
 # Calculating likelihoods
+Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.
+
 ```{r}
-# For the single trait models the likelihoods calculated with PCMLik and 
-# POUMM::likPOUMMGivenTreeVTips should match exactly:
-cat("PCMBase: \n")
-PCMLik(traits.a.1$values + traits.a.1$errors, tree.a,
-              model.a.1)
-cat("POUMM: \n")
-POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.1$values[1,] + traits.a.1$errors[1,],
-            tree = tree.a,
-            alpha = model.a.1$H[1,1,1],
-            theta = model.a.1$Theta[1,1],
-            sigma = sqrt(model.a.1$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.1$Sigmae[1,1,1]),
-            g0 = a.X0[1])
-
-cat("PCMBase: \n")
-PCMLik(traits.a.2$values + traits.a.2$errors, tree.a,
-              model.a.2)
-cat("POUMM: \n")
-POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.2$values[1,] + traits.a.2$errors[1,],
-            tree = tree.a,
-            alpha = model.a.2$H[1,1,1],
-            theta = model.a.2$Theta[1,1],
-            sigma = sqrt(model.a.2$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.2$Sigmae[1,1,1]),
-            g0 = a.X0[2])
-
-cat("PCMBase: \n")
-PCMLik(traits.a.3$values + traits.a.3$errors, tree.a,
-              model.a.3)
-cat("POUMM: \n")
-POUMM::likPOUMMGivenTreeVTips(
-            z = traits.a.3$values[1,] + traits.a.3$errors[1,],
-            tree = tree.a,
-            alpha = model.a.3$H[1,1,1],
-            theta = model.a.3$Theta[1,1],
-            sigma = sqrt(model.a.3$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.3$Sigmae[1,1,1]),
-            g0 = a.X0[3])
-
-# For the multivariate model, the likelihood should be equal to the sum of the
-# corresponding univariate likelihoods since the traits are independent:
-
-cat("PCMBase: \n")
-PCMLik(X = traits.a.123$values + traits.a.123$errors, 
-      tree = tree.a, 
-      model = model.a.123)
-cat("POUMM: \n")
-POUMM::likPOUMMGivenTreeVTips(
-            traits.a.123$values[1,]+traits.a.123$errors[1,],
-            tree.a,
-            model.a.123$H[1,1,1],
-            model.a.123$Theta[1,1],
-            sqrt(model.a.123$Sigma[1,1,1]),
-            sqrt(model.a.123$Sigmae[1,1,1]),
-            a.X0[1]) +
-             POUMM::likPOUMMGivenTreeVTips(
-               traits.a.123$values[2,] + traits.a.123$errors[2,],
-               tree.a,
-               model.a.123$H[2,2,1],
-               model.a.123$Theta[2,1],
-               sqrt(model.a.123$Sigma[2,2,1]),
-               sqrt(model.a.123$Sigmae[2,2,1]),
-               a.X0[2]) +
-             POUMM::likPOUMMGivenTreeVTips(
-               traits.a.123$values[3,]+traits.a.123$errors[3,],
-               tree.a,
-               model.a.123$H[3,3,1],
-               model.a.123$Theta[3,1],
-               sqrt(model.a.123$Sigma[3,3,1]),
-               sqrt(model.a.123$Sigmae[3,3,1]),
-               a.X0[3])
-
+PCMLik(traits, tree.ab.singles, modelBM.ab)
 ```

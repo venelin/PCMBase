@@ -90,3 +90,26 @@ PCMSpecifyParams.OU1 <- function(model, ...) {
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
+
+#' @export
+PCMDescribe.OU2 <- function(model, ...) "OU without Sigmae."
+#' @export
+PCMParentClasses.OU2 <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU3 <- function(model, ...) "OU without X0 and Sigmae."
+#' @export
+PCMParentClasses.OU3 <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU3 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae <- NULL
+  spec[!sapply(spec, is.null)]
+}
