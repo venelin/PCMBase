@@ -46,7 +46,8 @@ PCMInfo.White <- function(X, tree, model, verbose = FALSE) {
 
 #' @export
 PCMCond.White <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
-  Sigmae <- as.matrix(model$Sigmae[,,r])
+  Sigmae <- as.matrix(model$Sigmae_x[,,r]) %*% t(as.matrix(model$Sigmae_x[,,r]))
+
   V <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(metaI$edge[edgeIndex,2] <= metaI$N) {
       Sigmae
@@ -74,8 +75,8 @@ PCMSpecifyParams.White <- function(model, ...) {
     X0 = list(default = rep(0, k),
               type = c("gvector", "full"),
               description = "trait vector at the root; global for all model regimes"),
-    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric"),
+    Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "upper.tri.diag", "positive.diag"),
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
 }
 

@@ -25,9 +25,9 @@ PCMCond.TwoSpeedOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, mod
   H1 <- as.matrix(model$H1[,,r])
   H2 <- as.matrix(model$H2[,,r])
   Theta <- model$Theta[,r]
-  Sigma <- as.matrix(model$Sigma[,,r])
+  Sigma <- as.matrix(model$Sigma_x[,,r]) %*% t(as.matrix(model$Sigma_x[,,r]))
   if(!is.null(model$Sigmae)) {
-    Sigmae <- as.matrix(model$Sigmae[,,r])
+    Sigmae <- as.matrix(model$Sigmae_x[,,r]) %*% t(as.matrix(model$Sigmae_x[,,r]))
   } else {
     Sigmae <- NULL
   }
@@ -74,12 +74,12 @@ PCMSpecifyParams.TwoSpeedOU <- function(model, ...) {
     Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
                  type = c("vector", "full"),
                  description = "long-term optimum"),
-    Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric", "positive.diag"),
-                 description = "unit-time variance-covariance matrix of the BM process"),
-    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric", "positive.diag"),
-                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
+    Sigma_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "upper.tri.diag", "positive.diag"),
+                 description = "Upper triangular Choleski factor of the unit-time variance-covariance matrix of the BM process"),
+    Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "upper.tri.diag", "positive.diag"),
+                  description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
 }
 
 
@@ -96,25 +96,25 @@ PCMSpecifyParams.TwoSpeedOU1 <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.TwoSpeedOU2 <- function(model, ...) "TwoSpeedOU without Sigmae."
+PCMDescribe.TwoSpeedOU2 <- function(model, ...) "TwoSpeedOU without Sigmae_x."
 #' @export
 PCMParentClasses.TwoSpeedOU2 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.TwoSpeedOU2 <- function(model, ...) {
   spec <- NextMethod()
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.TwoSpeedOU3 <- function(model, ...) "TwoSpeedOU without X0 and Sigmae."
+PCMDescribe.TwoSpeedOU3 <- function(model, ...) "TwoSpeedOU without X0 and Sigmae_x."
 #' @export
 PCMParentClasses.TwoSpeedOU3 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.TwoSpeedOU3 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 

@@ -32,10 +32,10 @@ a.H2 <- rbind(c(0, 0, 0),
                  c(0, 0, 3))
 
 a.Theta <- c(10, 6, 2)
-a.Sigma <- rbind(c(1.6, 0, 0),
+a.Sigma_x <- rbind(c(1.6, 0, 0),
                  c(0, 2.4, 0),
                  c(0, 0, 2))
-a.Sigmae2 <- rbind(c(0, 0, 0),
+a.Sigmae_x <- rbind(c(0, 0, 0),
                    c(0, 0, 0),
                    c(0, 0, 0))
 
@@ -50,38 +50,34 @@ b.H2 <- rbind(c(2, .1, .2),
                  c(.2, .2, .3))
 
 b.Theta <- c(10, 6, 2)
-b.Sigma <- rbind(c(1.6, .3, .3),
-                 c(.3, 0.3, .4),
-                 c(.3, .4, 2))
-b.Sigmae2 <- rbind(c(.2, 0, 0),
+b.Sigma_x <- rbind(c(1.6, .3, .3),
+                 c(0, 0.3, .4),
+                 c(0, 0, 2))
+b.Sigmae_x <- rbind(c(.2, 0, 0),
                    c(0, .3, 0),
                    c(0, 0, .4))
-
-# First, specify the ALpha1,H2, theta, Sigma and sigmae2 parameters for each regime.
-# Then we use the abind function to stack the parameters into arrays which's first
-# dimension is the regime
 
 
 H1 <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 H2 <- abind(a.H2, b.H2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a', 'b')))
-Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigma_x <- abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- PCM("OU", 3, "a", list(X0 = a.X0,
                                               H=H1[,,'a',drop=FALSE],
                                               Theta=Theta[,'a',drop=FALSE],
-                                              Sigma=Sigma[,,'a',drop=FALSE],
-                                              Sigmae=Sigmae[,,'a',drop=FALSE]))
+                                              Sigma_x=Sigma_x[,,'a',drop=FALSE],
+                                              Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
 model.a.123.TwoSpeedOU <- PCM("TwoSpeedOU", 3, "a", list(X0 = a.X0,
                                                          H1=H1[,,'a',drop=FALSE],
                                                          H2=H2[,,'a',drop=FALSE],
                                                          Theta=Theta[,'a',drop=FALSE],
-                                                         Sigma=Sigma[,,'a',drop=FALSE],
-                                                         Sigmae=Sigmae[,,'a',drop=FALSE]))
+                                                         Sigma_x=Sigma_x[,,'a',drop=FALSE],
+                                                         Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
 #####################################################################################################
 
@@ -118,15 +114,15 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 model.b.123 <- PCM("OU", 3, "b", list(X0 = b.X0,
                                       H=H1[,,'b',drop=FALSE],
                                       Theta=Theta[,'b',drop=FALSE],
-                                      Sigma=Sigma[,,'b',drop=FALSE],
-                                      Sigmae=Sigmae[,,'b',drop=FALSE]))
+                                      Sigma_x=Sigma_x[,,'b',drop=FALSE],
+                                      Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
 
 model.b.123.TwoSpeedOU <- PCM("TwoSpeedOU", 3, "b", list(X0 = b.X0,
                                                          H1=H1[,,'b',drop=FALSE],
                                                          H2=H2[,,'b',drop=FALSE],
                                                          Theta=Theta[,'b',drop=FALSE],
-                                                         Sigma=Sigma[,,'b',drop=FALSE],
-                                                         Sigmae=Sigmae[,,'b',drop=FALSE]))
+                                                         Sigma_x=Sigma_x[,,'b',drop=FALSE],
+                                                         Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
 
 context(ctx <- "R=1/k=3/N=400")
 
@@ -175,8 +171,8 @@ model.ab.123 <- PCM("TwoSpeedOU", 3, c("a", "b"), list(X0 = a.X0,
                                                        H1=H1[,,,drop=FALSE],
                                                        H2=H2[,,,drop=FALSE],
                                                        Theta=Theta[,,drop=FALSE],
-                                                       Sigma=Sigma[,,,drop=FALSE],
-                                                       Sigmae=Sigmae[,,,drop=FALSE]))
+                                                       Sigma_x=Sigma_x[,,,drop=FALSE],
+                                                       Sigmae_x=Sigmae_x[,,,drop=FALSE]))
 
 traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
@@ -243,8 +239,8 @@ if(require(PCMBaseCpp)) {
 model <- PCM("TwoSpeedOU", 1, 1, list(H1=abind(matrix(5.670849e+01, 1, 1), along = 3),
                                       H2=abind(matrix(1.026642e+01, 1, 1), along = 3),
                                       Theta = abind(4.479180e+00, along = 2),
-                                      Sigma = abind(matrix(9.102055e+00, 1, 1), along = 3),
-                                      Sigmae = abind(matrix(5.317612e-01, 1, 1), along = 3)))
+                                      Sigma_x = abind(matrix(9.102055e+00, 1, 1), along = 3),
+                                      Sigmae_x = abind(matrix(5.317612e-01, 1, 1), along = 3)))
 
 tree <- phytools::starTree(species = 1:1000, branch.lengths = rep(0.14, 1000))
 PCMSetDefaultRegime(tree, model)

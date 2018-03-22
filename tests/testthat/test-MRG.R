@@ -20,7 +20,7 @@ Q <- matrix(c(-1, 1, 1, -1), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
 ## Specifying a bivariate OU process for each regime
-# First, specify the A, theta, Sigma and sigmae2 parameters for each regime.
+# First, specify the A, theta, Sigma_x and sigmae2 parameters for each regime.
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
@@ -33,11 +33,11 @@ a.H <- rbind(
   c(0, 2, 0),
   c(0, 0, 3))
 a.Theta <- c(10, 6, 2)
-a.Sigma <- rbind(
+a.Sigma_x <- rbind(
   c(1.6, 0, 0),
   c(0, 2.4, 0),
   c(0, 0, 2))
-a.Sigmae2 <- rbind(
+a.Sigmae_x <- rbind(
   c(0, 0, 0),
   c(0, 0, 0),
   c(0, 0, 0))
@@ -49,19 +49,19 @@ b.H <- rbind(
   c(.1, .6, .2),
   c(.2, .2, .3))
 b.Theta <- c(10, 6, 2)
-b.Sigma <- rbind(
+b.Sigma_x <- rbind(
   c(1.6, .3, .3),
-  c(.3, 0.3, .4),
-  c(.3, .4, 2))
-b.Sigmae2 <- rbind(
+  c(0, 0.3, .4),
+  c(0, 0, 2))
+b.Sigmae_x <- rbind(
   c(.2, 0, 0),
   c(0, .3, 0),
   c(0, 0, .4))
 
 H <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a','b')))
-Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigma_x <- abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 
 ## Simulations of trait data
@@ -69,29 +69,29 @@ Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, re
 # regime 'a', trait 1
 model.a.1 <- PCM("OU1", 1, "a", params = list(H=H[1,1,'a',drop=FALSE],
                                              Theta=Theta[1,'a',drop=FALSE],
-                                             Sigma=Sigma[1,1,'a',drop=FALSE],
-                                             Sigmae=Sigmae[1,1,'a',drop=FALSE]))
+                                             Sigma_x=Sigma_x[1,1,'a',drop=FALSE],
+                                             Sigmae_x=Sigmae_x[1,1,'a',drop=FALSE]))
 
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- PCM("OU1", 3, "a", params = list(H=H[,,'a',drop=FALSE],
                                                Theta=Theta[,'a',drop=FALSE],
-                                               Sigma=Sigma[,,'a',drop=FALSE],
-                                               Sigmae=Sigmae[,,'a',drop=FALSE]))
+                                               Sigma_x=Sigma_x[,,'a',drop=FALSE],
+                                               Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
 
 # regime 'b', traits 1, 2 and 3
 model.b.123 <- PCM("OU1", 3, "b", params = list(H=H[,,'b',drop=FALSE],
                                                Theta=Theta[,'b',drop=FALSE],
-                                               Sigma=Sigma[,,'b',drop=FALSE],
-                                               Sigmae=Sigmae[,,'b',drop=FALSE]))
+                                               Sigma_x=Sigma_x[,,'b',drop=FALSE],
+                                               Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
 
 # regimes 'a' and 'b', traits 1, 2 and 3
 model.ab.123 <- PCM("OU", 3, c("a", "b"), params = list(X0 = a.X0,
                                                         H=H[,,,drop=FALSE],
                                                         Theta=Theta[,,drop=FALSE],
-                                                        Sigma=Sigma[,,,drop=FALSE],
-                                                        Sigmae=Sigmae[,,,drop=FALSE]))
+                                                        Sigma_x=Sigma_x[,,,drop=FALSE],
+                                                        Sigmae_x=Sigmae_x[,,,drop=FALSE]))
 
 PCMParentClasses.MRG_ab <<- function(model) c("MRG", "GaussianPCM", "PCM")
 PCMSpecifyParams.MRG_ab <<- function(model, ...) {
@@ -111,7 +111,7 @@ PCMSpecifyParams.MRG_ab <<- function(model, ...) {
       description = "Stabilizing selection"))
 }
 
-model_MRG_ab <- MRG(k = 3, models = "OU1", mapping = c(a = 1, b = 1), className = "MRG_ab", Sigmae = NULL)
+model_MRG_ab <- MRG(k = 3, models = "OU1", mapping = c(a = 1, b = 1), className = "MRG_ab", Sigmae_x = NULL)
 PCMSetParams(model_MRG_ab, list(X0 = a.X0, a = model.a.123, b = model.b.123))
 
 

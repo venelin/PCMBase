@@ -73,10 +73,10 @@ PCMSpecifyParams.OU <- function(model, ...) {
                  description = "long-term optimum trait values"),
     Sigma_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
                  type = c("matrix", "upper.tri.diag", "positive.diag"),
-                 description = "unit-time variance-covariance matrix of the BM-process"),
+                 description = "Upper triangular Choleski factor of the unit-time variance-covariance matrix of the BM-process"),
     Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
                   type = c("matrix", "upper.tri.diag", "positive.diag"),
-                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
+                  description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
 }
 
 

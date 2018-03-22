@@ -25,12 +25,12 @@ PCMParentClasses.JOU <- function(model) {
 PCMCond.JOU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   H <- as.matrix(model$H[,,r])
   Theta <- model$Theta[,r]
-  Sigma <- as.matrix(model$Sigma[,,r])
-  Sigmaj <- as.matrix(model$Sigmaj[,,r])
+  Sigma <- as.matrix(model$Sigma_x[,,r]) %*% t(as.matrix(model$Sigma_x[,,r]))
+  Sigmaj <- as.matrix(model$Sigmaj_x[,,r]) %*% t(as.matrix(model$Sigmaj_x[,,r]))
   mj <- model$mj[,r]
   xi <- metaI$xi
   if(!is.null(model$Sigmae)) {
-    Sigmae <- as.matrix(model$Sigmae[,,r])
+    Sigmae <- as.matrix(model$Sigmae_x[,,r]) %*% t(as.matrix(model$Sigmae_x[,,r]))
   } else {
     Sigmae <- NULL
   }
@@ -74,18 +74,18 @@ PCMSpecifyParams.JOU <- function(model, ...) {
     Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
               type = c("vector", "full"),
               description = "long-term optimum trait values"),
-    Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric", "positive.diag"),
+    Sigma_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "upper.tri.diag", "positive.diag"),
                  description = "unit-time variance-covariance matrix of the BM-process"),
     mj = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
               type = c("vector", "full"),
               description = "jump mean"),
-    Sigmaj = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric", "positive.diag"),
-                 description = "jump variance-covariance matrix"),
-    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric", "positive.diag"),
-                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
+    Sigmaj_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "upper.tri.diag", "positive.diag"),
+                 description = "Upper triangular Choleski factor of the jump variance-covariance matrix"),
+    Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "upper.tri.diag", "positive.diag"),
+                  description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
 }
 
 
@@ -101,26 +101,24 @@ PCMSpecifyParams.JOU1 <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.JOU2 <- function(model, ...) "JOU without Sigmae."
+PCMDescribe.JOU2 <- function(model, ...) "JOU without Sigmae_x."
 #' @export
 PCMParentClasses.JOU2 <- function(model) c("JOU", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.JOU2 <- function(model, ...) {
   spec <- NextMethod()
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.JOU3 <- function(model, ...) "JOU without X0 and Sigmae."
+PCMDescribe.JOU3 <- function(model, ...) "JOU without X0 and Sigmae_x."
 #' @export
 PCMParentClasses.JOU3 <- function(model) c("JOU", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.JOU3 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
-
-

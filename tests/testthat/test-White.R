@@ -7,7 +7,7 @@ set.seed(1)
 
 MVTlik <- function(values, tree, model) {
   mean <- model$X0
-  sigma <- model$Sigmae[,,1]
+  sigma <- as.matrix(model$Sigmae_x[,,1]) %*% t(as.matrix(model$Sigmae_x[,,1]))
   sum(apply(values, 2,
             function(xi) mvtnorm::dmvnorm(x = xi, mean = mean,
                                           sigma = sigma, log = TRUE )))
@@ -27,7 +27,7 @@ Q <- matrix(c(-1, 1, 1, -1), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
 a.X0 <- c(12, 4, 3)
-a.Sigmae2 <- rbind(c(.2, 0, 0),
+a.Sigmae_x <- rbind(c(.2, 0, 0),
                    c(0, .3, 0),
                    c(0, 0, .4))
 
@@ -35,13 +35,13 @@ a.Sigmae2 <- rbind(c(.2, 0, 0),
 # Then we use the abind function to stack the parameters into arrays which's first
 # dimension is the regime
 
-Sigmae <- abind(a.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
+Sigmae_x <- abind(a.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a')))
 
 # regime 'a', traits 1, 2 and 3
 
 model.a.123 <- PCM("White", k = 3, regimes = "a",
                    params = list(X0 = a.X0,
-                                 Sigmae = Sigmae[,, "a", drop = FALSE]))
+                                 Sigmae_x = Sigmae_x[,, "a", drop = FALSE]))
 
 
 ################ 1st Validation ######################################################

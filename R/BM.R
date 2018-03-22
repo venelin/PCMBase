@@ -34,9 +34,9 @@ PCMDescribe.BM <- function(model, ...) {
 
 #' @export
 PCMCond.BM <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
-  Sigma <- as.matrix(model$Sigma[,,r])
+  Sigma <- as.matrix(model$Sigma_x[,,r]) %*% t(as.matrix(model$Sigma_x[,,r]))
   if(!is.null(model$Sigmae)) {
-    Sigmae <- as.matrix(model$Sigmae[,,r])
+    Sigmae <- as.matrix(model$Sigmae_x[,,r]) %*% t(as.matrix(model$Sigmae_x[,,r]))
   } else {
     Sigmae <- NULL
   }
@@ -63,12 +63,12 @@ PCMSpecifyParams.BM <- function(model, ...) {
     X0 = list(default = rep(0, k),
               type = c("gvector", "full"),
               description = "trait vector at the root; global for all model regimes"),
-    Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric", "positive.diag"),
-                 description = "unit-time variance-covariance matrix of the BM-process"),
-    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric", "positive.diag"),
-                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
+    Sigma_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "upper.tri.diag", "positive.diag"),
+                 description = "Upper triangular Choleski factor of the unit-time variance-covariance matrix of the BM-process"),
+    Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "upper.tri.diag", "positive.diag"),
+                  description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
 }
 
 #' @export
@@ -83,24 +83,24 @@ PCMSpecifyParams.BM1 <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.BM2 <- function(model, ...) "BM without Sigmae."
+PCMDescribe.BM2 <- function(model, ...) "BM without Sigmae_x."
 #' @export
 PCMParentClasses.BM2 <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.BM2 <- function(model, ...) {
   spec <- NextMethod()
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.BM3 <- function(model, ...) "BM without X0 and Sigmae."
+PCMDescribe.BM3 <- function(model, ...) "BM without X0 and Sigmae_x."
 #' @export
 PCMParentClasses.BM3 <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.BM3 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }

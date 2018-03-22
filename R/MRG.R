@@ -92,14 +92,14 @@ PCMGetVecParamsFull.MRG <- function(model, ...) {
 #' resulting MRG object.
 #' @param X0 NULL or a list defining a global vector X0 to be used by all
 #' models in the MRG.
-#' @param Sigmae NULL or a list defining a global matrix to be used as element
-#' Sigmae by all models in the MRG.
+#' @param Sigmae_x NULL or a list defining a global matrix to be used as element
+#' Sigmae_x by all models in the MRG.
 #' @return an object of S3 class className inheriting from MRG, GaussianPCM and
 #' PCM.
 #'
 #' @details If X0 is not NULL it has no sense to use models including X0 as a
-#' parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae is
-#' not NULL there is no meaning in using models including Sigmae as a parameter,
+#' parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae_x is
+#' not NULL there is no meaning in using models including Sigmae_x as a parameter,
 #' (e.g. use OU2 or OU3 instead of OU or OU1).
 #' @export
 MRG <- function(
@@ -110,9 +110,9 @@ MRG <- function(
   X0 = list(default = rep(0, k),
             type = c("gvector", "full"),
             description = "trait vector at the root; global for all regimes"),
-  Sigmae = list(default = matrix(0, nrow = k, ncol = k),
-                type = c("gmatrix", "symmetric"),
-                description = "variance-covariance matrix for the non-phylogenetic trait component")) {
+  Sigmae_x = list(default = matrix(0, nrow = k, ncol = k),
+                type = c("gmatrix", "upper.tri.diag", "positive.diag"),
+                description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component")) {
 
   regimes <- if(is.null(names(mapping))) as.character(1:length(mapping)) else names(mapping)
 
@@ -134,14 +134,14 @@ MRG <- function(
     specParams[[regimes[m]]] <- list(default = PCM(mappingModelRegime[m], k, 1), type = "model")
   }
 
-  specParams[["Sigmae"]] <- Sigmae
+  specParams[["Sigmae_x"]] <- Sigmae_x
   specParams <- specParams[!sapply(specParams, is.null)]
 
   PCM(model = c(className, "MRG", "GaussianPCM", "PCM"), k = k, regimes = regimes, specParams = specParams)
 }
 
 #' @export
-PCMLowerBound.MRG <- function(model, X0 = NULL, Sigmae = NULL, ...) {
+PCMLowerBound.MRG <- function(model, X0 = NULL, Sigmae_x = NULL, ...) {
   model <- NextMethod()
   specParams <- attr(model, "specParams", exact = TRUE)
 
@@ -150,17 +150,17 @@ PCMLowerBound.MRG <- function(model, X0 = NULL, Sigmae = NULL, ...) {
   }
   for(name in names(specParams)) {
     if(specParams[[name]]$type[1]=="model") {
-      model[[name]] <- PCMLowerBound(model[[name]], X0 = X0, Sigmae = Sigmae, ...)
+      model[[name]] <- PCMLowerBound(model[[name]], X0 = X0, Sigmae_x = Sigmae_x, ...)
     }
   }
-  if(!is.null(specParams$Sigmae) && !is.null(Sigmae)) {
-    model$Sigmae <- Sigmae
+  if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
+    model$Sigmae_x <- Sigmae_x
   }
   model
 }
 
 #' @export
-PCMUpperBound.MRG <- function(model, X0 = NULL, Sigmae = NULL, ...) {
+PCMUpperBound.MRG <- function(model, X0 = NULL, Sigmae_x = NULL, ...) {
   model <- NextMethod()
   specParams <- attr(model, "specParams", exact = TRUE)
 
@@ -169,11 +169,11 @@ PCMUpperBound.MRG <- function(model, X0 = NULL, Sigmae = NULL, ...) {
   }
   for(name in names(specParams)) {
     if(specParams[[name]]$type[1]=="model") {
-      model[[name]] <- PCMUpperBound(model[[name]], X0 = X0, Sigmae = Sigmae, ...)
+      model[[name]] <- PCMUpperBound(model[[name]], X0 = X0, Sigmae_x = Sigmae_x, ...)
     }
   }
-  if(!is.null(specParams$Sigmae) && !is.null(Sigmae)) {
-    model$Sigmae <- Sigmae
+  if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
+    model$Sigmae_x <- Sigmae_x
   }
   model
 }

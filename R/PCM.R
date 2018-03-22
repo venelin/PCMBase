@@ -821,19 +821,10 @@ PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose),
 #' @details Internally, this function uses the \code{\link{PCMCond}} iimplementation
 #'  for the given model class.
 #'
-#' @return a list with two members as follows:
-#' \describe{
-#' \item{values}{numeric M x k matrix of values at all nodes of the tree (root,
+#' @return numeric M x k matrix of values at all nodes of the tree (root,
 #' internal and tip), where M is the number of nodes: M=dim(tree$edge)[1]+1,
 #' with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
-#' corresponding to the root and bigger than N+1 corresponding to internal nodes.}
-#' \item{errors}{numeric M x k matrix of errors at all nodes of the tree (root,
-#' internal and tip). Note that these errors are only simulated if the model contains
-#' a k x k x R matrix member with the name 'Sigmae'. In this case the errors are
-#' simulated as a random Gaussian noise with 0 mean and variance covariance matrix
-#' defined by Sigmae. Note also that the errors on the root- and the internal nodes
-#' are not used as input for the values/errors at their descending nodes, because
-#' they are treated as non-heritable components or measurement error.}
+#' corresponding to the root and bigger than N+1 corresponding to internal nodes.
 #' The function will fail in case that the length of the argument vector X0 differs
 #' from the number of traits specified in \code{metaI$k}. Error message:
 #' "ERR:02002:PCMBase:PCM.R:PCMSim:: X0 must be of length ...".
