@@ -88,7 +88,7 @@ N <- 400
 
 # tree with one regime
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.a, model.a.123)
+PCMTreeSetDefaultRegime(tree.a, model.a.123)
 #tree.a$edge.regime <- names(tree.a$edge.length)
 
 # generate traits
@@ -131,7 +131,7 @@ N <- 400
 
 # tree with one regime
 tree.b <- rtree(N) # phytools::pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.b, model.b.123)
+PCMTreeSetDefaultRegime(tree.b, model.b.123)
 #tree.b$edge.regime <- names(tree.b$edge.length)
 
 # generate traits
@@ -243,6 +243,6 @@ model <- PCM("TwoSpeedOU", 1, 1, list(H1=abind(matrix(5.670849e+01, 1, 1), along
                                       Sigmae_x = abind(matrix(5.317612e-01, 1, 1), along = 3)))
 
 tree <- phytools::starTree(species = 1:1000, branch.lengths = rep(0.14, 1000))
-PCMSetDefaultRegime(tree, model)
+PCMTreeSetDefaultRegime(tree, model)
 #tree$edge.regime <- rep(1, length(tree$edge.length))
 data <- PCMSim(tree, model, X0 = 9)

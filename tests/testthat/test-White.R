@@ -53,7 +53,7 @@ N <- 2
 
 # tree with one regime
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.a, model.a.123)
+PCMTreeSetDefaultRegime(tree.a, model.a.123)
 
 # generate traits
 
@@ -82,7 +82,7 @@ context(ctx <- "R=1/k=3/N=400")
 N <- 400
 
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.a, model.a.123)
+PCMTreeSetDefaultRegime(tree.a, model.a.123)
 # generate traits
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, model.a.123$X0, verbose=TRUE)

@@ -122,7 +122,7 @@ N <- 2
 
 # tree with one regime
 tree.a <- rtree(N) # phytools::pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.a, model.a.123)
+PCMTreeSetDefaultRegime(tree.a, model.a.123)
 #tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 # generate traits
@@ -177,7 +177,7 @@ N <- 400
 
 # tree with one regime
 tree.a <- rtree(N) # pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.a, model.a.1)
+PCMTreeSetDefaultRegime(tree.a, model.a.1)
 
 #tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
@@ -300,7 +300,7 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
   expect_true(abs(OUlik - POUMMlik) < EPS)
 })
 
-PCMSetDefaultRegime(tree.a, model.b.123)
+PCMTreeSetDefaultRegime(tree.a, model.b.123)
 traits.b.123 <- PCMSim(tree.a, model.b.123, c(0,0,0), verbose=TRUE)
 
 if(require(phytools)) {
@@ -323,7 +323,7 @@ traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on OU:\n")
 
-  PCMSetDefaultRegime(tree.a, model.a.123)
+  PCMTreeSetDefaultRegime(tree.a, model.a.123)
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
                          PCMLik(traits.a.123, tree.a, model.a.123,

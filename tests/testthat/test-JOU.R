@@ -101,9 +101,9 @@ N <- 400
 # tree with one regime
 
 tree.a <- rtree(N) #phytools::pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.a, model.a.123)
+PCMTreeSetDefaultRegime(tree.a, model.a.123)
 tree.b <- rtree(N) #phytools::pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.b, model.b.123)
+PCMTreeSetDefaultRegime(tree.b, model.b.123)
 
 tree.a$edge.jump <- sample(as.integer(0:1), size = nrow(tree.a$edge), replace = TRUE)
 tree.b$edge.jump <- tree.a$edge.jump

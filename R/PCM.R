@@ -357,7 +357,7 @@ PCMNumParams.PCM <- function(model, ...) {
 #' @param tree a phylo object
 #' @return the number of tips in tree
 #' @export
-PCMNumTips <- function(tree) {
+PCMTreeNumTips <- function(tree) {
   length(tree$tip.label)
 }
 
@@ -367,7 +367,7 @@ PCMNumTips <- function(tree) {
 #' @param tree a phylo object
 #' @return the number of nodes in tree including root, internal and tips.
 #' @export
-PCMNumNodes <- function(tree) {
+PCMTreeNumNodes <- function(tree) {
   nrow(tree$edge) + 1
 }
 
@@ -384,24 +384,30 @@ PCMNumNodes <- function(tree) {
 #' @return This function does not return a value but has a side effect on the passed
 #' tree object.
 #' @export
-PCMSetDefaultRegime <- function(tree, regime) {
+PCMTreeSetDefaultRegime <- function(tree, regime) {
   if(is.PCM(regime)) {
     regime <- PCMRegimes(regime)
   }
   eval(substitute(tree$edge.regime <- rep(regime[1], length(tree$edge.length))), parent.frame())
 }
 
-#' Assign R regimes on a tree given a set of nodes
+#' Assign regimes on a tree given a set of starting branches
+#'
+#' @details It is assumed that each regime "paints" a linked subset of branches
+#' on a tree. Thus, each regime is fully described by its starting branch. The
+#' descendant branches inherit this regime until reaching a tip or a node that is
+#' present in the \code{nodes} parameter.
+#'
 #' @param tree a phylo object
 #' @param nodes an integer vector denoting tip or internal nodes in tree - the
 #' regimes change at the start of the branches leading to these nodes.
 #' @return an integer vector of length nrow(tree$edge), with elements from
 #' 1 to (length(nodes) + 1) naming the regime for each edge in the tree. For
 #' use in the PCM simulation and
-#' likelihood calculation functions, this vector can be converted to character
-#' and assigned as a member 'edge.regime' of the tree.
+#' likelihood calculation functions, this vector can be converted or mapped to a
+#' a vector of character strings and/or assigned as a member 'edge.regime' of the tree.
 #' @export
-PCMSetRegimesAuto <- function(tree, nodes) {
+PCMTreeSetRegimesIncremental <- function(tree, nodes) {
   if(!inherits(tree, "phylo")) {
     stop("ERR:020d0:PCMBase:PCM.R:PCMSetRegimesAuto:: argument tree should be a phylo.")
   }
@@ -450,7 +456,7 @@ PCMNumUniqueRegimesTree <- function(tree) {
 }
 
 #' Jumps in modeled traits associated with branches in a tree
-#' @inheritParams PCMNumTips
+#' @inheritParams PCMTreeNumTips
 #' @return an integer vector of 0's and 1's with entries correspondin to the
 #' denoting if a jump took place at the beginning of a branch.
 PCMJumps <- function(tree) {
@@ -736,17 +742,43 @@ PCMSetParams.PCM <- function(model, params, inplace = TRUE, ...) {
   }
 }
 
+#' Get a vector of the varying (non-fixed) parameters in a PCM model
+#' @param model a PCM model object
+#' @return a numeric vector of length PCMNumParams(model).
+#' @seealso \code{\link{PCMSetOrGetVecParams}} \code{\link{PCMGetVecParamsFull}}
+#' @export
+PCMGetVecParams <- function(model, ...) {
+  UseMethod("PCMGetVecParams", model)
+}
+
+#' @export
+PCMGetVecParams.PCM <- function(model, ...) {
+  vec <- double(PCMNumParams(model))
+  PCMSetOrGetVecParams(model, vec, set = FALSE)
+  vec
+}
+
 #' Inplace set or get the parameters of a PCM from or into a numeric vector
 #'
+#' @param model a PCM model object
+#' @param vecParams a numeric vector of length PCMNumParams(model) or longer
+#' @param offset an integer indicating offset of the starting position for
+#' writing/reading in vecParams. Default 0.
+#' @param set a logical indicating whether to set the model parameters from
+#' vecParams or to get them into vecParams. Default is TRUE which results in
+#' setting the model parameters from vecParams. See details.
+#' @details This is an S3 generic. Note that depending on the value of \code{set},
+#' this function changes either the model object or the vecParams vector from the
+#' calling environment.
+#' @return an integer indicating the number of elements read/written from/to
+#' vecParams.
+#' @seealso \code{\link{PCMGetVecParams}} \code{\link{PCMGetVecParamsFull}}
 #' @export
 PCMSetOrGetVecParams <- function(
   model, vecParams, offset = 0, set = TRUE, ...) {
   UseMethod("PCMSetOrGetVecParams", model)
 }
 
-#' Set or get the parameters of a BM model from or into a numeric vector
-#' @inheritParams PCMSetOrGetVecParams
-#'
 #' @export
 PCMSetOrGetVecParams.PCM <- function(
   model, vecParams, offset = 0, set = TRUE, ... ) {
@@ -793,6 +825,17 @@ PCMSetOrGetVecParams.PCM <- function(
   }
   p
 }
+
+#'
+PCMGetVecParamsAndRegimes(model, tree, ...) {
+  UseMethod("PCMGetVecParamsAndRegimes", model)
+}
+
+PCMGetVecParamsRegimesAndModels(model, tree, ...) {
+  UseMethod("PCMGetVecParamsRegimesAndModels", model)
+}
+
+
 
 #' Conditional distribution of a daughter node given its parent node
 #' @description An S3 generic function that has to be implemented for every
@@ -1156,8 +1199,8 @@ PCMInfo <- function(X, tree, model, verbose = FALSE) {
 #' @export
 PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
   res <- list(
-    M = PCMNumNodes(tree),
-    N = PCMNumTips(tree),
+    M = PCMTreeNumNodes(tree),
+    N = PCMTreeNumTips(tree),
     k = PCMNumTraits(model),
     RTree = PCMNumUniqueRegimesTree(tree),
     RModel = PCMNumRegimes(model),

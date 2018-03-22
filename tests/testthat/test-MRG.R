@@ -120,7 +120,7 @@ N <- 400
 
 # tree with one regime
 tree.a <- rtree(N) # pbtree(n=N, scale=1)
-PCMSetDefaultRegime(tree.a, model.a.123)
+PCMTreeSetDefaultRegime(tree.a, model.a.123)
 #tree.a$edge.regime <- rep("a", length(tree.a$edge.length))
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
@@ -130,7 +130,7 @@ context(ctx <- "R=1/k=3/N=400")
 
 traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
-PCMSetDefaultRegime(tree.a, model.b.123)
+PCMTreeSetDefaultRegime(tree.a, model.b.123)
 traits.b.123 <- PCMSim(tree.a, model.b.123, c(0,0,0), verbose=TRUE)
 
 if(require(phytools)) {
