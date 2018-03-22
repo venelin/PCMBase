@@ -43,9 +43,15 @@ NULL
 #' svdV is the vector of eigenvalues of the matrix V for a given branch. The V matrix
 #' is considered singular if it has eigenvalues equal to 0 or when the ratio
 #' min(svdV)/max(svdV) is below PCMBase.Threshold.SV. Default is 1e-6. Treatment
-#' of branches with singular V matrix is defined by the option \code{PCMBase.Singular.Skip}.}
-#' \item{\code{PCMBase.Singular.Skip }}{A logical value indicating whether branches with
-#' singular matrix V should be skipped during likelihood calculation, adding their children
+#' of branches with singular V matrix is defined by the option \code{PCMBase.Skip.Singular}.}
+#' \item{\code{PCMBase.Threshold.Skip.Singular }}{A double indicating if a branch of shorter
+#' length with singular matrix V should be skipped during likelihood calculation. Setting this
+#' option to a higher value, together with a TRUE value for the option PCMBase.Skip.Singular
+#' will result in tolerating some parameter values resulting in singular variance covariance
+#' matrix of the transition distribution. Default 1e-4.}
+#' \item{\code{PCMBase.Skip.Singular }}{A logical value indicating whether branches with
+#' singular matrix V and shorter than \code{getOption("PCMBase.Threshold.Singular.Skip")}
+#'  should be skipped during likelihood calculation, adding their children
 #' L,m,r values to their parent node. Default TRUE. Note, that setting this option to FALSE
 #' may cause some models to stop working, e.g. the White model. Setting this option to FALSE
 #' will also cause errors or NA likelihood values in the case of trees with very short or
@@ -54,6 +60,8 @@ NULL
 #' are treated as missing measurements which are integrated out during likelihood calculation.
 #' Default TRUE. Setting this option to FALSE will cause NA values to be treated as
 #' non-existing traits and these will be ignored instead of integrated out.}
+#' \item{\code{PCMBase.Tolerance.Symmetric }}{A double specifying the tolerance in tests
+#' for symmetric matrices. Default 1e-8; see also \code{\link{isSymmetric}}.}
 #' }
 #' @export
 PCMOptions <- function() {
@@ -61,8 +69,10 @@ PCMOptions <- function() {
        PCMBase.Errors.As.Warnings = getOption("PCMBase.Errors.As.Warnings", TRUE),
        PCMBase.Threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8),
        PCMBase.Threshold.SV = getOption("PCMBase.Threshold.SV", 1e-6),
-       PCMBase.Singular.Skip = getOption("PCMBase.Singular.Skip", TRUE),
-       PCMBase.Internal.PC.Full = getOption("PCMBase.Internal.PC.Full", TRUE)
+       PCMBase.Threshold.Skip.Singular = getOption("PCMBase.Threshold.Skip.Singular", 1e-4),
+       PCMBase.Skip.Singular = getOption("PCMBase.Skip.Singular", TRUE),
+       PCMBase.Internal.PC.Full = getOption("PCMBase.Internal.PC.Full", TRUE),
+       PCMBase.Tolerance.Symmetric = getOption("PCMBase.Tolerance.Symmetric", 1e-8)
        )
 }
 
@@ -1174,6 +1184,188 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
 
   res
 }
+
+#' Numerical lower bound
+#' @param model a PCM object
+#' @return a PCM object of the same S3 classes as model. Calling
+#' \code{\link{PCMBase::PCMSetOrGetVecParams}} on this object returns a lower
+#' bound for that can be used, e.g. in a call to \code{\link{optim}}
+#' @examples
+#' model <- PCM("BM3", 3)
+#' PCMLowerBound(model)
+#' @export
+PCMLowerBound <- function(model, ...) {
+  UseMethod("PCMLowerBound", model)
+}
+
+#' @export
+PCMLowerBound.PCM <- function(model, value = -10, valuePositiveDiag = 0, ...) {
+  if(valuePositiveDiag < 0 ) {
+    stop("ERR:020f1:PCMBase:PCM.R:PCMLowerBound.PCM:: valuePositiveDiag should be non-negative.")
+  }
+  # a vector with the actual parameters excluding repeated and fixed values
+  par <- double(PCMNumParams(model))
+  # we set the default upper bound value, but entries corresponding to diagonal
+  # elements in Choleski factor upper triangular matrix parameters should be set
+  # to valuePositiveDiag
+  par[] <- value
+
+  # all parameters unrolled in a vector including repeated parameter values as
+  # well as fixed parameter values
+  fullParamVector <- PCMGetVecParamsFull(model)
+  maxFullParam <- max(fullParamVector, na.rm = TRUE)
+  if(!is.finite(maxFullParam)) {
+    maxFullParam <- as.double(1)
+  }
+
+  # a tricky way to insert values in the model parameters that are certainly not
+  # among the fixed non-countable parameter values. We will use match of these
+  # values to assign the either value valuePositiveDiag to the right entries in the
+  # model parameter matrices.
+  parMask <- maxFullParam + (1:PCMNumParams(model))
+
+  # set the values that match unique positions in par.
+  PCMSetOrGetVecParams(model, parMask)
+  # Find Choleski factors of positive definite matrices. Such parameters need to
+  # have positive diagonal elements, i.e. valuePositiveDiag.
+  specParams <- attr(model, "specParams", exact = TRUE)
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
+       length(specParams[[name]]$type) >= 3 &&
+       specParams[[name]]$type[3] == "positive.diag" ) {
+      if(specParams[[name]]$type[1] == "gmatrix") {
+        mi <- match(diag(model[[name]]), parMask)
+        par[unique(mi)] <- valuePositiveDiag
+      } else if(specParams[[name]]$type[1] == "matrix") {
+        # model[[name]] is a k x k x R array
+        R <- PCMNumRegimes(model)
+        for(r in 1:R) {
+          mi <- match(diag(model[[name]][,,r]), parMask)
+          par[unique(mi)] <- valuePositiveDiag
+        }
+      }
+    }
+  }
+  PCMSetOrGetVecParams(model, par)
+  model
+}
+
+#' Numerical upper bound
+#' @param model a PC
+#' M object
+#' @return a PCM object of the same S3 classes as model. Calling
+#' \code{\link{PCMBase::PCMSetOrGetVecParams}} on this object returns an upper
+#' bound for that can be used, e.g. in a call to \code{\link{optim}}
+#' #' model <- PCM("BM3", 3)
+#' PCMLowerBound(model)
+#' @export
+PCMUpperBound <- function(model, ...) {
+  UseMethod("PCMUpperBound", model)
+}
+
+#' @export
+PCMUpperBound.PCM <- function(model, value = 10, valuePositiveDiag = 10, ...) {
+  if(valuePositiveDiag <= 0 ) {
+    stop("ERR:020e1:PCMBase:PCM.R:PCMUpperBound.PCM:: valuePositiveDiag should be positive.")
+  }
+  # a vector with the actual parameters excluding repeated and fixed values
+  par <- double(PCMNumParams(model))
+  # we set the default upper bound value, but entries corresponding to diagonal
+  # elements in Choleski factor upper triangular matrix parameters should be set
+  # to valuePositiveDiag
+  par[] <- value
+
+  # all parameters unrolled in a vector including repeated parameter values as
+  # well as fixed parameter values
+  fullParamVector <- PCMGetVecParamsFull(model)
+  maxFullParam <- max(fullParamVector, na.rm = TRUE)
+  if(!is.finite(maxFullParam)) {
+    maxFullParam <- as.double(1)
+  }
+
+  # a tricky way to insert values in the model parameters that are certainly not
+  # among the fixed non-countable parameter values. We will use match of these
+  # values to assign the either value valuePositiveDiag to the right entries in the
+  # model parameter matrices.
+  parMask <- maxFullParam + (1:PCMNumParams(model))
+
+  # set the values that match unique positions in par.
+  PCMSetOrGetVecParams(model, parMask)
+  # Find Choleski factors of positive definite matrices. Such parameters need to
+  # have positive diagonal elements, i.e. valuePositiveDiag.
+  specParams <- attr(model, "specParams", exact = TRUE)
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
+       length(specParams[[name]]$type) >= 3 &&
+       specParams[[name]]$type[3] == "positive.diag" ) {
+      if(specParams[[name]]$type[1] == "gmatrix") {
+        mi <- match(diag(model[[name]]), parMask)
+        par[unique(mi)] <- valuePositiveDiag
+      } else if(specParams[[name]]$type[1] == "matrix") {
+        # model[[name]] is a k x k x R array
+        R <- PCMNumRegimes(model)
+        for(r in 1:R) {
+          mi <- match(diag(model[[name]][,,r]), parMask)
+          par[unique(mi)] <- valuePositiveDiag
+        }
+      }
+    }
+  }
+  PCMSetOrGetVecParams(model, par)
+  model
+}
+
+#' Create a likelhood function of a numerical vector parameter
+#' @inheritParams PCMLik
+#' @return a function of a numerical vector parameter called p returning the likelihood
+#' of X given the tree and the model with parameter values specified by p.
+#' @examples
+#'
+#' @export
+PCMCreateLikelihood <- function(X, tree, model, metaI = PCMInfo(X, tree, model)) {
+  force(metaI)
+  function(p, log = TRUE) {
+    PCMSetOrGetVecParams(model, p)
+    value <- PCMLik(X, tree, model, metaI, log = log)
+    value
+
+  }
+}
+
+
+#' Fitting a PCM model to a given tree and data
+#' @inheritParams PCMLik
+#' @return an object of class PCMFit
+#' @export
+PCMFit <- function(X, tree, model, metaI = PCMInfo(X, tree, model), ...) {
+  UseMethod("PCMFit", model)
+}
+
+#' @importFrom OptimMCMC runOptimAndMCMC configOptimAndMCMC
+#' @export
+PCMFit.PCM <- function(
+  X, tree, model, metaI = PCMInfo(X, tree, model),
+  lik = NULL, prior = NULL, input.data = NULL, config = NULL, verbose = TRUE, ...) {
+
+  if(is.null(lik)) {
+    lik <- PCMCreateLikelihood(X, tree, model, metaI)
+  }
+  if(is.null(config)) {
+    lowerVecParams <- double(PCMNumParams(model))
+    lowerModel <- PCMLowerBound(model, ...)
+    PCMSetOrGetVecParams(lowerModel, lowerVecParams, set = FALSE, ...)
+    upperVecParams <- double(PCMNumParams(model))
+    upperModel <- PCMUpperBound(model, ...)
+    PCMSetOrGetVecParams(upperModel, upperVecParams, set = FALSE, ...)
+
+    config <- configOptimAndMCMC(lik = lik, parLower = lowerVecParams, parUpper = upperVecParams, ...)
+  }
+
+  res <- runOptimAndMCMC(lik, prior, input.data, config, verbose)
+  class(res) <- c("PCMFit", class(res))
+  res
+}
+
 
 #' Extract error information from a formatted error message.
 #' @param x character string representing the error message.

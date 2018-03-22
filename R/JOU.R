@@ -35,7 +35,7 @@ PCMCond.JOU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbo
     Sigmae <- NULL
   }
 
-  V <- PCMCondVOU(H, Sigma, Sigmae, Sigmaj, xi)
+  V <- PCMCondVOU(H, Sigma, Sigmae, Sigmaj, xi, threshold.Lambda_ij = metaI$PCMBase.Threshold.Lambda_ij)
   omega <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(is.null(e_Ht)) {
       e_Ht <- expm(-t*H)
@@ -75,16 +75,16 @@ PCMSpecifyParams.JOU <- function(model, ...) {
               type = c("vector", "full"),
               description = "long-term optimum trait values"),
     Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric"),
+                 type = c("matrix", "symmetric", "positive.diag"),
                  description = "unit-time variance-covariance matrix of the BM-process"),
     mj = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
               type = c("vector", "full"),
               description = "jump mean"),
     Sigmaj = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric"),
-                 description = "jum variance-covariance matrix"),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "jump variance-covariance matrix"),
     Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric"),
+                  type = c("matrix", "symmetric", "positive.diag"),
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
 }
 

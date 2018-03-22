@@ -19,11 +19,6 @@ k <- 3
 Q <- matrix(c(-1, 1, 1, -1), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
-## Specifying a bivariate OU process for each regime
-# First, specify the A, theta, Sigma and sigmae2 parameters for each regime.
-# Then we use the abind function to stack the parameters into arrays which's first
-# dimension is the regime
-
 # regimes
 
 # in regime 'a' the three traits evolve according to three independent OU processes
@@ -33,35 +28,35 @@ a.H <- rbind(
   c(0, 2, 0),
   c(0, 0, 3))
 a.Theta <- c(10, 6, 2)
-a.Sigma <- rbind(
-  c(1.6, 0, 0),
-  c(0, 2.4, 0),
-  c(0, 0, 2))
-a.Sigmae2 <- rbind(
-  c(0, 0, 0),
-  c(0, 0, 0),
-  c(0, 0, 0))
+a.Sigma_x <- rbind(
+  c(1.6, 0.0, 0.0),
+  c(0.0, 2.4, 0.0),
+  c(0.0, 0.0, 2.0))
+a.Sigmae_x <- rbind(
+  c(0.0, 0.0, 0.0),
+  c(0.0, 0.0, 0.0),
+  c(0.0, 0.0, 0.0))
 
 # in regime 'b' there is correlation between the traits
 b.X0 <- c(12, 4, 3)
 b.H <- rbind(
-  c(2, .1, .2),
-  c(.1, .6, .2),
-  c(.2, .2, .3))
+  c(2.0, 0.1, 0.2),
+  c(0.1, 0.6, 0.2),
+  c(0.2, 0.2, 0.3))
 b.Theta <- c(10, 6, 2)
-b.Sigma <- rbind(
-  c(1.6, .3, .3),
-  c(.3, 0.3, .4),
-  c(.3, .4, 2))
-b.Sigmae2 <- rbind(
-  c(.2, 0, 0),
-  c(0, .3, 0),
-  c(0, 0, .4))
+b.Sigma_x <- rbind(
+  c(1.6, 0.3, 0.3),
+  c(0.0, 0.3, 0.4),
+  c(0.0, 0.0, 2.0))
+b.Sigmae_x <- rbind(
+  c(0.2, 0.0, 0.0),
+  c(0.0, 0.3, 0.0),
+  c(0.0, 0.0, 0.4))
 
 H <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a','b')))
-Sigma <- abind(a.Sigma, b.Sigma, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigma_x <- abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
+Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
 
 
 ## Simulations of trait data
@@ -70,45 +65,45 @@ Sigmae <- abind(a.Sigmae2, b.Sigmae2, along=3, new.names=list(x=NULL, y=NULL, re
 model.a.1 <- PCM("OU", 1, "a", params = list(X0 = a.X0[1],
                                              H=H[1,1,'a',drop=FALSE],
                                              Theta=Theta[1,'a',drop=FALSE],
-                                             Sigma=Sigma[1,1,'a',drop=FALSE],
-                                             Sigmae=Sigmae[1,1,'a',drop=FALSE]))
+                                             Sigma_x=Sigma_x[1,1,'a',drop=FALSE],
+                                             Sigmae_x=Sigmae_x[1,1,'a',drop=FALSE]))
 
 
 # regime 'a', trait 2
 model.a.2 <- PCM("OU", 1, "a", params = list(X0 = a.X0[2],
                                              H=H[2,2,'a',drop=FALSE],
                                              Theta=Theta[2,'a',drop=FALSE],
-                                             Sigma=Sigma[2,2,'a',drop=FALSE],
-                                             Sigmae=Sigmae[2,2,'a',drop=FALSE]))
+                                             Sigma_x=Sigma_x[2,2,'a',drop=FALSE],
+                                             Sigmae_x=Sigmae_x[2,2,'a',drop=FALSE]))
 
 # regime 'a', trait 3
 model.a.3 <- PCM("OU", 1, "a", params = list(X0 = a.X0[3],
                                              H=H[3,3,'a',drop=FALSE],
                                              Theta=Theta[3,'a',drop=FALSE],
-                                             Sigma=Sigma[3,3,'a',drop=FALSE],
-                                             Sigmae=Sigmae[3,3,'a',drop=FALSE]))
+                                             Sigma_x=Sigma_x[3,3,'a',drop=FALSE],
+                                             Sigmae_x=Sigmae_x[3,3,'a',drop=FALSE]))
 
 # regime 'a', traits 1, 2 and 3
 model.a.123 <- PCM("OU", 3, "a", params = list(X0 = a.X0,
                                                H=H[,,'a',drop=FALSE],
                                                Theta=Theta[,'a',drop=FALSE],
-                                               Sigma=Sigma[,,'a',drop=FALSE],
-                                               Sigmae=Sigmae[,,'a',drop=FALSE]))
+                                               Sigma_x=Sigma_x[,,'a',drop=FALSE],
+                                               Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
 
 # regime 'b', traits 1, 2 and 3
 model.b.123 <- PCM("OU", 3, "b", params = list(X0 = b.X0,
                                                H=H[,,'b',drop=FALSE],
                                                Theta=Theta[,'b',drop=FALSE],
-                                               Sigma=Sigma[,,'b',drop=FALSE],
-                                               Sigmae=Sigmae[,,'b',drop=FALSE]))
+                                               Sigma_x=Sigma_x[,,'b',drop=FALSE],
+                                               Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
 
 # regimes 'a' and 'b', traits 1, 2 and 3
 model.ab.123 <- PCM("OU", 3, c("a", "b"), params = list(X0 = a.X0,
                                                         H=H[,,,drop=FALSE],
                                                         Theta=Theta[,,drop=FALSE],
-                                                        Sigma=Sigma[,,,drop=FALSE],
-                                                        Sigmae=Sigmae[,,,drop=FALSE]))
+                                                        Sigma_x=Sigma_x[,,,drop=FALSE],
+                                                        Sigmae_x=Sigmae_x[,,,drop=FALSE]))
 
 cat("PCMNumParams(model.ab.123)=", PCMNumParams(model.ab.123), "\n")
 cat("length(PCMGetVecParamsFull(model.ab.123)=", length(PCMGetVecParamsFull(model.ab.123)), "\n")
@@ -146,8 +141,8 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             tree = tree.a,
             alpha = model.a.1$H[1,1,1],
             theta = model.a.1$Theta[1,1],
-            sigma = sqrt(model.a.1$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.1$Sigmae[1,1,1]),
+            sigma = model.a.1$Sigma_x[1,1,1],
+            sigmae = model.a.1$Sigmae_x[1,1,1],
             g0 = a.X0[1])
         ) < EPS)
   expect_true(
@@ -158,8 +153,8 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             tree = tree.a,
             alpha = model.a.2$H[1,1,1],
             theta = model.a.2$Theta[1,1],
-            sigma = sqrt(model.a.2$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.2$Sigmae[1,1,1]),
+            sigma = model.a.2$Sigma_x[1,1,1],
+            sigmae = model.a.2$Sigmae_x[1,1,1],
             g0 = a.X0[2])
         ) < EPS)
   expect_true(
@@ -170,8 +165,8 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             tree = tree.a,
             alpha = model.a.3$H[1,1,1],
             theta = model.a.3$Theta[1,1],
-            sigma = sqrt(model.a.3$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.3$Sigmae[1,1,1]),
+            sigma = model.a.3$Sigma_x[1,1,1],
+            sigmae = model.a.3$Sigmae_x[1,1,1],
             g0 = a.X0[3])) < EPS)
 })
 
@@ -200,8 +195,8 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             tree = tree.a,
             alpha = model.a.1$H[1,1,1],
             theta = model.a.1$Theta[1,1],
-            sigma = sqrt(model.a.1$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.1$Sigmae[1,1,1]),
+            sigma = model.a.1$Sigma_x[1,1,1],
+            sigmae = model.a.1$Sigmae_x[1,1,1],
             g0 = a.X0[1])
     ) < EPS)
   expect_true(
@@ -212,8 +207,8 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             tree = tree.a,
             alpha = model.a.2$H[1,1,1],
             theta = model.a.2$Theta[1,1],
-            sigma = sqrt(model.a.2$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.2$Sigmae[1,1,1]),
+            sigma = model.a.2$Sigma_x[1,1,1],
+            sigmae = model.a.2$Sigmae_x[1,1,1],
             g0 = a.X0[2])
     ) < EPS)
   expect_true(
@@ -224,8 +219,8 @@ test_that(paste(ctx, "Match univariate likelihood from patherit regime a"), {
             tree = tree.a,
             alpha = model.a.3$H[1,1,1],
             theta = model.a.3$Theta[1,1],
-            sigma = sqrt(model.a.3$Sigma[1,1,1]),
-            sigmae = sqrt(model.a.3$Sigmae[1,1,1]),
+            sigma = model.a.3$Sigma_x[1,1,1],
+            sigmae = model.a.3$Sigmae_x[1,1,1],
             g0 = a.X0[3])) < EPS)
 })
 
@@ -241,8 +236,8 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
             tree.a,
             model.a.123$H[1,1,1],
             model.a.123$Theta[1,1],
-            sqrt(model.a.123$Sigma[1,1,1]),
-            sqrt(model.a.123$Sigmae[1,1,1]),
+            model.a.123$Sigma_x[1,1,1],
+            model.a.123$Sigmae_x[1,1,1],
             a.X0[1]) +
 
              POUMM::likPOUMMGivenTreeVTips(
@@ -250,16 +245,16 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
                tree.a,
                model.a.123$H[2,2,1],
                model.a.123$Theta[2,1],
-               sqrt(model.a.123$Sigma[2,2,1]),
-               sqrt(model.a.123$Sigmae[2,2,1]),
+               model.a.123$Sigma_x[2,2,1],
+               model.a.123$Sigmae_x[2,2,1],
                a.X0[2]) +
 
              POUMM::likPOUMMGivenTreeVTips(traits.a.123[3,],
                               tree.a,
                               model.a.123$H[3,3,1],
                               model.a.123$Theta[3,1],
-                              sqrt(model.a.123$Sigma[3,3,1]),
-                              sqrt(model.a.123$Sigmae[3,3,1]),
+                              model.a.123$Sigma_x[3,3,1],
+                              model.a.123$Sigmae_x[3,3,1],
                               a.X0[3]))
         ) < EPS)
 })
@@ -276,24 +271,24 @@ POUMMlik <- (POUMM::likPOUMMGivenTreeVTips(
   tree.a,
   model.a.123$H[1,1,1],
   model.a.123$Theta[1,1],
-  sqrt(model.a.123$Sigma[1,1,1]),
-  sqrt(model.a.123$Sigmae[1,1,1]),
+  model.a.123$Sigma_x[1,1,1],
+  model.a.123$Sigmae_x[1,1,1],
   a.X0[1]) +
     POUMM::likPOUMMGivenTreeVTips(
       traits.a.123[2,],
       tree.a,
       model.a.123$H[2,2,1],
       model.a.123$Theta[2,1],
-      sqrt(model.a.123$Sigma[2,2,1]),
-      sqrt(model.a.123$Sigmae[2,2,1]),
+      model.a.123$Sigma_x[2,2,1],
+      model.a.123$Sigmae_x[2,2,1],
       a.X0[2]) +
     POUMM::likPOUMMGivenTreeVTips(
       traits.a.123[3,],
       tree.a,
       model.a.123$H[3,3,1],
       model.a.123$Theta[3,1],
-      sqrt(model.a.123$Sigma[3,3,1]),
-      sqrt(model.a.123$Sigmae[3,3,1]),
+      model.a.123$Sigma_x[3,3,1],
+      model.a.123$Sigmae_x[3,3,1],
       a.X0[3]))
 
 

@@ -64,10 +64,10 @@ PCMSpecifyParams.BM <- function(model, ...) {
               type = c("gvector", "full"),
               description = "trait vector at the root; global for all model regimes"),
     Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric"),
+                 type = c("matrix", "symmetric", "positive.diag"),
                  description = "unit-time variance-covariance matrix of the BM-process"),
     Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric"),
+                  type = c("matrix", "symmetric", "positive.diag"),
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
 }
 

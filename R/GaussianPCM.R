@@ -81,8 +81,8 @@ PCMLik.GaussianPCM <- function(
   # will change this value if there is no error
   value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
 
-  PCMLmr <- PCMLmr(X, tree, model, metaI, verbose = verbose, root.only = TRUE)#,
-            # silent = TRUE)
+  PCMLmr <- try(PCMLmr(X, tree, model, metaI, verbose = verbose, root.only = TRUE),
+             silent = TRUE)
 
   if(class(PCMLmr) == "try-error") {
     errL <- PCMParseErrorMessage(PCMLmr)
@@ -105,7 +105,6 @@ PCMLik.GaussianPCM <- function(
     return(value.NA)
 
   } else if(is.list(PCMLmr)) {
-
     L_root <- PCMLmr$L
     m_root <- PCMLmr$m
     r_root <- PCMLmr$r
@@ -133,7 +132,7 @@ PCMLik.GaussianPCM <- function(
       X0 <- try(solve(a=L_root + t(L_root), b = -m_root), silent = TRUE)
       if(class(X0) == "try-error") {
         err <- paste0(
-          "ERR:02143:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(L), "; m=", toString(m), "; r=", r,
+          "ERR:02143:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(PCMLmr$L), "; m=", toString(PCMLmr$m), "; r=", PCMLmr$r,
           ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0, "; print(model):",
           do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
@@ -152,9 +151,7 @@ PCMLik.GaussianPCM <- function(
       }
 
     } else {
-
       X0 <- model$X0
-
     }
 
     loglik <- try(X0 %*% L_root %*% X0 + m_root %*% X0 + r_root, silent = TRUE)
@@ -198,7 +195,6 @@ PCMLik.GaussianPCM <- function(
       return(value.NA)
 
     } else if(is.na(value)) {
-
       err <- paste0(
         "ERR:02146:PCMBase:GaussianPCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))), ". No error message was returned from the call to PCMLmr. Check for runtime warnings.")
@@ -223,9 +219,6 @@ PCMLik.GaussianPCM <- function(
   }
 }
 
-
-
-
 #' Quadratic polynomial parameters A, b, C, d, E, f for each node
 #' @description An S3 generic function that has to be implemented for every
 #'  model class. This function is called by \code{\link{PCMLik}}.
@@ -237,8 +230,9 @@ PCMAbCdEf <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), ve
 
 #' @export
 PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
-  threshold_SV <- getOption("PCMBase.Threshold.SV", 1e-6)
-  skip_singular <- getOption("PCMBase.Singular.Skip", TRUE)
+  threshold_SV <- metaI$PCMBase.Threshold.SV
+  skip_singular <- metaI$PCMBase.Skip.Singular
+  threshold_skip_singular <- metaI$PCMBase.Threshold.Skip.Singular
 
   # number of regimes
   R <- metaI$RModel
@@ -298,13 +292,17 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
     Phi[,,i] <- cond[[r[edgeIndex]]]$Phi(ti, edgeIndex, metaI)
     V[,,i] <- cond[[r[edgeIndex]]]$V(ti, edgeIndex, metaI)
 
+    # Ensure that V[,,i] is symmetric. This is to prevent numerical errors
+    # but can potentially hide a logical error in the model classes or the
+    # parameters.
+    #V[,,i] <- 0.5*(V[,,i]+t(V[,,i]))
 
     # check that V[ki,ki,] is non-singular
     svdV = svd(matrix(V[ki,ki,i], sum(ki)), 0, 0)$d
 
     if(is.na(min(svdV)/max(svdV)) || min(svdV)/max(svdV) < threshold_SV) {
       singular[edgeIndex] <- TRUE
-      if(!skip_singular) {
+      if(!skip_singular || ti > threshold_skip_singular ) {
         err <- paste0(
           "ERR:02131:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
           " The matrix V for node ", i,
@@ -316,6 +314,33 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
     }
 
     if(!singular[edgeIndex]) {
+      # check V is positive definite
+      if(sum(ki) == 1) {
+        if(V[ki,ki,i] < 0) {
+          err <- paste0(
+            "ERR:02132:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+            " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
+            " is not positive definite, V[ki,ki,i]. Check the model parameters.")
+          stop(err)
+        }
+      } else {
+        if(!isSymmetric(V[ki,ki,i], tol = metaI$PCMBase.Tolerance.Symmetric)) {
+          err <- paste0(
+            "ERR:02133:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+            " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
+            " is not symmetric. It must be symmetric positive definite.")
+          stop(err)
+        }
+        eigval <- eigen(V[ki,ki,i], symmetric = TRUE, only.values = TRUE)$values
+        if(any(eigval<=0)) {
+          err <- paste0(
+            "ERR:02134:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+            " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
+            " is not positive definite. It must be symmetric positive definite.")
+          stop(err)
+        }
+      }
+
       V_1[ki,ki,i] <- solve(V[ki,ki,i])
 
       `%op%` <- if(sum(ki) > 1) `%*%` else `*`
@@ -542,7 +567,7 @@ PCMPExpxMeanExp <- function(
 #' that is used to check the corresponding element in xi.
 #' @export
 PCMCondVOU <- function(
-  H, Sigma , Sigmae = NULL, Sigmaj = NULL, xi = NULL,
+  H, Sigma, Sigmae = NULL, Sigmaj = NULL, xi = NULL,
   e_Ht = NULL,
   threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8)) {
 
@@ -586,7 +611,7 @@ PCMCondVOU <- function(
       }
       res <- res + xi[edgeIndex]*(e_Ht %*% Sigmaj %*% t(e_Ht))
     }
-    if(!is.null(Sigmae) & metaI$edge[edgeIndex,2] <= metaI$N) {
+    if(!is.null(Sigmae) && metaI$edge[edgeIndex,2] <= metaI$N) {
       res <- res + Sigmae
     }
     Re(res)

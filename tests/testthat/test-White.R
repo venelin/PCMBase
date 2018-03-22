@@ -93,15 +93,11 @@ whitelik = PCMLik(X = traits.a.123,
               tree = tree.a,
               model = model.a.123)
 
-whitelik2 <- PCMLik(X = traits.a.123,
-                    tree = tree.a,
-                    model = PCM("BM", k = 3, regimes = "a", params = model.a.123))
 mvtlik = MVTlik(traits.a.123[, 1:N],
                 tree = tree.a,
                 model = model.a.123)
 
 cat('white likelihood=',whitelik,'\n')
-cat('white likelihood 2=',whitelik2,'\n')
 cat('mvtlik likelihood=',mvtlik,'\n')
 
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime a"), {
@@ -126,22 +122,20 @@ if(require(PCMBaseCpp)) {
             expect_equal(PCMLik(values, tree.a, model.a.123),
                          PCMLik(tree = tree.a, model = model.a.123, metaI = metaICpp)))
 
-
-
-
   if(require(microbenchmark)) {
-    cat("microbenchmark test")
+    cat("microbenchmark test\n")
 
+    options(PCMBase.Errors.As.Warnings=FALSE)
+    options(PCMBase.Threshold.Skip.Singular =Inf)
     options(PCMBase.PCMLmr.mode=11)
+
     print(microbenchmark(
       PCMLik(values, tree.a, model.a.123, metaI = metaIR),
       PCMLik(values, tree.a, model.a.123, metaI = metaICpp), times = 10
     ))
 
-    options(PCMBase.PCMLmr.mode=21)
-    print(microbenchmark(
-      PCMLik(values, tree.a, model.a.123, metaI = metaICpp)
-    ))
+    options(PCMBase.PCMLmr.mode=22)
+    print(microbenchmark(PCMLik(values, tree.a, model.a.123, metaI = metaICpp)))
   }
 
 }

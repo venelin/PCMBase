@@ -25,14 +25,14 @@ PCMParentClasses.OU <- function(model) {
 PCMCond.OU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   H <- as.matrix(model$H[,, r])
   Theta <- model$Theta[, r]
-  Sigma <- as.matrix(model$Sigma[,,r])
-  if(!is.null(model$Sigmae)) {
-    Sigmae <- as.matrix(model$Sigmae[,,r])
+  Sigma <- as.matrix(model$Sigma_x[,,r]) %*% t(as.matrix(model$Sigma_x[,,r]))
+  if(!is.null(model$Sigmae_x)) {
+    Sigmae <- as.matrix(model$Sigmae_x[,,r]) %*% t(as.matrix(model$Sigmae_x[,,r]))
   } else {
     Sigmae <- NULL
   }
 
-  V <- PCMCondVOU(H, Sigma, Sigmae)
+  V <- PCMCondVOU(H, Sigma, Sigmae, threshold.Lambda_ij = metaI$PCMBase.Threshold.Lambda_ij)
   omega <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(is.null(e_Ht)) {
       e_Ht <- expm(-t*H)
@@ -71,11 +71,11 @@ PCMSpecifyParams.OU <- function(model, ...) {
     Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
                  type = c("vector", "full"),
                  description = "long-term optimum trait values"),
-    Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric"),
+    Sigma_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "upper.tri.diag", "positive.diag"),
                  description = "unit-time variance-covariance matrix of the BM-process"),
-    Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric"),
+    Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "upper.tri.diag", "positive.diag"),
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
 }
 
@@ -92,24 +92,24 @@ PCMSpecifyParams.OU1 <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU2 <- function(model, ...) "OU without Sigmae."
+PCMDescribe.OU2 <- function(model, ...) "OU without Sigmae_x."
 #' @export
 PCMParentClasses.OU2 <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.OU2 <- function(model, ...) {
   spec <- NextMethod()
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.OU3 <- function(model, ...) "OU without X0 and Sigmae."
+PCMDescribe.OU3 <- function(model, ...) "OU without X0 and Sigmae_x."
 #' @export
 PCMParentClasses.OU3 <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
 PCMSpecifyParams.OU3 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
-  spec$Sigmae <- NULL
+  spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }

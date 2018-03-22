@@ -232,28 +232,9 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
   expect_true( abs(lik.BM - lik.OU ) < EPS*1000)
 })
 
-### WHITE MODEL TEST ###
-model.a.123.white <- PCMSetParams(model.a.123, params = list(Sigma = abind(matrix(0, 3, 3), along = 3),
-                                        Sigmae = abind(diag(1:3, 3, 3), along = 3)), inplace = FALSE)
-
-lik.white <- PCMLik(traits.a.123[,1:N], tree.a, model.a.123.white)
-cat("White likelihood=", lik.white, "\n")
-
-lik.white.true <- sum(
-  apply(traits.a.123[, 1:N], 2,
-        function(xi) mvtnorm::dmvnorm(x = xi, mean = c(5, 2, 1),
-                                      sigma = model.a.123.white$Sigmae[,,1], log = TRUE )))
-
-test_that("Match white likelihoods", expect_true(abs(lik.white-lik.white.true) < EPS))
-
 
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on BM:\n")
-
-  lik.white <- PCMLik(tree = tree.a, model = model.a.123.white,
-                      metaI = PCMInfoCpp(X = traits.a.123[, 1:N], tree = tree.a, model = model.a.123.white))
-
-  test_that("Match white likelihoods", expect_true(abs(lik.white-lik.white.true) < EPS))
 
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),

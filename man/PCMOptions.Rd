@@ -23,9 +23,15 @@ other model. Default 1e-8. See \code{\link{PCMPExpxMeanExp}}.}
 svdV is the vector of eigenvalues of the matrix V for a given branch. The V matrix
 is considered singular if it has eigenvalues equal to 0 or when the ratio
 min(svdV)/max(svdV) is below PCMBase.Threshold.SV. Default is 1e-6. Treatment
-of branches with singular V matrix is defined by the option \code{PCMBase.Singular.Skip}.}
-\item{\code{PCMBase.Singular.Skip }}{A logical value indicating whether branches with
-singular matrix V should be skipped during likelihood calculation, adding their children
+of branches with singular V matrix is defined by the option \code{PCMBase.Skip.Singular}.}
+\item{\code{PCMBase.Threshold.Skip.Singular }}{A double indicating if a branch of shorter
+length with singular matrix V should be skipped during likelihood calculation. Setting this
+option to a higher value, together with a TRUE value for the option PCMBase.Skip.Singular
+will result in tolerating some parameter values resulting in singular variance covariance
+matrix of the transition distribution. Default 1e-4.}
+\item{\code{PCMBase.Skip.Singular }}{A logical value indicating whether branches with
+singular matrix V and shorter than \code{getOption("PCMBase.Threshold.Singular.Skip")}
+ should be skipped during likelihood calculation, adding their children
 L,m,r values to their parent node. Default TRUE. Note, that setting this option to FALSE
 may cause some models to stop working, e.g. the White model. Setting this option to FALSE
 will also cause errors or NA likelihood values in the case of trees with very short or
@@ -34,6 +40,8 @@ will also cause errors or NA likelihood values in the case of trees with very sh
 are treated as missing measurements which are integrated out during likelihood calculation.
 Default TRUE. Setting this option to FALSE will cause NA values to be treated as
 non-existing traits and these will be ignored instead of integrated out.}
+\item{\code{PCMBase.Tolerance.Symmetric }}{A double specifying the tolerance in tests
+for symmetric matrices. Default 1e-8; see also \code{\link{isSymmetric}}.}
 }
 }
 \description{

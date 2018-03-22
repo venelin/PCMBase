@@ -32,7 +32,7 @@ PCMCond.TwoSpeedOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, mod
     Sigmae <- NULL
   }
 
-  V <- PCMCondVOU(H2, Sigma, Sigmae)
+  V <- PCMCondVOU(H2, Sigma, Sigmae, threshold.Lambda_ij = metaI$PCMBase.Threshold.Lambda_ij)
   omega <- function(t, edgeIndex, metaI, e_H1t = NULL) {
     if(is.null(e_H1t)) {
       e_H1t <- expm(-t*H1)
@@ -75,10 +75,10 @@ PCMSpecifyParams.TwoSpeedOU <- function(model, ...) {
                  type = c("vector", "full"),
                  description = "long-term optimum"),
     Sigma = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "symmetric"),
+                 type = c("matrix", "symmetric", "positive.diag"),
                  description = "unit-time variance-covariance matrix of the BM process"),
     Sigmae = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "symmetric"),
+                  type = c("matrix", "symmetric", "positive.diag"),
                   description = "variance-covariance matrix for the non-phylogenetic trait component"))
 }
 

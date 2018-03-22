@@ -140,3 +140,41 @@ MRG <- function(
   PCM(model = c(className, "MRG", "GaussianPCM", "PCM"), k = k, regimes = regimes, specParams = specParams)
 }
 
+#' @export
+PCMLowerBound.MRG <- function(model, X0 = NULL, Sigmae = NULL, ...) {
+  model <- NextMethod()
+  specParams <- attr(model, "specParams", exact = TRUE)
+
+  if(!is.null(specParams$X0) && !is.null(X0)) {
+    model$X0 <- X0
+  }
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1]=="model") {
+      model[[name]] <- PCMLowerBound(model[[name]], X0 = X0, Sigmae = Sigmae, ...)
+    }
+  }
+  if(!is.null(specParams$Sigmae) && !is.null(Sigmae)) {
+    model$Sigmae <- Sigmae
+  }
+  model
+}
+
+#' @export
+PCMUpperBound.MRG <- function(model, X0 = NULL, Sigmae = NULL, ...) {
+  model <- NextMethod()
+  specParams <- attr(model, "specParams", exact = TRUE)
+
+  if(!is.null(specParams$X0) && !is.null(X0)) {
+    model$X0 <- X0
+  }
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1]=="model") {
+      model[[name]] <- PCMUpperBound(model[[name]], X0 = X0, Sigmae = Sigmae, ...)
+    }
+  }
+  if(!is.null(specParams$Sigmae) && !is.null(Sigmae)) {
+    model$Sigmae <- Sigmae
+  }
+  model
+}
+

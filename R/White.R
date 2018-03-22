@@ -37,6 +37,13 @@ PCMDescribe.White <- function(model, ...) {
   from a k-variate Gaussian."
 }
 
+PCMInfo.White <- function(X, tree, model, verbose = FALSE) {
+  res <- NextMethod()
+  res$PCMBase.Skip.Singular <- TRUE
+  res$PCMBase.Threshold.Skip.Singular <- Inf
+  res
+}
+
 #' @export
 PCMCond.White <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   Sigmae <- as.matrix(model$Sigmae[,,r])
