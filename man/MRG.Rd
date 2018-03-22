@@ -11,9 +11,9 @@ is.MRG(x)
 MRG(k, models, mapping, className = paste0("MRG_", do.call(paste0,
   as.list(mapping))), X0 = list(default = rep(0, k), type = c("gvector",
   "full"), description = "trait vector at the root; global for all regimes"),
-  Sigmae = list(default = matrix(0, nrow = k, ncol = k), type = c("gmatrix",
-  "symmetric"), description =
-  "variance-covariance matrix for the non-phylogenetic trait component"))
+  Sigmae_x = list(default = matrix(0, nrow = k, ncol = k), type = c("gmatrix",
+  "upper.tri.diag", "positive.diag"), description =
+  "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
 }
 \arguments{
 \item{k}{integer defining the number of traits.}
@@ -33,8 +33,8 @@ resulting MRG object.}
 \item{X0}{NULL or a list defining a global vector X0 to be used by all
 models in the MRG.}
 
-\item{Sigmae}{NULL or a list defining a global matrix to be used as element
-Sigmae by all models in the MRG.}
+\item{Sigmae_x}{NULL or a list defining a global matrix to be used as element
+Sigmae_x by all models in the MRG.}
 }
 \value{
 an object of S3 class className inheriting from MRG, GaussianPCM and
@@ -45,7 +45,7 @@ Create a multi-regime Gaussian model (MRG)
 }
 \details{
 If X0 is not NULL it has no sense to use models including X0 as a
-parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae is
-not NULL there is no meaning in using models including Sigmae as a parameter,
+parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae_x is
+not NULL there is no meaning in using models including Sigmae_x as a parameter,
 (e.g. use OU2 or OU3 instead of OU or OU1).
 }

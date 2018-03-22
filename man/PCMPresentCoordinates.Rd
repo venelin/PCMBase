@@ -4,7 +4,7 @@
 \alias{PCMPresentCoordinates}
 \title{Determine which traits are present (active) on each node of the tree}
 \usage{
-PCMPresentCoordinates(X, tree, metaI = PCMPruningOrder(tree))
+PCMPresentCoordinates(X, tree, metaI = PCMTreePruningOrder(tree))
 }
 \arguments{
 \item{X}{numeric k x N matrix of observed values, with possible NA entries. The

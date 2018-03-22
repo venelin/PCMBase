@@ -409,9 +409,9 @@ PCMTreeSetDefaultRegime <- function(tree, regime) {
 #' @export
 PCMTreeSetRegimesIncremental <- function(tree, nodes) {
   if(!inherits(tree, "phylo")) {
-    stop("ERR:020d0:PCMBase:PCM.R:PCMSetRegimesAuto:: argument tree should be a phylo.")
+    stop("ERR:020d0:PCMBase:PCM.R:PCMTreeSetRegimesIncremental:: argument tree should be a phylo.")
   }
-  preorder <- PCMPreorder(tree)
+  preorder <- PCMTreePreorder(tree)
   edge.regime <- rep(1, nrow(tree$edge))
   nextRegime <- 2
 
@@ -432,6 +432,12 @@ PCMTreeSetRegimesIncremental <- function(tree, nodes) {
   edge.regime
 }
 
+PCMTreeGetRegimesIncrementalStartNodes <- function(tree) {
+  if(!inherits(tree, "phylo")) {
+    stop("ERR:020g0:PCMBase:PCM.R:PCMSetRegimesAuto:: argument tree should be a phylo.")
+  }
+}
+
 #' Unique regimes on a tree
 #' @description This is a shortcut for sort(unique(tree$edge.regime))
 #' @param tree a phylo object with an additional member edge.regime which should
@@ -439,7 +445,7 @@ PCMTreeSetRegimesIncremental <- function(tree, nodes) {
 #'
 #' @return a character or an integer vector depending on tree$edge.regime.
 #' @export
-PCMUniqueRegimesTree <- function(tree) {
+PCMTreeUniqueRegimes <- function(tree) {
   if(is.null(tree$edge.regime)) {
     stop("ERR:02010:PCMBase:PCM.R:PCMRegimesUniqueTree:: tree$edge.regime is NULL,
          but should be a character or an integer vector denoting regime names.")
@@ -451,19 +457,19 @@ PCMUniqueRegimesTree <- function(tree) {
 #' @param tree a phylo object
 #' @return the number of different regimes encountered on the tree branches
 #' @export
-PCMNumUniqueRegimesTree <- function(tree) {
-  length(PCMUniqueRegimesTree(tree))
+PCMTreeNumUniqueRegimes <- function(tree) {
+  length(PCMTreeUniqueRegimes(tree))
 }
 
 #' Jumps in modeled traits associated with branches in a tree
 #' @inheritParams PCMTreeNumTips
 #' @return an integer vector of 0's and 1's with entries correspondin to the
 #' denoting if a jump took place at the beginning of a branch.
-PCMJumps <- function(tree) {
+PCMTreeJumps <- function(tree) {
   if(!is.null(tree$edge.jump)) {
     if(length(tree$edge.jump) != nrow(tree$edge) |
        !isTRUE(all(tree$edge.jump %in% c(0L, 1L)))) {
-      stop("ERR:02081:PCMBase:PCM.R:PCMJumps:: tree$edge.jump should
+      stop("ERR:02081:PCMBase:PCM.R:PCMTreeJumps:: tree$edge.jump should
            be an integer vector of 0's and 1's with with length equal to the
            number of rows in tree$edge.")
     }
@@ -477,15 +483,15 @@ PCMJumps <- function(tree) {
 #' @param tree a phylo object
 #' @param model a PCM object
 #' @return an integer vector with entries corresponding to the rows in tree$edge
-#'   denoting the regime on each branch in the tree
+#'   denoting the regime on each branch in the tree as an index in PCMRegimes(model).
 #' @export
-PCMMatchRegimesModelTree <- function(tree, model) {
+PCMTreeMatchRegimesWithModel <- function(tree, model) {
   regimes <- match(tree$edge.regime, PCMRegimes(model))
   if(any(is.na(regimes))) {
-    stop(paste0("ERR:02071:PCMBase:PCM.R:PCMMatchRegimesModelTree:: ",
+    stop(paste0("ERR:02071:PCMBase:PCM.R:PCMTreeMatchRegimesWithModel:: ",
                 " Some of the regimes in tree$edge.regime not found in",
                 "attr(model, 'regimes').\n",
-                "unique regimes on the tree:", toString(PCMUniqueRegimesTree(tree)), "\n",
+                "unique regimes on the tree:", toString(PCMTreeUniqueRegimes(tree)), "\n",
                 "attr(model, 'regimes')", toString(PCMRegimes(model))))
   }
   regimes
@@ -827,11 +833,11 @@ PCMSetOrGetVecParams.PCM <- function(
 }
 
 #'
-PCMGetVecParamsAndRegimes(model, tree, ...) {
+PCMGetVecParamsAndRegimes <- function(model, tree, ...) {
   UseMethod("PCMGetVecParamsAndRegimes", model)
 }
 
-PCMGetVecParamsRegimesAndModels(model, tree, ...) {
+PCMGetVecParamsRegimesAndModels <- function(model, tree, ...) {
   UseMethod("PCMGetVecParamsRegimesAndModels", model)
 }
 
@@ -864,8 +870,8 @@ PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose),
 #' @details Internally, this function uses the \code{\link{PCMCond}} iimplementation
 #'  for the given model class.
 #'
-#' @return numeric M x k matrix of values at all nodes of the tree (root,
-#' internal and tip), where M is the number of nodes: M=dim(tree$edge)[1]+1,
+#' @return numeric M x k matrix of values at all nodes of the tree, i.e. root,
+#' internal and tip, where M is the number of nodes: \code{M=dim(tree$edge)[1]+1},
 #' with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
 #' corresponding to the root and bigger than N+1 corresponding to internal nodes.
 #' The function will fail in case that the length of the argument vector X0 differs
@@ -909,7 +915,7 @@ PCMSim <- function(
 #'   containing meta-data such as N, M and k.
 #' @param pruneI a named list containing cached preprocessing data for the tree used
 #'   to perform post-order traversal (pruning). By default, this is created
-#'   using \code{PCMPruningOrder(tree)}. This will use the default R-implementation of the
+#'   using \code{PCMTreePruningOrder(tree)}. This will use the default R-implementation of the
 #'   likelihood calculation, which is based on the default R-implementation of the
 #'   function \code{\link{PCMLmr}} (\code{\link{PCMLmr.default}}) and the S3 specification
 #'   of the function
@@ -961,7 +967,7 @@ PCMLik <- function(
 #' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
 #' one daughter node)
 #' @return a vector of indices of edges in tree$edge in pre-order.
-PCMPreorder <- function(tree) {
+PCMTreePreorder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
 
@@ -1012,7 +1018,7 @@ PCMPreorder <- function(tree) {
 #'
 #' @return a list of objects used by the R implementation of PCMLik().
 #' @export
-PCMPruningOrder <- function(tree) {
+PCMTreePruningOrder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
   # number of all nodes
@@ -1119,7 +1125,7 @@ PCMPruningOrder <- function(tree) {
 #' present coordinates. Consider removing these tips.".
 #' @seealso \code{\link{PCMLik}}
 #' @export
-PCMPresentCoordinates <- function(X, tree, metaI=PCMPruningOrder(tree)) {
+PCMPresentCoordinates <- function(X, tree, metaI=PCMTreePruningOrder(tree)) {
 
   N <- metaI$N
   M <- metaI$M
@@ -1202,16 +1208,16 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
     M = PCMTreeNumNodes(tree),
     N = PCMTreeNumTips(tree),
     k = PCMNumTraits(model),
-    RTree = PCMNumUniqueRegimesTree(tree),
+    RTree = PCMTreeNumUniqueRegimes(tree),
     RModel = PCMNumRegimes(model),
-    r = PCMMatchRegimesModelTree(tree, model),
+    r = PCMTreeMatchRegimesWithModel(tree, model),
     p = PCMNumParams(model),
-    xi = PCMJumps(tree),
+    xi = PCMTreeJumps(tree),
     edge = tree$edge,
     edge.length = tree$edge.length,
-    preorder = PCMPreorder(tree)
+    preorder = PCMTreePreorder(tree)
   )
-  res <- c(res, PCMPruningOrder(tree))
+  res <- c(res, PCMTreePruningOrder(tree))
   res <- c(res, PCMOptions())
 
   res$pc <- PCMPresentCoordinates(X, tree, res)

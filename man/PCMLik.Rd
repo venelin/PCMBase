@@ -30,7 +30,7 @@ is TRUE.}
 
 \item{pruneI}{a named list containing cached preprocessing data for the tree used
 to perform post-order traversal (pruning). By default, this is created
-using \code{PCMPruningOrder(tree)}. This will use the default R-implementation of the
+using \code{PCMTreePruningOrder(tree)}. This will use the default R-implementation of the
 likelihood calculation, which is based on the default R-implementation of the
 function \code{\link{PCMLmr}} (\code{\link{PCMLmr.default}}) and the S3 specification
 of the function

@@ -68,7 +68,7 @@ timePCMBaseR <- function(X, tree, model) {
 
   timeExtra <- system.time(
     {
-      pruneI <- PCMBase::PCMPruningOrder(tree)
+      pruneI <- PCMBase::PCMTreePruningOrder(tree)
       metaI <- PCMValidate(tree, model)
     })[3]*1000
 
