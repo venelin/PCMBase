@@ -353,151 +353,6 @@ PCMNumParams.PCM <- function(model, ...) {
   unname(p)
 }
 
-#' Wrapper for length(tree$tip.label)
-#' @param tree a phylo object
-#' @return the number of tips in tree
-#' @export
-PCMTreeNumTips <- function(tree) {
-  length(tree$tip.label)
-}
-
-#' Number of all nodes in a tree
-#'
-#' @details Wrapper for nrow(tree$edge) + 1
-#' @param tree a phylo object
-#' @return the number of nodes in tree including root, internal and tips.
-#' @export
-PCMTreeNumNodes <- function(tree) {
-  nrow(tree$edge) + 1
-}
-
-#' Set a default edge.regime member ot the passed tree object
-#' @param tree a phylo object
-#' @param regime a character, an integer or PCM model object
-#'
-#' @description This function sets or overwrites the current member edge.regime
-#' in tree with one of the following:
-#' \itemize{
-#' \item{rep(regime[1], length(tree$edge.length))}{if regime is a character or an integer}
-#' \item{rep(PCMRegimes(regime)[1], length(tree$edge.length))}{if regime is a PCM model}
-#' } Note that the function modifies the passed tree object inplace.
-#' @return This function does not return a value but has a side effect on the passed
-#' tree object.
-#' @export
-PCMTreeSetDefaultRegime <- function(tree, regime) {
-  if(is.PCM(regime)) {
-    regime <- PCMRegimes(regime)
-  }
-  eval(substitute(tree$edge.regime <- rep(regime[1], length(tree$edge.length))), parent.frame())
-}
-
-#' Assign regimes on a tree given a set of starting branches
-#'
-#' @details It is assumed that each regime "paints" a linked subset of branches
-#' on a tree. Thus, each regime is fully described by its starting branch. The
-#' descendant branches inherit this regime until reaching a tip or a node that is
-#' present in the \code{nodes} parameter.
-#'
-#' @param tree a phylo object
-#' @param nodes an integer vector denoting tip or internal nodes in tree - the
-#' regimes change at the start of the branches leading to these nodes.
-#' @return an integer vector of length nrow(tree$edge), with elements from
-#' 1 to (length(nodes) + 1) naming the regime for each edge in the tree. For
-#' use in the PCM simulation and
-#' likelihood calculation functions, this vector can be converted or mapped to a
-#' a vector of character strings and/or assigned as a member 'edge.regime' of the tree.
-#' @export
-PCMTreeSetRegimesIncremental <- function(tree, nodes) {
-  if(!inherits(tree, "phylo")) {
-    stop("ERR:020d0:PCMBase:PCM.R:PCMTreeSetRegimesIncremental:: argument tree should be a phylo.")
-  }
-  preorder <- PCMTreePreorder(tree)
-  edge.regime <- rep(1, nrow(tree$edge))
-  nextRegime <- 2
-
-  endingAt <- order(rbind(tree$edge, c(0, N+1))[, 2])
-
-  for(ei in preorder) {
-    i <- tree$edge[ei, 2]
-    j <- tree$edge[ei, 1]
-    ej <- endingAt[j]
-
-    if(i %in% nodes) {
-      edge.regime[ei] <- nextRegime
-      nextRegime <- nextRegime + 1
-    } else {
-      edge.regime[ei] <- edge.regime[ej]
-    }
-  }
-  edge.regime
-}
-
-PCMTreeGetRegimesIncrementalStartNodes <- function(tree) {
-  if(!inherits(tree, "phylo")) {
-    stop("ERR:020g0:PCMBase:PCM.R:PCMSetRegimesAuto:: argument tree should be a phylo.")
-  }
-}
-
-#' Unique regimes on a tree
-#' @description This is a shortcut for sort(unique(tree$edge.regime))
-#' @param tree a phylo object with an additional member edge.regime which should
-#' be a character or an integer vector of length equal to the number of branches.
-#'
-#' @return a character or an integer vector depending on tree$edge.regime.
-#' @export
-PCMTreeUniqueRegimes <- function(tree) {
-  if(is.null(tree$edge.regime)) {
-    stop("ERR:02010:PCMBase:PCM.R:PCMRegimesUniqueTree:: tree$edge.regime is NULL,
-         but should be a character or an integer vector denoting regime names.")
-  }
-  sort(unique(tree$edge.regime))
-}
-
-#' Number of unique regimes on a tree
-#' @param tree a phylo object
-#' @return the number of different regimes encountered on the tree branches
-#' @export
-PCMTreeNumUniqueRegimes <- function(tree) {
-  length(PCMTreeUniqueRegimes(tree))
-}
-
-#' Jumps in modeled traits associated with branches in a tree
-#' @inheritParams PCMTreeNumTips
-#' @return an integer vector of 0's and 1's with entries correspondin to the
-#' denoting if a jump took place at the beginning of a branch.
-PCMTreeJumps <- function(tree) {
-  if(!is.null(tree$edge.jump)) {
-    if(length(tree$edge.jump) != nrow(tree$edge) |
-       !isTRUE(all(tree$edge.jump %in% c(0L, 1L)))) {
-      stop("ERR:02081:PCMBase:PCM.R:PCMTreeJumps:: tree$edge.jump should
-           be an integer vector of 0's and 1's with with length equal to the
-           number of rows in tree$edge.")
-    }
-    as.integer(tree$edge.jump)
-  } else {
-    rep(0L, nrow(tree$edge))
-  }
-}
-
-#' Regimes associated with branches in a tree
-#' @param tree a phylo object
-#' @param model a PCM object
-#' @return an integer vector with entries corresponding to the rows in tree$edge
-#'   denoting the regime on each branch in the tree as an index in PCMRegimes(model).
-#' @export
-PCMTreeMatchRegimesWithModel <- function(tree, model) {
-  regimes <- match(tree$edge.regime, PCMRegimes(model))
-  if(any(is.na(regimes))) {
-    stop(paste0("ERR:02071:PCMBase:PCM.R:PCMTreeMatchRegimesWithModel:: ",
-                " Some of the regimes in tree$edge.regime not found in",
-                "attr(model, 'regimes').\n",
-                "unique regimes on the tree:", toString(PCMTreeUniqueRegimes(tree)), "\n",
-                "attr(model, 'regimes')", toString(PCMRegimes(model))))
-  }
-  regimes
-}
-
-
 
 #' Load/store a vector parameter from/to a vector of all parameters in a model.
 #'
@@ -832,11 +687,11 @@ PCMSetOrGetVecParams.PCM <- function(
   p
 }
 
-#'
-PCMGetVecParamsAndRegimes <- function(model, tree, ...) {
-  UseMethod("PCMGetVecParamsAndRegimes", model)
-}
-
+#' Get a vector of all parameters (real and discrete) describing a model on a
+#' tree
+#' @param model a PCM model
+#' @param tree a phylo object with an edge.regime member
+#' @return a numeric vector concatenating the result
 PCMGetVecParamsRegimesAndModels <- function(model, tree, ...) {
   UseMethod("PCMGetVecParamsRegimesAndModels", model)
 }

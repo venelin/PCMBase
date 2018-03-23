@@ -2,7 +2,7 @@
 % Please edit documentation in R/PCM.R
 \name{PCMTreeUniqueRegimes}
 \alias{PCMTreeUniqueRegimes}
-\title{Unique regimes on a tree}
+\title{Unique regimes on a tree in the order of occurrence from the root to the tips (preorder)}
 \usage{
 PCMTreeUniqueRegimes(tree)
 }
@@ -14,5 +14,5 @@ be a character or an integer vector of length equal to the number of branches.}
 a character or an integer vector depending on tree$edge.regime.
 }
 \description{
-This is a shortcut for sort(unique(tree$edge.regime))
+Unique regimes on a tree in the order of occurrence from the root to the tips (preorder)
 }
