@@ -66,31 +66,34 @@ Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL
 
 
 # regime 'a', traits 1, 2 and 3
-model.a.123 <- PCM("JOU", 3, "a", list(X0 = a.X0,
-                                       H=H[,,'a',drop=FALSE],
-                                       Theta=Theta[,'a',drop=FALSE],
-                                       Sigma_x=Sigma_x[,,'a',drop=FALSE],
-                                       mj=mj[,'a',drop=FALSE],
-                                       Sigmaj_x=Sigmaj_x[,,'a',drop=FALSE],
-                                       Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
+model.a.123 <- PCM("JOU", k = 3, regimes = "a",
+                   params = list(X0 = a.X0,
+                                 H=H[,,'a',drop=FALSE],
+                                 Theta=Theta[,'a',drop=FALSE],
+                                 Sigma_x=Sigma_x[,,'a',drop=FALSE],
+                                 mj=mj[,'a',drop=FALSE],
+                                 Sigmaj_x=Sigmaj_x[,,'a',drop=FALSE],
+                                 Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
 # regime 'b', traits 1, 2 and 3
-model.b.123 <- PCM("JOU", 3, "b", list(X0 = b.X0,
-                                       H=H[,,'b',drop=FALSE],
-                                       Theta=Theta[,'b',drop=FALSE],
-                                       Sigma_x=Sigma_x[,,'b',drop=FALSE],
-                                       mj=mj[,'b',drop=FALSE],
-                                       Sigmaj_x=Sigmaj_x[,,'b',drop=FALSE],
-                                       Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
+model.b.123 <- PCM("JOU", k = 3, regimes = "b",
+                   params = list(X0 = b.X0,
+                                 H=H[,,'b',drop=FALSE],
+                                 Theta=Theta[,'b',drop=FALSE],
+                                 Sigma_x=Sigma_x[,,'b',drop=FALSE],
+                                 mj=mj[,'b',drop=FALSE],
+                                 Sigmaj_x=Sigmaj_x[,,'b',drop=FALSE],
+                                 Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
 
 # regimes 'a' and 'b', traits 1, 2 and 3
-model.ab.123 <- PCM("JOU", 3, c("a", "b"), list(X0 = a.X0,
-                                                H=H[,,,drop=FALSE],
-                                                Theta=Theta[,,drop=FALSE],
-                                                Sigma_x=Sigma_x[,,,drop=FALSE],
-                                                mj=mj[,,drop=FALSE],
-                                                Sigmaj_x=Sigmaj_x[,,,drop=FALSE],
-                                                Sigmae_x=Sigmae_x[,,,drop=FALSE]))
+model.ab.123 <- PCM("JOU", k = 3, regimes = c("a", "b"),
+                    params = list(X0 = a.X0,
+                                  H=H[,,,drop=FALSE],
+                                  Theta=Theta[,,drop=FALSE],
+                                  Sigma_x=Sigma_x[,,,drop=FALSE],
+                                  mj=mj[,,drop=FALSE],
+                                  Sigmaj_x=Sigmaj_x[,,,drop=FALSE],
+                                  Sigmae_x=Sigmae_x[,,,drop=FALSE]))
 
 
 context(ctx <- "R=1/k=1/N=5")

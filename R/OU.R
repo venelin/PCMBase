@@ -67,7 +67,7 @@ PCMSpecifyParams.OU <- function(model, ...) {
               description = "trait vector at the root; global for all model regimes"),
     H = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
              type = c("matrix", "full"),
-             description = "Selection strength matirx"),
+             description = "Selection strength matrix"),
     Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
                  type = c("vector", "full"),
                  description = "long-term optimum trait values"),
@@ -111,5 +111,25 @@ PCMSpecifyParams.OU3 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU4 <- function(model, ...) "OU without X0 and Sigmae_x and with non-negative diagonal matrix H."
+#' @export
+PCMParentClasses.OU4 <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU4 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "diag", "positive.diag"),
+                 description = "Positive diagonal selection strength matrix")
   spec[!sapply(spec, is.null)]
 }

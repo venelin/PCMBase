@@ -40,9 +40,22 @@ PCMCond.MRG <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, ver
     # integer regime number must be mapped to a character regime because
     # the model object may contain global parameter vectors and matrices apart
     # from models associated with regimes.
-    r <- attr(model, "regimes")[r]
+    r <- as.character(attr(model, "regimes")[r])
   }
   PCMCond(tree, model[[r]], 1, metaI, verbose)
+}
+
+#' @export
+PCMNumParams.MRG <- function(model, countRegimeChanges = FALSE, countModelTypes = FALSE,  ...) {
+  p <- NextMethod()
+  if(countModelTypes) {
+    if(length(attr(model, "modelTypes", exact = TRUE)) > 1) {
+      # + 1 has already been counted by the default PCM implementatioin (call
+      # to NextMethod() above)
+      p <- p + PCMNumRegimes(model) - 1
+    }
+  }
+  p
 }
 
 #' @export
@@ -81,15 +94,23 @@ PCMGetVecParamsFull.MRG <- function(model, ...) {
 
 #' Create a multi-regime Gaussian model (MRG)
 #' @param k integer defining the number of traits.
-#' @param models a character string vector with the class names of the possible
-#' models included in the MRG, e.g. c("BM3", "OU3").
-#' @param mapping a character string vector with elements from models or an
-#' integer vector with elements between 1 and length(models)
-#' mapping models to regimes (the positions in the mapping vector), e.g.
-#' c(a = 1, b = 1, c = 2, d = 1) defines an MRG with four different regimes with
-#' models BM3, BM3, OU3 and BM3, corresponding to each regime.
-#' @param className a character string definingn a valid class name for the
-#' resulting MRG object.
+#' @param modelTypes a character string vector with the class names of the
+#' model-types that can possibly be included (assigned to regimes) in the MRG,
+#' e.g. c("BM3", "OU3").
+#' @param mapping a character string vector with elements from modelTypes or an
+#' integer vector with elements between 1 and length(modelTypes)
+#' mapping modelTypes to regimes, e.g. if \code{modelTypes = c("BM3", "OU3")} and
+#' \code{mapping = c(a = 1, b = 1, c = 2, d = 1)} defines an MRG with four
+#' different regimes with model-types BM3, BM3, OU3 and BM3, corresponding to each
+#' regime. \code{mapping} does not have to be a named vector. If it is a named
+#' vector, then all the names must correspond to valid regime names in a tree to
+#' which the model will be fit (member tree$edge.regime should be a character vector).
+#' If it is not a named vector than the positions of the elements correspond to the
+#' regimes in their order given by the function \code{\link{PCMTreeUniqueRegimes}}
+#' called on a tree object.
+#' @param className a character string definingn a valid S3 class name for the
+#' resulting MRG object. If not specified, a className is generated using the
+#' expression \code{ paste0("MRG_", do.call(paste0, as.list(mapping)))}.
 #' @param X0 NULL or a list defining a global vector X0 to be used by all
 #' models in the MRG.
 #' @param Sigmae_x NULL or a list defining a global matrix to be used as element
@@ -97,14 +118,16 @@ PCMGetVecParamsFull.MRG <- function(model, ...) {
 #' @return an object of S3 class className inheriting from MRG, GaussianPCM and
 #' PCM.
 #'
-#' @details If X0 is not NULL it has no sense to use models including X0 as a
+#' @details If X0 is not NULL it has no sense to use model-types including X0 as a
 #' parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae_x is
-#' not NULL there is no meaning in using models including Sigmae_x as a parameter,
+#' not NULL there is no meaning in using model-types including Sigmae_x as a parameter,
 #' (e.g. use OU2 or OU3 instead of OU or OU1).
+#' @seealso \code{\link{PCMTreeUniqueRegimes}}
+#'
 #' @export
 MRG <- function(
   k,
-  models,
+  modelTypes,
   mapping,
   className = paste0("MRG_", do.call(paste0, as.list(mapping))),
   X0 = list(default = rep(0, k),
@@ -112,69 +135,47 @@ MRG <- function(
             description = "trait vector at the root; global for all regimes"),
   Sigmae_x = list(default = matrix(0, nrow = k, ncol = k),
                 type = c("gmatrix", "upper.tri.diag", "positive.diag"),
-                description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component")) {
+                description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"),
+  ...) {
 
-  regimes <- if(is.null(names(mapping))) as.character(1:length(mapping)) else names(mapping)
+  regimes <- if(is.null(names(mapping))) 1:length(mapping) else names(mapping)
 
   if(is.character(mapping)) {
-    mapping2 <- match(mapping, models)
+    mapping2 <- match(mapping, modelTypes)
     if(any(is.na(mapping2))) {
-      stop(paste0("ERR:02511:PCMBase:MRG.R:MRG:: some of the model-names in mapping not found in models: ",
-                  "models = ", toString(models), ", mapping =", toString(mapping)))
+      stop(paste0("ERR:02511:PCMBase:MRG.R:MRG:: some of the models in mapping not found in modelTypes: ",
+                  "modelTypes = ", toString(modelTypes), ", mapping =", toString(mapping)))
     } else {
       mapping <- mapping2
     }
   }
 
-  mappingModelRegime <- models[mapping]
+  mappingModelRegime <- modelTypes[mapping]
 
   specParams <- list(X0 = X0)
 
   for(m in 1:length(mapping)) {
-    specParams[[regimes[m]]] <- list(default = PCM(mappingModelRegime[m], k, 1), type = "model")
+    specParams[[as.character(regimes[m])]] <- list(default = PCM(mappingModelRegime[m], modelTypes, k = k, 1), type = "model")
   }
 
   specParams[["Sigmae_x"]] <- Sigmae_x
   specParams <- specParams[!sapply(specParams, is.null)]
 
-  PCM(model = c(className, "MRG", "GaussianPCM", "PCM"), k = k, regimes = regimes, specParams = specParams)
+  res <- PCM(model = c(className, "MRG", "GaussianPCM", "PCM"), modelTypes, k = k, regimes = regimes, specParams = specParams)
+  attr(res, "mapping") <- mapping
+  attr(res, "modelTypes") <- modelTypes
+  res
 }
+
 
 #' @export
-PCMLowerBound.MRG <- function(model, X0 = NULL, Sigmae_x = NULL, ...) {
-  model <- NextMethod()
-  specParams <- attr(model, "specParams", exact = TRUE)
-
-  if(!is.null(specParams$X0) && !is.null(X0)) {
-    model$X0 <- X0
+PCMMapModelTypesToRegimes.MRG <- function(model, tree, ...) {
+  uniqueRegimes <- PCMTreeUniqueRegimes(tree)
+  res <- attr(model, "mapping", exact=TRUE)
+  if(!is.null(names(res))) {
+    res <- res[as.character(uniqueRegimes)]
+  } else {
+    names(res) <- as.character(uniqueRegimes)
   }
-  for(name in names(specParams)) {
-    if(specParams[[name]]$type[1]=="model") {
-      model[[name]] <- PCMLowerBound(model[[name]], X0 = X0, Sigmae_x = Sigmae_x, ...)
-    }
-  }
-  if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
-    model$Sigmae_x <- Sigmae_x
-  }
-  model
+  res
 }
-
-#' @export
-PCMUpperBound.MRG <- function(model, X0 = NULL, Sigmae_x = NULL, ...) {
-  model <- NextMethod()
-  specParams <- attr(model, "specParams", exact = TRUE)
-
-  if(!is.null(specParams$X0) && !is.null(X0)) {
-    model$X0 <- X0
-  }
-  for(name in names(specParams)) {
-    if(specParams[[name]]$type[1]=="model") {
-      model[[name]] <- PCMUpperBound(model[[name]], X0 = X0, Sigmae_x = Sigmae_x, ...)
-    }
-  }
-  if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
-    model$Sigmae_x <- Sigmae_x
-  }
-  model
-}
-

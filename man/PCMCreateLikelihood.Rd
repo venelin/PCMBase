@@ -29,6 +29,7 @@ of X given the tree and the model with parameter values specified by p.
 \description{
 Create a likelhood function of a numerical vector parameter
 }
-\examples{
-
+\details{
+It is possible to specify a function for the argument metaI. This function should
+have three parameters (X, tree, model) and should return a metaInfo object. (see \code{\link{PCMInfo}}).
 }

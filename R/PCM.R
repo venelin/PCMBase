@@ -62,6 +62,7 @@ NULL
 #' non-existing traits and these will be ignored instead of integrated out.}
 #' \item{\code{PCMBase.Tolerance.Symmetric }}{A double specifying the tolerance in tests
 #' for symmetric matrices. Default 1e-8; see also \code{\link{isSymmetric}}.}
+#' \item{\code{PCMBase.Lmr.mode }}{An integer code specifying the parallel likelihood calculation mode.}
 #' }
 #' @export
 PCMOptions <- function() {
@@ -72,7 +73,8 @@ PCMOptions <- function() {
        PCMBase.Threshold.Skip.Singular = getOption("PCMBase.Threshold.Skip.Singular", 1e-4),
        PCMBase.Skip.Singular = getOption("PCMBase.Skip.Singular", TRUE),
        PCMBase.Internal.PC.Full = getOption("PCMBase.Internal.PC.Full", TRUE),
-       PCMBase.Tolerance.Symmetric = getOption("PCMBase.Tolerance.Symmetric", 1e-8)
+       PCMBase.Tolerance.Symmetric = getOption("PCMBase.Tolerance.Symmetric", 1e-8),
+       PCMBase.Lmr.mode = getOption("PCMBase.Lmr.mode", as.integer(11))
        )
 }
 
@@ -80,7 +82,10 @@ PCMOptions <- function() {
 #' @title Create a phylogenetic comparative model object
 #'
 #' @description This is the entry-point function for creating model objects within
-#' the PCMBase framework. A PCM
+#' the PCMBase framework representing a single model-type with one or several
+#' model-regimes of this type associated with the branches of a tree. For mixed
+#' Gaussian phylogenetic models, which enable multiple model-types, use the
+#' \code{\link{MRG}} function.
 #' @param model This argument can take one of the following forms:
 #' \itemize{
 #' \item a character vector of the S3-classes of the model object to be
@@ -89,6 +94,9 @@ PCMOptions <- function() {
 #' \item an S3 object which's class inherits from the PCM S3 class.
 #' }
 #' The Details section explains how these two types of input are processed.
+#' @param modelTypes a character string vector specifying a set (family) of
+#' model-classes, to which the constructed model object belongs. These are used
+#' for model-selection.
 #' @param k integer denoting the number of traits (defaults to 1).
 #' @param regimes a character or integer vector denoting the regimes.
 #' @param params NULL (default) or a list of parameter values (scalars, vectors,
@@ -101,12 +109,22 @@ PCMOptions <- function() {
 #' is called on the created object of class \code{model}.
 #' @param ... additional parameters intended for use by sub-classes of the PCM
 #' class.
-#'
-#' @details
 #' @return an object of S3 class as defined by the argument model.
+#'
+#' @details This is an S3 generic. The PCMBase package defines three methods for
+#' it:
+#' \itemize{
+#' \item{PCM.PCM:}{A default constructor for any object with a class inheriting
+#' from "PCM".}
+#' \item{PCM.character:}{A default PCM constructor from a character string
+#' specifying the type of model.}
+#' \item{PCM.default:}{A default constructor called when no other constructor is
+#' found. When called this constructor raises an error message.}
+#' }
+#' @seealso \code{\link{MRG}}
 #' @export
 PCM <- function(
-  model, k = 1, regimes = 1,
+  model, modelTypes = class(model)[1], k = 1, regimes = 1,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
   UseMethod("PCM", model)
@@ -114,17 +132,15 @@ PCM <- function(
 
 #' @export
 PCM.default <- function(
-  model, k = 1, regimes = 1,
+  model, modelTypes = class(model)[1], k = 1, regimes = 1,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
   stop(paste0("ERR:02091:PCMBase:PCM.R:PCM.default:: You should provide a PCM object, but provided a ", class(model)[1]))
 }
 
-#' Common constructor for all PCM classes
-#' @inheritParams PCM
 #' @export
 PCM.PCM <- function(
-  model, k = 1, regimes = 1,
+  model, modelTypes = class(model)[1], k = 1, regimes = 1,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
 
@@ -137,6 +153,15 @@ PCM.PCM <- function(
 
   if(is.null(attr(model, "p", exact = TRUE))) {
     attr(model, "p") <- PCMNumParams(model)
+  }
+
+  if(is.null(attr(model, "modelTypes", exact = TRUE))) {
+    attr(model, "modelTypes") <- modelTypes
+  }
+
+  if(is.null(attr(model, "mapping", exact = TRUE))) {
+    attr(model, "mapping") <- match(class(model)[1],
+                                    attr(model, "modelTypes", exact = TRUE))
   }
 
   specParams <- attr(model, "specParams")
@@ -156,10 +181,9 @@ PCM.PCM <- function(
   model
 }
 
-#' @inherit PCM
 #' @export
 PCM.character <- function(
-  model, k = 1, regimes = 1,
+  model, modelTypes = model[1], k = 1, regimes = 1,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
 
@@ -171,7 +195,7 @@ PCM.character <- function(
   attr(modelObj, "k") <- k
   attr(modelObj, "regimes") <- regimes
 
-  PCM(modelObj, k, regimes, params, vecParams, offset, specParams, ...)
+  PCM(modelObj, modelTypes, k, regimes, params, vecParams, offset, specParams, ...)
 }
 
 #' @export
@@ -266,15 +290,46 @@ PCMNumTraits.PCM <- function(model) {
 
 #' Regimes in a model
 #' @param model a PCM object
+#' @param tree a phylo object or NULL. If the regimes in the model are integers and tree is not NULL,
+#' then these integers are used as indexes in PCMTreeUniqueRegimes(tree). Default NULL.
 #' @return a character or an integer vector giving the regime names of the models
 #' @export
-PCMRegimes <- function(model) {
+PCMRegimes <- function(model, tree = NULL) {
   UseMethod("PCMRegimes", model)
 }
 
 #' @export
-PCMRegimes.PCM <- function(model) {
-  attr(model, "regimes")
+PCMRegimes.PCM <- function(model, tree = NULL) {
+  r <- attr(model, "regimes")
+  if(is.integer(r) && !is.null(tree)) {
+    PCMTreeUniqueRegimes(tree)[r]
+  } else {
+    r
+  }
+}
+
+#' Integer vector giving the model type index for each regime
+#' @param model a PCM model
+#' @param tree a phylo object with an edge.regime member
+#' @param ... additional parameters passed to methods
+#' @return an integer vector with elements corresponding to the elements in
+#' \code{PCMTreeUniqueRegimes(tree)}
+#' @details This is a generic S3 method. The default implementation for the basic
+#' class PCM returns a vector of 1's, because it assumes that a single model type
+#' is associated with each regime. The implementation for multi-regime models (MRG)
+#' returns the mapping attribute of the MRG object reordered to correspond to
+#' \code{PCMTreeUniqueRegimes(tree)}.
+#' @export
+PCMMapModelTypesToRegimes <- function(model, tree, ...) {
+  UseMethod("PCMMapModelTypesToRegimes", model)
+}
+
+#' @export
+PCMMapModelTypesToRegimes.PCM <- function(model, tree, ...) {
+  uniqueRegimes <- PCMTreeUniqueRegimes(tree)
+  res <- rep(1, length(uniqueRegimes))
+  names(res) <- as.character(uniqueRegimes)
+  res
 }
 
 #' Number of regimes in a model
@@ -290,17 +345,26 @@ PCMNumRegimes.PCM <- function(model) {
   length(PCMRegimes(model))
 }
 
-#' Number of free parameters describing fully a PCM
+#' Number of free parameters describing a PCM
 #' @param model a PCM object
+#' @param countRegimeChanges logical indicating if regime changes should be counted.
+#' If TRUE, the default implementation would add \code{PCMNumRegimes(model) - 1}.
+#' Default FALSE.
+#' @param countModelTypes logical indicating whether the model type should be
+#'  counted. If TRUE the default implementation will add +1 only if there are more than
+#'  one modelTypes (\code{length(attr(model, "modelTypes", exact = TRUE)) > 1}),
+#'  assuming that all regimes are regimes of the same model type (e.g. OU). The
+#'  implementation for MRG models will add +1 for every regime if there are more than
+#'  one modelTypes. Default FALSE.
 #' @param ... other arguments (possible future use)
 #' @return an integer
 #' @export
-PCMNumParams <- function(model, ...) {
+PCMNumParams <- function(model, countRegimeChanges = FALSE, countModelTypes = FALSE, ...) {
   UseMethod("PCMNumParams", model)
 }
 
 #' @export
-PCMNumParams.PCM <- function(model, ...) {
+PCMNumParams.PCM <- function(model, countRegimeChanges = FALSE, countModelTypes = FALSE,  ...) {
   k <- attr(model, "k")
   R <- length(attr(model, "regimes"))
   specParams <- attr(model, "specParams")
@@ -349,6 +413,16 @@ PCMNumParams.PCM <- function(model, ...) {
         p <- p + R*matParamSizes[type[2]]
       }
     }
+  }
+  if(countRegimeChanges) {
+    # we don't count the root as a parameters, tha'ts why we substract one.
+    p <- p + PCMNumRegimes.PCM(model) - 1
+  }
+  if(countModelTypes) {
+    # assume that all regimes have the same model-type. If there is only one
+    # model type than this is not counted as a parameter.
+    if(length(attr(model, "modelTypes", exact=TRUE)) > 1)
+      p <- p + 1
   }
   unname(p)
 }
@@ -615,7 +689,7 @@ PCMGetVecParams <- function(model, ...) {
 #' @export
 PCMGetVecParams.PCM <- function(model, ...) {
   vec <- double(PCMNumParams(model))
-  PCMSetOrGetVecParams(model, vec, set = FALSE)
+  PCMSetOrGetVecParams(model, vec, set = FALSE, ...)
   vec
 }
 
@@ -688,14 +762,31 @@ PCMSetOrGetVecParams.PCM <- function(
 }
 
 #' Get a vector of all parameters (real and discrete) describing a model on a
-#' tree
+#' tree including the numerical parameters of each model regime, the integer ids
+#' of the spliting nodes defining the regimes on the tree and the integer ids of
+#' the model classes associated with each regime.
+#'
+#' @details This is an S3 generic.
+#' In the default implementation, the last entry in the returned vector is the
+#' number of numerical parameters. This is used to identify the starting positions
+#' in the vector of the first splitting node.
+#'
 #' @param model a PCM model
-#' @param tree a phylo object with an edge.regime member
+#' @param tree a phylo object with an edge.regime member.
+#' @param ... additional parameters passed to methods.
 #' @return a numeric vector concatenating the result
+#' @export
 PCMGetVecParamsRegimesAndModels <- function(model, tree, ...) {
   UseMethod("PCMGetVecParamsRegimesAndModels", model)
 }
 
+#' @export
+PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
+  numericParams <- PCMGetVecParams(model)
+  startingNodesRegimes <- PCMTreeGetStartingNodesRegimes(tree)
+  models <- PCMMapModelTypesToRegimes(model, tree, ...)
+  c(numericParams, startingNodesRegimes, models)
+}
 
 
 #' Conditional distribution of a daughter node given its parent node
@@ -816,132 +907,6 @@ PCMLik <- function(
   log = TRUE,
   verbose = FALSE) {
   UseMethod("PCMLik", model)
-}
-
-#' Pre-order tree traversal
-#' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
-#' one daughter node)
-#' @return a vector of indices of edges in tree$edge in pre-order.
-PCMTreePreorder <- function(tree) {
-  # number of tips
-  N <- length(tree$tip.label)
-
-  # total number of nodes in the tree is the number of edges + 1 for the root
-  M <- dim(tree$edge)[1]+1
-
-  ordFrom <- order(tree$edge[,1])
-
-  # we need the ordered edges in order to easily traverse all edges starting from
-  # a given node
-  iFrom <- match(1:M, tree$edge[ordFrom, 1])
-
-  # the result is a vector of edge indices in the breadth-first search order
-  res <- vector(mode='integer', length=M-1)
-
-  # node-indices at the current level (start from the root)
-  cn <- N+1
-  j <- 1
-  while(length(cn)>0) {
-    cnNext <- c()
-    for(n in cn) {
-      # if not a tip
-      if(n > N) {
-        # indices in ordFrom of edges starting from the current node
-        if(n < M) {
-          es <- iFrom[n]:(iFrom[n+1]-1)
-        } else {
-          es <- iFrom[n]:(M-1)
-        }
-        jNext <- j+length(es)
-        res[j:(jNext-1)] <- ordFrom[es]
-        j <- jNext
-        cnNext <- c(cnNext, tree$edge[ordFrom[es], 2])
-      }
-    }
-    cn <- cnNext
-  }
-  res
-}
-
-#' Extract information for pruning a tree used as cache during likelihood
-#' calculation
-#'
-#' @param tree a phylo object
-#'
-#' @details The function is very slow on strongly unbalanced trees due to the
-#' slow vector append() operation in R.
-#'
-#' @return a list of objects used by the R implementation of PCMLik().
-#' @export
-PCMTreePruningOrder <- function(tree) {
-  # number of tips
-  N <- length(tree$tip.label)
-  # number of all nodes
-  M <- nrow(tree$edge)+1
-
-  # order the edge-indices in increasing index of ending node
-  endingAt <- order(rbind(tree$edge, c(0, N+1))[, 2])
-
-  edge <- tree$edge
-
-  # count the number of non-visited children for each internal node
-  nvc <- rep(0, M)
-
-  # indices of parent node for edges that haven't still been gone through
-  # initially, this are all edges
-  ee1 <- edge[, 1]
-
-  while(length(ee1)) {
-    # For every element of (N+1):M its index in ee1 or NA
-    matchp <- match((N+1):M, ee1)
-    matchp <- matchp[!is.na(matchp)]
-    # add one unvisited chlidren to each parent node's nvc
-    nvc[ee1[matchp]] <- nvc[ee1[matchp]] + 1
-    # remove the edges we've just gone through
-    ee1 <- ee1[-matchp]
-  }
-
-  # start from the edges leading to tips
-  nodesVector <- c()
-  nodesIndex <- c(0)
-
-  unVector <- c()
-  # pointers to last unique indices (un) in unVector
-  unIndex <- c(0)
-
-  # internal or tip- nodes to which we are currently pointing, i.e. we are at
-  # their parent-nodes and we are about to process the brances leading to them.
-  nodes <- 1:N
-
-  while(nodes[1] != N+1) {
-    nodesIndex <- c(nodesIndex, nodesIndex[length(nodesIndex)]+length(nodes))
-    nodesVector <- c(nodesVector, nodes)
-
-    # indices of edges that end at nodes
-    es <- endingAt[nodes]
-    nodes <- c()
-
-    while(length(es)>0) {
-      # unique index of every edge ending at some of the nodes
-      un <- match(unique(edge[es, 1]), edge[es, 1])
-      # add these indices to unVector
-      unVector <- c(unVector, un)
-      # index of the last element of the current un in unVector
-      unIndex <- c(unIndex, unIndex[length(unIndex)]+length(un))
-      nvc[edge[es[un], 1]] <- nvc[edge[es[un], 1]] - 1
-      nodes <- c(nodes, edge[es[un][nvc[edge[es[un], 1]] == 0], 1])
-      es <- es[-un]
-    }
-  }
-  list(# all raws from edge, times t and regimes must be accessed using indices
-       # from the edingAt vector.
-       endingAt=endingAt,
-
-       nodesVector=nodesVector,
-       nodesIndex=nodesIndex,
-       nLevels=length(nodesIndex)-1,
-       unVector=unVector,
-       unIndex=unIndex)
 }
 
 
@@ -1080,233 +1045,23 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
   res
 }
 
-#' Numerical lower bound
-#' @param model a PCM object
-#' @return a PCM object of the same S3 classes as model. Calling
-#' \code{\link{PCMBase::PCMSetOrGetVecParams}} on this object returns a lower
-#' bound for that can be used, e.g. in a call to \code{\link{optim}}
-#' @examples
-#' model <- PCM("BM3", 3)
-#' PCMLowerBound(model)
-#' @export
-PCMLowerBound <- function(model, ...) {
-  UseMethod("PCMLowerBound", model)
-}
-
-#' @export
-PCMLowerBound.PCM <- function(model, value = -10, valuePositiveDiag = 0, ...) {
-  if(valuePositiveDiag < 0 ) {
-    stop("ERR:020f1:PCMBase:PCM.R:PCMLowerBound.PCM:: valuePositiveDiag should be non-negative.")
-  }
-  # a vector with the actual parameters excluding repeated and fixed values
-  par <- double(PCMNumParams(model))
-  # we set the default upper bound value, but entries corresponding to diagonal
-  # elements in Choleski factor upper triangular matrix parameters should be set
-  # to valuePositiveDiag
-  par[] <- value
-
-  # all parameters unrolled in a vector including repeated parameter values as
-  # well as fixed parameter values
-  fullParamVector <- PCMGetVecParamsFull(model)
-  maxFullParam <- max(fullParamVector, na.rm = TRUE)
-  if(!is.finite(maxFullParam)) {
-    maxFullParam <- as.double(1)
-  }
-
-  # a tricky way to insert values in the model parameters that are certainly not
-  # among the fixed non-countable parameter values. We will use match of these
-  # values to assign the either value valuePositiveDiag to the right entries in the
-  # model parameter matrices.
-  parMask <- maxFullParam + (1:PCMNumParams(model))
-
-  # set the values that match unique positions in par.
-  PCMSetOrGetVecParams(model, parMask)
-  # Find Choleski factors of positive definite matrices. Such parameters need to
-  # have positive diagonal elements, i.e. valuePositiveDiag.
-  specParams <- attr(model, "specParams", exact = TRUE)
-  for(name in names(specParams)) {
-    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
-       length(specParams[[name]]$type) >= 3 &&
-       specParams[[name]]$type[3] == "positive.diag" ) {
-      if(specParams[[name]]$type[1] == "gmatrix") {
-        mi <- match(diag(model[[name]]), parMask)
-        par[unique(mi)] <- valuePositiveDiag
-      } else if(specParams[[name]]$type[1] == "matrix") {
-        # model[[name]] is a k x k x R array
-        R <- PCMNumRegimes(model)
-        for(r in 1:R) {
-          mi <- match(diag(model[[name]][,,r]), parMask)
-          par[unique(mi)] <- valuePositiveDiag
-        }
-      }
-    }
-  }
-  PCMSetOrGetVecParams(model, par)
-  model
-}
-
-#' Numerical upper bound
-#' @param model a PC
-#' M object
-#' @return a PCM object of the same S3 classes as model. Calling
-#' \code{\link{PCMBase::PCMSetOrGetVecParams}} on this object returns an upper
-#' bound for that can be used, e.g. in a call to \code{\link{optim}}
-#' #' model <- PCM("BM3", 3)
-#' PCMLowerBound(model)
-#' @export
-PCMUpperBound <- function(model, ...) {
-  UseMethod("PCMUpperBound", model)
-}
-
-#' @export
-PCMUpperBound.PCM <- function(model, value = 10, valuePositiveDiag = 10, ...) {
-  if(valuePositiveDiag <= 0 ) {
-    stop("ERR:020e1:PCMBase:PCM.R:PCMUpperBound.PCM:: valuePositiveDiag should be positive.")
-  }
-  # a vector with the actual parameters excluding repeated and fixed values
-  par <- double(PCMNumParams(model))
-  # we set the default upper bound value, but entries corresponding to diagonal
-  # elements in Choleski factor upper triangular matrix parameters should be set
-  # to valuePositiveDiag
-  par[] <- value
-
-  # all parameters unrolled in a vector including repeated parameter values as
-  # well as fixed parameter values
-  fullParamVector <- PCMGetVecParamsFull(model)
-  maxFullParam <- max(fullParamVector, na.rm = TRUE)
-  if(!is.finite(maxFullParam)) {
-    maxFullParam <- as.double(1)
-  }
-
-  # a tricky way to insert values in the model parameters that are certainly not
-  # among the fixed non-countable parameter values. We will use match of these
-  # values to assign the either value valuePositiveDiag to the right entries in the
-  # model parameter matrices.
-  parMask <- maxFullParam + (1:PCMNumParams(model))
-
-  # set the values that match unique positions in par.
-  PCMSetOrGetVecParams(model, parMask)
-  # Find Choleski factors of positive definite matrices. Such parameters need to
-  # have positive diagonal elements, i.e. valuePositiveDiag.
-  specParams <- attr(model, "specParams", exact = TRUE)
-  for(name in names(specParams)) {
-    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
-       length(specParams[[name]]$type) >= 3 &&
-       specParams[[name]]$type[3] == "positive.diag" ) {
-      if(specParams[[name]]$type[1] == "gmatrix") {
-        mi <- match(diag(model[[name]]), parMask)
-        par[unique(mi)] <- valuePositiveDiag
-      } else if(specParams[[name]]$type[1] == "matrix") {
-        # model[[name]] is a k x k x R array
-        R <- PCMNumRegimes(model)
-        for(r in 1:R) {
-          mi <- match(diag(model[[name]][,,r]), parMask)
-          par[unique(mi)] <- valuePositiveDiag
-        }
-      }
-    }
-  }
-  PCMSetOrGetVecParams(model, par)
-  model
-}
-
 #' Create a likelhood function of a numerical vector parameter
 #' @inheritParams PCMLik
 #' @return a function of a numerical vector parameter called p returning the likelihood
 #' of X given the tree and the model with parameter values specified by p.
-#' @examples
+#' @details It is possible to specify a function for the argument metaI. This function should
+#' have three parameters (X, tree, model) and should return a metaInfo object. (see \code{\link{PCMInfo}}).
 #'
 #' @export
 PCMCreateLikelihood <- function(X, tree, model, metaI = PCMInfo(X, tree, model)) {
-  force(metaI)
+  if(is.function(metaI)) {
+    metaI <- metaI(X, tree, model)
+  }
+
   function(p, log = TRUE) {
     PCMSetOrGetVecParams(model, p)
     value <- PCMLik(X, tree, model, metaI, log = log)
     value
-
   }
 }
 
-
-#' Fitting a PCM model to a given tree and data
-#' @inheritParams PCMLik
-#' @return an object of class PCMFit
-#' @export
-PCMFit <- function(X, tree, model, metaI = PCMInfo(X, tree, model), ...) {
-  UseMethod("PCMFit", model)
-}
-
-#' @importFrom OptimMCMC runOptimAndMCMC configOptimAndMCMC
-#' @export
-PCMFit.PCM <- function(
-  X, tree, model, metaI = PCMInfo(X, tree, model),
-  lik = NULL, prior = NULL, input.data = NULL, config = NULL, verbose = TRUE, ...) {
-
-  if(is.null(lik)) {
-    lik <- PCMCreateLikelihood(X, tree, model, metaI)
-  }
-  if(is.null(config)) {
-    lowerVecParams <- double(PCMNumParams(model))
-    lowerModel <- PCMLowerBound(model, ...)
-    PCMSetOrGetVecParams(lowerModel, lowerVecParams, set = FALSE, ...)
-    upperVecParams <- double(PCMNumParams(model))
-    upperModel <- PCMUpperBound(model, ...)
-    PCMSetOrGetVecParams(upperModel, upperVecParams, set = FALSE, ...)
-
-    config <- configOptimAndMCMC(lik = lik, parLower = lowerVecParams, parUpper = upperVecParams, ...)
-  }
-
-  res <- runOptimAndMCMC(lik, prior, input.data, config, verbose)
-  class(res) <- c("PCMFit", class(res))
-  res
-}
-
-
-#' Extract error information from a formatted error message.
-#' @param x character string representing the error message.
-#' @description The function searches x for a pattern matching the format
-#' 'ERR:5-alphanumeric-character-code:project-name:source-file:error-specifics:'.
-#' Specifically it
-#' searches for a regular expression pattern "ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:".
-#' @return a named list with the parsed error information or NULL, if no match
-#' was found. The elements of this list are named as follows:
-#' \item{type}{The type of the error message. Usually this is ERROR, but could be
-#' WARNING or anything else.}
-#' \item{icode}{An an alphanumeric code of the error.}
-#' \item{project}{The name of the project locating the code that raised the error.}
-#' \item{file}{The name of the source-file containing the code that raised the error.}
-#' \item{fun}{The name of the function raising the error}
-#' \item{info}{A character string containing additional error-specific information}
-#' \item{msg}{A verbal description of the error.}
-#' @export
-PCMParseErrorMessage <- function(x) {
-  res <- try({
-    if(is.character(x)) {
-      code <- regmatches(x, regexpr("ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:", x))
-      if(length(code) > 0) {
-        code <- code[1]
-        codeL <- strsplit(code, split=":")[[1]]
-        list(
-          type = codeL[1],
-          icode = codeL[2],
-          project = codeL[3],
-          file = codeL[4],
-          fun = codeL[5],
-          info = codeL[6],
-          code = code,
-          msg = x
-        )
-      } else {
-        NULL
-      }
-    } else {
-      NULL
-    }
-  }, silent = TRUE)
-
-  if(class(res)=="try-error") {
-    NULL
-  } else {
-    res
-  }
-}

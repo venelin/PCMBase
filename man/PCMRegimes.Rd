@@ -4,10 +4,13 @@
 \alias{PCMRegimes}
 \title{Regimes in a model}
 \usage{
-PCMRegimes(model)
+PCMRegimes(model, tree = NULL)
 }
 \arguments{
 \item{model}{a PCM object}
+
+\item{tree}{a phylo object or NULL. If the regimes in the model are integers and tree is not NULL,
+then these integers are used as indexes in PCMTreeUniqueRegimes(tree). Default NULL.}
 }
 \value{
 a character or an integer vector giving the regime names of the models

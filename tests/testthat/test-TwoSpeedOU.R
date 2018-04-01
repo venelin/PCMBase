@@ -66,13 +66,13 @@ Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL
 
 
 # regime 'a', traits 1, 2 and 3
-model.a.123 <- PCM("OU", 3, "a", list(X0 = a.X0,
+model.a.123 <- PCM("OU", k = 3, regimes = "a", params = list(X0 = a.X0,
                                               H=H1[,,'a',drop=FALSE],
                                               Theta=Theta[,'a',drop=FALSE],
                                               Sigma_x=Sigma_x[,,'a',drop=FALSE],
                                               Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
-model.a.123.TwoSpeedOU <- PCM("TwoSpeedOU", 3, "a", list(X0 = a.X0,
+model.a.123.TwoSpeedOU <- PCM("TwoSpeedOU", k = 3, regimes = "a", params = list(X0 = a.X0,
                                                          H1=H1[,,'a',drop=FALSE],
                                                          H2=H2[,,'a',drop=FALSE],
                                                          Theta=Theta[,'a',drop=FALSE],
@@ -111,13 +111,13 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 #####################################################################################################
 
 # regime 'a', traits 1, 2 and 3
-model.b.123 <- PCM("OU", 3, "b", list(X0 = b.X0,
+model.b.123 <- PCM("OU", k = 3, regimes = "b", params = list(X0 = b.X0,
                                       H=H1[,,'b',drop=FALSE],
                                       Theta=Theta[,'b',drop=FALSE],
                                       Sigma_x=Sigma_x[,,'b',drop=FALSE],
                                       Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
 
-model.b.123.TwoSpeedOU <- PCM("TwoSpeedOU", 3, "b", list(X0 = b.X0,
+model.b.123.TwoSpeedOU <- PCM("TwoSpeedOU", k = 3, regimes = "b", params = list(X0 = b.X0,
                                                          H1=H1[,,'b',drop=FALSE],
                                                          H2=H2[,,'b',drop=FALSE],
                                                          Theta=Theta[,'b',drop=FALSE],
@@ -167,7 +167,7 @@ if(require(phytools)) {
   tree.ab.singles <- tree.ab
 }
 
-model.ab.123 <- PCM("TwoSpeedOU", 3, c("a", "b"), list(X0 = a.X0,
+model.ab.123 <- PCM("TwoSpeedOU", k = 3, regimes = c("a", "b"), params = list(X0 = a.X0,
                                                        H1=H1[,,,drop=FALSE],
                                                        H2=H2[,,,drop=FALSE],
                                                        Theta=Theta[,,drop=FALSE],
@@ -236,7 +236,7 @@ if(require(PCMBaseCpp)) {
 }
 
 # a logical test for the variance of a univariate TwoSpeedOU process:
-model <- PCM("TwoSpeedOU", 1, 1, list(H1=abind(matrix(5.670849e+01, 1, 1), along = 3),
+model <- PCM("TwoSpeedOU", k = 1, regimes = 1, params = list(H1=abind(matrix(5.670849e+01, 1, 1), along = 3),
                                       H2=abind(matrix(1.026642e+01, 1, 1), along = 3),
                                       Theta = abind(4.479180e+00, along = 2),
                                       Sigma_x = abind(matrix(9.102055e+00, 1, 1), along = 3),

@@ -42,6 +42,7 @@ Default TRUE. Setting this option to FALSE will cause NA values to be treated as
 non-existing traits and these will be ignored instead of integrated out.}
 \item{\code{PCMBase.Tolerance.Symmetric }}{A double specifying the tolerance in tests
 for symmetric matrices. Default 1e-8; see also \code{\link{isSymmetric}}.}
+\item{\code{PCMBase.Lmr.mode }}{An integer code specifying the parallel likelihood calculation mode.}
 }
 }
 \description{

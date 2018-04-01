@@ -4,8 +4,8 @@
 \alias{PCM}
 \title{Create a phylogenetic comparative model object}
 \usage{
-PCM(model, k = 1, regimes = 1, params = NULL, vecParams = NULL,
-  offset = 0, specParams = NULL, ...)
+PCM(model, modelTypes = class(model)[1], k = 1, regimes = 1,
+  params = NULL, vecParams = NULL, offset = 0, specParams = NULL, ...)
 }
 \arguments{
 \item{model}{This argument can take one of the following forms:
@@ -16,6 +16,10 @@ PCM at the origin of the hierarchy);
 \item an S3 object which's class inherits from the PCM S3 class.
 }
 The Details section explains how these two types of input are processed.}
+
+\item{modelTypes}{a character string vector specifying a set (family) of
+model-classes, to which the constructed model object belongs. These are used
+for model-selection.}
 
 \item{k}{integer denoting the number of traits (defaults to 1).}
 
@@ -41,5 +45,23 @@ an object of S3 class as defined by the argument model.
 }
 \description{
 This is the entry-point function for creating model objects within
-the PCMBase framework. A PCM
+the PCMBase framework representing a single model-type with one or several
+model-regimes of this type associated with the branches of a tree. For mixed
+Gaussian phylogenetic models, which enable multiple model-types, use the
+\code{\link{MRG}} function.
+}
+\details{
+This is an S3 generic. The PCMBase package defines three methods for
+it:
+\itemize{
+\item{PCM.PCM:}{A default constructor for any object with a class inheriting
+from "PCM".}
+\item{PCM.character:}{A default PCM constructor from a character string
+specifying the type of model.}
+\item{PCM.default:}{A default constructor called when no other constructor is
+found. When called this constructor raises an error message.}
+}
+}
+\seealso{
+\code{\link{MRG}}
 }

@@ -2,12 +2,24 @@
 % Please edit documentation in R/PCM.R
 \name{PCMNumParams}
 \alias{PCMNumParams}
-\title{Number of free parameters describing fully a PCM}
+\title{Number of free parameters describing a PCM}
 \usage{
-PCMNumParams(model, ...)
+PCMNumParams(model, countRegimeChanges = FALSE, countModelTypes = FALSE,
+  ...)
 }
 \arguments{
 \item{model}{a PCM object}
+
+\item{countRegimeChanges}{logical indicating if regime changes should be counted.
+If TRUE, the default implementation would add \code{PCMNumRegimes(model) - 1}.
+Default FALSE.}
+
+\item{countModelTypes}{logical indicating whether the model type should be
+counted. If TRUE the default implementation will add +1 only if there are more than
+one modelTypes (\code{length(attr(model, "modelTypes", exact = TRUE)) > 1}),
+assuming that all regimes are regimes of the same model type (e.g. OU). The
+implementation for MRG models will add +1 for every regime if there are more than
+one modelTypes. Default FALSE.}
 
 \item{...}{other arguments (possible future use)}
 }
@@ -15,5 +27,5 @@ PCMNumParams(model, ...)
 an integer
 }
 \description{
-Number of free parameters describing fully a PCM
+Number of free parameters describing a PCM
 }
