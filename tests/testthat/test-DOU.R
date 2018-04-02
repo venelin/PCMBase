@@ -72,7 +72,7 @@ model.a.123 <- PCM("OU", k = 3, regimes = "a", params = list(X0 = a.X0,
                                               Sigma_x=Sigma_x[,,'a',drop=FALSE],
                                               Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
-model.a.123.TwoSpeedOU <- PCM("TwoSpeedOU", k = 3, regimes = "a", params = list(X0 = a.X0,
+model.a.123.DOU <- PCM("DOU", k = 3, regimes = "a", params = list(X0 = a.X0,
                                                          H1=H1[,,'a',drop=FALSE],
                                                          H2=H2[,,'a',drop=FALSE],
                                                          Theta=Theta[,'a',drop=FALSE],
@@ -99,13 +99,13 @@ traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 
 lik.OU = PCMLik(traits.a.123, tree.a, model.a.123)
 
-lik.TwoSpeedOU = PCMLik(traits.a.123, tree.a, model.a.123.TwoSpeedOU)
+lik.DOU = PCMLik(traits.a.123, tree.a, model.a.123.DOU)
 
 cat('OU likelihood=',lik.OU,'\n')
-cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
+cat('DOU likelihood=',lik.DOU,'\n')
 
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime a"), {
-  expect_true(abs(lik.OU - lik.TwoSpeedOU) < EPS)
+  expect_true(abs(lik.OU - lik.DOU) < EPS)
 })
 
 #####################################################################################################
@@ -117,7 +117,7 @@ model.b.123 <- PCM("OU", k = 3, regimes = "b", params = list(X0 = b.X0,
                                       Sigma_x=Sigma_x[,,'b',drop=FALSE],
                                       Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
 
-model.b.123.TwoSpeedOU <- PCM("TwoSpeedOU", k = 3, regimes = "b", params = list(X0 = b.X0,
+model.b.123.DOU <- PCM("DOU", k = 3, regimes = "b", params = list(X0 = b.X0,
                                                          H1=H1[,,'b',drop=FALSE],
                                                          H2=H2[,,'b',drop=FALSE],
                                                          Theta=Theta[,'b',drop=FALSE],
@@ -142,13 +142,13 @@ traits.b.123 <- PCMSim(tree.b, model.b.123, c(0,0,0), verbose=TRUE)
 
 lik.OU = PCMLik(traits.b.123, tree.b, model.b.123)
 
-lik.TwoSpeedOU = PCMLik(traits.b.123, tree.b, model.b.123.TwoSpeedOU)
+lik.DOU = PCMLik(traits.b.123, tree.b, model.b.123.DOU)
 
 cat('OU likelihood=',lik.OU,'\n')
-cat('TwoSpeedOU likelihood=',lik.TwoSpeedOU,'\n')
+cat('DOU likelihood=',lik.DOU,'\n')
 
 test_that(paste(ctx, "Match multivariate likelihood of dependent traits regime b"), {
-  expect_true(abs(lik.OU - lik.TwoSpeedOU) < EPS)
+  expect_true(abs(lik.OU - lik.DOU) < EPS)
 })
 
 
@@ -167,7 +167,7 @@ if(require(phytools)) {
   tree.ab.singles <- tree.ab
 }
 
-model.ab.123 <- PCM("TwoSpeedOU", k = 3, regimes = c("a", "b"), params = list(X0 = a.X0,
+model.ab.123 <- PCM("DOU", k = 3, regimes = c("a", "b"), params = list(X0 = a.X0,
                                                        H1=H1[,,,drop=FALSE],
                                                        H2=H2[,,,drop=FALSE],
                                                        Theta=Theta[,,drop=FALSE],
@@ -178,7 +178,7 @@ traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
 
 if(require(PCMBaseCpp)) {
-  cat("Testing PCMBaseCpp on TwoSpeedOU:\n")
+  cat("Testing PCMBaseCpp on DOU:\n")
 
   test_that("a.123",
             expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
@@ -235,8 +235,8 @@ if(require(PCMBaseCpp)) {
   # }
 }
 
-# a logical test for the variance of a univariate TwoSpeedOU process:
-model <- PCM("TwoSpeedOU", k = 1, regimes = 1, params = list(H1=abind(matrix(5.670849e+01, 1, 1), along = 3),
+# a logical test for the variance of a univariate DOU process:
+model <- PCM("DOU", k = 1, regimes = 1, params = list(H1=abind(matrix(5.670849e+01, 1, 1), along = 3),
                                       H2=abind(matrix(1.026642e+01, 1, 1), along = 3),
                                       Theta = abind(4.479180e+00, along = 2),
                                       Sigma_x = abind(matrix(9.102055e+00, 1, 1), along = 3),

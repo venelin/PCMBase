@@ -16,12 +16,12 @@
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
 #' @export
-PCMParentClasses.TwoSpeedOU <- function(model) {
+PCMParentClasses.DOU <- function(model) {
   c("GaussianPCM", "PCM")
 }
 
 #' @export
-PCMCond.TwoSpeedOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+PCMCond.DOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
   H1 <- as.matrix(model$H1[,,r])
   H2 <- as.matrix(model$H2[,,r])
   Theta <- model$Theta[,r]
@@ -51,12 +51,12 @@ PCMCond.TwoSpeedOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, mod
 }
 
 #' @export
-PCMDescribe.TwoSpeedOU <- function(model, ...) {
+PCMDescribe.DOU <- function(model, ...) {
   "Two-speed Ornstein-Uhlenbeck branching stochastic process model with a non-phylogenetic variance component"
 }
 
 #' @export
-PCMSpecifyParams.TwoSpeedOU <- function(model, ...) {
+PCMSpecifyParams.DOU <- function(model, ...) {
   k <- attr(model, "k")
   regimes <- attr(model, "regimes")
   R <- length(regimes)
@@ -85,33 +85,33 @@ PCMSpecifyParams.TwoSpeedOU <- function(model, ...) {
 
 
 #' @export
-PCMDescribe.TwoSpeedOU1 <- function(model, ...) "TwoSpeedOU without X0."
+PCMDescribe.DOU1 <- function(model, ...) "DOU without X0."
 #' @export
-PCMParentClasses.TwoSpeedOU1 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
+PCMParentClasses.DOU1 <- function(model) c("DOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.TwoSpeedOU1 <- function(model, ...) {
+PCMSpecifyParams.DOU1 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.TwoSpeedOU2 <- function(model, ...) "TwoSpeedOU without Sigmae_x."
+PCMDescribe.DOU2 <- function(model, ...) "DOU without Sigmae_x."
 #' @export
-PCMParentClasses.TwoSpeedOU2 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
+PCMParentClasses.DOU2 <- function(model) c("DOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.TwoSpeedOU2 <- function(model, ...) {
+PCMSpecifyParams.DOU2 <- function(model, ...) {
   spec <- NextMethod()
   spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.TwoSpeedOU3 <- function(model, ...) "TwoSpeedOU without X0 and Sigmae_x."
+PCMDescribe.DOU3 <- function(model, ...) "DOU without X0 and Sigmae_x."
 #' @export
-PCMParentClasses.TwoSpeedOU3 <- function(model) c("TwoSpeedOU", "GaussianPCM", "PCM")
+PCMParentClasses.DOU3 <- function(model) c("DOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.TwoSpeedOU3 <- function(model, ...) {
+PCMSpecifyParams.DOU3 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL

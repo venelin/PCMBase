@@ -1,7 +1,7 @@
 source("../PosteriorQuantileCommon.R")
 
 res.validate <- validate.common(
-  modelFromVectorTwoSpeedOU, priorTwoSpeedOU, genParamTwoSpeedOU,
+  modelFromVectorDOU, priorDOU, genParamDOU,
   n.batch = c(1, 1, 1, 2, 1, 2, 1, 1, 1),
   params.batch = expression(H1["a,ii"],H1["b,ii"],H1["b,ij"],
                             H2["b,ii"],H2["b,ij"],
@@ -9,17 +9,17 @@ res.validate <- validate.common(
                             Sigma["ab,ii"],Sigma["a,12"],
                             Sigma['e,ab,ii']))
 
-save(res.validate, file="BayesValidateTwoSpeedOU.RData")
+save(res.validate, file="BayesValidateDOU.RData")
 
 
 if(FALSE) {
   # manual post-processing needed since a few chains did not converge properly within 1 mio iterations.
-  # need to redo the analysis for the TwoSpeedOU, because several chains did not converge and
+  # need to redo the analysis for the DOU, because several chains did not converge and
   # have to be excluded from the analysis. This problem did not occur with the other models.
   library(coda)
 
   # loads the res.validate object out of 96 replications
-  load("BayesValidateTwoSpeedOU2.RData")
+  load("BayesValidateDOU2.RData")
 
   quantiles <- do.call(
     rbind,
@@ -70,7 +70,7 @@ if(FALSE) {
              add.to = res.validate$res.validate,
              return.all = TRUE)
 
-  # this is the final analysis file for TwoSpeedOU posterior quantile validation.
-  save(res.validate, file = "BayesValidateTwoSpeedOUFinal.RData")
+  # this is the final analysis file for DOU posterior quantile validation.
+  save(res.validate, file = "BayesValidateDOUFinal.RData")
 }
 

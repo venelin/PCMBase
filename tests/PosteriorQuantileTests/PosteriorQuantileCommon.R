@@ -366,8 +366,8 @@ priorJOU <- function(model){
 }
 
 
-# TwoSpeedOU
-modelFromVectorTwoSpeedOU <- function(x){
+# DOU
+modelFromVectorDOU <- function(x){
   H1.a <- diag(x[1], nrow = 2, ncol = 2)
   H1.b <- diag(x[2], nrow = 2, ncol = 2)
   H1.b[1,2] <- H1.b[2,1] <- x[3]
@@ -393,11 +393,11 @@ modelFromVectorTwoSpeedOU <- function(x){
   Sigmae <- abind(Sigmae.a, Sigmae.b, along = 3, new.names = list(x = NULL, y = NULL, regime = c("a", "b")))
 
   model <- list(X0 = c(0, 0), H1 = H1, H2 = H2, Theta = Theta, Sigma = Sigma, Sigmae = Sigmae)
-  class(model) <- "TwoSpeedOU"
+  class(model) <- "DOU"
   model
 }
 
-priorTwoSpeedOU <- function(model){
+priorDOU <- function(model){
   if(det(model$Sigma[,,1]) < 0 |
      det(model$Sigmae[,,1]) < 0 |
      det(model$H2[,,2]) < 0 |
@@ -422,7 +422,7 @@ priorTwoSpeedOU <- function(model){
   }
 }
 
-genParamTwoSpeedOU <- function() {
+genParamDOU <- function() {
   H1.a <- diag(rnorm(1, 0, .5), nrow = 2, ncol = 2)
   H1.b <- diag(rnorm(1, 0, .5), nrow = 2, ncol = 2)
   H1.b[1,2] <- H1.b[2,1] <- rnorm(1, 0, .5)
