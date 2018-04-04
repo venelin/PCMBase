@@ -34,7 +34,7 @@ PCMTreePlot <- function(tree) {
   palette <- gg_color_hue(R)
   names(palette) <- PCMTreeUniqueRegimes(tree)
 
-  data <- rbind(data.table(node = tree$edge[, 2], regime = tree$edge.regime),
+  data <- rbind(data.table(node = tree$edge[, 2], regime = as.character(tree$edge.regime)),
                 data.table(node = N+1, regime = NA))
 
   plotTree <- ggtree(tree, layout = 'fan', open.angle = 8, size=.25) %<+% data
