@@ -1047,20 +1047,26 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
 
 #' Create a likelhood function of a numerical vector parameter
 #' @inheritParams PCMLik
+#' @param positiveValueGuard positive numerical value (default Inf), which serves as a guard for numerical error. Values exceeding
+#' this positiveGuard are most likely due to numerical error and PCMOptions()$PCMBase.Value.NA is returned instead.
 #' @return a function of a numerical vector parameter called p returning the likelihood
 #' of X given the tree and the model with parameter values specified by p.
 #' @details It is possible to specify a function for the argument metaI. This function should
 #' have three parameters (X, tree, model) and should return a metaInfo object. (see \code{\link{PCMInfo}}).
 #'
 #' @export
-PCMCreateLikelihood <- function(X, tree, model, metaI = PCMInfo(X, tree, model)) {
+PCMCreateLikelihood <- function(X, tree, model, metaI = PCMInfo(X, tree, model), positiveValueGuard = Inf) {
   if(is.function(metaI)) {
     metaI <- metaI(X, tree, model)
   }
+  value.NA <- PCMOptions()$PCMBase.Value.NA
 
   function(p, log = TRUE) {
     PCMSetOrGetVecParams(model, p)
     value <- PCMLik(X, tree, model, metaI, log = log)
+    if(value > positiveValueGuard) {
+      value <- value.NA
+    }
     value
   }
 }
