@@ -67,21 +67,21 @@ Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL
 ## Simulations of trait data
 
 # regime 'a', trait 1
-model.a.1 <- PCM("OU1", k = 1, regimes = "a", params = list(H=H[1,1,'a',drop=FALSE],
+model.a.1 <- PCM("OU__noX0", k = 1, regimes = "a", params = list(H=H[1,1,'a',drop=FALSE],
                                              Theta=Theta[1,'a',drop=FALSE],
                                              Sigma_x=Sigma_x[1,1,'a',drop=FALSE],
                                              Sigmae_x=Sigmae_x[1,1,'a',drop=FALSE]))
 
 
 # regime 'a', traits 1, 2 and 3
-model.a.123 <- PCM("OU1", k = 3, regimes = "a", params = list(H=H[,,'a',drop=FALSE],
+model.a.123 <- PCM("OU__noX0", k = 3, regimes = "a", params = list(H=H[,,'a',drop=FALSE],
                                                Theta=Theta[,'a',drop=FALSE],
                                                Sigma_x=Sigma_x[,,'a',drop=FALSE],
                                                Sigmae_x=Sigmae_x[,,'a',drop=FALSE]))
 
 
 # regime 'b', traits 1, 2 and 3
-model.b.123 <- PCM("OU1", k = 3, regimes = "b", params = list(H=H[,,'b',drop=FALSE],
+model.b.123 <- PCM("OU__noX0", k = 3, regimes = "b", params = list(H=H[,,'b',drop=FALSE],
                                                Theta=Theta[,'b',drop=FALSE],
                                                Sigma_x=Sigma_x[,,'b',drop=FALSE],
                                                Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
@@ -111,9 +111,8 @@ PCMSpecifyParams.MRG_ab <<- function(model, ...) {
       description = "Stabilizing selection"))
 }
 
-model_MRG_ab <- MRG(k = 3, modelTypes = "OU1", mapping = c(a = 1, b = 1), className = "MRG_ab", Sigmae_x = NULL)
+model_MRG_ab <- MRG(k = 3, modelTypes = "OU__noX0", mapping = c(a = 1, b = 1), className = "MRG_ab", Sigmae_x = NULL)
 PCMSetParams(model_MRG_ab, list(X0 = a.X0, a = model.a.123, b = model.b.123))
-
 
 # number of tips
 N <- 400
@@ -160,12 +159,48 @@ test_that("Equal OU and MRG likelihoods", expect_equal(
   PCMLik(traits.ab.123, tree.ab.singles, model.ab.123)
 ))
 
+# regime 'a', traits 1, 2 and 3
+model.a.123_bSigmae_x <- PCM("OU__noX0", k = 3, regimes = "a", params = list(H=H[,,'a',drop=FALSE],
+                                                                             Theta=Theta[,'a',drop=FALSE],
+                                                                             Sigma_x=Sigma_x[,,'a',drop=FALSE],
+                                                                             Sigmae_x=Sigmae_x[,,'b',drop=FALSE]))
+
+
+# regimes 'a' and 'b', traits 1, 2 and 3
+model.ab.123_bSigmae_x <- PCM("OU", k = 3, regimes = c("a", "b"), params = list(X0 = a.X0,
+                                                                      H=H[,,,drop=FALSE],
+                                                                      Theta=Theta[,,drop=FALSE],
+                                                                      Sigma_x=Sigma_x[,,,drop=FALSE],
+                                                                      Sigmae_x=Sigmae_x[,,c('b', 'b'),drop=FALSE]))
+
+model.a.123_noSigmae_x <- PCM("OU__noX0__noSigmae_x", k = 3, regimes = "a", params = list(H=H[,,'a',drop=FALSE],
+                                                                                          Theta=Theta[,'a',drop=FALSE],
+                                                                                          Sigma_x=Sigma_x[,,'a',drop=FALSE]))
+
+model.b.123_noSigmae_x <- PCM("OU__noX0__noSigmae_x", k = 3, regimes = "b", params = list(H=H[,,'b',drop=FALSE],
+                                                                                          Theta=Theta[,'b',drop=FALSE],
+                                                                                          Sigma_x=Sigma_x[,,'b',drop=FALSE]))
+
+
+model_MRG_ab_globalSigmae_x <- MRG(k = 3, modelTypes = "OU__noX0__noSigmae_x", mapping = c(a = 1, b = 1), className = "MRG_ab_globalSigmae_x")
+PCMSetParams(model_MRG_ab_globalSigmae_x, list(X0 = a.X0, a = model.a.123_noSigmae_x, b = model.b.123_noSigmae_x, Sigmae_x=Sigmae_x[,,'b',drop=TRUE]))
+
+test_that("Equal OU and MRG likelihoods with global Sigmae_x", expect_equal(
+  PCMLik(traits.ab.123, tree.ab.singles, model_MRG_ab_globalSigmae_x),
+  PCMLik(traits.ab.123, tree.ab.singles, model.ab.123_bSigmae_x)
+))
+
 if(require(PCMBaseCpp)) {
   cat("Testing PCMBaseCpp on MRG model:\n")
   test_that("Equal OU and MRG likelihoods", expect_equal(
     PCMLik(traits.ab.123, tree.ab.singles, model_MRG_ab,
            metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MRG_ab)),
     PCMLik(traits.ab.123, tree.ab.singles, model.ab.123)
+  ))
+  test_that("Equal OU and MRG likelihoods with global Sigmae_x", expect_equal(
+    PCMLik(traits.ab.123, tree.ab.singles, model_MRG_ab_globalSigmae_x,
+           metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MRG_ab_globalSigmae_x)),
+    PCMLik(traits.ab.123, tree.ab.singles, model.ab.123_bSigmae_x)
   ))
 
   metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MRG_ab)

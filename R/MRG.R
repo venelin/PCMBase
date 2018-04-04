@@ -42,7 +42,26 @@ PCMCond.MRG <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, ver
     # from models associated with regimes.
     r <- as.character(attr(model, "regimes", exact=TRUE)[r])
   }
-  PCMCond(tree, model[[r]], 1, metaI, verbose)
+
+  if(!is.null(model$Sigmae_x)) {
+    Sigmae <- as.matrix(model$Sigmae_x) %*% t(as.matrix(model$Sigmae_x))
+  } else {
+    Sigmae <- NULL
+  }
+
+  if(is.null(Sigmae)) {
+    PCMCond(tree, model[[r]], 1, metaI, verbose)
+  } else {
+    OmegaPhiV2 <- OmegaPhiV <- PCMCond(tree, model[[r]], 1, metaI, verbose)
+    OmegaPhiV2$V <- function(t, edgeIndex, metaI, e_Ht = NULL) {
+      res <- OmegaPhiV$V(t, edgeIndex, metaI, e_Ht)
+      if(metaI$edge[edgeIndex,2] <= metaI$N) {
+        res <- res + Sigmae
+      }
+      res
+    }
+    OmegaPhiV2
+  }
 }
 
 #' @export
