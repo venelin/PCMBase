@@ -123,22 +123,16 @@ PCMTreeSetRegimes <- function(tree, nodes, regimes = as.integer(1:(length(nodes)
 #' ends.
 #' @param tree a phylo object with an edge.regime member denoting regimes. The
 #' function assumes that each regime covers a linked set of branches on the tree.
-#' @param regimes a vector of the same mode as tree$edge.regime (i.e. character or
-#' integer) giving the order of the regimes on the tree in which the starting nodes
-#' will be given. Default \code{PCMTreeUniqueRegimes(tree)}.
 #' @return an integer with elements equal to the starting nodes for each regime in
 #' \code{regimes}.
 #' @seealso \code{\link{PCMTreeSetRegimes}}
 #' @export
-PCMTreeGetStartingNodesRegimes <- function(tree, regimes = PCMTreeUniqueRegimes(tree)) {
+PCMTreeGetStartingNodesRegimes <- function(tree) {
   if(!inherits(tree, "phylo")) {
     stop("ERR:026g0:PCMBase:PCMTree.R:PCMTreeGetStartNodesRegimes:: argument tree should be a phylo.")
   }
 
-  if(!all(regimes %in% PCMTreeUniqueRegimes(tree))) {
-    stop("ERR:026g1:PCMBase:PCMTree.R:PCMTreeGetStartNodesRegimes:: some of the regimes given are not
-         found as regimes in the tree.")
-  }
+  regimes <-  PCMTreeUniqueRegimes(tree)
 
   N <- PCMTreeNumTips(tree)
   nodes <- integer(length(regimes))
@@ -148,6 +142,10 @@ PCMTreeGetStartingNodesRegimes <- function(tree, regimes = PCMTreeUniqueRegimes(
   # as we encounter them in a preorder traversal.
   nodes[] <- 0
 
+  eFromRoot <- which(tree$edge[, 1] == N + 1)
+  rootRegime <- sort(tree$edge.regime[eFromRoot])[1]
+  nodes[as.character(rootRegime)] <- N + 1
+
   preorder <- PCMTreePreorder(tree)
 
   for(ei in preorder) {
@@ -155,11 +153,8 @@ PCMTreeGetStartingNodesRegimes <- function(tree, regimes = PCMTreeUniqueRegimes(
        nodes[as.character(tree$edge.regime[ei])] == 0) {
       i <- tree$edge[ei, 2]
       j <- tree$edge[ei, 1]
-      if(j != N+1) {
-        nodes[as.character(tree$edge.regime[ei])] <- i
-      } else {
-        nodes[as.character(tree$edge.regime[ei])] <- N+1
-      }
+
+      nodes[as.character(tree$edge.regime[ei])] <- i
     }
   }
 
@@ -179,11 +174,21 @@ PCMTreeUniqueRegimes <- function(tree) {
          but should be a character or an integer vector denoting regime names.")
   }
   uniqueRegimesPos <- integer(PCMTreeNumUniqueRegimes(tree))
+
   uniqueRegimes <- sort(unique(tree$edge.regime))
+
+
+  N <- PCMTreeNumTips(tree)
+  eFromRoot <- which(tree$edge[, 1] == N+1)
+  rootRegime <- sort(tree$edge.regime[eFromRoot])[1]
+
   names(uniqueRegimesPos) <- as.character(uniqueRegimes)
+
   uniqueRegimesPos[] <- 0L
+  uniqueRegimesPos[as.character(rootRegime)] <- 1
+
   preorder <- PCMTreePreorder(tree)
-  currentPos <- 1
+  currentPos <- 2
   for(ei in preorder) {
     if(uniqueRegimesPos[as.character(tree$edge.regime[ei])] == 0L) {
       uniqueRegimesPos[as.character(tree$edge.regime[ei])] <- currentPos
