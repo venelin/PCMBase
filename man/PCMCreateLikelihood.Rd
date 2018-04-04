@@ -4,7 +4,8 @@
 \alias{PCMCreateLikelihood}
 \title{Create a likelhood function of a numerical vector parameter}
 \usage{
-PCMCreateLikelihood(X, tree, model, metaI = PCMInfo(X, tree, model))
+PCMCreateLikelihood(X, tree, model, metaI = PCMInfo(X, tree, model),
+  positiveValueGuard = Inf)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} entries. Each
@@ -21,6 +22,9 @@ calculated (see also Details).}
 
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model)},
 containing meta-data such as N, M and k.}
+
+\item{positiveValueGuard}{positive numerical value (default Inf), which serves as a guard for numerical error. Values exceeding
+this positiveGuard are most likely due to numerical error and PCMOptions()$PCMBase.Value.NA is returned instead.}
 }
 \value{
 a function of a numerical vector parameter called p returning the likelihood

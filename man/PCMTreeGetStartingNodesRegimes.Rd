@@ -4,15 +4,11 @@
 \alias{PCMTreeGetStartingNodesRegimes}
 \title{Get the starting branch' nodes for each regime on a tree}
 \usage{
-PCMTreeGetStartingNodesRegimes(tree, regimes = PCMTreeUniqueRegimes(tree))
+PCMTreeGetStartingNodesRegimes(tree)
 }
 \arguments{
 \item{tree}{a phylo object with an edge.regime member denoting regimes. The
 function assumes that each regime covers a linked set of branches on the tree.}
-
-\item{regimes}{a vector of the same mode as tree$edge.regime (i.e. character or
-integer) giving the order of the regimes on the tree in which the starting nodes
-will be given. Default \code{PCMTreeUniqueRegimes(tree)}.}
 }
 \value{
 an integer with elements equal to the starting nodes for each regime in
