@@ -81,12 +81,44 @@ PCMSpecifyParams.White <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.White1 <- function(model, ...) "White without X0."
+PCMDescribe.White__posdiagSigmae_x <- function(model, ...) "White with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
 #' @export
-PCMParentClasses.White1 <- function(model) c("White", "GaussianPCM", "PCM")
+PCMParentClasses.White__posdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.White1 <- function(model, ...) {
+PCMSpecifyParams.White__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  spec$Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "variance-covariance matrix for the non-phylogenetic trait component")
+  spec
+}
+
+#' @export
+PCMDescribe.White__noX0 <- function(model, ...) "White without X0."
+#' @export
+PCMParentClasses.White__noX0 <- function(model) c("White", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.White__noX0 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
+
+
+#' @export
+PCMDescribe.White__noX0__posdiagSigmae_x <- function(model, ...) "White without X0 and with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
+#' @export
+PCMParentClasses.White__noX0__posdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.White__noX0__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  spec$Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "variance-covariance matrix for the non-phylogenetic trait component")
+  spec[!sapply(spec, is.null)]
+}
+
+

@@ -52,7 +52,7 @@ PCMCond.DOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, ver
 
 #' @export
 PCMDescribe.DOU <- function(model, ...) {
-  "Two-speed Ornstein-Uhlenbeck branching stochastic process model with a non-phylogenetic variance component"
+  "Double-rate Ornstein-Uhlenbeck branching stochastic process model with a non-phylogenetic variance component"
 }
 
 #' @export
@@ -82,39 +82,1177 @@ PCMSpecifyParams.DOU <- function(model, ...) {
                   description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
 }
 
+#' @export
+PCMDescribe.DOU__zeroH1 <- function(model, ...) "DOU with zero selection strength matrix (H1)."
+#' @export
+PCMParentClasses.DOU__zeroH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__zeroH1 <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__posdiagH1 <- function(model, ...) "DOU with positive diagonal selection strength matrix (H1)."
+#' @export
+PCMParentClasses.DOU__posdiagH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH1 <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec
+}
 
 
 #' @export
-PCMDescribe.DOU1 <- function(model, ...) "DOU without X0."
+PCMDescribe.DOU__posdiagH2 <- function(model, ...) "DOU with positive diagonal decorrelation rate matrix (H2)."
 #' @export
-PCMParentClasses.DOU1 <- function(model) c("DOU", "GaussianPCM", "PCM")
+PCMParentClasses.DOU__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.DOU1 <- function(model, ...) {
+PCMSpecifyParams.DOU__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__posdiagH2__posdiagSigmae_x <- function(model, ...) "DOU with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__posdiagH2__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH2__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "DOU with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x and Sigmae_x (i.e. no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec
+}
+
+
+
+
+
+
+
+#' @export
+PCMDescribe.DOU__zeroH1__posdiagH2 <- function(model, ...) "DOU with zero selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__zeroH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__zeroH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__zeroH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__zeroH1__posdiagH2__posdiagSigmae_x <- function(model, ...) "DOU with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__zeroH1__posdiagH2__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__zeroH1__posdiagH2__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__zeroH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "DOU with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x and Sigmae_x (i.e. no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__zeroH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__zeroH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' @export
+PCMDescribe.DOU__posdiagH1__posdiagH2 <- function(model, ...) "DOU with positive diagonal selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__posdiagH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__posdiagH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__posdiagH1__posdiagH2__posdiagSigmae_x <- function(model, ...) "DOU with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__posdiagH1__posdiagH2__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH1__posdiagH2__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec
+}
+
+#' @export
+PCMDescribe.DOU__posdiagH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "DOU with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x and Sigmae_x (i.e. no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__posdiagH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__posdiagH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##########################
+### noX0
+
+
+
+#' @export
+PCMDescribe.DOU__noX0 <- function(model, ...) "DOU without X0."
+#' @export
+PCMParentClasses.DOU__noX0 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
 
+
+
 #' @export
-PCMDescribe.DOU2 <- function(model, ...) "DOU without Sigmae_x."
+PCMDescribe.DOU__noX0__zeroH1 <- function(model, ...) "DOU without X0 and with zero selection strength matrix (H1)."
 #' @export
-PCMParentClasses.DOU2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+PCMParentClasses.DOU__noX0__zeroH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.DOU2 <- function(model, ...) {
+PCMSpecifyParams.DOU__noX0__zeroH1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH1 <- function(model, ...) "DOU without X0 and with positive diagonal selection strength matrix (H1)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH2 <- function(model, ...) "DOU without X0 and with positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without X0 and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH2__posdiagSigmae_x <- function(model, ...) "DOU without X0 and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH2__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH2__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "DOU without X0 and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x and Sigmae_x (i.e. no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__zeroH1__posdiagH2 <- function(model, ...) "DOU without X0 and with zero selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noX0__zeroH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__zeroH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without X0 and with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__zeroH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__zeroH1__posdiagH2__posdiagSigmae_x <- function(model, ...) "DOU without X0 and with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__zeroH1__posdiagH2__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__zeroH1__posdiagH2__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__zeroH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "DOU without X0 and with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x and Sigmae_x (i.e. no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__zeroH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__zeroH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH1__posdiagH2 <- function(model, ...) "DOU without X0 and with positive diagonal selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without X0 and with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH1__posdiagH2__posdiagSigmae_x <- function(model, ...) "DOU without X0 and with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH1__posdiagH2__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH1__posdiagH2__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__posdiagH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "DOU without X0 and with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x and Sigmae_x (i.e. no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__posdiagH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__posdiagH1__posdiagH2__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic variance-covariance matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################
+#### no Sigmae_x
+
+
+#' @export
+PCMDescribe.DOU__noSigmae_x <- function(model, ...) "DOU without Sigmae_x."
+#' @export
+PCMParentClasses.DOU__noSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
+
 #' @export
-PCMDescribe.DOU3 <- function(model, ...) "DOU without X0 and Sigmae_x."
+PCMDescribe.DOU__noSigmae_x__zeroH1 <- function(model, ...) "DOU without Sigmae_x and with zero selection strength matrix (H1)."
 #' @export
-PCMParentClasses.DOU3 <- function(model) c("DOU", "GaussianPCM", "PCM")
+PCMParentClasses.DOU__noSigmae_x__zeroH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.DOU3 <- function(model, ...) {
+PCMSpecifyParams.DOU__noSigmae_x__zeroH1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noSigmae_x__posdiagH1 <- function(model, ...) "DOU without Sigmae_x and with positive diagonal selection strength matrix (H1)."
+#' @export
+PCMParentClasses.DOU__noSigmae_x__posdiagH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x__posdiagH1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.DOU__noSigmae_x__posdiagH2 <- function(model, ...) "DOU without Sigmae_x and with positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noSigmae_x__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noSigmae_x__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without Sigmae_x and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noSigmae_x__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.DOU__noSigmae_x__zeroH1__posdiagH2 <- function(model, ...) "DOU without Sigmae_x and with zero selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noSigmae_x__zeroH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x__zeroH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noSigmae_x__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without Sigmae_x and with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noSigmae_x__zeroH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noSigmae_x__posdiagH1__posdiagH2 <- function(model, ...) "DOU without Sigmae_x and with positive diagonal selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noSigmae_x__posdiagH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x__posdiagH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noSigmae_x__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without Sigmae_x and with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noSigmae_x__posdiagH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noSigmae_x__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+
+
+
+#######################
+### noX0__noSigmae_x
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x <- function(model, ...) "DOU without X0 and Sigmae_x."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__zeroH1 <- function(model, ...) "DOU without X0 and without Sigmae_x and with zero selection strength matrix (H1)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__zeroH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__zeroH1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__posdiagH1 <- function(model, ...) "DOU without X0 and without Sigmae_x and with positive diagonal selection strength matrix (H1)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__posdiagH1 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__posdiagH1 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__posdiagH2 <- function(model, ...) "DOU without X0 and without Sigmae_x and with positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without X0 and without Sigmae_x and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__zeroH1__posdiagH2 <- function(model, ...) "DOU without X0 and without Sigmae_x and with zero selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__zeroH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__zeroH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without X0 and without Sigmae_x and with zero selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__zeroH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__zeroH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "fixed"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__posdiagH1__posdiagH2 <- function(model, ...) "DOU without X0 and without Sigmae_x and with positive diagonal selection strength matrix (H1) and positive diagonal decorrelation rate matrix (H2)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__posdiagH1__posdiagH2 <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__posdiagH1__posdiagH2 <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$Theta = list(default = array(0, dim = c(k, R), dimnames = list(NULL, regimes)),
+                    type = c("vector", "fixed"),
+                    description = "Fixed 0 long-term optimum (not relevant with zero H1 matrix)")
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.DOU__noX0__noSigmae_x__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) "DOU without X0 and without Sigmae_x and with positive diagonal selection strength matrix (H1) and with positive diagonal decorrelation rate matrix (H2) and positive diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.DOU__noX0__noSigmae_x__posdiagH1__posdiagH2__posdiagSigma_x <- function(model) c("DOU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.DOU__noX0__noSigmae_x__posdiagH1__posdiagH2__posdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H1 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Fixed zero selection strength matrix")
+
+  spec$H2 <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                  type = c("matrix", "diag", "positive.diag"),
+                  description = "Non-negative diagonal decorrelation rate matrix")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec[!sapply(spec, is.null)]
+}
