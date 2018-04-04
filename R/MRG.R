@@ -40,7 +40,7 @@ PCMCond.MRG <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, ver
     # integer regime number must be mapped to a character regime because
     # the model object may contain global parameter vectors and matrices apart
     # from models associated with regimes.
-    r <- as.character(attr(model, "regimes")[r])
+    r <- as.character(attr(model, "regimes", exact=TRUE)[r])
   }
   PCMCond(tree, model[[r]], 1, metaI, verbose)
 }
@@ -83,6 +83,7 @@ PCMGetVecParamsFull.MRG <- function(model, ...) {
     }
   }
 
+  # replicating the global parameters for each model
   res <- do.call(c, lapply(names(model), function(name) {
     if(specParams[[name]]$type[1]=="model") {
       c(gprep, PCMGetVecParamsFull(model[[name]], ...), gapp)
