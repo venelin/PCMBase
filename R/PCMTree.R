@@ -520,7 +520,7 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, verbose =
 #' Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade
 #' @param tree a phylo object
 #' @param node an integer indicating an internal node
-#' @param tableAncestors an integer matrix returned by a previous call to PCMTreeTableAncestors(tree).
+#' @param tableAncestors an integer matrix returned by a previous call to PCMTreeTableAncestors(tree) or NULL.
 #' @param X an optional k x N matrix with trait value vectors for each tip in tree.
 #' @return A list containing two named phylo objects:
 #' \itemize{
@@ -556,6 +556,9 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
          rest = NULL,
          Xrest = NULL)
   } else {
+    if(is.null(tableAncestors)) {
+      tableAncestors <- PCMTreeTableAncestors(tree)
+    }
     nodesClade <- which(tableAncestors[, node] > 0)
     tipsClade <- nodesClade[nodesClade <= N]
 
@@ -576,4 +579,103 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
          rest = rest,
          Xrest = Xrest)
   }
+}
+
+#' Extract a clade from phylogenetic tree
+#' @param tree a phylo object
+#' @param cladeRootNode a character string denoting the label or an integer denoting an internal node in tree
+#' @param tableAncestors an integer matrix returned by a previous call to PCMTreeTableAncestors(tree) or NULL.
+#' @param X an optional k x N matrix with trait value vectors for each tip in tree.
+#' @param returnPhylo logical indicating if only the phylo object associated with the clade should be returned.
+#' Defaults to \code{is.null(X)}
+#' @return If returnPhylo is TRUE, a phylo object associated with the clade, otherise, a list with two named members :
+#' \itemize{
+#' \item{tree}{the phylo object associated with the clade}
+#' \item{X}{the submatrix of X with columns corresponding to the tips in the clade}
+#' }
+#' @seealso PCMTreeSpliAtNode PCMTreeDropClade
+#' @export
+PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL, returnPhylo=is.null(X)) {
+  if(is.character(cladeRootNode)) {
+    if(!is.character(tree$node.label)) {
+      stop(paste0("ERR:02620:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode is a character string but tree$node.label is missing or not a character vector."))
+    } else {
+      cladeRootNodeNumber <- PCMTreeNumTips(tree) + which(tree$node.label == cladeRootNode)
+      if(is.na(cladeRootNodeNumber)) {
+        stop(paste0("ERR:02621:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode of character-type was not found in tree$node.label"))
+      }
+    }
+  } else {
+    cladeRootNodeNumber <- as.integer(cladeRootNode)
+    if(cladeRootNodeNumber <= PCMTreeNumTips(tree) || cladeRootNodeNumber > PCMTreeNumNodes(tree)) {
+      stop(paste0("ERR:02621:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode of integer type was either a tip (<=N) or bigger than M (the number of nodes in the tree)."))
+    }
+  }
+
+  spl <- PCMTreeSplitAtNode(tree, cladeRootNodeNumber, tableAncestors = tableAncestors, X = X)
+
+  if(returnPhylo) {
+    spl$clade
+  } else {
+    list(tree = spl$clade, X = spl$Xclade)
+  }
+}
+
+
+#' Drop a clade from a phylogenetic tree
+#' @param tree a phylo object
+#' @param cladeRootNode a character string denoting the label or an integer denoting an internal node in tree
+#' @param tableAncestors an integer matrix returned by a previous call to PCMTreeTableAncestors(tree) or NULL.
+#' @param X an optional k x N matrix with trait value vectors for each tip in tree.
+#' @param returnPhylo logical indicating if only the phylo object associated with the tree after dropping the clade should be returned. Defaults to \code{is.null(X)}
+#' @return If returnPhylo is TRUE, a phylo object associated with the remaining tree after dropping the clade, otherise, a list with two named members :
+#' \itemize{
+#' \item{tree}{the phylo object associated with the remaining tree after dropping the clade}
+#' \item{X}{the submatrix of X with columns corresponding to the tips in the remaining tree}
+#' }
+#' @seealso PCMTreeSpliAtNode PCMTreeDropClade
+#' @export
+PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL, returnPhylo=is.null(X)) {
+  if(is.character(cladeRootNode)) {
+    if(!is.character(tree$node.label)) {
+      stop(paste0("ERR:02620:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode is a character string but tree$node.label is missing or not a character vector."))
+    } else {
+      cladeRootNodeNumber <- PCMTreeNumTips(tree) + which(tree$node.label == cladeRootNode)
+      if(is.na(cladeRootNodeNumber)) {
+        stop(paste0("ERR:02621:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode of character-type was not found in tree$node.label"))
+      }
+    }
+  } else {
+    cladeRootNodeNumber <- as.integer(cladeRootNode)
+    if(cladeRootNodeNumber <= PCMTreeNumTips(tree) || cladeRootNodeNumber > PCMTreeNumNodes(tree)) {
+      stop(paste0("ERR:02621:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode of integer type was either a tip (<=N) or bigger than M (the number of nodes in the tree)."))
+    }
+  }
+
+  spl <- PCMTreeSplitAtNode(tree, cladeRootNodeNumber, tableAncestors = tableAncestors, X = X)
+
+  if(returnPhylo) {
+    spl$rest
+  } else {
+    list(tree = spl$rest, X = spl$Xrest)
+  }
+}
+
+#' Perfrorm nested extractions (E) or drops (D) of clades from a tree
+#' @param expr an R expression of nested calls of functions
+#' \code{E(x,node)} denoting extracting the clade rooted at node from the tree x, or \code{D(x,node)},
+#' denoting dropping the clade rooted at node from the tree x. These calls can be nested, i.e. x can
+#' be a symbol or r expression evaluating to a  phylo object in
+#' the global or calling environment (corresponding to the original tree passed
+#'  as argument) or a nested call to D or E.
+#' @return the resulting phylo object from evaluating expr in the calling environment
+#' @export
+PCMTreeEvalNestedEDs <- function(expr) {
+  E <- function(x,node) {
+    PCMTreeExtractClade(x, as.character(node))
+  }
+  D <- function(x,node) {
+    PCMTreeDropClade(x, as.character(node))
+  }
+  eval(substitute(quote(expr)), parent.frame())
 }
