@@ -61,7 +61,7 @@ As you can see, the `specParams` attribute of the model is a list with the same 
 Model *regimes* are different models associated with different branches of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a BM model with two regimes called a and b:
 
 ```{r}
-modelBM.ab <- PCM("BM", 2, regimes = c("a", "b"))
+modelBM.ab <- PCM("BM", k = 2, regimes = c("a", "b"))
 modelBM.ab
 ```
 
@@ -82,14 +82,14 @@ The other parameters, Sigma and Sigmae are local for each regime:
 
 ```{r}
 # in regime 'a' the traits evolve according to two independent BM processes (starting from the global vecto X0).
-modelBM.ab$Sigma[,, "a"] <- rbind(c(1.6, 0),
+modelBM.ab$Sigma_x[,, "a"] <- rbind(c(1.6, 0),
                                   c(0, 2.4))
-modelBM.ab$Sigmae[,, "a"] <- rbind(c(.1, 0),
+modelBM.ab$Sigmae_x[,, "a"] <- rbind(c(.1, 0),
                                    c(0, .4))
 # in regime 'b' there is a correlation between the traits
-modelBM.ab$Sigma[,, "b"] <- rbind(c(1.6, .8),
+modelBM.ab$Sigma_x[,, "b"] <- rbind(c(1.6, .8),
                                   c(.8, 2.4))
-modelBM.ab$Sigmae[,, "b"] <- rbind(c(.1, 0),
+modelBM.ab$Sigmae_x[,, "b"] <- rbind(c(.1, 0),
                                    c(0, .4))
 ```
 
