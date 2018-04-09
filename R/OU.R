@@ -142,9 +142,9 @@ PCMSpecifyParams.OU__posdiagH__posdiagSigmae_x <- function(model, ...) {
 #' @export
 PCMDescribe.OU__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "OU with positive diagonal matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__posdiagH__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__posdiagH__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -248,9 +248,9 @@ PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigmae_x <- function(model, ...) {
 #' @export
 PCMDescribe.OU__noX0__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "OU without X0 and with positive diagonal matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__noX0__posdiagH__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__noX0__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
 

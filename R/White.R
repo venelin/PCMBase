@@ -88,6 +88,10 @@ PCMParentClasses.White__posdiagSigmae_x <- function(model) c("White", "GaussianP
 PCMSpecifyParams.White__posdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
   spec$Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
                        type = c("matrix", "diag", "positive.diag"),
                        description = "variance-covariance matrix for the non-phylogenetic trait component")
@@ -115,6 +119,9 @@ PCMSpecifyParams.White__noX0__posdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
 
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
   spec$Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
                        type = c("matrix", "diag", "positive.diag"),
                        description = "variance-covariance matrix for the non-phylogenetic trait component")

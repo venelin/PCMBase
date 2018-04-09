@@ -110,9 +110,9 @@ PCMSpecifyParams.BM__posdiagSigmae_x <- function(model, ...) {
 #' @export
 PCMDescribe.BM__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "BM with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
 #' @export
-PCMParentClasses.BM__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__posdiagSigma_x__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -190,9 +190,9 @@ PCMSpecifyParams.BM__noX0__posdiagSigmae_x <- function(model, ...) {
 #' @export
 PCMDescribe.BM__noX0__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "BM without X0 and with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
 #' @export
-PCMParentClasses.BM__noX0__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__noX0__posdiagSigma_x__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noX0__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__noX0__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   spec$X0 <- NULL

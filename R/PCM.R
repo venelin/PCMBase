@@ -24,6 +24,26 @@
 #'
 NULL
 
+#' Get a list of PCM models currently implemented
+#' @param pattern a character string specifying an optional for the model-names to search for.
+#' @param parentClass a character string specifying an optional parent class of the models to look for.
+#' @return a character vector of the model classes found.
+#' @details The function is using the S3 api function \code{\link{methods}} looking for all registered
+#' implementations of the function \code{\link{PCMDescribe}}
+#' @export
+PCMModels <- function(pattern = NULL, parentClass = NULL) {
+  models <- sub("PCMDescribe.", "", as.character(methods("PCMDescribe")), fixed = TRUE)
+  if(!is.null(pattern)) {
+    models <- models[grep(pattern, models)]
+  }
+  if(!is.null(parentClass)) {
+    models <- models[sapply(models, function(m) {
+      length(intersect(class(PCM(m)), parentClass)) > 0
+    })]
+  }
+  models
+}
+
 #' Global options for the PCMBase package
 #'
 #'
@@ -247,6 +267,9 @@ format.PCM <- function(x, ...) {
 PCMParentClasses <- function(model) {
   UseMethod("PCMParentClasses", model)
 }
+
+#' @export
+PCMParentClasses.PCM <- function(model) c()
 
 #' Human friendly description of a PCM
 #' @param model a PCM model object

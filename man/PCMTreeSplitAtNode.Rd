@@ -10,9 +10,9 @@ PCMTreeSplitAtNode(tree, node, tableAncestors = PCMTreeTableAncestors(tree),
 \arguments{
 \item{tree}{a phylo object}
 
-\item{node}{an integer indicating an internal node}
+\item{node}{an integer or character indicating a root, internal or tip node}
 
-\item{tableAncestors}{an integer matrix returned by a previous call to PCMTreeTableAncestors(tree).}
+\item{tableAncestors}{an integer matrix returned by a previous call to PCMTreeTableAncestors(tree) or NULL.}
 
 \item{X}{an optional k x N matrix with trait value vectors for each tip in tree.}
 }

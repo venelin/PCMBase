@@ -29,6 +29,10 @@ PCMTreePlot <- function(tree) {
     hues = seq(15, 375, length = n + 1)
     hcl(h = hues, l = 65, c = 100)[1:n]
   }
+
+  if(is.null(tree$edge.regime)) {
+    PCMTreeSetDefaultRegime(tree, 1)
+  }
   N <- PCMTreeNumTips(tree)
   R <- PCMTreeNumUniqueRegimes(tree)
   palette <- gg_color_hue(R)
