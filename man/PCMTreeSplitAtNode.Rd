@@ -31,4 +31,6 @@ Slit a tree at a given internal node into a clade rooted at this node and the re
 \details{
 In the current implementation, the edge.jump and edge.regime members
 of the tree will be discarded and not present in the clade.
+
+TODO: preserveJumps and preserveRegimes
 }

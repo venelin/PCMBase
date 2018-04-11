@@ -199,3 +199,67 @@ PCMMapModelTypesToRegimes.MRG <- function(model, tree, ...) {
   }
   res
 }
+
+
+#' @export
+PCMLowerBound.MRG <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, namedLowerBoundValuesSubmodels = NULL, ...) {
+  model <- NextMethod()
+  specParams <- attr(model, "specParams", exact = TRUE)
+
+  # if(!is.null(specParams$X0) && !is.null(X0)) {
+  #   model$X0 <- X0
+  # }
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1]=="model") {
+      if(is.null(namedLowerBoundValuesSubmodels) || is.null(namedLowerBoundValuesSubmodels[[name]])) {
+        model[[name]] <- PCMLowerBound(model[[name]],
+                                       lowerBoundValue = lowerBoundValue,
+                                       lowerBoundValuePositiveDiag = lowerBoundValuePositiveDiag,
+                                       ...)
+      } else {
+        model[[name]] <- PCMLowerBound(model[[name]],
+                                       lowerBoundValue = lowerBoundValue,
+                                       lowerBoundValuePositiveDiag = lowerBoundValuePositiveDiag,
+                                       namedLowerBoundValues = namedLowerBoundValuesSubmodels[[name]],
+                                       ...)
+      }
+
+    }
+  }
+  # if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
+  #   model$Sigmae_x <- Sigmae_x
+  # }
+  model
+}
+
+#' @export
+PCMUpperBound.MRG <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, namedUpperBoundValuesSubmodels = NULL, ...) {
+  model <- NextMethod()
+  specParams <- attr(model, "specParams", exact = TRUE)
+
+  # if(!is.null(specParams$X0) && !is.null(X0)) {
+  #   model$X0 <- X0
+  # }
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1]=="model") {
+
+      if(is.null(namedUpperBoundValuesSubmodels) || is.null(namedUpperBoundValuesSubmodels[[name]])) {
+        model[[name]] <- PCMUpperBound(model[[name]],
+                                       upperBoundValue = upperBoundValue,
+                                       upperBoundValuePositiveDiag = upperBoundValuePositiveDiag,
+                                       ...)
+      } else {
+        model[[name]] <- PCMUpperBound(model[[name]],
+                                       upperBoundValue = upperBoundValue,
+                                       upperBoundValuePositiveDiag = upperBoundValuePositiveDiag,
+                                       namedUpperBoundValues = namedUpperBoundValuesSubmodels[[name]],
+                                       ...)
+      }
+
+    }
+  }
+  # if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
+  #   model$Sigmae_x <- Sigmae_x
+  # }
+  model
+}

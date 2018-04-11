@@ -575,7 +575,18 @@ PCMLoadMatrixParameter <- function(
     eval(substitute(diag(m)[maskDiag1] %op% vecParams[offset + (1:num)]), parent.frame())
   } else if(type[1] == "diag") {
     num <- k
-    eval(substitute(diag(m) %op% vecParams[offset + (1:num)]), parent.frame())
+    if(length(dim(m)) == 0) {
+      if(k == 1) {
+        # m is a scalar
+        eval(substitute(m[] %op% vecParams[offset + (1:num)]), parent.frame())
+      } else {
+        stop("ERR:020b1:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, because k is different from 1 but has length(dim(m)) == 0.")
+      }
+    } else if(length(dim(m)) == 2) {
+      eval(substitute(diag(m) %op% vecParams[offset + (1:num)]), parent.frame())
+    } else {
+      stop(paste0("ERR:020b2:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, but has length(dim(m)) != 2, dim(m):(", toString(dim(m)), ")."))
+    }
   } else if(type[1] == "upper.tri") {
     num <- k*(k-1)/2
     eval(substitute(m[upper.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
@@ -602,7 +613,18 @@ PCMLoadMatrixParameter <- function(
     }
   } else if(type[1] == "full") {
     num <- k*k
-    eval(substitute(m[,] %op% vecParams[offset+(1:num)]), parent.frame())
+    if(length(dim(m)) == 0) {
+      if(k == 1) {
+        # m is a scalar
+        eval(substitute(m[] %op% vecParams[offset+(1:num)]), parent.frame())
+      } else {
+        stop("ERR:020b3:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, because k is different from 1 but has length(dim(m)) == 0.")
+      }
+    } else if(length(dim(m)) == 2) {
+      eval(substitute(m[,] %op% vecParams[offset+(1:num)]), parent.frame())
+    } else {
+      stop(paste0("ERR:020b4:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, but has length(dim(m)) != 2, dim(m):(", toString(dim(m)), ")."))
+    }
   } else if(type[1] == "custom") {
     if(is.function(indices)) {
       ind <- indices(offset, k)
@@ -610,13 +632,13 @@ PCMLoadMatrixParameter <- function(
       maskCustom <- mask
       eval(substitute(m[maskCustom] %op% vecParams[ind]), parent.frame())
     } else {
-      stop("ERR:020b1:PCMBase:PCM.R:PCMLoadMatrixParameter:: indices should be a
+      stop("ERR:020b5:PCMBase:PCM.R:PCMLoadMatrixParameter:: indices should be a
            function(offset, k) returning an integer vector.")
     }
   } else if(type[1] == "fixed") {
     num <- 0
   } else {
-    stop(paste0("ERR:020b2:PCMBase:PCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
+    stop(paste0("ERR:020b6:PCMBase:PCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
   }
   num
 }
@@ -811,6 +833,188 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
   c(numericParams, startingNodesRegimes, models)
 }
 
+#' Numerical lower bound
+#' @param model a PCM object
+#' @return a PCM object of the same S3 classes as model. Calling
+#' \code{\link{PCMSetOrGetVecParams}} on this object returns a lower
+#' bound for that can be used, e.g. in a call to \code{\link{optim}}
+#' @examples
+#' model <- PCM("BM__noX0__noSigmae_x", k = 3)
+#' PCMLowerBound(model)
+#' @export
+PCMLowerBound <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
+  UseMethod("PCMLowerBound", model)
+}
+
+#' @export
+PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
+  if(lowerBoundValuePositiveDiag < 0 ) {
+    stop("ERR:04000:PCMFit:PCMFit.R:PCMLowerBound.PCM:: lowerBoundValuePositiveDiag should be non-negative.")
+  }
+  # a vector with the actual parameters excluding repeated and fixed values
+  par <- double(PCMNumParams(model))
+  # we set the default upper bound value, but entries corresponding to diagonal
+  # elements in Choleski factor upper triangular matrix parameters should be set
+  # to lowerBoundValuePositiveDiag
+  par[] <- lowerBoundValue
+
+  # all parameters unrolled in a vector including repeated parameter values as
+  # well as fixed parameter values
+  fullParamVector <- PCMGetVecParamsFull(model)
+  maxFullParam <- max(fullParamVector, na.rm = TRUE)
+  if(!is.finite(maxFullParam)) {
+    maxFullParam <- as.double(1)
+  }
+
+  # a tricky way to insert values in the model parameters that are certainly not
+  # among the fixed non-countable parameter values. We will use match of these
+  # values to assign the either value lowerBoundValuePositiveDiag to the right entries in the
+  # model parameter matrices.
+  parMask <- maxFullParam + (1:PCMNumParams(model))
+
+  # set the values that match unique positions in par.
+  PCMSetOrGetVecParams(model, parMask)
+  # Find Choleski factors of positive definite matrices. Such parameters need to
+  # have positive diagonal elements, i.e. lowerBoundValuePositiveDiag.
+  specParams <- attr(model, "specParams", exact = TRUE)
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
+       length(specParams[[name]]$type) >= 3 &&
+       specParams[[name]]$type[3] == "positive.diag" ) {
+      if(specParams[[name]]$type[1] == "gmatrix") {
+        mi <- match(diag(model[[name]]), parMask)
+        par[unique(mi)] <- lowerBoundValuePositiveDiag
+      } else if(specParams[[name]]$type[1] == "matrix") {
+        # model[[name]] is a k x k x R array
+        R <- PCMNumRegimes(model)
+        for(r in 1:R) {
+          mi <- match(diag(model[[name]][,,r]), parMask)
+          par[unique(mi)] <- lowerBoundValuePositiveDiag
+        }
+      }
+    }
+  }
+  PCMSetOrGetVecParams(model, par)
+
+  if(is.list(namedLowerBoundValues)) {
+    PCMSetParams(model, namedLowerBoundValues)
+  }
+
+  model
+}
+
+#' Numerical upper bound
+#' @param model a PC
+#' M object
+#' @return a PCM object of the same S3 classes as model. Calling
+#' \code{\link{PCMSetOrGetVecParams}} on this object returns an upper
+#' bound for that can be used, e.g. in a call to \code{\link{optim}}
+#' #' model <- PCM("BM__noX0__noSigmae_x", k = 3)
+#' PCMLowerBound(model)
+#' @export
+PCMUpperBound <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, ...) {
+  UseMethod("PCMUpperBound", model)
+}
+
+#' @export
+PCMUpperBound.PCM <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, ...) {
+  if(upperBoundValuePositiveDiag <= 0 ) {
+    stop("ERR:04010:PCMFit:PCMFit.R:PCMUpperBound.PCM:: upperBoundValuePositiveDiag should be positive.")
+  }
+  # a vector with the actual parameters excluding repeated and fixed values
+  par <- double(PCMNumParams(model))
+  # we set the default upper bound value, but entries corresponding to diagonal
+  # elements in Choleski factor upper triangular matrix parameters should be set
+  # to upperBoundValuePositiveDiag
+  par[] <- upperBoundValue
+
+  # all parameters unrolled in a vector including repeated parameter values as
+  # well as fixed parameter values
+  fullParamVector <- PCMGetVecParamsFull(model)
+  maxFullParam <- max(fullParamVector, na.rm = TRUE)
+  if(!is.finite(maxFullParam)) {
+    maxFullParam <- as.double(1)
+  }
+
+  # a tricky way to insert values in the model parameters that are certainly not
+  # among the fixed non-countable parameter values. We will use match of these
+  # values to assign the either value upperBoundValuePositiveDiag to the right entries in the
+  # model parameter matrices.
+  parMask <- maxFullParam + (1:PCMNumParams(model))
+
+  # set the values that match unique positions in par.
+  PCMSetOrGetVecParams(model, parMask)
+  # Find Choleski factors of positive definite matrices. Such parameters need to
+  # have positive diagonal elements, i.e. upperBoundValuePositiveDiag.
+  specParams <- attr(model, "specParams", exact = TRUE)
+  for(name in names(specParams)) {
+    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
+       length(specParams[[name]]$type) >= 3 &&
+       specParams[[name]]$type[3] == "positive.diag" ) {
+      if(specParams[[name]]$type[1] == "gmatrix") {
+        mi <- match(diag(model[[name]]), parMask)
+        par[unique(mi)] <- upperBoundValuePositiveDiag
+      } else if(specParams[[name]]$type[1] == "matrix") {
+        # model[[name]] is a k x k x R array
+        R <- PCMNumRegimes(model)
+        for(r in 1:R) {
+          mi <- match(diag(model[[name]][,,r]), parMask)
+          par[unique(mi)] <- upperBoundValuePositiveDiag
+        }
+      }
+    }
+  }
+  PCMSetOrGetVecParams(model, par)
+
+  if(is.list(namedUpperBoundValues)) {
+    PCMSetParams(model, namedUpperBoundValues)
+  }
+
+  model
+}
+
+#' Generate a random parameter vector for a model using uniform distribution between its lower and upper bounds.
+#' @param model a model PCM model object
+#' @param n an integer specifying the number of random vectors to generate
+#' @param argsPCMLowerBound,argsPCMUpperBound named lists of arguments passed to
+#' \code{\link{PCMLowerBound}} and \code{\link{PCMUpperBound}}.
+#' @param argsPCMGetVecParams a named list of argument passed to PCMGetVecPaarmas
+#' @param ... additional parameters.
+#' @return if n = 1, a numeric vector of length \code{PCMNumParams(model)}; if n > 1,
+#' a numeric matrix of dimension n x \code{PCMNumParams(model)}.
+#' @seealso PCMUpperBound PCMLowerBound PCMGetVecParams
+#' @export
+PCMRandomVecParams <- function(model,
+                               n = 1L,
+                               argsPCMLowerBound = NULL,
+                               argsPCMUpperBound = NULL,
+                               argsPCMGetVecParams = NULL,
+                               ...) {
+  UseMethod("PCMRandomVecParams", model)
+}
+
+#' @importFrom stats runif
+#' @export
+PCMRandomVecParams.PCM <- function(model,
+                                   n = 1L,
+                                   argsPCMLowerBound = NULL,
+                                   argsPCMUpperBound = NULL,
+                                   argsPCMGetVecParams = NULL,
+                                   ...) {
+
+  lowerModel <- do.call(PCMLowerBound, c(list(model = model), argsPCMLowerBound))
+  lowerVecParams <- do.call(PCMGetVecParams, c(list(model = lowerModel),
+                                               argsPCMGetVecParams))
+
+  upperModel <- do.call(PCMUpperBound, c(list(model = model), argsPCMUpperBound))
+  upperVecParams <- do.call(PCMGetVecParams, c(list(model = upperModel), argsPCMGetVecParams))
+
+  p <- PCMNumParams(model)
+  res <- sapply(1:p, function(i) {
+    runif(n, lowerVecParams[i], upperVecParams[i])
+  })
+  res
+}
 
 #' Conditional distribution of a daughter node given its parent node
 #' @description An S3 generic function that has to be implemented for every
