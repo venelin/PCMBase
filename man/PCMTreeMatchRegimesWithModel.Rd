@@ -4,12 +4,16 @@
 \alias{PCMTreeMatchRegimesWithModel}
 \title{Regimes associated with branches in a tree}
 \usage{
-PCMTreeMatchRegimesWithModel(tree, model)
+PCMTreeMatchRegimesWithModel(tree, model, preorder = PCMTreePreorder(tree))
 }
 \arguments{
 \item{tree}{a phylo object}
 
 \item{model}{a PCM object}
+
+\item{preorder}{an integer vector of row-indices in tree$edge matrix as returned
+by PCMTreePreorder. This can be given for performance speed-up when several
+operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.}
 }
 \value{
 an integer vector with entries corresponding to the rows in tree$edge

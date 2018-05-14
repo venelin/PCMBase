@@ -4,7 +4,7 @@
 \alias{PCMInfo}
 \title{Meta-information about a tree associated with a PCM}
 \usage{
-PCMInfo(X, tree, model, verbose = FALSE)
+PCMInfo(X, tree, model, verbose = FALSE, preorder = NULL, ...)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} entries. Each
@@ -20,6 +20,10 @@ well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
+
+\item{preorder}{an integer vector of row-indices in tree$edge matrix as returned
+by PCMTreePreorder. This can be given for performance speed-up when several
+operations needing preorder are executed on the tree. Default : \code{NULL}.}
 }
 \value{
 a named list with the following elements:

@@ -4,7 +4,7 @@
 \alias{PCMPresentCoordinates}
 \title{Determine which traits are present (active) on each node of the tree}
 \usage{
-PCMPresentCoordinates(X, tree, metaI = PCMTreePruningOrder(tree))
+PCMPresentCoordinates(X, tree, metaI)
 }
 \arguments{
 \item{X}{numeric k x N matrix of observed values, with possible NA entries. The
@@ -12,8 +12,7 @@ columns in X are in the order of tree$tip.label}
 
 \item{tree}{a phylo object}
 
-\item{metaI}{a list returned by the PCMInfo function. Either leave this
-as default or pass a previously computed metaI for the same X, tree and model.}
+\item{metaI}{The result of calling PCMInfo.}
 }
 \value{
 a k x M logical matrix which can be passed as a pc argument to the PCMLik

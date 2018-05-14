@@ -4,11 +4,15 @@
 \alias{PCMTreeUniqueRegimes}
 \title{Unique regimes on a tree in the order of occurrence from the root to the tips (preorder)}
 \usage{
-PCMTreeUniqueRegimes(tree)
+PCMTreeUniqueRegimes(tree, preorder = PCMTreePreorder(tree))
 }
 \arguments{
 \item{tree}{a phylo object with an additional member edge.regime which should
 be a character or an integer vector of length equal to the number of branches.}
+
+\item{preorder}{an integer vector of row-indices in tree$edge matrix as returned
+by PCMTreePreorder. This can be given for performance speed-up when several
+operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.}
 }
 \value{
 a character or an integer vector depending on tree$edge.regime.

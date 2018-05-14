@@ -4,7 +4,8 @@
 \alias{PCMRegimes}
 \title{Regimes in a model}
 \usage{
-PCMRegimes(model, tree = NULL)
+PCMRegimes(model, tree = NULL, preorder = if (is.null(tree)) NULL else
+  PCMTreePreorder(tree))
 }
 \arguments{
 \item{model}{a PCM object}

@@ -176,11 +176,15 @@ PCMTreeMatchLabels <- function(tree, labels) {
 #' ends.
 #' @param tree a phylo object with an edge.regime member denoting regimes. The
 #' function assumes that each regime covers a linked set of branches on the tree.
+#' @param preorder an integer vector of row-indices in tree$edge as returned by
+#' @code{\link{PCMTreePreorder}}. Defaults to \code{PCMTreePreorder(tree)}.
+#' Specifying this argument may improve performance if PCMTreePreorder had to be
+#' called earlier.
 #' @return an integer with elements equal to the starting nodes for each regime in
 #' \code{regimes}.
 #' @seealso \code{\link{PCMTreeSetRegimes}}
 #' @export
-PCMTreeGetStartingNodesRegimes <- function(tree) {
+PCMTreeGetStartingNodesRegimes <- function(tree, preorder = PCMTreePreorder(tree)) {
   if(!inherits(tree, "phylo")) {
     stop("ERR:026g0:PCMBase:PCMTree.R:PCMTreeGetStartNodesRegimes:: argument tree should be a phylo.")
   }
@@ -199,8 +203,6 @@ PCMTreeGetStartingNodesRegimes <- function(tree) {
   rootRegime <- sort(tree$edge.regime[eFromRoot])[1]
   nodes[as.character(rootRegime)] <- N + 1
 
-  preorder <- PCMTreePreorder(tree)
-
   for(ei in preorder) {
     if(as.character(tree$edge.regime[ei]) %in% regimes &&
        nodes[as.character(tree$edge.regime[ei])] == 0) {
@@ -214,14 +216,29 @@ PCMTreeGetStartingNodesRegimes <- function(tree) {
   nodes
 }
 
+#' Get the regime of the branch leading to a node or a tip
+#' @param tree a phylo object with an edge.regime member denoting regimes.
+#' @param node an integer denoting the node
+#' @return a character or an integer denoting the regime of the branch leading
+#' to the node, according to tree$edge.regime
+#' @export
+PCMTreeGetRegimeForNode <- function(tree, node) {
+  if(!inherits(tree, "phylo")) {
+    stop("ERR:026h0:PCMBase:PCMTree.R:PCMTreeGetRegimeForNode:: argument tree should be a phylo.")
+  }
+  tree$edge.regime[tree$edge[, 2]==node]
+}
+
 #' Unique regimes on a tree in the order of occurrence from the root to the tips (preorder)
 #'
 #' @param tree a phylo object with an additional member edge.regime which should
 #' be a character or an integer vector of length equal to the number of branches.
-#'
+#' @param preorder an integer vector of row-indices in tree$edge matrix as returned
+#' by PCMTreePreorder. This can be given for performance speed-up when several
+#' operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.
 #' @return a character or an integer vector depending on tree$edge.regime.
 #' @export
-PCMTreeUniqueRegimes <- function(tree) {
+PCMTreeUniqueRegimes <- function(tree, preorder = PCMTreePreorder(tree)) {
   if(is.null(tree$edge.regime)) {
     stop("ERR:02610:PCMBase:PCMTree.R:PCMTreeUniqueRegimes:: tree$edge.regime is NULL,
          but should be a character or an integer vector denoting regime names.")
@@ -240,7 +257,6 @@ PCMTreeUniqueRegimes <- function(tree) {
   uniqueRegimesPos[] <- 0L
   uniqueRegimesPos[as.character(rootRegime)] <- 1
 
-  preorder <- PCMTreePreorder(tree)
   currentPos <- 2
   for(ei in preorder) {
     if(uniqueRegimesPos[as.character(tree$edge.regime[ei])] == 0L) {
@@ -282,16 +298,22 @@ PCMTreeJumps <- function(tree) {
 #' Regimes associated with branches in a tree
 #' @param tree a phylo object
 #' @param model a PCM object
+#' @param preorder an integer vector of row-indices in tree$edge matrix as returned
+#' by PCMTreePreorder. This can be given for performance speed-up when several
+#' operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.
 #' @return an integer vector with entries corresponding to the rows in tree$edge
 #'   denoting the regime on each branch in the tree as an index in PCMRegimes(model).
 #' @export
-PCMTreeMatchRegimesWithModel <- function(tree, model) {
-  regimes <- match(tree$edge.regime, PCMRegimes(model, tree))
+PCMTreeMatchRegimesWithModel <- function(tree, model, preorder = PCMTreePreorder(tree)) {
+  if(is.null(tree$edge.regime)) {
+    PCMTreeSetDefaultRegime(tree, model)
+  }
+  regimes <- match(tree$edge.regime, PCMRegimes(model, tree, preorder))
   if(any(is.na(regimes))) {
     stop(paste0("ERR:02671:PCMBase:PCMTree.R:PCMTreeMatchRegimesWithModel:: ",
                 " Some of the regimes in tree$edge.regime not found in",
                 "attr(model, 'regimes').\n",
-                "unique regimes on the tree:", toString(PCMTreeUniqueRegimes(tree)), "\n",
+                "unique regimes on the tree:", toString(PCMTreeUniqueRegimes(tree, preorder)), "\n",
                 "attr(model, 'regimes')", toString(PCMRegimes(model))))
   }
   regimes
@@ -301,6 +323,7 @@ PCMTreeMatchRegimesWithModel <- function(tree, model) {
 #' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
 #' one daughter node)
 #' @return a vector of indices of edges in tree$edge in pre-order.
+#' @export
 PCMTreePreorder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
@@ -342,86 +365,13 @@ PCMTreePreorder <- function(tree) {
   res
 }
 
-
-#' Extract information for pruning a tree used as cache during likelihood
-#' calculation
-#'
-#' @param tree a phylo object
-#'
-#' @details The function is very slow on strongly unbalanced trees due to the
-#' slow vector append() operation in R.
-#'
-#' @return a list of objects used by the R implementation of PCMLik().
+#' Post-order tree traversal
+#' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
+#' one daughter node)
+#' @return a vector of indices of edges in tree$edge in post-order.
 #' @export
-PCMTreePruningOrder <- function(tree) {
-  # number of tips
-  N <- length(tree$tip.label)
-  # number of all nodes
-  M <- nrow(tree$edge)+1
-
-  # order the edge-indices in increasing index of ending node
-  endingAt <- order(rbind(tree$edge, c(0, N+1))[, 2])
-
-  edge <- tree$edge
-
-  # count the number of non-visited children for each internal node
-  nvc <- rep(0, M)
-
-  # indices of parent node for edges that haven't still been gone through
-  # initially, this are all edges
-  ee1 <- edge[, 1]
-
-  while(length(ee1)) {
-    # For every element of (N+1):M its index in ee1 or NA
-    matchp <- match((N+1):M, ee1)
-    matchp <- matchp[!is.na(matchp)]
-    # add one unvisited chlidren to each parent node's nvc
-    nvc[ee1[matchp]] <- nvc[ee1[matchp]] + 1
-    # remove the edges we've just gone through
-    ee1 <- ee1[-matchp]
-  }
-
-  # start from the edges leading to tips
-  nodesVector <- c()
-  nodesIndex <- c(0)
-
-  unVector <- c()
-  # pointers to last unique indices (un) in unVector
-  unIndex <- c(0)
-
-  # internal or tip- nodes to which we are currently pointing, i.e. we are at
-  # their parent-nodes and we are about to process the brances leading to them.
-  nodes <- 1:N
-
-  while(nodes[1] != N+1) {
-    nodesIndex <- c(nodesIndex, nodesIndex[length(nodesIndex)]+length(nodes))
-    nodesVector <- c(nodesVector, nodes)
-
-    # indices of edges that end at nodes
-    es <- endingAt[nodes]
-    nodes <- c()
-
-    while(length(es)>0) {
-      # unique index of every edge ending at some of the nodes
-      un <- match(unique(edge[es, 1]), edge[es, 1])
-      # add these indices to unVector
-      unVector <- c(unVector, un)
-      # index of the last element of the current un in unVector
-      unIndex <- c(unIndex, unIndex[length(unIndex)]+length(un))
-      nvc[edge[es[un], 1]] <- nvc[edge[es[un], 1]] - 1
-      nodes <- c(nodes, edge[es[un][nvc[edge[es[un], 1]] == 0], 1])
-      es <- es[-un]
-    }
-  }
-  list(# all raws from edge, times t and regimes must be accessed using indices
-    # from the edingAt vector.
-    endingAt=endingAt,
-
-    nodesVector=nodesVector,
-    nodesIndex=nodesIndex,
-    nLevels=length(nodesIndex)-1,
-    unVector=unVector,
-    unIndex=unIndex)
+PCMTreePostorder <- function(tree) {
+  rev(PCMTreePreorder(tree))
 }
 
 #' A matrix (table) of ancestors/descendants for each node in a tree
@@ -452,6 +402,26 @@ PCMTreeTableAncestors <- function(tree, preorder = PCMTreePreorder(tree)) {
   rownames(tableAncestors) <- colnames(tableAncestors) <- nodeLabels
 
   tableAncestors
+}
+
+#' Calculate the time from the root to each node of the tree
+#' @param tree an object of class phylo
+#' @param tipsOnly Logical indicating whether the returned results should be truncated only to the tips of the tree.
+#' @return A vector of size the number of nodes in the tree (tips, root, internal) containing the time from the root to the corresponding node in the tree.
+#' @export
+PCMTreeNodeTimes <- function(tree, tipsOnly=FALSE) {
+  preorder <- PCMTreePreorder(tree)
+  es <- tree$edge[preorder, ]
+  nEdges <- dim(es)[1]
+  ts <- tree$edge.length[preorder]
+  nodeTimes <- rep(0, PCMTreeNumNodes(tree))
+  for(e in 1:nEdges)
+    nodeTimes[es[e, 2]] <- nodeTimes[es[e, 1]]+ts[e]
+  if(tipsOnly) {
+    nodeTimes[1:PCMTreeNumTips(tree)]
+  } else {
+    nodeTimes
+  }
 }
 
 #' A list of the descendants for each node in a tree
@@ -499,9 +469,15 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
 #' @param tree a phylo object
 #' @param nNodes an integer giving the number of partitioning nodes. There would be
 #' \code{nNodes+1} blocks in each partition (see details).
+#' @param minCladeSize integer indicating the minimum number of tips allowed in a clade.
+#' @param tableAncestors NULL (default) or an integer matrix returned by a previous call
+#' to \code{PCMTreeTableAncestors(tree)}.
+#' @param verbose a logical indicating if informative messages should be printed to
+#' the console.
+#'
 #' @return a list of integer \code{nNodes}-vectors.
 #' @export
-PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, verbose = FALSE) {
+PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAncestors = NULL, verbose = FALSE) {
   envir <- new.env()
 
   envir$M <- PCMTreeNumNodes(tree)
@@ -509,7 +485,11 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, verbose =
   envir$nNodes <- nNodes
   envir$minCladeSize <- minCladeSize
 
-  envir$tableAncestors <- PCMTreeTableAncestors(tree)
+  if(!is.null(tableAncestors)) {
+    envir$tableAncestors <- tableAncestors
+  } else {
+    envir$tableAncestors <- PCMTreeTableAncestors(tree)
+  }
   envir$listDesc <- PCMTreeListDescendants(tree, envir$tableAncestors)
   envir$listRootPaths <- PCMTreeListRootPaths(tree, envir$tableAncestors)
 

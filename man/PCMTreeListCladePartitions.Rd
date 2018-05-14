@@ -4,13 +4,22 @@
 \alias{PCMTreeListCladePartitions}
 \title{A list of all possible partitions of a tree with a number of splitting nodes}
 \usage{
-PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0, verbose = FALSE)
+PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0,
+  tableAncestors = NULL, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object}
 
 \item{nNodes}{an integer giving the number of partitioning nodes. There would be
 \code{nNodes+1} blocks in each partition (see details).}
+
+\item{minCladeSize}{integer indicating the minimum number of tips allowed in a clade.}
+
+\item{tableAncestors}{NULL (default) or an integer matrix returned by a previous call
+to \code{PCMTreeTableAncestors(tree)}.}
+
+\item{verbose}{a logical indicating if informative messages should be printed to
+the console.}
 }
 \value{
 a list of integer \code{nNodes}-vectors.

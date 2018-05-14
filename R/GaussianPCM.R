@@ -373,109 +373,84 @@ PCMLmr <- function(X, tree, model,
   UseMethod("PCMLmr", metaI)
 }
 
-
 #' @export
 PCMLmr.default <- function(
   X, tree, model,
   metaI = PCMInfo(X, tree, model, verbose = verbose),
   root.only = FALSE,
-  verbose = FALSE) {
-
-  unJ <- 1
-
+  verbose = FALSE
+) {
   N <- metaI$N; M <- metaI$M; k <- metaI$k;
 
   edge <- tree$edge
-  endingAt <- metaI$endingAt
-  nodesVector <- metaI$nodesVector
-  nodesIndex <- metaI$nodesIndex
-  nLevels <- metaI$nLevels
-  unVector <- metaI$unVector
-  unIndex <- metaI$unIndex
   pc <- metaI$pc
 
   L <- array(0, dim=c(k, k, M))
   m <- array(0, dim=c(k, M))
   r <- array(0, dim=c(M))
 
-
   AbCdEf <- PCMAbCdEf(tree = tree, model = model, metaI = metaI, verbose = verbose)
 
+  postorder <- rev(metaI$preorder)
 
   # avoid redundant calculation
   log2pi <- log(2*pi)
 
-  for(level in 1:nLevels) {
-    nodes <- nodesVector[(nodesIndex[level]+1):nodesIndex[level+1]]
-    es <- endingAt[nodes]
+  for(edgeIndex in postorder) {
+    # parent and daughter nodes
+    j <- edge[edgeIndex, 1]
+    i <- edge[edgeIndex, 2]
+    # present coordinates
+    kj <- pc[, j]
+    ki <- pc[, i]
 
-    if(nodes[1] <= N) {
+    if(i <= N) {
       # all es pointing to tips
+      if(!AbCdEf$singular[edgeIndex]) {
+        # ensure symmetry of L[,,i]
+        L[,,i] <- 0.5 * (AbCdEf$C[,,i] + t(AbCdEf$C[,,i]))
 
-      for(edgeIndex in es) {
-        if(!AbCdEf$singular[edgeIndex]) {
-          # parent and daughter nodes
-          j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
-          # present coordinates
-          kj <- pc[, j]; ki <- pc[, i];
+        r[i] <- with(AbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
+                       t(X[ki,i]) %*% b[ki,i] + f[i])
 
-          # ensure symmetry of L[,,i]
-          L[,,i] <- 0.5 * (AbCdEf$C[,,i] + t(AbCdEf$C[,,i]))
-
-          r[i] <- with(AbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
-                         t(X[ki,i]) %*% b[ki,i] + f[i])
-
-          m[kj,i] <- with(AbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
-        }
+        m[kj,i] <- with(AbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
       }
     } else {
-      # edges pointing to internal nodes, for which all children
+      # edge pointing to internal nodes, for which all children
       # nodes have been visited
-      for(edgeIndex in es) {
-        if(!AbCdEf$singular[edgeIndex]) {
-          # parent and daughter nodes
-          j <- edge[edgeIndex, 1]; i <- edge[edgeIndex, 2];
-          # present coordinates
-          kj <- pc[, j]; ki <- pc[, i];
+      if(!AbCdEf$singular[edgeIndex]) {
+        # auxilary variables to avoid redundant evaluation
+        AplusL <- as.matrix(AbCdEf$A[ki,ki,i] + L[ki,ki,i])
+        # ensure symmetry of AplusL, this should guarantee that AplusL_1 is symmetric
+        # as well (unless solve-implementation is buggy.)
+        AplusL <- 0.5 * (AplusL + t(AplusL))
 
-          # auxilary variables to avoid redundant evaluation
-          AplusL <- as.matrix(AbCdEf$A[ki,ki,i] + L[ki,ki,i])
-          # ensure symmetry of AplusL, this should guarantee that AplusL_1 is symmetric
-          # as well (unless solve-implementation is buggy.)
-          AplusL <- 0.5 * (AplusL + t(AplusL))
+        AplusL_1 <- solve(AplusL)
 
-          AplusL_1 <- solve(AplusL)
+        EAplusL_1 <- matrix(AbCdEf$E[kj,ki,i], sum(kj), sum(ki)) %*% AplusL_1
+        logDetVNode <- log(det(-2*AplusL))
 
-          EAplusL_1 <- matrix(AbCdEf$E[kj,ki,i], sum(kj), sum(ki)) %*% AplusL_1
-          logDetVNode <- log(det(-2*AplusL))
+        # here it is important that we first evaluate r[i] and then m[i,kj]
+        # since the expression for r[i] refers to to the value of m[i,ki]
+        # before updating it.
+        r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
+                       .25*t(b[ki,i]+m[ki,i]) %*% AplusL_1 %*% (b[ki,i]+m[ki,i]))
 
-          # here it is important that we first evaluate r[i] and then m[i,kj]
-          # since the expression for r[i] refers to to the value of m[i,ki]
-          # before updating it.
-          r[i] <- with(AbCdEf, f[i]+r[i]+(sum(ki)/2)*log2pi-.5*logDetVNode -
-                         .25*t(b[ki,i]+m[ki,i]) %*% AplusL_1 %*% (b[ki,i]+m[ki,i]))
+        m[kj,i] <- with(AbCdEf, d[kj,i] - .5*EAplusL_1 %*% (b[ki,i]+m[ki,i]))
 
-          m[kj,i] <- with(AbCdEf, d[kj,i] - .5*EAplusL_1 %*% (b[ki,i]+m[ki,i]))
+        L[kj,kj,i] <- with(
+          AbCdEf,
+          C[kj,kj,i] -.25*EAplusL_1 %*% t(matrix(E[kj,ki,i], sum(kj), sum(ki))))
 
-          L[kj,kj,i] <- with(
-            AbCdEf,
-            C[kj,kj,i] -.25*EAplusL_1 %*% t(matrix(E[kj,ki,i], sum(kj), sum(ki))))
-
-          # ensure symmetry of L:
-          L[kj,kj,i] <- 0.5 * (L[kj,kj,i] + t(L[kj,kj,i]))
-        }
+        # ensure symmetry of L:
+        L[kj,kj,i] <- 0.5 * (L[kj,kj,i] + t(L[kj,kj,i]))
       }
     }
 
-    # add up to parents
-    while(length(es)>0) {
-      un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
-      unJ <- unJ+1
-      L[,,edge[es[un], 1]] <- L[,,edge[es[un], 1]] + L[,,edge[es[un], 2]]
-      m[,edge[es[un], 1]] <- m[,edge[es[un], 1]] + m[,edge[es[un], 2]]
-      r[edge[es[un], 1]] <- r[edge[es[un], 1]] + r[edge[es[un], 2]]
-      es <- es[-un]
-    }
+    # add up to parent
+    L[,, j] <- L[,,j] + L[,,i]
+    m[, j] <- m[,j] + m[,i]
+    r[j] <- r[j] + r[i]
   }
 
   if(root.only) {
@@ -618,14 +593,18 @@ PCMCondVOU <- function(
   }
 }
 
+#' @importFrom mvtnorm rmvnorm
 PCMCondRandom <- function(PCMCondObject, n=1, x0, t, edgeIndex, metaI) {
-  with(PCMCondObject, {
-    rmvnorm(n=n, mean = omega(t, edgeIndex, metaI) + Phi(t, edgeIndex, metaI)%*%x0, sigma=V(t, edgeIndex, metaI))
-  })
+  rmvnorm(n = n,
+          mean = PCMCondObject$omega(t, edgeIndex, metaI) + PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0,
+          sigma = PCMCondObject$V(t, edgeIndex, metaI))
+
 }
 
+#' @importFrom mvtnorm dmvnorm
 PCMCondDensity <- function(PCMCondObject, x, x0, t, edgeIndex, metaI, log=FALSE) {
-  with(PCMCondObject, {
-    dmvnorm(x, mean=omega(t, edgeIndex, metaI) + Phi(t, edgeIndex, metaI)%*%x0, sigma=V(t, edgeIndex, metaI), log=log)
-  })
+  dmvnorm(x,
+          mean = PCMCondObject$omega(t, edgeIndex, metaI) + PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0,
+          sigma = PCMCondObject$V(t, edgeIndex, metaI),
+          log=log)
 }

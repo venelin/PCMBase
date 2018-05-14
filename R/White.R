@@ -37,7 +37,8 @@ PCMDescribe.White <- function(model, ...) {
   from a k-variate Gaussian."
 }
 
-PCMInfo.White <- function(X, tree, model, verbose = FALSE) {
+#' @export
+PCMInfo.White <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
   res <- NextMethod()
   res$PCMBase.Skip.Singular <- TRUE
   res$PCMBase.Threshold.Skip.Singular <- Inf

@@ -144,7 +144,7 @@ PCMOptions <- function() {
 #' @seealso \code{\link{MRG}}
 #' @export
 PCM <- function(
-  model, modelTypes = class(model)[1], k = 1, regimes = 1,
+  model, modelTypes = class(model)[1], k = 1, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
   UseMethod("PCM", model)
@@ -152,7 +152,7 @@ PCM <- function(
 
 #' @export
 PCM.default <- function(
-  model, modelTypes = class(model)[1], k = 1, regimes = 1,
+  model, modelTypes = class(model)[1], k = 1, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
   stop(paste0("ERR:02091:PCMBase:PCM.R:PCM.default:: You should provide a PCM object, but provided a ", class(model)[1]))
@@ -160,7 +160,7 @@ PCM.default <- function(
 
 #' @export
 PCM.PCM <- function(
-  model, modelTypes = class(model)[1], k = 1, regimes = 1,
+  model, modelTypes = class(model)[1], k = 1, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
 
@@ -203,7 +203,7 @@ PCM.PCM <- function(
 
 #' @export
 PCM.character <- function(
-  model, modelTypes = model[1], k = 1, regimes = 1,
+  model, modelTypes = model[1], k = 1, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0,
   specParams = NULL, ...) {
 
@@ -317,15 +317,15 @@ PCMNumTraits.PCM <- function(model) {
 #' then these integers are used as indexes in PCMTreeUniqueRegimes(tree). Default NULL.
 #' @return a character or an integer vector giving the regime names of the models
 #' @export
-PCMRegimes <- function(model, tree = NULL) {
+PCMRegimes <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
   UseMethod("PCMRegimes", model)
 }
 
 #' @export
-PCMRegimes.PCM <- function(model, tree = NULL) {
+PCMRegimes.PCM <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
   r <- attr(model, "regimes")
   if(is.integer(r) && !is.null(tree)) {
-    PCMTreeUniqueRegimes(tree)[r]
+    PCMTreeUniqueRegimes(tree, preorder)[r]
   } else {
     r
   }
@@ -570,75 +570,113 @@ PCMLoadMatrixParameter <- function(
     maskDiag1 <- 1
   }
 
-  if(type[1] == "diag1") {
-    num <- 1
-    eval(substitute(diag(m)[maskDiag1] %op% vecParams[offset + (1:num)]), parent.frame())
-  } else if(type[1] == "diag") {
-    num <- k
-    if(length(dim(m)) == 0) {
-      if(k == 1) {
-        # m is a scalar
+
+  if(length(dim(m)) == 0) {
+    if(k == 1) {
+      # m is a scalar
+      if(type[1] == "diag1") {
+        num <- 1
+        eval(substitute(m[maskDiag1] %op% vecParams[offset + (1:num)]), parent.frame())
+      } else if(type[1] == "diag") {
+        num <- k
         eval(substitute(m[] %op% vecParams[offset + (1:num)]), parent.frame())
-      } else {
-        stop("ERR:020b1:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, because k is different from 1 but has length(dim(m)) == 0.")
-      }
-    } else if(length(dim(m)) == 2) {
-      eval(substitute(diag(m) %op% vecParams[offset + (1:num)]), parent.frame())
-    } else {
-      stop(paste0("ERR:020b2:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, but has length(dim(m)) != 2, dim(m):(", toString(dim(m)), ")."))
-    }
-  } else if(type[1] == "upper.tri") {
-    num <- k*(k-1)/2
-    eval(substitute(m[upper.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
-  } else if(type[1] == "upper.tri.diag") {
-    num <- k*(k+1)/2
-    eval(substitute(m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
-  } else if(type[1] == "lower.tri") {
-    num <- k*(k-1)/2
-    eval(substitute(m[lower.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
-  } else if(type[1] == "lower.tri.diag") {
-    num <- k*(k+1)/2
-    eval(substitute(m[lower.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
-  } else if(type[1] == "symmetric") {
-    num <- k*(k+1)/2
-    eval(substitute({
-      m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]
-      }), parent.frame())
-    if(load) {
-      eval(substitute({
-        m[lower.tri(m)] <- 0
-        m <- m+t(m)
-        diag(m) <- 0.5 * diag(m)
-      }), parent.frame())
-    }
-  } else if(type[1] == "full") {
-    num <- k*k
-    if(length(dim(m)) == 0) {
-      if(k == 1) {
-        # m is a scalar
+      } else if(type[1] == "upper.tri") {
+        num <- k*(k-1)/2
+        # nothing else to do
+      } else if(type[1] == "upper.tri.diag") {
+        num <- k*(k+1)/2
+        eval(substitute(m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
+      } else if(type[1] == "lower.tri") {
+        num <- k*(k-1)/2
+        # nothing else to do
+      } else if(type[1] == "lower.tri.diag") {
+        num <- k*(k+1)/2
+        eval(substitute(m[lower.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
+      } else if(type[1] == "symmetric") {
+        num <- k*(k+1)/2
+        eval(substitute({
+          m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]
+        }), parent.frame())
+        if(load) {
+          eval(substitute({
+            m[lower.tri(m)] <- 0
+            m <- m+t(m)
+            diag(m) <- 0.5 * diag(m)
+          }), parent.frame())
+        }
+      } else if(type[1] == "full") {
+        num <- k*k
         eval(substitute(m[] %op% vecParams[offset+(1:num)]), parent.frame())
+      } else if(type[1] == "custom") {
+        if(is.function(indices)) {
+          ind <- indices(offset, k)
+          num <- length(unique(ind[ind>offset]))
+          maskCustom <- mask
+          eval(substitute(m[maskCustom] %op% vecParams[ind]), parent.frame())
+        } else {
+          stop("ERR:020b5:PCMBase:PCM.R:PCMLoadMatrixParameter:: indices should be a
+               function(offset, k) returning an integer vector.")
+        }
+      } else if(type[1] == "fixed") {
+          num <- 0
       } else {
-        stop("ERR:020b3:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, because k is different from 1 but has length(dim(m)) == 0.")
+        stop(paste0("ERR:020b6:PCMBase:PCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
       }
-    } else if(length(dim(m)) == 2) {
+    } else {
+      stop("ERR:020b1:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, because k is different from 1", k, " but has dim(m) = (", toString(dim(m)), ").")
+    }
+  } else if(length(dim(m)) == 2) {
+    # m is a matrix
+    if(type[1] == "diag1") {
+      num <- 1
+      eval(substitute(diag(m)[maskDiag1] %op% vecParams[offset + (1:num)]), parent.frame())
+    } else if(type[1] == "diag") {
+      num <- k
+      eval(substitute(diag(m) %op% vecParams[offset + (1:num)]), parent.frame())
+    } else if(type[1] == "upper.tri") {
+      num <- k*(k-1)/2
+      eval(substitute(m[upper.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
+    } else if(type[1] == "upper.tri.diag") {
+      num <- k*(k+1)/2
+      eval(substitute(m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
+    } else if(type[1] == "lower.tri") {
+      num <- k*(k-1)/2
+      eval(substitute(m[lower.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
+    } else if(type[1] == "lower.tri.diag") {
+      num <- k*(k+1)/2
+      eval(substitute(m[lower.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
+    } else if(type[1] == "symmetric") {
+      num <- k*(k+1)/2
+      eval(substitute({
+        m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]
+      }), parent.frame())
+      if(load) {
+        eval(substitute({
+          m[lower.tri(m)] <- 0
+          m <- m+t(m)
+          diag(m) <- 0.5 * diag(m)
+        }), parent.frame())
+      }
+    } else if(type[1] == "full") {
+      num <- k*k
       eval(substitute(m[,] %op% vecParams[offset+(1:num)]), parent.frame())
+    } else if(type[1] == "custom") {
+      if(is.function(indices)) {
+        ind <- indices(offset, k)
+        num <- length(unique(ind[ind>offset]))
+        maskCustom <- mask
+        eval(substitute(m[maskCustom] %op% vecParams[ind]), parent.frame())
+      } else {
+        stop("ERR:020b5:PCMBase:PCM.R:PCMLoadMatrixParameter:: indices should be a
+             function(offset, k) returning an integer vector.")
+      }
+    } else if(type[1] == "fixed") {
+        num <- 0
     } else {
-      stop(paste0("ERR:020b4:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, but has length(dim(m)) != 2, dim(m):(", toString(dim(m)), ")."))
+      stop(paste0("ERR:020b6:PCMBase:PCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
     }
-  } else if(type[1] == "custom") {
-    if(is.function(indices)) {
-      ind <- indices(offset, k)
-      num <- length(unique(ind[ind>offset]))
-      maskCustom <- mask
-      eval(substitute(m[maskCustom] %op% vecParams[ind]), parent.frame())
-    } else {
-      stop("ERR:020b5:PCMBase:PCM.R:PCMLoadMatrixParameter:: indices should be a
-           function(offset, k) returning an integer vector.")
-    }
-  } else if(type[1] == "fixed") {
-    num <- 0
   } else {
-    stop(paste0("ERR:020b6:PCMBase:PCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
+    stop(paste0("ERR:020b2:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, but has length(dim(m)) != 2, dim(m):(", toString(dim(m)), ")."))
   }
   num
 }
@@ -848,6 +886,7 @@ PCMLowerBound <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveD
 
 #' @export
 PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
+  k <- attr(model, "k", exact = TRUE)
   if(lowerBoundValuePositiveDiag < 0 ) {
     stop("ERR:04000:PCMFit:PCMFit.R:PCMLowerBound.PCM:: lowerBoundValuePositiveDiag should be non-negative.")
   }
@@ -888,7 +927,7 @@ PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePosit
         # model[[name]] is a k x k x R array
         R <- PCMNumRegimes(model)
         for(r in 1:R) {
-          mi <- match(diag(model[[name]][,,r]), parMask)
+          mi <- match(diag(as.matrix(model[[name]][,,r], k, k)), parMask)
           par[unique(mi)] <- lowerBoundValuePositiveDiag
         }
       }
@@ -958,7 +997,7 @@ PCMUpperBound.PCM <- function(model, upperBoundValue = 10, upperBoundValuePositi
         # model[[name]] is a k x k x R array
         R <- PCMNumRegimes(model)
         for(r in 1:R) {
-          mi <- match(diag(model[[name]][,,r]), parMask)
+          mi <- match(diag(as.matrix(model[[name]][,,r], k, k)), parMask)
           par[unique(mi)] <- upperBoundValuePositiveDiag
         }
       }
@@ -1163,8 +1202,7 @@ PCMLik <- function(
 #' @param X numeric k x N matrix of observed values, with possible NA entries. The
 #' columns in X are in the order of tree$tip.label
 #' @param tree a phylo object
-#' @param metaI a list returned by the PCMInfo function. Either leave this
-#' as default or pass a previously computed metaI for the same X, tree and model.
+#' @param metaI  The result of calling PCMInfo.
 #' @return a k x M logical matrix which can be passed as a pc argument to the PCMLik
 #' function. The function fails in case when all traits are NAs for some of the tips.
 #' In that case an error message is issued
@@ -1172,20 +1210,14 @@ PCMLik <- function(
 #' present coordinates. Consider removing these tips.".
 #' @seealso \code{\link{PCMLik}}
 #' @export
-PCMPresentCoordinates <- function(X, tree, metaI=PCMTreePruningOrder(tree)) {
+PCMPresentCoordinates <- function(X, tree, metaI) {
 
   N <- metaI$N
   M <- metaI$M
   k <- metaI$k
+  postorder <- rev(metaI$preorder)
 
   edge <- tree$edge
-  endingAt <- metaI$endingAt
-  nodesVector <- metaI$nodesVector
-  nodesIndex <- metaI$nodesIndex
-  nLevels <- metaI$nLevels
-  unVector <- metaI$unVector
-  unIndex <- metaI$unIndex
-  unJ <- 1
 
   if(is.null(X)) {
     pc <- rep(TRUE, k*M)
@@ -1197,26 +1229,21 @@ PCMPresentCoordinates <- function(X, tree, metaI=PCMTreePruningOrder(tree)) {
     pc <- rep(FALSE, k*M)
     dim(pc) <- c(k, M)
 
-    for(i in 1:nLevels) {
-      nodes <- nodesVector[(nodesIndex[i]+1):nodesIndex[i+1]]
-      es <- endingAt[nodes]
+    for(ei in postorder) {
+      i <- edge[ei, 2]
+      j <- edge[ei, 1]
 
-      if(nodes[1] <= N) {
+      if(i <= N) {
         # all es pointing to tips
-        pc[, nodes] <- !is.na(X[, nodes])
+        pc[, i, drop=FALSE] <- !is.na(X[, i, drop=FALSE])
       } else {
         # edges pointing to internal nodes, for which all children nodes have been
         # visited
         # here we do nothing
       }
 
-      #update parent pifs
-      while(length(es)>0) {
-        un <- unVector[(unIndex[unJ]+1):unIndex[unJ+1]]
-        unJ <- unJ+1
-        pc[, edge[es[un], 1]] <- pc[, edge[es[un], 1]] | pc[, edge[es[un], 2]]
-        es <- es[-un]
-      }
+      #update parent pc
+      pc[, j] <- pc[, j] | pc[, i]
     }
     if(any(rowSums(pc) == 0)) {
       stop("ERR:02001:PCMBase:PCM.R:PCMPresentCoordinates:: Some tips
@@ -1230,6 +1257,9 @@ PCMPresentCoordinates <- function(X, tree, metaI=PCMTreePruningOrder(tree)) {
 #'
 #' @description
 #' @inheritParams PCMLik
+#' @param preorder an integer vector of row-indices in tree$edge matrix as returned
+#' by PCMTreePreorder. This can be given for performance speed-up when several
+#' operations needing preorder are executed on the tree. Default : \code{NULL}.
 #' @return a named list with the following elements:
 #' \item{M}{total number of nodes in the tree;}
 #' \item{N}{number of tips;}
@@ -1245,26 +1275,34 @@ PCMPresentCoordinates <- function(X, tree, metaI=PCMTreePruningOrder(tree)) {
 #' for each node;}
 #'
 #' @export
-PCMInfo <- function(X, tree, model, verbose = FALSE) {
+PCMInfo <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
   UseMethod("PCMInfo", model)
 }
 
 #' @export
-PCMInfo.PCM <- function(X, tree, model, verbose = FALSE) {
+PCMInfo.PCM <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
+
+  if(is.null(tree$edge.regime)) {
+    PCMTreeSetDefaultRegime(tree, model)
+  }
+
+  if(is.null(preorder)) {
+    preorder <- PCMTreePreorder(tree)
+  }
+
   res <- list(
     M = PCMTreeNumNodes(tree),
     N = PCMTreeNumTips(tree),
     k = PCMNumTraits(model),
     RTree = PCMTreeNumUniqueRegimes(tree),
     RModel = PCMNumRegimes(model),
-    r = PCMTreeMatchRegimesWithModel(tree, model),
+    r = PCMTreeMatchRegimesWithModel(tree, model, preorder),
     p = PCMNumParams(model),
     xi = PCMTreeJumps(tree),
     edge = tree$edge,
     edge.length = tree$edge.length,
-    preorder = PCMTreePreorder(tree)
+    preorder = preorder
   )
-  res <- c(res, PCMTreePruningOrder(tree))
   res <- c(res, PCMOptions())
 
   res$pc <- PCMPresentCoordinates(X, tree, res)
