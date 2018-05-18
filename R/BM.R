@@ -72,11 +72,11 @@ PCMSpecifyParams.BM <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.BM__posdiagSigma_x <- function(model, ...) "BM with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
+PCMDescribe.BM__DiagPosdiagSigma_x <- function(model, ...) "BM with a (positive) diagonal Sigma_x with (assuming that the phylogeny does not contribute to the correlation between the traits)."
 #' @export
-PCMParentClasses.BM__posdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.BM__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -90,11 +90,11 @@ PCMSpecifyParams.BM__posdiagSigma_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.BM__posdiagSigmae_x <- function(model, ...) "BM with a diagonal Sigmae_x (i.e., assuming that the non-phylogenetic factors do not contribute to the correlation between the traits)."
+PCMDescribe.BM__DiagPosdiagSigmae_x <- function(model, ...) "BM with a (positive) diagonal Sigmae_x (i.e., assuming that the non-phylogenetic factors do not contribute to the correlation between the traits)."
 #' @export
-PCMParentClasses.BM__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -108,11 +108,11 @@ PCMSpecifyParams.BM__posdiagSigmae_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.BM__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "BM with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
+PCMDescribe.BM__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "BM with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
 #' @export
-PCMParentClasses.BM__posdiagSigma_x__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -135,22 +135,22 @@ PCMSpecifyParams.BM__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
 
 
 #' @export
-PCMDescribe.BM__noX0 <- function(model, ...) "BM without X0."
+PCMDescribe.BM__NoX0 <- function(model, ...) "BM without X0."
 #' @export
-PCMParentClasses.BM__noX0 <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoX0 <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noX0 <- function(model, ...) {
+PCMSpecifyParams.BM__NoX0 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.BM__noX0__posdiagSigma_x <- function(model, ...) "BM without X0 and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
+PCMDescribe.BM__NoX0__DiagPosdiagSigma_x <- function(model, ...) "BM without X0 and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
 #' @export
-PCMParentClasses.BM__noX0__posdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoX0__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noX0__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.BM__NoX0__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
 
   spec$X0 <- NULL
@@ -167,11 +167,11 @@ PCMSpecifyParams.BM__noX0__posdiagSigma_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.BM__noX0__posdiagSigmae_x <- function(model, ...) "BM without X0 and with a diagonal Sigmae_x (i.e., assuming that the non-phylogenetic factors do not contribute to the correlation between the traits)."
+PCMDescribe.BM__NoX0__DiagPosdiagSigmae_x <- function(model, ...) "BM without X0 and with a diagonal Sigmae_x (i.e., assuming that the non-phylogenetic factors do not contribute to the correlation between the traits)."
 #' @export
-PCMParentClasses.BM__noX0__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoX0__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noX0__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__NoX0__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   spec$X0 <- NULL
@@ -188,11 +188,11 @@ PCMSpecifyParams.BM__noX0__posdiagSigmae_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.BM__noX0__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "BM without X0 and with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
+PCMDescribe.BM__NoX0__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "BM without X0 and with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
 #' @export
-PCMParentClasses.BM__noX0__posdiagSigma_x__posdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoX0__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noX0__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__NoX0__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   spec$X0 <- NULL
@@ -217,22 +217,22 @@ PCMSpecifyParams.BM__noX0__posdiagSigma_x__posdiagSigmae_x <- function(model, ..
 
 
 #' @export
-PCMDescribe.BM__noSigmae_x <- function(model, ...) "BM without Sigmae_x."
+PCMDescribe.BM__NoSigmae_x <- function(model, ...) "BM without Sigmae_x."
 #' @export
-PCMParentClasses.BM__noSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__NoSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.BM__noSigmae_x__posdiagSigma_x <- function(model, ...) "BM without Sigmae_x and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
+PCMDescribe.BM__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) "BM without Sigmae_x and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
 #' @export
-PCMParentClasses.BM__noSigmae_x__posdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoSigmae_x__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noSigmae_x__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.BM__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
 
   spec$Sigmae_x <- NULL
@@ -252,11 +252,11 @@ PCMSpecifyParams.BM__noSigmae_x__posdiagSigma_x <- function(model, ...) {
 
 
 #' @export
-PCMDescribe.BM__noX0__noSigmae_x <- function(model, ...) "BM without X0 and Sigmae_x."
+PCMDescribe.BM__NoX0__NoSigmae_x <- function(model, ...) "BM without X0 and Sigmae_x."
 #' @export
-PCMParentClasses.BM__noX0__noSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoX0__NoSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noX0__noSigmae_x <- function(model, ...) {
+PCMSpecifyParams.BM__NoX0__NoSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL
@@ -264,11 +264,11 @@ PCMSpecifyParams.BM__noX0__noSigmae_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.BM__noX0__noSigmae_x__posdiagSigma_x <- function(model, ...) "BM without X0 and Sigmae_x and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
+PCMDescribe.BM__NoX0__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) "BM without X0 and Sigmae_x and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
 #' @export
-PCMParentClasses.BM__noX0__noSigmae_x__posdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
+PCMParentClasses.BM__NoX0__NoSigmae_x__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.BM__noX0__noSigmae_x__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.BM__NoX0__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
 
   spec$X0 <- NULL

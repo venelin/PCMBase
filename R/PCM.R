@@ -877,7 +877,7 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
 #' \code{\link{PCMSetOrGetVecParams}} on this object returns a lower
 #' bound for that can be used, e.g. in a call to \code{\link{optim}}
 #' @examples
-#' model <- PCM("BM__noX0__noSigmae_x", k = 3)
+#' model <- PCM("BM__NoX0__NoSigmae_x", k = 3)
 #' PCMLowerBound(model)
 #' @export
 PCMLowerBound <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
@@ -948,7 +948,7 @@ PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePosit
 #' @return a PCM object of the same S3 classes as model. Calling
 #' \code{\link{PCMSetOrGetVecParams}} on this object returns an upper
 #' bound for that can be used, e.g. in a call to \code{\link{optim}}
-#' #' model <- PCM("BM__noX0__noSigmae_x", k = 3)
+#' #' model <- PCM("BM__NoX0__NoSigmae_x", k = 3)
 #' PCMLowerBound(model)
 #' @export
 PCMUpperBound <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, ...) {
@@ -1173,6 +1173,29 @@ PCMLik <- function(
   log = TRUE,
   verbose = FALSE) {
   UseMethod("PCMLik", model)
+}
+
+#' @export
+logLik.PCM <- function(object, ...) {
+  if(!is.PCM(object)) {
+    stop("ERR:02031:PCMBase:PCM.R:logLik.PCM:: object must inherit from class PCM.")
+  }
+
+  X <- attr(object, "X", exact = TRUE)
+  if( !is.matrix(X) ) {
+    stop("ERR:02032:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object, it should have a k x N numeric matrix attribute called 'X'.")
+  }
+  tree <- attr(object, "tree", exact = TRUE)
+  if( !inherits(tree, "phylo") ) {
+    stop("ERR:02033:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
+  }
+
+  value <- PCMLik(X, tree, object, log = TRUE)
+
+  attr(value, "df") <- PCMNumParams(object, countRegimeChanges = TRUE, countModelTypes = TRUE)
+  attr(value, "nobs") <- PCMTreeNumTips(tree)
+
+  value
 }
 
 

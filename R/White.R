@@ -82,11 +82,11 @@ PCMSpecifyParams.White <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.White__posdiagSigmae_x <- function(model, ...) "White with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
+PCMDescribe.White__DiagPosdiagSigmae_x <- function(model, ...) "White with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
 #' @export
-PCMParentClasses.White__posdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
+PCMParentClasses.White__DiagPosdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.White__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.White__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -100,11 +100,11 @@ PCMSpecifyParams.White__posdiagSigmae_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.White__noX0 <- function(model, ...) "White without X0."
+PCMDescribe.White__NoX0 <- function(model, ...) "White without X0."
 #' @export
-PCMParentClasses.White__noX0 <- function(model) c("White", "GaussianPCM", "PCM")
+PCMParentClasses.White__NoX0 <- function(model) c("White", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.White__noX0 <- function(model, ...) {
+PCMSpecifyParams.White__NoX0 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
@@ -112,11 +112,11 @@ PCMSpecifyParams.White__noX0 <- function(model, ...) {
 
 
 #' @export
-PCMDescribe.White__noX0__posdiagSigmae_x <- function(model, ...) "White without X0 and with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
+PCMDescribe.White__NoX0__DiagPosdiagSigmae_x <- function(model, ...) "White without X0 and with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
 #' @export
-PCMParentClasses.White__noX0__posdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
+PCMParentClasses.White__NoX0__DiagPosdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.White__noX0__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.White__NoX0__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
 

@@ -15,7 +15,7 @@ M object}
 a PCM object of the same S3 classes as model. Calling
 \code{\link{PCMSetOrGetVecParams}} on this object returns an upper
 bound for that can be used, e.g. in a call to \code{\link{optim}}
-#' model <- PCM("BM__noX0__noSigmae_x", k = 3)
+#' model <- PCM("BM__NoX0__NoSigmae_x", k = 3)
 PCMLowerBound(model)
 }
 \description{

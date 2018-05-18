@@ -90,33 +90,33 @@ PCMSpecifyParams.JOU <- function(model, ...) {
 
 
 #' @export
-PCMDescribe.JOU__noX0 <- function(model, ...) "JOU without X0."
+PCMDescribe.JOU__NoX0 <- function(model, ...) "JOU without X0."
 #' @export
-PCMParentClasses.JOU__noX0 <- function(model) c("JOU", "GaussianPCM", "PCM")
+PCMParentClasses.JOU__NoX0 <- function(model) c("JOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.JOU__noX0 <- function(model, ...) {
+PCMSpecifyParams.JOU__NoX0 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.JOU__noSigmae_x <- function(model, ...) "JOU without Sigmae_x."
+PCMDescribe.JOU__NoSigmae_x <- function(model, ...) "JOU without Sigmae_x."
 #' @export
-PCMParentClasses.JOU__noSigmae_x <- function(model) c("JOU", "GaussianPCM", "PCM")
+PCMParentClasses.JOU__NoSigmae_x <- function(model) c("JOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.JOU__noSigmae_x <- function(model, ...) {
+PCMSpecifyParams.JOU__NoSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.JOU__noX0__noSigmae_x <- function(model, ...) "JOU without X0 and Sigmae_x."
+PCMDescribe.JOU__NoX0__NoSigmae_x <- function(model, ...) "JOU without X0 and Sigmae_x."
 #' @export
-PCMParentClasses.JOU__noX0__noSigmae_x <- function(model) c("JOU", "GaussianPCM", "PCM")
+PCMParentClasses.JOU__NoX0__NoSigmae_x <- function(model) c("JOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.JOU__noX0__noSigmae_x <- function(model, ...) {
+PCMSpecifyParams.JOU__NoX0__NoSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL
@@ -125,11 +125,11 @@ PCMSpecifyParams.JOU__noX0__noSigmae_x <- function(model, ...) {
 
 
 #' @export
-PCMDescribe.JOU__noX0__noSigmae_x__posdiagH <- function(model, ...) "JOU without X0 and Sigmae_x and with a non-negative diagonal selection strength matrix H."
+PCMDescribe.JOU__NoX0__NoSigmae_x__DiagPosdiagH <- function(model, ...) "JOU without X0 and Sigmae_x and with a non-negative diagonal selection strength matrix H."
 #' @export
-PCMParentClasses.JOU__noX0__noSigmae_x__posdiagH <- function(model) c("JOU", "GaussianPCM", "PCM")
+PCMParentClasses.JOU__NoX0__NoSigmae_x__DiagPosdiagH <- function(model) c("JOU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.JOU__noX0__noSigmae_x__posdiagH <- function(model, ...) {
+PCMSpecifyParams.JOU__NoX0__NoSigmae_x__DiagPosdiagH <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL

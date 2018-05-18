@@ -80,11 +80,48 @@ PCMSpecifyParams.OU <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__posdiagH <- function(model, ...) "OU with positive diagonal matrix H."
+PCMDescribe.OU__PosdiagH <- function(model, ...) "OU with positive diagonal elements of the matrix H."
 #' @export
-PCMParentClasses.OU__posdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__PosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__posdiagH <- function(model, ...) {
+PCMSpecifyParams.OU__PosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec
+}
+
+#' @export
+PCMDescribe.OU__SymmetricPosdiagH <- function(model, ...) "OU with symmetric matrix H with positive diagonal elements."
+#' @export
+PCMParentClasses.OU__SymmetricPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__SymmetricPosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec
+}
+
+
+#' @export
+PCMDescribe.OU__DiagPosdiagH <- function(model, ...) "OU with positive diagonal matrix H."
+#' @export
+PCMParentClasses.OU__DiagPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__DiagPosdiagH <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -98,11 +135,53 @@ PCMSpecifyParams.OU__posdiagH <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__posdiagH__posdiagSigma_x <- function(model, ...) "OU with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+PCMDescribe.OU__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU with positive elements on the diagonal of H and and with (positive) diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__posdiagH__posdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__PosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__posdiagH__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.OU__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive elements on the diagonal")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec
+}
+
+#' @export
+PCMDescribe.OU__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU with a symmetric matrix H with positive elements on the diagonal and with a (positive) diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive elements on the diagonal")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec
+}
+
+#' @export
+PCMDescribe.OU__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__DiagPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -119,11 +198,54 @@ PCMSpecifyParams.OU__posdiagH__posdiagSigma_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__posdiagH__posdiagSigmae_x <- function(model, ...) "OU with positive diagonal matrix H and and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+PCMDescribe.OU__PosdiagH__DiagPosdiagSigmae_x <- function(model, ...) "OU with positive diagonal elements of the (non-diagonal) matrix H and and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__posdiagH__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__PosdiagH__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__posdiagH__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__PosdiagH__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Non-diagonal election strength matrix with positive elements on the diagonal")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+  spec
+}
+
+#' @export
+PCMDescribe.OU__SymmetricPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) "OU with symmetric H with positive diagonal elements and and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__SymmetricPosdiagH__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__SymmetricPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive elements on the diagonal")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+  spec
+}
+
+
+#' @export
+PCMDescribe.OU__DiagPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) "OU with positive diagonal matrix H and and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__DiagPosdiagH__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__DiagPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -140,11 +262,59 @@ PCMSpecifyParams.OU__posdiagH__posdiagSigmae_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "OU with positive diagonal matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
+PCMDescribe.OU__PosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "OU with positive diagonal elements of the (non-diagonal) matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__PosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__PosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+  spec
+}
+
+#' @export
+PCMDescribe.OU__SymmetricPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "OU with symmetric H with positive diagonal elements and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__SymmetricPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__SymmetricPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+  spec
+}
+
+#' @export
+PCMDescribe.OU__DiagPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "OU with positive diagonal matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__DiagPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__DiagPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
 
   k <- attr(model, "k")
@@ -170,22 +340,62 @@ PCMSpecifyParams.OU__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model
 
 
 #' @export
-PCMDescribe.OU__noX0 <- function(model, ...) "OU without X0."
+PCMDescribe.OU__NoX0 <- function(model, ...) "OU without X0."
 #' @export
-PCMParentClasses.OU__noX0 <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0 <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0 <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0 <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.OU__noX0__posdiagH <- function(model, ...) "OU without X0 and with positive diagonal matrix H."
+PCMDescribe.OU__NoX0__PosdiagH <- function(model, ...) "OU without X0 and with positive diagonal elements of the (non-diagonal) matrix H."
 #' @export
-PCMParentClasses.OU__noX0__posdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0__PosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__posdiagH <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0__PosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__SymmetricPosdiagH <- function(model, ...) "OU without X0 and with symmetric matrix H with positive diagonal elements."
+#' @export
+PCMParentClasses.OU__NoX0__SymmetricPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__SymmetricPosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec[!sapply(spec, is.null)]
+}
+
+
+
+#' @export
+PCMDescribe.OU__NoX0__DiagPosdiagH <- function(model, ...) "OU without X0 and with positive diagonal matrix H."
+#' @export
+PCMParentClasses.OU__NoX0__DiagPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__DiagPosdiagH <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
 
@@ -199,12 +409,59 @@ PCMSpecifyParams.OU__noX0__posdiagH <- function(model, ...) {
   spec[!sapply(spec, is.null)]
 }
 
+
 #' @export
-PCMDescribe.OU__noX0__posdiagH__posdiagSigma_x <- function(model, ...) "OU without X0 and with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+PCMDescribe.OU__NoX0__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without X0 and with positive diagonal elements of the (non-diagonal) matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__noX0__posdiagH__posdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0__PosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without X0 and with a symmetric matrix H with positive diagonal elements and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without X0 and with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__DiagPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
 
@@ -223,11 +480,58 @@ PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigma_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__noX0__posdiagH__posdiagSigmae_x <- function(model, ...) "OU without X0 and with positive diagonal matrix H and and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+PCMDescribe.OU__NoX0__PosdiagH__DiagPosdiagSigmae_x <- function(model, ...) "OU without X0 and with positive diagonal elements of the (non-diagonal) matrix H and and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__noX0__posdiagH__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0__PosdiagH__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0__PosdiagH__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) "OU without X0 and with symmetric matrix H with positive diagonale elements and and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.OU__NoX0__DiagPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) "OU without X0 and with positive diagonal matrix H and with diagonal Sigmae_x (i.e. no non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__DiagPosdiagH__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__DiagPosdiagH__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
 
@@ -246,11 +550,64 @@ PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigmae_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__noX0__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) "OU without X0 and with positive diagonal matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
+PCMDescribe.OU__NoX0__PosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "OU without X0 and with positive diagonal elements of the (non-diagonal) matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__noX0__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0__PosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0__PosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "OU without X0 and with symmetric matrix H with positive diagonal elements and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__SymmetricPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                        type = c("matrix", "diag", "positive.diag"),
+                        description = "Positive diagonal Choleski factor of the non-phylogenetic component")
+
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.OU__NoX0__DiagPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "OU without X0 and with positive diagonal matrix H and and with positive diagonal Sigma_x and with positive diagonal Sigmae_x (i.e. assuming no phylogenetic or non-phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__DiagPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__DiagPosdiagH__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
 
@@ -275,22 +632,60 @@ PCMSpecifyParams.OU__noX0__posdiagH__posdiagSigma_x__posdiagSigmae_x <- function
 
 
 #' @export
-PCMDescribe.OU__noSigmae_x <- function(model, ...) "OU without Sigmae_x."
+PCMDescribe.OU__NoSigmae_x <- function(model, ...) "OU without Sigmae_x."
 #' @export
-PCMParentClasses.OU__noSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__NoSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$Sigmae_x <- NULL
   spec[!sapply(spec, is.null)]
 }
 
 #' @export
-PCMDescribe.OU__noSigmae_x__posdiagH <- function(model, ...) "OU without Sigmae_x and with positive diagonal matrix H."
+PCMDescribe.OU__NoSigmae_x__PosdiagH <- function(model, ...) "OU without Sigmae_x and with positive diagonal elements of the (non-diagonal) matrix H."
 #' @export
-PCMParentClasses.OU__noSigmae_x__posdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoSigmae_x__PosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noSigmae_x__posdiagH <- function(model, ...) {
+PCMSpecifyParams.OU__NoSigmae_x__PosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoSigmae_x__SymmetricPosdiagH <- function(model, ...) "OU without Sigmae_x and with symmetric matrix H with positive diagonal elements."
+#' @export
+PCMParentClasses.OU__NoSigmae_x__SymmetricPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoSigmae_x__SymmetricPosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoSigmae_x__DiagPosdiagH <- function(model, ...) "OU without Sigmae_x and with positive diagonal matrix H."
+#' @export
+PCMParentClasses.OU__NoSigmae_x__DiagPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoSigmae_x__DiagPosdiagH <- function(model, ...) {
   spec <- NextMethod()
   spec$Sigmae_x <- NULL
 
@@ -305,11 +700,57 @@ PCMSpecifyParams.OU__noSigmae_x__posdiagH <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__noSigmae_x__posdiagH__posdiagSigma_x <- function(model, ...) "OU without Sigmae_x and with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+PCMDescribe.OU__NoSigmae_x__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without Sigmae_x and with positive diagonal elements of the (non-diagonal) matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__noSigmae_x__posdiagH__posdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoSigmae_x__PosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noSigmae_x__posdiagH__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.OU__NoSigmae_x__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoSigmae_x__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without Sigmae_x and with a symmetric matrix H with positive diagonal elements and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoSigmae_x__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoSigmae_x__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoSigmae_x__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without Sigmae_x and with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoSigmae_x__DiagPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoSigmae_x__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
   spec$Sigmae_x <- NULL
 
@@ -330,11 +771,11 @@ PCMSpecifyParams.OU__noSigmae_x__posdiagH__posdiagSigma_x <- function(model, ...
 
 
 #' @export
-PCMDescribe.OU__noX0__noSigmae_x <- function(model, ...) "OU without X0 and Sigmae_x."
+PCMDescribe.OU__NoX0__NoSigmae_x <- function(model, ...) "OU without X0 and Sigmae_x."
 #' @export
-PCMParentClasses.OU__noX0__noSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0__NoSigmae_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__noSigmae_x <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0__NoSigmae_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL
@@ -342,11 +783,52 @@ PCMSpecifyParams.OU__noX0__noSigmae_x <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__noX0__noSigmae_x__posdiagH <- function(model, ...) "OU without X0 and Sigmae_x and with positive diagonal matrix H."
+PCMDescribe.OU__NoX0__NoSigmae_x__PosdiagH <- function(model, ...) "OU without X0 and Sigmae_x and with positive diagonal elements of the (non-diagonal) matrix H."
 #' @export
-PCMParentClasses.OU__noX0__noSigmae_x__posdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0__NoSigmae_x__PosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__noSigmae_x__posdiagH <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0__NoSigmae_x__PosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__NoSigmae_x__SymmetricPosdiagH <- function(model, ...) "OU without X0 and Sigmae_x and with a symmetric matrix H with positive diagonal elements."
+#' @export
+PCMParentClasses.OU__NoX0__NoSigmae_x__SymmetricPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__NoSigmae_x__SymmetricPosdiagH <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec[!sapply(spec, is.null)]
+}
+
+
+#' @export
+PCMDescribe.OU__NoX0__NoSigmae_x__DiagPosdiagH <- function(model, ...) "OU without X0 and Sigmae_x and with positive diagonal matrix H."
+#' @export
+PCMParentClasses.OU__NoX0__NoSigmae_x__DiagPosdiagH <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__NoSigmae_x__DiagPosdiagH <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL
@@ -362,11 +844,59 @@ PCMSpecifyParams.OU__noX0__noSigmae_x__posdiagH <- function(model, ...) {
 }
 
 #' @export
-PCMDescribe.OU__noX0__noSigmae_x__posdiagH__posdiagSigma_x <- function(model, ...) "OU without X0 and Sigmae_x and with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+PCMDescribe.OU__NoX0__NoSigmae_x__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without X0 and Sigmae_x and with positive diagonal elements of the (non-diagonal) matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
 #' @export
-PCMParentClasses.OU__noX0__noSigmae_x__posdiagH__posdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+PCMParentClasses.OU__NoX0__NoSigmae_x__PosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
 #' @export
-PCMSpecifyParams.OU__noX0__noSigmae_x__posdiagH__posdiagSigma_x <- function(model, ...) {
+PCMSpecifyParams.OU__NoX0__NoSigmae_x__PosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "full", "positive.diag"),
+                 description = "Selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__NoSigmae_x__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without X0 and Sigmae_x and with symmetric matrix H with positive diagonal elements and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__NoSigmae_x__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__NoSigmae_x__SymmetricPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
+  spec <- NextMethod()
+  spec$X0 <- NULL
+  spec$Sigmae_x <- NULL
+
+  k <- attr(model, "k")
+  regimes <- attr(model, "regimes")
+  R <- length(regimes)
+
+  spec$H <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                 type = c("matrix", "symmetric", "positive.diag"),
+                 description = "Symmetric selection strength matrix with positive diagonal elements")
+  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
+                       type = c("matrix", "diag", "positive.diag"),
+                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+
+  spec[!sapply(spec, is.null)]
+}
+
+#' @export
+PCMDescribe.OU__NoX0__NoSigmae_x__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) "OU without X0 and Sigmae_x and with positive diagonal matrix H and and with diagonal Sigma_x (i.e. no phylogenetic correlation between the traits)."
+#' @export
+PCMParentClasses.OU__NoX0__NoSigmae_x__DiagPosdiagH__DiagPosdiagSigma_x <- function(model) c("OU", "GaussianPCM", "PCM")
+#' @export
+PCMSpecifyParams.OU__NoX0__NoSigmae_x__DiagPosdiagH__DiagPosdiagSigma_x <- function(model, ...) {
   spec <- NextMethod()
   spec$X0 <- NULL
   spec$Sigmae_x <- NULL

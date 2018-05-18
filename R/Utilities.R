@@ -38,8 +38,9 @@ PCMTreePlot <- function(tree) {
   palette <- gg_color_hue(R)
   names(palette) <- PCMTreeUniqueRegimes(tree)
 
-  data <- rbind(data.table(node = tree$edge[, 2], regime = as.character(tree$edge.regime)),
-                data.table(node = N+1, regime = NA))
+  data <- rbind(data.table(node = tree$edge[, 2],
+                           regime = as.factor(tree$edge.regime)),
+                data.table(node = N+1, regime = as.factor(tree$edge.regime[1])))
 
   plotTree <- ggtree(tree, layout = 'fan', open.angle = 8, size=.25) %<+% data
 
@@ -47,6 +48,57 @@ PCMTreePlot <- function(tree) {
     scale_color_manual(name = "regime", values = palette)
 }
 
+
+#' Scatter plot of 2-dimensional data
+#' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme
+#' @importFrom data.table data.table is.data.table setkey :=
+#' @export
+PCMPlotTraitData2D <- function(X, tree, legend = FALSE, labeledTips = NULL) {
+
+  gg_color_hue <- function(n) {
+    hues = seq(15, 375, length = n + 1)
+    hcl(h = hues, l = 65, c = 100)[1:n]
+  }
+
+  N <- PCMTreeNumTips(tree)
+  R <- PCMTreeNumUniqueRegimes(tree)
+  palette <- gg_color_hue(R)
+  names(palette) <- PCMTreeUniqueRegimes(tree)
+
+  times <- PCMTreeNodeTimes(tree, tipsOnly = TRUE)
+  Xt <- t(X)
+  data <- as.data.table(Xt)
+  setnames(data, c("x", "y"))
+  data[, id:=1:(.N)]
+  data[, time:=times]
+
+  data[, regime:=as.factor(sapply(id, function(i) PCMTreeGetRegimeForNode(tree, i)))]
+  setkey(data, id)
+
+  if(!is.null(labeledTips)) {
+    data[list(labeledTips), label:=id]
+  }
+
+  pl <- ggplot(data) +
+    geom_point(aes(x=x, y=y, col=regime, size = time, alpha = time), na.rm = TRUE) +
+    scale_size_continuous(range = c(0.2, 2.8)) +
+    scale_alpha_continuous(range = c(0.2, 0.75)) +
+    scale_color_manual(name = "regime", values = palette)
+
+  if(!is.null(labeledTips)) {
+    pl <- pl +
+      geom_text(aes(label = label, x = x, y = y, col = regime))
+  }
+
+  pl <- pl + theme_gray()
+
+  if(!legend) {
+    pl <- pl + theme(legend.position = "none")
+  } else {
+    pl <- pl + theme(legend.position = "left")
+  }
+  pl
+}
 
 
 #' Extract error information from a formatted error message.
