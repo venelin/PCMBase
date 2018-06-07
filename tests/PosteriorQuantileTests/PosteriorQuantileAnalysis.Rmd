@@ -1,0 +1,33 @@
+---
+title: "AnalysisPosteriorQuantileSimulations"
+author: "Venelin Mitov"
+date: "8 February 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+source("PosteriorQuantileCommon.R")
+
+library(data.table)
+library(ggplot2)
+library(cowplot)
+library(POUMM)
+```
+
+
+```{r, eval=FALSE, include=TRUE}
+
+load("JOU/BayesValidateJOU.RData")
+obj <- validate(generate.param = res.validate$res.validate$generate.param,
+                generate.data = res.validate$res.validate$generate.data,
+                generate.data.inputs = res.validate$res.validate$generate.data.inputs,
+                analyze.data = res.validate$res.validate$analyze.data,
+                analyze.data.inputs = res.validate$res.validate$analyze.data.inputs,
+                n.rep = 0,
+                n.batch = res.validate$res.validate$n.batch,
+                params.batch = res.validate$res.validate$params.batch,
+                add.to = res.validate$res.validate,
+                return.all = TRUE, 
+                plot.title = )
+```

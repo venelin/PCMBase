@@ -43,6 +43,10 @@ PCMSim.GaussianPCM <- function(
   metaI = PCMInfo(X = NULL, tree = tree, model = model, verbose = verbose),
   verbose = FALSE) {
 
+  if(is.Transformable(model)) {
+    model <- PCMApplyTransformation(model)
+  }
+
   if(length(X0)!=metaI$k) {
     stop(paste('ERR:02102:PCMBase:GaussianPCM.R:PCMSim:: X0 must be of length', metaI$k, '.'))
   }
@@ -77,6 +81,10 @@ PCMLik.GaussianPCM <- function(
   metaI = PCMInfo(X, tree, model, verbose = verbose),
   log = TRUE,
   verbose = FALSE) {
+
+  if(is.Transformable(model)) {
+    model <- PCMApplyTransformation(model)
+  }
 
   # will change this value if there is no error
   value.NA <- getOption("PCMBase.Value.NA", as.double(NA))

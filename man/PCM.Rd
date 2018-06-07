@@ -5,7 +5,7 @@
 \title{Create a phylogenetic comparative model object}
 \usage{
 PCM(model, modelTypes = class(model)[1], k = 1, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0, specParams = NULL, ...)
+  params = NULL, vecParams = NULL, offset = 0, spec = NULL, ...)
 }
 \arguments{
 \item{model}{This argument can take one of the following forms:
@@ -34,7 +34,7 @@ representation of the variable parameters in the model. See details.}
 
 \item{offset}{integer offset in vecParams; see Details.}
 
-\item{specParams}{NULL or a list specifying the model parameters (see \code{\link{PCMSpecifyParams}}). If NULL (default), the generic PCMSpecifyParams
+\item{spec}{NULL or a list specifying the model parameters (see \code{\link{PCMSpecify}}). If NULL (default), the generic PCMSpecify
 is called on the created object of class \code{model}.}
 
 \item{...}{additional parameters intended for use by sub-classes of the PCM

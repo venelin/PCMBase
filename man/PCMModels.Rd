@@ -4,7 +4,7 @@
 \alias{PCMModels}
 \title{Get a list of PCM models currently implemented}
 \usage{
-PCMModels(pattern = NULL, parentClass = NULL)
+PCMModels(pattern = NULL, parentClass = NULL, ...)
 }
 \arguments{
 \item{pattern}{a character string specifying an optional for the model-names to search for.}
@@ -19,5 +19,5 @@ Get a list of PCM models currently implemented
 }
 \details{
 The function is using the S3 api function \code{\link{methods}} looking for all registered
-implementations of the function \code{\link{PCMDescribe}}
+implementations of the function \code{\link{PCMSpecify}}
 }

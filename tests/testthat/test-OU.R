@@ -105,14 +105,14 @@ model.ab.123 <- PCM("OU", k = 3, regimes = c("a", "b"), params = list(X0 = a.X0,
                                                         Sigma_x=Sigma_x[,,,drop=FALSE],
                                                         Sigmae_x=Sigmae_x[,,,drop=FALSE]))
 
-cat("PCMNumParams(model.ab.123)=", PCMNumParams(model.ab.123), "\n")
-cat("length(PCMGetVecParamsFull(model.ab.123)=", length(PCMGetVecParamsFull(model.ab.123)), "\n")
+cat("PCMNumParams(model.ab.123)=", PCMParamCount(model.ab.123), "\n")
+cat("length(PCMGetVecParamsFull(model.ab.123)=", length(PCMParamGetFullVector(model.ab.123)), "\n")
 
 test_that("Check correctness of PCMGetVecParamsFull",
-          expect_equal(length(PCMGetVecParamsFull(model.ab.123)), 2*(3 + 3*3 + 3 + 3*3 + 3*3)))
+          expect_equal(length(PCMParamGetFullVector(model.ab.123)), 2*(3 + 3*3 + 3 + 3*3 + 3*3)))
 
 test_that("Check correctness of PCMNumParams",
-          expect_equal(PCMNumParams(model.ab.123), 3 + 2*(3*3 + 3 + 6 + 6)))
+          expect_equal(PCMParamCount(model.ab.123), 3 + 2*(3*3 + 3 + 6 + 6)))
 
 
 context(ctx <- "OU: R=1/k=1/N=2")

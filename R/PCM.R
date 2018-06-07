@@ -29,12 +29,12 @@ NULL
 #' @param parentClass a character string specifying an optional parent class of the models to look for.
 #' @return a character vector of the model classes found.
 #' @details The function is using the S3 api function \code{\link{methods}} looking for all registered
-#' implementations of the function \code{\link{PCMDescribe}}
+#' implementations of the function \code{\link{PCMSpecify}}
 #' @export
-PCMModels <- function(pattern = NULL, parentClass = NULL) {
-  models <- sub("PCMDescribe.", "", as.character(methods("PCMDescribe")), fixed = TRUE)
+PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
+  models <- sub("PCMSpecify.", "", as.character(methods("PCMSpecify")), fixed = TRUE)
   if(!is.null(pattern)) {
-    models <- models[grep(pattern, models)]
+    models <- models[grep(pattern, models, ...)]
   }
   if(!is.null(parentClass)) {
     models <- models[sapply(models, function(m) {
@@ -76,13 +76,12 @@ PCMModels <- function(pattern = NULL, parentClass = NULL) {
 #' may cause some models to stop working, e.g. the White model. Setting this option to FALSE
 #' will also cause errors or NA likelihood values in the case of trees with very short or
 #' 0-length branches.}
-#' \item{\code{PCMBase.Internal.PC.Full }}{A logical value indicating whether NA trait values
-#' are treated as missing measurements which are integrated out during likelihood calculation.
-#' Default TRUE. Setting this option to FALSE will cause NA values to be treated as
-#' non-existing traits and these will be ignored instead of integrated out.}
 #' \item{\code{PCMBase.Tolerance.Symmetric }}{A double specifying the tolerance in tests
 #' for symmetric matrices. Default 1e-8; see also \code{\link{isSymmetric}}.}
 #' \item{\code{PCMBase.Lmr.mode }}{An integer code specifying the parallel likelihood calculation mode.}
+#' \item{\code{PCMBase.ParamValue.LowerLimit}}{Default lower limit value for parameters, default setting is -10.0.}
+#' \item{\code{PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal}}{Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.}
+#' \item{\code{PCMBase.ParamValue.UpperLimit}}{Default upper limit value for parameters, default setting is 10.0.}
 #' }
 #' @export
 PCMOptions <- function() {
@@ -92,9 +91,11 @@ PCMOptions <- function() {
        PCMBase.Threshold.SV = getOption("PCMBase.Threshold.SV", 1e-6),
        PCMBase.Threshold.Skip.Singular = getOption("PCMBase.Threshold.Skip.Singular", 1e-4),
        PCMBase.Skip.Singular = getOption("PCMBase.Skip.Singular", TRUE),
-       PCMBase.Internal.PC.Full = getOption("PCMBase.Internal.PC.Full", TRUE),
        PCMBase.Tolerance.Symmetric = getOption("PCMBase.Tolerance.Symmetric", 1e-8),
-       PCMBase.Lmr.mode = getOption("PCMBase.Lmr.mode", as.integer(11))
+       PCMBase.Lmr.mode = getOption("PCMBase.Lmr.mode", as.integer(11)),
+       PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal = getOption("PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal", 0.0),
+       PCMBase.ParamValue.LowerLimit = getOption("PCMBase.ParamValue.LowerLimit", -10.0),
+       PCMBase.ParamValue.UpperLimit = getOption("PCMBase.ParamValue.UpperLimit", 10.0)
        )
 }
 
@@ -125,7 +126,7 @@ PCMOptions <- function() {
 #' @param vecParams NULL (default) or a numeric vector the vector
 #' representation of the variable parameters in the model. See details.
 #' @param offset integer offset in vecParams; see Details.
-#' @param specParams NULL or a list specifying the model parameters (see \code{\link{PCMSpecifyParams}}). If NULL (default), the generic PCMSpecifyParams
+#' @param spec NULL or a list specifying the model parameters (see \code{\link{PCMSpecify}}). If NULL (default), the generic PCMSpecify
 #' is called on the created object of class \code{model}.
 #' @param ... additional parameters intended for use by sub-classes of the PCM
 #' class.
@@ -146,7 +147,7 @@ PCMOptions <- function() {
 PCM <- function(
   model, modelTypes = class(model)[1], k = 1, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0,
-  specParams = NULL, ...) {
+  spec = NULL, ...) {
   UseMethod("PCM", model)
 }
 
@@ -154,58 +155,61 @@ PCM <- function(
 PCM.default <- function(
   model, modelTypes = class(model)[1], k = 1, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0,
-  specParams = NULL, ...) {
+  spec = NULL, ...) {
   stop(paste0("ERR:02091:PCMBase:PCM.R:PCM.default:: You should provide a PCM object, but provided a ", class(model)[1]))
 }
 
 #' @export
 PCM.PCM <- function(
   model, modelTypes = class(model)[1], k = 1, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0,
-  specParams = NULL, ...) {
+  params = NULL, vecParams = NULL, offset = 0, spec = NULL, ...) {
 
-  if(is.null(attr(model, "specParams", exact = TRUE))) {
-    if(is.null(specParams)) {
-      specParams <- PCMSpecifyParams(model, ...)
-    }
-    attr(model, "specParams") <- specParams
+  if(is.null(spec)) {
+    spec <- PCMSpecify(model, ...)
   }
 
-  if(is.null(attr(model, "p", exact = TRUE))) {
-    attr(model, "p") <- PCMNumParams(model)
+  obj <- PCMDefaultObject(spec, model, ...)
+
+  if(is.null(attr(obj, "k", exact = TRUE))) {
+    attr(obj, "k") <- k
   }
 
-  if(is.null(attr(model, "modelTypes", exact = TRUE))) {
-    attr(model, "modelTypes") <- modelTypes
+  if(is.null(attr(obj, "regimes", exact = TRUE))) {
+    attr(obj, "regimes") <- regimes
   }
 
-  if(is.null(attr(model, "mapping", exact = TRUE))) {
-    attr(model, "mapping") <- match(class(model)[1],
-                                    attr(model, "modelTypes", exact = TRUE))
+  if(is.null(attr(obj, "p", exact = TRUE))) {
+    attr(obj, "p") <- PCMParamCount(obj)
   }
 
-  specParams <- attr(model, "specParams")
+  if(is.null(attr(obj, "modelTypes", exact = TRUE))) {
+    attr(obj, "modelTypes") <- modelTypes
+  }
 
-  for(name in names(specParams)) {
-    model[[name]] <- specParams[[name]][["default"]]
+  if(is.null(attr(obj, "mapping", exact = TRUE))) {
+    attr(obj, "mapping") <- match(class(obj)[1],
+                                    attr(obj, "modelTypes", exact = TRUE))
+  }
+
+  if(is.null(attr(obj, "spec", exact = TRUE))) {
+    attr(obj, "spec") <- spec
   }
 
   if(!is.null(params)) {
-    PCMSetParams(model, params, ...)
+    PCMParamSetByName(obj, params, ...)
   }
 
   if(!is.null(vecParams)) {
-    PCMSetOrGetVecParams(model, vecParams, offset, ...)
+    PCMParamLoadOrStore(obj, vecParams, offset, load = TRUE)
   }
 
-  model
+  obj
 }
 
 #' @export
 PCM.character <- function(
   model, modelTypes = model[1], k = 1, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0,
-  specParams = NULL, ...) {
+  params = NULL, vecParams = NULL, offset = 0, spec = NULL, ...) {
 
   modelObj <- list()
   class(modelObj) <- model
@@ -215,7 +219,7 @@ PCM.character <- function(
   attr(modelObj, "k") <- k
   attr(modelObj, "regimes") <- regimes
 
-  PCM(modelObj, modelTypes, k, regimes, params, vecParams, offset, specParams, ...)
+  PCM(modelObj, modelTypes, k, regimes, params, vecParams, offset, spec, ...)
 }
 
 #' @export
@@ -229,25 +233,44 @@ format.PCM <- function(x, ...) {
   if( !is.PCM(x) ) {
     stop("ERR:02061:PCMBase:PCM.R:format.PCM:: x must inherit from S3 class PCM.")
   }
-  specParams <- attr(x, "specParams", exact = TRUE)
+  spec <- attr(x, "spec", exact = TRUE)
 
   res <- paste0(
     PCMDescribe(x, ...),
     "\nS3 class: ", toString(class(x)), "; ",
-    "k=", attr(x, "k", exact = TRUE), "; p=", PCMNumParams(x, ...), "; ",
+    "k=", attr(x, "k", exact = TRUE), "; p=", PCMParamCount(x, ...), "; ",
     "regimes: ", toString(attr(x, "regimes")), ". Parameters/sub-models:\n")
 
-  for(name in names(x)) {
-    if(!name %in% names(specParams)) {
-      stop(paste0("ERR:02062:PCMBase:PCM.R:format.PCM:: model member name '",
-                  name, "' not found among the names in model specParams attribute."))
+  for(name in names(spec)) {
+
+    if(is.PCM(spec[[name]])) {
+      objToPrint <- x[[name]]
+      type <- class(objToPrint)
+      description <- attr(objToPrint, "description", exact = TRUE)
+
+      strList <- as.list(capture.output(print(objToPrint)))
+      strList$sep = "\n"
+    } else if(!is.Omitted(spec[[name]])) {
+      objToPrint <- x[[name]]
+      type <- class(objToPrint)
+      description <- attr(objToPrint, "description", exact = TRUE)
+
+      # avoid writing class and description attributes twice
+      attr(objToPrint, "class") <- NULL
+      attr(objToPrint, "description") <- NULL
+      attr(objToPrint, "k") <- NULL
+      attr(objToPrint, "regimes") <- NULL
+      attr(objToPrint, "spec") <- NULL
+      strList <- as.list(capture.output(print(objToPrint)))
+      strList$sep = "\n"
+    } else {
+
+      # _Omitted
+      type <- class(spec[[name]])
+      description <- attr(spec[[name]], "description", exact = TRUE)
+
+      strList <- list(sep = "\n")
     }
-
-    type <- specParams[[name]]$type
-    description <- specParams[[name]]$description
-
-    strList <- as.list(capture.output(print(x[[name]])))
-    strList$sep = "\n"
     res <- paste0(res, name, " (", toString(type),
                   if(!is.null(description)) paste0("; ", description) else "", "):\n",
                   do.call(paste, strList))
@@ -289,14 +312,112 @@ PCMDescribe.PCM <- function(model, ...) {
 #' @param model a PCM model object
 #' @return a list
 #' @export
-PCMSpecifyParams <- function(model, ...) {
-  UseMethod("PCMSpecifyParams", model)
+PCMSpecify <- function(model, ...) {
+  UseMethod("PCMSpecify", model)
 }
 
 #' @export
-PCMSpecifyParams.PCM <- function(model, ...) {
-  list()
+PCMDescribeParameters <- function(model, ...) {
+  UseMethod("PCMDescribeParameters", model)
 }
+
+#' Specify the parameterizations for each parameter of a model
+#' @export
+PCMListParameterizations <- function(model, ...) {
+  UseMethod("PCMListParameterizations", model)
+}
+
+#' @importFrom data.table data.table as.data.table
+#' @export
+PCMTableParameterizations <- function(
+  model, listParameterizations = PCMListParameterizations(model, ...), ...) {
+
+  # produce the cartesian product of the parameterizations for each parameter
+  dtClasses <- do.call(expand.grid, listParameterizations)
+  dtClasses <- as.data.table(dtClasses)
+  dtClasses
+}
+
+
+#' @export
+PCMGenerateParameterizations <- function(
+  model,
+  listParameterizations = PCMListParameterizations(model),
+  tableParameterizations = PCMTableParameterizations(model, listParameterizations),
+  env = .GlobalEnv,
+  useModelClassNameForFirstRow = FALSE) {
+
+  if(!is.PCM(model)) {
+    # We assume that the passed model's class is a single character not including the
+    # corresponding hierarchy, which is specified by PCMParentClasses
+    class(model) <- c(class(model)[1], PCMParentClasses(model))
+  }
+
+  classesModel <- class(model)
+  paramNames <- names(tableParameterizations)
+  paramDescriptions <- PCMDescribeParameters(model)
+
+  for(i in 1:nrow(tableParameterizations)) {
+    nameFunPCMParentClasses <- paste0("PCMParentClasses.", classesModel[1])
+    nameFunPCMSpecify <- paste0("PCMSpecify.", classesModel[1])
+    if(i != 1 || !useModelClassNameForFirstRow) {
+      # add suffix to names based on the parameterizations for the row
+      suffix <- ""
+      for(name in paramNames) {
+        qualifiersParam <- tableParameterizations[i][[name]][[1]]
+        qualifiersParam <- qualifiersParam[startsWith(qualifiersParam, "_")]
+        if(length(qualifiersParam) > 0) {
+          suffix <- paste0(suffix, "_")
+          suffix <- paste0(suffix, do.call(paste0, as.list(qualifiersParam)), "_", name)
+        } else {
+          suffix <- paste0(suffix, "__")
+          suffix <- paste0(suffix, name)
+        }
+      }
+      nameFunPCMParentClasses <- paste0(nameFunPCMParentClasses, suffix)
+      nameFunPCMSpecify <- paste0(nameFunPCMSpecify, suffix)
+      parentClasses <- classesModel
+    } else {
+      # this is the base class for a model, all parameterisations being its daughter classes
+      parentClasses <- classesModel[-1]
+    }
+
+    sourcePCMParentClasses <- paste0(
+      nameFunPCMParentClasses, " <- function(model) ",
+      PCMCharacterVectorToRExpression(parentClasses))
+
+    sourcePCMSpecify <- paste0(
+      nameFunPCMSpecify, " <- function(model, ...) {\n",
+      "spec <- list(\n")
+    for(j in 1:length(paramNames)){
+      sourcePCMSpecify <- paste0(
+        sourcePCMSpecify,
+        paramNames[j], " = structure(0.0, class = ",
+        PCMCharacterVectorToRExpression(tableParameterizations[i][[paramNames[j]]][[1]]),
+        ",\n",
+        "description = '", paramDescriptions[j], "')")
+      if(j < length(paramNames)) {
+        sourcePCMSpecify <- paste0(
+          sourcePCMSpecify, ",\n")
+      } else {
+        sourcePCMSpecify <- paste0(
+          sourcePCMSpecify, ")\n")
+      }
+    }
+    sourcePCMSpecify <- paste0(
+      sourcePCMSpecify,
+      "attributes(spec) <- attributes(model)\n",
+      "if(is.null(names(spec))) names(spec) <- ", PCMCharacterVectorToRExpression(paramNames), "\n",
+      "if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')\n",
+      "spec\n",
+      "}")
+
+    eval(parse(text = sourcePCMParentClasses), env)
+    eval(parse(text = sourcePCMSpecify), env)
+  }
+}
+
+
 
 #' Number of traits modeled by a PCM
 #' @param model a PCM object
@@ -368,482 +489,6 @@ PCMNumRegimes.PCM <- function(model) {
   length(PCMRegimes(model))
 }
 
-#' Number of free parameters describing a PCM
-#' @param model a PCM object
-#' @param countRegimeChanges logical indicating if regime changes should be counted.
-#' If TRUE, the default implementation would add \code{PCMNumRegimes(model) - 1}.
-#' Default FALSE.
-#' @param countModelTypes logical indicating whether the model type should be
-#'  counted. If TRUE the default implementation will add +1 only if there are more than
-#'  one modelTypes (\code{length(attr(model, "modelTypes", exact = TRUE)) > 1}),
-#'  assuming that all regimes are regimes of the same model type (e.g. OU). The
-#'  implementation for MRG models will add +1 for every regime if there are more than
-#'  one modelTypes. Default FALSE.
-#' @param ... other arguments (possible future use)
-#' @return an integer
-#' @export
-PCMNumParams <- function(model, countRegimeChanges = FALSE, countModelTypes = FALSE, ...) {
-  UseMethod("PCMNumParams", model)
-}
-
-#' @export
-PCMNumParams.PCM <- function(model, countRegimeChanges = FALSE, countModelTypes = FALSE,  ...) {
-  k <- attr(model, "k")
-  R <- length(attr(model, "regimes"))
-  specParams <- attr(model, "specParams")
-
-  vecParamSizes <- c(rep = 1, full = k, fixed = 0)
-  matParamSizes <- c(diag1 = 1, diag = k, upper.tri = .5*k*(k-1), upper.tri.diag = .5*k*(k+1),
-                     lower.tri = .5*k*(k-1), lower.tri.diag = .5*k*(k+1), symmetric = .5*k*(k+1),
-                     full=k*k, fixed = 0)
-  p <- 0
-  for(name in names(specParams)) {
-    type <- specParams[[name]]$type
-    indices <- specParams[[name]]$indices
-
-    if(type[1] == "model") {
-      p <- p + PCMNumParams(specParams[[name]]$default, ...)
-    } else if(type[1] == "gvector") {
-      if(type[2] == "custom") {
-        ind <- indices(p, k)
-        p <- p + length(unique(ind[ind>p]))
-      } else {
-        p <- p + vecParamSizes[type[2]]
-      }
-    } else if(type[1] == "gmatrix") {
-      if(type[2] == "custom") {
-        ind <- indices(p, k)
-        p <- p + length(unique(ind[ind>p]))
-      } else {
-        p <- p + matParamSizes[type[2]]
-      }
-    } else if(type[1] == "vector") {
-      if(type[2] == "custom") {
-        for(r in 1:R) {
-          ind <- indices(p, k)
-          p <- p + length(unique(ind[ind>p]))
-        }
-      } else {
-        p <- p + R*vecParamSizes[type[2]]
-      }
-    } else if(type[1] == "matrix") {
-      if(type[2] == "custom") {
-        for(r in 1:R) {
-          ind <- indices(p, k)
-          p <- p + length(unique(ind[ind>p]))
-        }
-      } else {
-        p <- p + R*matParamSizes[type[2]]
-      }
-    }
-  }
-  if(countRegimeChanges) {
-    # we don't count the root as a parameters, tha'ts why we substract one.
-    p <- p + PCMNumRegimes.PCM(model) - 1
-  }
-  if(countModelTypes) {
-    # assume that all regimes have the same model-type. If there is only one
-    # model type than this is not counted as a parameter.
-    if(length(attr(model, "modelTypes", exact=TRUE)) > 1)
-      p <- p + 1
-  }
-  unname(p)
-}
-
-
-#' Load/store a vector parameter from/to a vector of all parameters in a model.
-#'
-#' @details This function has both, a returned value and side effects. By default the function
-#' loads elements from vecParams into v. This behavior is reversed if the argument load
-#' is set to FALSE.
-#'
-#' @param v numeric k-vector. If load==TRUE (default) this has to be a vector-object in
-#' the calling environment (not a temporary object such as the result from an algebraic expression).
-#' @param vecParams numeric vector containing all parameters in the model. If load==FALSE, this
-#' has to be a vector in the calling environment (not a temporary object such as the result from
-#' an algebraic expression).
-#' @param offset integer denoting the offset in vecParams (0 means start from vecParams[1] onwards).
-#' @param k integer denoting the dimensionality (length) of the resulting vector.
-#' @param type a character string indicating the type of loading. possible values are:
-#' \describe{
-#' \item{"rep"}{repeat \code{vecParams[offset+1]} k times}
-#' \item{"full"}{copy \code{vecParams[offset + (1:k)]}}
-#' \item{"custom"}{use a custom template vector which elements specified by mask are
-#' to be replaced with \code{vecParams[indices(offset, k)]}}
-#' }.
-#' @param mask a logical vecgtor pointing to elements in template to be replaced. used only with type=="custom".
-#' @param indices a function of the form function(offset, k) returning an integer vector of
-#' length equal to the number of TRUE elements in mask, indicating the position in vecParams to
-#' be copyed from. used only with type=="custom".
-#' @param load a logical indicating if loading from or storing to vecParams should be done.
-#' @return an integer denoting the number of elemnents read or written from/to vecParams.
-#' In the case of type=="custom",
-#' the number of indices bigger than offset returned by the function indices(offset, k).
-#' @export
-PCMLoadVectorParameter <- function(
-  v, vecParams, offset, k,
-  type = c("rep", "full", "custom"),
-  mask = rep(TRUE, k), indices = function(offset, k) offset + (1:k),
-  load = TRUE) {
-
-  if(load) {
-    "%op%" <- `<-`
-    maskRep <- 1:k
-  } else {
-    "%op%"<- function(a,b) eval(substitute(b<-a), parent.frame())
-    maskRep <- 1
-  }
-
-  if(type[1] == "rep") {
-    num <- 1
-    eval(substitute(v[maskRep] %op% vecParams[offset + 1]), parent.frame())
-  } else if(type[1] == "full") {
-    num <- k
-    eval(substitute(v[] %op% vecParams[offset + (1:k)]), parent.frame())
-  } else if(type[1] == "custom") {
-    if(is.function(indices)) {
-      ind <- indices(offset, k)
-      num <- length(unique(ind[ind>offset]))
-      maskCustom <- mask
-      eval(substitute(v[maskCustom] %op% vecParams[ind]), parent.frame())
-    } else {
-      stop("ERR:020a1:PCMBase:PCM.R:PCMLoadVectorParameter:: indices should be a
-           function(offset, k) returning an integer vector.")
-    }
-  } else if(type[1] == "fixed") {
-    num <- 0
-  } else {
-    stop(paste0("ERR:020a2:PCMBase:PCM.R:PCMLoadVectorParameter:: type ", type[1], " not recognized."))
-  }
-  num
-}
-
-#' Load/store a matrix parameter from/to a vector of all parameters in a model.
-#'
-#' @details This function has both, a returned value and side effects. By default the function
-#' loads elements from vecParams into m. This behavior is reversed if the argument load
-#' is set to FALSE.
-#'
-#' @param m numeric k x k matrix. If load==TRUE (default) this has to be a matrix-object in
-#' the calling environment (not a temporary object such as the result from an algebraic expression).
-#' @param vecParams numeric vector containing all parameters in the model. If load==FALSE, this
-#' has to be a vector in the calling environment (not a temporary object such as the result from
-#' an algebraic expression).
-#' @param k integer denoting the dimensionality (number of rows and colums) of the resulting matrix.
-#' @param offset integer denoting the offset in vecParams (0 means start from vecParams[1] onwards).
-#' @param type a character string indicating the type of loading. possible values are:
-#' \describe{
-#' \item{"diag1"}{create a diagonal matrix with all diagonal elements repeating \code{vecParams[offset+1]}.}
-#' \item{"diag"}{create a diagonal matrix with a diagonal copied from \code{vecParams[offset + (1:k)]}.}
-#' \item{"upper.tri"}{load an upper triangular matrix with zero diagonal.}
-#' \item{"upper.tri.diag"}{load an upper triangular matrix including diagonal.}
-#' \item{"lower.tri"}{load a lower triangular matrix with zero diagonal.}
-#' \item{"lower.tri.diag"}{load a lower triangular matrix including diagonal.}
-#' \item{"symmetric"}{load a symmetric matrix. Only the elements of the upper triangle and diagonal are
-#' loaded from vecParams.}
-#' \item{"full"}{load a full.}
-#' \item{"custom"}{use a custom template matrix which's elements specified by mask are
-#' to be replaced with \code{vecParams[offset + indices]}}.
-#' }
-#' @param mask a logical k x k matrix pointing to elements in template to be replaced. used only with type=="custom".
-#' @param indices a function of the form function(offset, k) returning an integer vector of
-#' length equal to the number of TRUE elements in mask, indicating the position in vecParams to
-#' be copyed from. used only with type=="custom".
-#' @param load a logical indicating if loading from or storing to vecParams should be done.
-#'
-#' @return an integer denoting the number of elemnents read or written from/to vecParams.
-#' In the case of type=="custom",
-#' the number of indices bigger than offset returned by the function indices(offset, k).
-#' @export
-PCMLoadMatrixParameter <- function(
-  m, vecParams, offset, k,
-  type = c("diag1", "diag", "upper.tri", "upper.tri.diag", "lower.tri", "lower.tri.diag", "symmetric", "full", "custom", "fixed"),
-  mask = matrix(TRUE, k, k),
-  indices = function(offset, k) offset + (1:(k*k)),
-  load = TRUE) {
-
-  if(load) {
-    "%op%" <- `<-`
-    maskDiag1 <- 1:k
-  } else {
-    "%op%" <- function(a,b) eval(substitute(b<-a), parent.frame())
-    maskDiag1 <- 1
-  }
-
-
-  if(length(dim(m)) == 0) {
-    if(k == 1) {
-      # m is a scalar
-      if(type[1] == "diag1") {
-        num <- 1
-        eval(substitute(m[maskDiag1] %op% vecParams[offset + (1:num)]), parent.frame())
-      } else if(type[1] == "diag") {
-        num <- k
-        eval(substitute(m[] %op% vecParams[offset + (1:num)]), parent.frame())
-      } else if(type[1] == "upper.tri") {
-        num <- k*(k-1)/2
-        # nothing else to do
-      } else if(type[1] == "upper.tri.diag") {
-        num <- k*(k+1)/2
-        eval(substitute(m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
-      } else if(type[1] == "lower.tri") {
-        num <- k*(k-1)/2
-        # nothing else to do
-      } else if(type[1] == "lower.tri.diag") {
-        num <- k*(k+1)/2
-        eval(substitute(m[lower.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
-      } else if(type[1] == "symmetric") {
-        num <- k*(k+1)/2
-        eval(substitute({
-          m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]
-        }), parent.frame())
-        if(load) {
-          eval(substitute({
-            m[lower.tri(m)] <- 0
-            m <- m+t(m)
-            diag(m) <- 0.5 * diag(m)
-          }), parent.frame())
-        }
-      } else if(type[1] == "full") {
-        num <- k*k
-        eval(substitute(m[] %op% vecParams[offset+(1:num)]), parent.frame())
-      } else if(type[1] == "custom") {
-        if(is.function(indices)) {
-          ind <- indices(offset, k)
-          num <- length(unique(ind[ind>offset]))
-          maskCustom <- mask
-          eval(substitute(m[maskCustom] %op% vecParams[ind]), parent.frame())
-        } else {
-          stop("ERR:020b5:PCMBase:PCM.R:PCMLoadMatrixParameter:: indices should be a
-               function(offset, k) returning an integer vector.")
-        }
-      } else if(type[1] == "fixed") {
-          num <- 0
-      } else {
-        stop(paste0("ERR:020b6:PCMBase:PCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
-      }
-    } else {
-      stop("ERR:020b1:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, because k is different from 1", k, " but has dim(m) = (", toString(dim(m)), ").")
-    }
-  } else if(length(dim(m)) == 2) {
-    # m is a matrix
-    if(type[1] == "diag1") {
-      num <- 1
-      eval(substitute(diag(m)[maskDiag1] %op% vecParams[offset + (1:num)]), parent.frame())
-    } else if(type[1] == "diag") {
-      num <- k
-      eval(substitute(diag(m) %op% vecParams[offset + (1:num)]), parent.frame())
-    } else if(type[1] == "upper.tri") {
-      num <- k*(k-1)/2
-      eval(substitute(m[upper.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
-    } else if(type[1] == "upper.tri.diag") {
-      num <- k*(k+1)/2
-      eval(substitute(m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
-    } else if(type[1] == "lower.tri") {
-      num <- k*(k-1)/2
-      eval(substitute(m[lower.tri(m)] %op% vecParams[offset + (1:num)]), parent.frame())
-    } else if(type[1] == "lower.tri.diag") {
-      num <- k*(k+1)/2
-      eval(substitute(m[lower.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]), parent.frame())
-    } else if(type[1] == "symmetric") {
-      num <- k*(k+1)/2
-      eval(substitute({
-        m[upper.tri(m, diag=TRUE)] %op% vecParams[offset + (1:num)]
-      }), parent.frame())
-      if(load) {
-        eval(substitute({
-          m[lower.tri(m)] <- 0
-          m <- m+t(m)
-          diag(m) <- 0.5 * diag(m)
-        }), parent.frame())
-      }
-    } else if(type[1] == "full") {
-      num <- k*k
-      eval(substitute(m[,] %op% vecParams[offset+(1:num)]), parent.frame())
-    } else if(type[1] == "custom") {
-      if(is.function(indices)) {
-        ind <- indices(offset, k)
-        num <- length(unique(ind[ind>offset]))
-        maskCustom <- mask
-        eval(substitute(m[maskCustom] %op% vecParams[ind]), parent.frame())
-      } else {
-        stop("ERR:020b5:PCMBase:PCM.R:PCMLoadMatrixParameter:: indices should be a
-             function(offset, k) returning an integer vector.")
-      }
-    } else if(type[1] == "fixed") {
-        num <- 0
-    } else {
-      stop(paste0("ERR:020b6:PCMBase:PCM.R:PCMLoadMatrixParameter:: type ", type[1], " not recognized."))
-    }
-  } else {
-    stop(paste0("ERR:020b2:PCMBase:PCM.R:PCMLoadMatrixParameter:: m should be a matrix, but has length(dim(m)) != 2, dim(m):(", toString(dim(m)), ")."))
-  }
-  num
-}
-
-
-#' Get a vector with all model parameters unrolled
-#' @param model a PCM model object
-#' @return a numerical vector
-#' @export
-PCMGetVecParamsFull <- function(model, ...) {
-  UseMethod("PCMGetVecParamsFull", model)
-}
-
-#' @export
-PCMGetVecParamsFull.PCM <- function(model, ...) {
-  specParams <- attr(model, "specParams", exact = TRUE)
-  R <- PCMNumRegimes(model)
-  res <- do.call(c, lapply(names(model), function(name) {
-    if(specParams[[name]]$type[1]=="model") {
-      PCMGetVecParamsFull(model[[name]], ...)
-    } else if(specParams[[name]]$type[1] %in% c("gscalar", "gvector", "gmatrix") ) {
-      rep(as.vector(model[[name]]), R)
-    } else {
-      as.vector(model[[name]])
-    }
-  }))
-  unname(res)
-}
-
-
-#' Set model parameters from a named list
-#' @param tree a phylo object (possible future use)
-#' @param model a PCM model object
-#' @param params a named list with elements among the names found in attr(model, "specParams")
-#' @param inplace logical indicating if the parameters should be set "inplace" for the
-#' model object in the calling environment or a new model object with the parameters set
-#' as specified should be returned. Defaults to TRUE
-#' @return If inplace is TRUE, the function only has a side effect of setting the
-#' parameters of the model object in the calling environment; otherwise the function
-#' returns a modified copy of the model object.
-#' @export
-PCMSetParams <- function(model, params, inplace = TRUE, ...) {
-  UseMethod("PCMSetParams", model)
-}
-
-#' @export
-PCMSetParams.PCM <- function(model, params, inplace = TRUE, ...) {
-  specParams <- attr(model, "specParams")
-  for(name in names(params)) {
-    if(! (name%in%names(specParams)) ) {
-      stop(paste0("ERR:020c1:PCMBase:PCM.R:PCMSetParams:: ", name,
-                  " is not a settable parameter of the model, check attr(model, 'specParams')."))
-    }
-    type <- specParams[[name]]$type
-
-    if(type[1] != "model") {
-      if(! identical(length(model[[name]]), length(params[[name]])) ) {
-        stop(paste0("ERR:020c2:PCMBase:PCM.R:PCMSetParams:: params[[", name,
-                    "]] is not the same length as model[[", name, "]]; ",
-                    "length(params[[", name, "]])=", length(params[[name]]),
-                    ", length(model[[", name, "]])=", length(model[[name]]), "."))
-      }
-      if(! identical(dim(model[[name]]), dim(params[[name]])) ) {
-        stop(paste0("ERR:020c3:PCMBase:PCM.R:PCMSetParams:: params[[", name,
-                    "]] is not the same dimension as model[[", name, "]]; ",
-                    "dim(params[[", name, "]])=", str(dim(params[[name]])),
-                    ", length(model[[", name, "]])=", str(dim(model[[name]])), "."))
-      }
-    }
-  }
-  for(name in names(params)) {
-    if(inplace) {
-      eval(substitute(model[[name]] <- params[[name]]), parent.frame())
-    } else {
-      model[[name]] <- params[[name]]
-    }
-  }
-
-  if(!inplace) {
-    model
-  }
-}
-
-#' Get a vector of the varying (non-fixed) parameters in a PCM model
-#' @param model a PCM model object
-#' @return a numeric vector of length PCMNumParams(model).
-#' @seealso \code{\link{PCMSetOrGetVecParams}} \code{\link{PCMGetVecParamsFull}}
-#' @export
-PCMGetVecParams <- function(model, ...) {
-  UseMethod("PCMGetVecParams", model)
-}
-
-#' @export
-PCMGetVecParams.PCM <- function(model, ...) {
-  vec <- double(PCMNumParams(model))
-  PCMSetOrGetVecParams(model, vec, set = FALSE, ...)
-  vec
-}
-
-#' Inplace set or get the parameters of a PCM from or into a numeric vector
-#'
-#' @param model a PCM model object
-#' @param vecParams a numeric vector of length PCMNumParams(model) or longer
-#' @param offset an integer indicating offset of the starting position for
-#' writing/reading in vecParams. Default 0.
-#' @param set a logical indicating whether to set the model parameters from
-#' vecParams or to get them into vecParams. Default is TRUE which results in
-#' setting the model parameters from vecParams. See details.
-#' @details This is an S3 generic. Note that depending on the value of \code{set},
-#' this function changes either the model object or the vecParams vector from the
-#' calling environment.
-#' @return an integer indicating the number of elements read/written from/to
-#' vecParams.
-#' @seealso \code{\link{PCMGetVecParams}} \code{\link{PCMGetVecParamsFull}}
-#' @export
-PCMSetOrGetVecParams <- function(
-  model, vecParams, offset = 0, set = TRUE, ...) {
-  UseMethod("PCMSetOrGetVecParams", model)
-}
-
-#' @export
-PCMSetOrGetVecParams.PCM <- function(
-  model, vecParams, offset = 0, set = TRUE, ... ) {
-
-  #force(vecParams)
-  p <- 0
-
-  specParams <- attr(model, "specParams")
-  k <- attr(model, "k")
-
-  for(name in names(specParams)) {
-    type <- specParams[[name]]$type
-    mask <- specParams[[name]]$mask
-    indices <- specParams[[name]]$indices
-
-
-    if(type[1] == "vector") {
-      for(r in 1:length(attr(model, "regimes"))) {
-        p <- p + eval(substitute(PCMLoadVectorParameter(
-          model[[name]][, r], vecParams, offset + p, k, type = type[2], mask = mask, indices = indices, load = set)),
-          parent.frame())
-      }
-    } else if(type[1] == "matrix") {
-      for(r in 1:length(attr(model, "regimes"))) {
-        p <- p + eval(substitute(PCMLoadMatrixParameter(
-          model[[name]][,, r], vecParams, offset + p, k, type = type[2], mask = mask, indices = indices, load = set)),
-          parent.frame())
-      }
-    } else if(type[1] == "gvector") {
-      # global vector for all regimes
-      p <- p + eval(substitute(PCMLoadVectorParameter(
-        model[[name]], vecParams, offset + p, k, type=type[2], mask = mask, indices = indices, load = set)),
-        parent.frame())
-    } else if(type[1] == "gmatrix") {
-      # global vector for all regimes
-      p <- p + eval(substitute(PCMLoadMatrixParameter(
-        model[[name]], vecParams, offset + p, k, type=type[2], mask = mask, indices = indices, load = set)),
-        parent.frame())
-    } else if(type[1] == "model") {
-      # nested PCM corresponding to a regime
-      p <- p + eval(substitute(PCMSetOrGetVecParams(
-        model[[name]], vecParams, offset + p, set, ...)), parent.frame())
-    }
-  }
-  p
-}
-
 #' Get a vector of all parameters (real and discrete) describing a model on a
 #' tree including the numerical parameters of each model regime, the integer ids
 #' of the spliting nodes defining the regimes on the tree and the integer ids of
@@ -865,194 +510,48 @@ PCMGetVecParamsRegimesAndModels <- function(model, tree, ...) {
 
 #' @export
 PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
-  numericParams <- PCMGetVecParams(model)
+  numericParams <- PCMParamGetShortVector(model)
   startingNodesRegimes <- PCMTreeGetStartingNodesRegimes(tree)
   models <- PCMMapModelTypesToRegimes(model, tree, ...)
   c(numericParams, startingNodesRegimes, models)
 }
 
-#' Numerical lower bound
-#' @param model a PCM object
-#' @return a PCM object of the same S3 classes as model. Calling
-#' \code{\link{PCMSetOrGetVecParams}} on this object returns a lower
-#' bound for that can be used, e.g. in a call to \code{\link{optim}}
-#' @examples
-#' model <- PCM("BM__NoX0__NoSigmae_x", k = 3)
-#' PCMLowerBound(model)
+
+#' Map a parametrization to its original form.
+#' @description This is an S3 generic that
 #' @export
-PCMLowerBound <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
-  UseMethod("PCMLowerBound", model)
+PCMApplyTransformation <- function(o, ...) {
+  if(is.Transformable(o)) {
+    # this if-statement prevents a transformation when it is not needed, e.g.
+    # in the case of a parameter, which is a CholeskiFactor but should not be
+    # converted into a positive definite matrix, either, because this is not needed,
+    # i.e. the parameter is defined as an upper triangular matrix with a non-negative
+    # diagonal, or because the conversion is done at a lower level.
+    UseMethod("PCMApplyTransformation", o)
+  } else {
+    o
+  }
 }
 
 #' @export
-PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
-  k <- attr(model, "k", exact = TRUE)
-  if(lowerBoundValuePositiveDiag < 0 ) {
-    stop("ERR:04000:PCMFit:PCMFit.R:PCMLowerBound.PCM:: lowerBoundValuePositiveDiag should be non-negative.")
-  }
-  # a vector with the actual parameters excluding repeated and fixed values
-  par <- double(PCMNumParams(model))
-  # we set the default upper bound value, but entries corresponding to diagonal
-  # elements in Choleski factor upper triangular matrix parameters should be set
-  # to lowerBoundValuePositiveDiag
-  par[] <- lowerBoundValue
-
-  # all parameters unrolled in a vector including repeated parameter values as
-  # well as fixed parameter values
-  fullParamVector <- PCMGetVecParamsFull(model)
-  maxFullParam <- max(fullParamVector, na.rm = TRUE)
-  if(!is.finite(maxFullParam)) {
-    maxFullParam <- as.double(1)
-  }
-
-  # a tricky way to insert values in the model parameters that are certainly not
-  # among the fixed non-countable parameter values. We will use match of these
-  # values to assign the either value lowerBoundValuePositiveDiag to the right entries in the
-  # model parameter matrices.
-  parMask <- maxFullParam + (1:PCMNumParams(model))
-
-  # set the values that match unique positions in par.
-  PCMSetOrGetVecParams(model, parMask)
-  # Find Choleski factors of positive definite matrices. Such parameters need to
-  # have positive diagonal elements, i.e. lowerBoundValuePositiveDiag.
-  specParams <- attr(model, "specParams", exact = TRUE)
-  for(name in names(specParams)) {
-    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
-       length(specParams[[name]]$type) >= 3 &&
-       specParams[[name]]$type[3] == "positive.diag" ) {
-      if(specParams[[name]]$type[1] == "gmatrix") {
-        mi <- match(diag(model[[name]]), parMask)
-        par[unique(mi)] <- lowerBoundValuePositiveDiag
-      } else if(specParams[[name]]$type[1] == "matrix") {
-        # model[[name]] is a k x k x R array
-        R <- PCMNumRegimes(model)
-        for(r in 1:R) {
-          mi <- match(diag(as.matrix(model[[name]][,,r], k, k)), parMask)
-          par[unique(mi)] <- lowerBoundValuePositiveDiag
-        }
-      }
-    }
-  }
-  PCMSetOrGetVecParams(model, par)
-
-  if(is.list(namedLowerBoundValues)) {
-    PCMSetParams(model, namedLowerBoundValues)
-  }
-
-  model
-}
-
-#' Numerical upper bound
-#' @param model a PC
-#' M object
-#' @return a PCM object of the same S3 classes as model. Calling
-#' \code{\link{PCMSetOrGetVecParams}} on this object returns an upper
-#' bound for that can be used, e.g. in a call to \code{\link{optim}}
-#' #' model <- PCM("BM__NoX0__NoSigmae_x", k = 3)
-#' PCMLowerBound(model)
-#' @export
-PCMUpperBound <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, ...) {
-  UseMethod("PCMUpperBound", model)
+PCMApplyTransformation.default <- function(o, ...) {
+  # do nothing (act as an identity function)
+  o
 }
 
 #' @export
-PCMUpperBound.PCM <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, ...) {
-  if(upperBoundValuePositiveDiag <= 0 ) {
-    stop("ERR:04010:PCMFit:PCMFit.R:PCMUpperBound.PCM:: upperBoundValuePositiveDiag should be positive.")
+PCMApplyTransformation.PCM <- function(o, ...) {
+  if(is.Transformable(o)) {
+    PCMParamSetByName(o, lapply(o, PCMApplyTransformation, ...), replaceWholeParameters = TRUE)
+    classes <- class(o)
+    classes <- classes[classes != "_Transformable"]
+    classes <- c(classes, "_Transformed")
+
+    class(o) <- classes
+    o
+  } else {
+    o
   }
-  # a vector with the actual parameters excluding repeated and fixed values
-  par <- double(PCMNumParams(model))
-  # we set the default upper bound value, but entries corresponding to diagonal
-  # elements in Choleski factor upper triangular matrix parameters should be set
-  # to upperBoundValuePositiveDiag
-  par[] <- upperBoundValue
-
-  # all parameters unrolled in a vector including repeated parameter values as
-  # well as fixed parameter values
-  fullParamVector <- PCMGetVecParamsFull(model)
-  maxFullParam <- max(fullParamVector, na.rm = TRUE)
-  if(!is.finite(maxFullParam)) {
-    maxFullParam <- as.double(1)
-  }
-
-  # a tricky way to insert values in the model parameters that are certainly not
-  # among the fixed non-countable parameter values. We will use match of these
-  # values to assign the either value upperBoundValuePositiveDiag to the right entries in the
-  # model parameter matrices.
-  parMask <- maxFullParam + (1:PCMNumParams(model))
-
-  # set the values that match unique positions in par.
-  PCMSetOrGetVecParams(model, parMask)
-  # Find Choleski factors of positive definite matrices. Such parameters need to
-  # have positive diagonal elements, i.e. upperBoundValuePositiveDiag.
-  specParams <- attr(model, "specParams", exact = TRUE)
-  for(name in names(specParams)) {
-    if(specParams[[name]]$type[1] %in% c("matrix", "gmatrix") &&
-       length(specParams[[name]]$type) >= 3 &&
-       specParams[[name]]$type[3] == "positive.diag" ) {
-      if(specParams[[name]]$type[1] == "gmatrix") {
-        mi <- match(diag(model[[name]]), parMask)
-        par[unique(mi)] <- upperBoundValuePositiveDiag
-      } else if(specParams[[name]]$type[1] == "matrix") {
-        # model[[name]] is a k x k x R array
-        R <- PCMNumRegimes(model)
-        for(r in 1:R) {
-          mi <- match(diag(as.matrix(model[[name]][,,r], k, k)), parMask)
-          par[unique(mi)] <- upperBoundValuePositiveDiag
-        }
-      }
-    }
-  }
-  PCMSetOrGetVecParams(model, par)
-
-  if(is.list(namedUpperBoundValues)) {
-    PCMSetParams(model, namedUpperBoundValues)
-  }
-
-  model
-}
-
-#' Generate a random parameter vector for a model using uniform distribution between its lower and upper bounds.
-#' @param model a model PCM model object
-#' @param n an integer specifying the number of random vectors to generate
-#' @param argsPCMLowerBound,argsPCMUpperBound named lists of arguments passed to
-#' \code{\link{PCMLowerBound}} and \code{\link{PCMUpperBound}}.
-#' @param argsPCMGetVecParams a named list of argument passed to PCMGetVecPaarmas
-#' @param ... additional parameters.
-#' @return if n = 1, a numeric vector of length \code{PCMNumParams(model)}; if n > 1,
-#' a numeric matrix of dimension n x \code{PCMNumParams(model)}.
-#' @seealso PCMUpperBound PCMLowerBound PCMGetVecParams
-#' @export
-PCMRandomVecParams <- function(model,
-                               n = 1L,
-                               argsPCMLowerBound = NULL,
-                               argsPCMUpperBound = NULL,
-                               argsPCMGetVecParams = NULL,
-                               ...) {
-  UseMethod("PCMRandomVecParams", model)
-}
-
-#' @importFrom stats runif
-#' @export
-PCMRandomVecParams.PCM <- function(model,
-                                   n = 1L,
-                                   argsPCMLowerBound = NULL,
-                                   argsPCMUpperBound = NULL,
-                                   argsPCMGetVecParams = NULL,
-                                   ...) {
-
-  lowerModel <- do.call(PCMLowerBound, c(list(model = model), argsPCMLowerBound))
-  lowerVecParams <- do.call(PCMGetVecParams, c(list(model = lowerModel),
-                                               argsPCMGetVecParams))
-
-  upperModel <- do.call(PCMUpperBound, c(list(model = model), argsPCMUpperBound))
-  upperVecParams <- do.call(PCMGetVecParams, c(list(model = upperModel), argsPCMGetVecParams))
-
-  p <- PCMNumParams(model)
-  res <- sapply(1:p, function(i) {
-    runif(n, lowerVecParams[i], upperVecParams[i])
-  })
-  res
 }
 
 #' Conditional distribution of a daughter node given its parent node
@@ -1097,6 +596,7 @@ PCMSim <- function(
   tree, model, X0,
   metaI = PCMInfo(X = NULL, tree = tree, model = model, verbose = verbose),
   verbose = FALSE) {
+
   UseMethod("PCMSim", model)
 }
 
@@ -1114,11 +614,11 @@ PCMSim <- function(
 #'   Below we denote by N the number of tips, by M the total number of nodes in the
 #'   tree including tips, internal and root node, and by k - the number of traits.
 #'
-#' @param X a \code{k x N} numerical matrix with possible \code{NA} entries. Each
+#' @param X a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
 #'   column of X contains the measured trait values for one species (tip in tree).
-#'   Depending on the value of the global option "PCMBase.Internal.PC.Full" \code{NA}
-#'   entries are interpreted either as missing measurements or non-existing traits
-#'   (see \code{\link{PCMPresentCoordinates}}).
+#'   Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
+#'   Thse two values have are treated differently when calculating
+#'   likelihoods: see \code{\link{PCMPresentCoordinates}}.
 #' @param tree a phylo object with N tips.
 #' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
 #'   well as the concrete model parameter values at which the likelihood is to be
@@ -1172,6 +672,7 @@ PCMLik <- function(
   metaI = PCMInfo(X, tree, model, verbose = verbose),
   log = TRUE,
   verbose = FALSE) {
+
   UseMethod("PCMLik", model)
 }
 
@@ -1190,9 +691,13 @@ logLik.PCM <- function(object, ...) {
     stop("ERR:02033:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
   }
 
-  value <- PCMLik(X, tree, object, log = TRUE)
+  if(is.function(attr(object, "PCMInfoFun", exact = TRUE))) {
+    value <- PCMLik(X, tree, object, log = TRUE, attr(object, "PCMInfoFun", exact = TRUE)(X, tree, object))
+  } else {
+    value <- PCMLik(X, tree, object, log = TRUE)
+  }
 
-  attr(value, "df") <- PCMNumParams(object, countRegimeChanges = TRUE, countModelTypes = TRUE)
+  attr(value, "df") <- PCMParamCount(object, countRegimeChanges = TRUE, countModelTypes = TRUE)
   attr(value, "nobs") <- PCMTreeNumTips(tree)
 
   value
@@ -1214,13 +719,8 @@ logLik.PCM <- function(object, ...) {
 #' for a given trait, if all of its descendants have this coordinate set to FALSE.}
 #' }
 #' These two cases have different effect on the likelihood calculation: missing
-#' measurements are integrated out at the parent nodes; while non-existent traits
+#' measurements (NA) are integrated out at the parent nodes; while non-existent traits (NaN)
 #' are treated as reduced dimensionality of the vector at the parent node.
-#' The PCMBase package allows to specify the treatment of NA trait values using the
-#' global option "PCMBase.Internal.PC.Full", which is set to TRUE by default. This
-#' setting corresponds to assuming that all traits exist for all tips and NA values
-#' are integrated out during likelihood calculation. Setting this option to FALSE
-#' corresponds to assuming all NA values as non-existent.
 #'
 #' @param X numeric k x N matrix of observed values, with possible NA entries. The
 #' columns in X are in the order of tree$tip.label
@@ -1243,22 +743,17 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
   edge <- tree$edge
 
   if(is.null(X)) {
-    pc <- rep(TRUE, k*M)
-  } else if(getOption("PCMBase.Internal.PC.Full", TRUE)) {
-    pc <- rep(TRUE, k*M)
-    dim(pc) <- c(k, M)
-    pc[, 1:N] <- !is.na(X[, 1:N])
+    pc <- matrix(TRUE, k, M)
   } else {
-    pc <- rep(FALSE, k*M)
-    dim(pc) <- c(k, M)
-
+    pc <- matrix(FALSE, k, M)
     for(ei in postorder) {
       i <- edge[ei, 2]
       j <- edge[ei, 1]
 
       if(i <= N) {
         # all es pointing to tips
-        pc[, i, drop=FALSE] <- !is.na(X[, i, drop=FALSE])
+        # here we count NAs as present because they are integrated out at the parent nodes
+        pc[, i] <- !is.nan(X[, i])
       } else {
         # edges pointing to internal nodes, for which all children nodes have been
         # visited
@@ -1268,6 +763,11 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
       #update parent pc
       pc[, j] <- pc[, j] | pc[, i]
     }
+    # at the end correct the present coordinates for the traits at the tips which
+    # are NA but not NaN : Both NAs and NaNs result in FALSE at a tip;
+    # only coordinates for which all descending tips have NaN are FALSE at internal nodes
+    pc[, 1:N] <- !is.na(X[, 1:N])
+
     if(any(rowSums(pc) == 0)) {
       stop("ERR:02001:PCMBase:PCM.R:PCMPresentCoordinates:: Some tips
            have 0 present coordinates. Consider removing these tips.")
@@ -1305,6 +805,10 @@ PCMInfo <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
 #' @export
 PCMInfo.PCM <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
 
+  if(is.Transformable(model)) {
+    model <- PCMApplyTransformation(model)
+  }
+
   if(is.null(tree$edge.regime)) {
     PCMTreeSetDefaultRegime(tree, model)
   }
@@ -1320,7 +824,7 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
     RTree = PCMTreeNumUniqueRegimes(tree),
     RModel = PCMNumRegimes(model),
     r = PCMTreeMatchRegimesWithModel(tree, model, preorder),
-    p = PCMNumParams(model),
+    p = PCMParamCount(model),
     xi = PCMTreeJumps(tree),
     edge = tree$edge,
     edge.length = tree$edge.length,
@@ -1350,7 +854,7 @@ PCMCreateLikelihood <- function(X, tree, model, metaI = PCMInfo(X, tree, model),
   value.NA <- PCMOptions()$PCMBase.Value.NA
 
   function(p, log = TRUE) {
-    PCMSetOrGetVecParams(model, p)
+    PCMParamLoadOrStore(model, p, offset = 0L, k = PCMNumTraits(model), R = PCMNumRegimes(model), load = TRUE)
     value <- PCMLik(X, tree, model, metaI, log = log)
     if(value > positiveValueGuard) {
       value <- value.NA

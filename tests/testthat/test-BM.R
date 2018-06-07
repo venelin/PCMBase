@@ -270,6 +270,6 @@ if(require(PCMBaseCpp)) {
       PCMLik(values, tree.a, model.a.123, metaI = metaICpp)
     ))
   }
-
 }
+
 

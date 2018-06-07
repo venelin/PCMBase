@@ -61,8 +61,9 @@ PCMTreeSetDefaultRegime <- function(tree, regime) {
 #' present in the \code{nodes} parameter.
 #'
 #' @param tree a phylo object
-#' @param nodes an integer vector denoting tip or internal nodes in tree - the
-#' regimes change at the start of the branches leading to these nodes.
+#' @param nodes a character vector containing tip or node labels or an integer
+#' vector denoting tip or internal nodes in tree - the regimes change at the
+#' start of the branches leading to these nodes.
 #' @param regimes an integer or character vector of length equal to
 #' length(nodes) + 1 containing the regime-names to be assigned for each regime.
 #' If NULL the regime names will be the integers 1:(length(nodes) + 1).
@@ -82,6 +83,12 @@ PCMTreeSetRegimes <- function(tree, nodes, regimes = as.integer(1:(length(nodes)
     if(length(regimes) != length(nodes) + 1 ||
        length(unique(regimes)) < length(regimes)) {
       stop("ERR:026d1:PCMBase:PCMTree.R:PCMTreeSetRegimes:: regimes should be a character or integer vector of length equal to length(nodes) + 1 and not have duplicated elements.")
+    }
+  }
+  if(is.character(nodes)) {
+    nodes <- match(nodes, PCMTreeGetLabels(tree))
+    if(any(is.na(nodes))) {
+      stop("ERR:026d2:PCMBase:PCMTree.R:PCMTreeSetRegimes:: if nodes is a character vector it should be a subset of PCMTreeGetLabels(tree), but some of the elements in nodes could not be matched.")
     }
   }
   preorder <- PCMTreePreorder(tree)
