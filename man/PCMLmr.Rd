@@ -8,11 +8,11 @@ PCMLmr(X, tree, model, metaI = PCMInfo(X, tree, model, verbose = verbose),
   root.only = TRUE, verbose = FALSE)
 }
 \arguments{
-\item{X}{a \code{k x N} numerical matrix with possible \code{NA} entries. Each
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
 column of X contains the measured trait values for one species (tip in tree).
-Depending on the value of the global option "PCMBase.Internal.PC.Full" \code{NA}
-entries are interpreted either as missing measurements or non-existing traits
-(see \code{\link{PCMPresentCoordinates}}).}
+Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
+Thse two values have are treated differently when calculating
+likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 
 \item{tree}{a phylo object with N tips.}
 

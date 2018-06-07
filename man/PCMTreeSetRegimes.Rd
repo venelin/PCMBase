@@ -10,8 +10,9 @@ PCMTreeSetRegimes(tree, nodes, regimes = as.integer(1:(length(nodes) + 1)),
 \arguments{
 \item{tree}{a phylo object}
 
-\item{nodes}{an integer vector denoting tip or internal nodes in tree - the
-regimes change at the start of the branches leading to these nodes.}
+\item{nodes}{a character vector containing tip or node labels or an integer
+vector denoting tip or internal nodes in tree - the regimes change at the
+start of the branches leading to these nodes.}
 
 \item{regimes}{an integer or character vector of length equal to
 length(nodes) + 1 containing the regime-names to be assigned for each regime.

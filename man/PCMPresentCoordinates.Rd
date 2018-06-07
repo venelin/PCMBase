@@ -35,13 +35,8 @@ nodes - an internal or root node will have a present coordinate set to FALSE
 for a given trait, if all of its descendants have this coordinate set to FALSE.}
 }
 These two cases have different effect on the likelihood calculation: missing
-measurements are integrated out at the parent nodes; while non-existent traits
+measurements (NA) are integrated out at the parent nodes; while non-existent traits (NaN)
 are treated as reduced dimensionality of the vector at the parent node.
-The PCMBase package allows to specify the treatment of NA trait values using the
-global option "PCMBase.Internal.PC.Full", which is set to TRUE by default. This
-setting corresponds to assuming that all traits exist for all tips and NA values
-are integrated out during likelihood calculation. Setting this option to FALSE
-corresponds to assuming all NA values as non-existent.
 }
 \seealso{
 \code{\link{PCMLik}}

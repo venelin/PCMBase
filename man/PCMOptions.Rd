@@ -36,13 +36,12 @@ L,m,r values to their parent node. Default TRUE. Note, that setting this option 
 may cause some models to stop working, e.g. the White model. Setting this option to FALSE
 will also cause errors or NA likelihood values in the case of trees with very short or
 0-length branches.}
-\item{\code{PCMBase.Internal.PC.Full }}{A logical value indicating whether NA trait values
-are treated as missing measurements which are integrated out during likelihood calculation.
-Default TRUE. Setting this option to FALSE will cause NA values to be treated as
-non-existing traits and these will be ignored instead of integrated out.}
 \item{\code{PCMBase.Tolerance.Symmetric }}{A double specifying the tolerance in tests
 for symmetric matrices. Default 1e-8; see also \code{\link{isSymmetric}}.}
 \item{\code{PCMBase.Lmr.mode }}{An integer code specifying the parallel likelihood calculation mode.}
+\item{\code{PCMBase.ParamValue.LowerLimit}}{Default lower limit value for parameters, default setting is -10.0.}
+\item{\code{PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal}}{Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.}
+\item{\code{PCMBase.ParamValue.UpperLimit}}{Default upper limit value for parameters, default setting is 10.0.}
 }
 }
 \description{

@@ -1,0 +1,228 @@
+---
+title: "Interactive PCM Simulation"
+author: "Venelin Mitov"
+runtime: shiny
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+source("PosteriorQuantileCommon.R")
+
+library(data.table)
+library(ggplot2)
+library(cowplot)
+library(POUMM)
+library(shiny)
+
+gplotX <- function(X, tree, labeledTips) {
+  N <- length(tree$tip.label)
+  times <- nodeTimes(tree, tipsOnly = TRUE)
+  Xt <- t(X)
+  data <- as.data.table(Xt)
+  setnames(data, c("X", "Y"))
+  data[, id:=1:(.N)]
+  data[, time:=times]
+  data[, regime:=sapply(id, function(i) tree$edge.regime[which(tree$edge[, 2]==i)])]
+  setkey(data, id)
+  data[list(labeledTips), label:=id]
+  
+  pl <- ggplot(data) + 
+    geom_point(aes(x=X, y=Y, col=regime, size = time, alpha = time), na.rm = TRUE) +
+    geom_text(aes(x=X, y=Y, label=label), size = 2, na.rm = TRUE)
+  pl
+}
+```
+
+
+```{r PureBirthDeathTree, fig.width=6.75, fig.height=6.75}
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+cols <- gg_color_hue(2)
+names(cols) <- c("a", "b")
+
+# plotting the tree using the phytools function plotSimmap:
+plotSimmap(tree.ab, fsize = 0.01, type="fan", setEnv = TRUE, colors = cols)
+
+labeledTips <- c(1, 2, 3, 7, 19, 22, 29, 31, 32, 33, 41, 45, 49, 56, 70, 72, 93, 109, 169, 170, 178, 191, 209, 212, 214, 224, 234, 252, 253, 262, 267, 282, 287, 295, 324, 346, 350, 352, 369, 372, 392, 412, 413, 418, 439, 448, 452, 465, 478, 499, 500, 501, 503, 506, 507, 511, 514, 515)
+
+labeledTipColors <- cols[tree$edge.regime[tree$edge[, 2] %in% labeledTips]]
+tiplabels(text = labeledTips, frame = "none", tip = labeledTips, offset = 0.25, cex=0.6, col = labeledTipColors)
+
+```
+
+
+```{r SimulatedDataModels, fig.width=6.75, fig.height=8.6}
+input <- new.env()
+input$tree <- tree
+
+# BM
+cat("BM 1:\n")
+input$modelFromVector <- modelFromVectorBM
+
+set.seed(5)   # good : 1, 2, 5
+
+param <- genParamBM()
+print(param)
+
+modelBM.1 <- input$modelFromVector(param)
+
+plotBM.1 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75))
+
+cat("BM 2:\n")
+#set.seed(5)   # good : 1, 2, 5
+param <- genParamBM()
+print(param)
+
+modelBM.2 <- input$modelFromVector(param)
+plotBM.2 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75))
+
+# OU
+input$modelFromVector <- modelFromVectorOU
+
+cat("OU 1:\n")
+#set.seed(1)   # good : 1, 2, 5
+param <- genParamOU()
+print(param)
+
+modelOU.1 <- input$modelFromVector(param)
+
+plotOU.1 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75)) +
+  geom_vline(aes(xintercept = modelOU.1$Theta[1, 1]), col = cols["a"]) +
+  geom_hline(aes(yintercept = modelOU.1$Theta[2, 1]), col = cols["a"]) +
+  geom_vline(aes(xintercept = modelOU.1$Theta[1, 2]), col = cols["b"]) +
+  geom_hline(aes(yintercept = modelOU.1$Theta[2, 2]), col = cols["b"])
+
+cat("OU 2:\n")
+#set.seed(5)   # good : 1, 2, 5
+param <- genParamOU()
+print(param)
+modelOU.2 <- input$modelFromVector(param)
+plotOU.2 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75)) +
+  geom_vline(aes(xintercept = modelOU.2$Theta[1, 1]), col = cols["a"]) +
+  geom_hline(aes(yintercept = modelOU.2$Theta[2, 1]), col = cols["a"]) +
+  geom_vline(aes(xintercept = modelOU.2$Theta[1, 2]), col = cols["b"]) +
+  geom_hline(aes(yintercept = modelOU.2$Theta[2, 2]), col = cols["b"])
+
+
+# JOU
+input$modelFromVector <- modelFromVectorJOU
+
+cat("JOU 1:\n")
+#set.seed(1)   # good : 1, 2, 5
+param <- genParamJOU()
+print(param)
+modelJOU.1 <- input$modelFromVector(param)
+
+plotJOU.1 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75)) +
+  geom_vline(aes(xintercept = modelJOU.1$Theta[1, 1]), col = cols["a"]) +
+  geom_hline(aes(yintercept = modelJOU.1$Theta[2, 1]), col = cols["a"]) +
+  geom_vline(aes(xintercept = modelJOU.1$Theta[1, 2]), col = cols["b"]) +
+  geom_hline(aes(yintercept = modelJOU.1$Theta[2, 2]), col = cols["b"])
+
+cat("JOU 2:\n")
+#set.seed(5)   # good : 1, 2, 5
+param <- genParamJOU()
+print(param)
+modelJOU.2 <- input$modelFromVector(param)
+plotJOU.2 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75)) +
+  geom_vline(aes(xintercept = modelJOU.2$Theta[1, 1]), col = cols["a"]) +
+  geom_hline(aes(yintercept = modelJOU.2$Theta[2, 1]), col = cols["a"]) +
+  geom_vline(aes(xintercept = modelJOU.2$Theta[1, 2]), col = cols["b"]) +
+  geom_hline(aes(yintercept = modelJOU.2$Theta[2, 2]), col = cols["b"])
+
+
+# TwoSpeedOU
+input$modelFromVector <- modelFromVectorTwoSpeedOU
+
+cat("TwoSpeedOU 1:\n")
+#set.seed(1)   # good : 1, 2, 5
+param <- genParamTwoSpeedOU()
+print(param)
+modelTwoSpeedOU.1 <- input$modelFromVector(param)
+
+plotTwoSpeedOU.1 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75)) +
+  geom_vline(aes(xintercept = modelTwoSpeedOU.1$Theta[1, 1]), col = cols["a"]) +
+  geom_hline(aes(yintercept = modelTwoSpeedOU.1$Theta[2, 1]), col = cols["a"]) +
+  geom_vline(aes(xintercept = modelTwoSpeedOU.1$Theta[1, 2]), col = cols["b"]) +
+  geom_hline(aes(yintercept = modelTwoSpeedOU.1$Theta[2, 2]), col = cols["b"])
+
+cat("TwoSpeedOU 2:\n")
+#set.seed(5)   # good : 1, 2, 5
+param <- genParamTwoSpeedOU()
+param[1:11] <- c(-0.2, 
+                 0.20, 0.0,
+                 10.00, -1.00, -1.0,
+                 5.00, 5.00, 
+                 1.00, 1.00,
+                 0.1)
+print(param)
+modelTwoSpeedOU.2 <- input$modelFromVector(param)
+mvcond(tree, modelTwoSpeedOU.2, r = 2)$vcov(1)
+
+plotTwoSpeedOU.2 <- gplotX(
+  generate.data.common(param, input), tree,  labeledTips) + 
+  scale_size_continuous(range = c(0.2, 2.8)) +
+  scale_alpha_continuous(range = c(0.2, 0.75)) +
+  geom_vline(aes(xintercept = modelTwoSpeedOU.2$Theta[1, 1]), col = cols["a"]) +
+  geom_hline(aes(yintercept = modelTwoSpeedOU.2$Theta[2, 1]), col = cols["a"]) +
+  geom_vline(aes(xintercept = modelTwoSpeedOU.2$Theta[1, 2]), col = cols["b"]) +
+  geom_hline(aes(yintercept = modelTwoSpeedOU.2$Theta[2, 2]), col = cols["b"])
+
+
+pgrid <- plot_grid(
+  plotBM.1 + theme(legend.position = "none") + xlab("") + ylab(""), 
+  plotBM.2 + theme(legend.position = "none") + xlab("") + ylab(""), 
+  plotOU.1 + theme(legend.position = "none") + xlab("") + ylab(""), 
+  plotOU.2 + theme(legend.position = "none") + xlab("") + ylab(""),
+  plotJOU.1 + theme(legend.position = "none") + xlab("") + ylab(""), 
+  plotJOU.2 + theme(legend.position = "none") + xlab("") + ylab(""),
+  plotTwoSpeedOU.1 + theme(legend.position = "none") + xlab("") + ylab(""), 
+  plotTwoSpeedOU.2 + theme(legend.position = "none") + xlab("") + ylab(""),
+  nrow = 4, ncol = 2
+)
+
+legend <- get_legend(plotTwoSpeedOU.1)
+
+plot_grid(pgrid, legend, ncol = 2, rel_widths = c(1, .1))
+```
+
+
+```{r, eval=FALSE, include=FALSE}
+
+load("JOU5/BayesValidateJOU.RData")
+obj <- validate(generate.param = res.validate$res.validate$generate.param,
+                generate.data = res.validate$res.validate$generate.data,
+                generate.data.inputs = res.validate$res.validate$generate.data.inputs,
+                analyze.data = res.validate$res.validate$analyze.data,
+                analyze.data.inputs = res.validate$res.validate$analyze.data.inputs,
+                n.rep = 0,
+                n.batch = res.validate$res.validate$n.batch,
+                params.batch = res.validate$res.validate$params.batch,
+                add.to = res.validate$res.validate,
+                return.all = TRUE)
+```

@@ -29,14 +29,17 @@ PCMParentClasses.BM <- function(model) {
 #'
 #' @export
 PCMDescribe.BM <- function(model, ...) {
-  "Brownian motion (BM) branching stochastic process model with a non-phylogenetic variance component"
+  "Brownian motion model"
 }
 
 #' @export
 PCMCond.BM <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
-  Sigma <- as.matrix(model$Sigma_x[,,r]) %*% t(as.matrix(model$Sigma_x[,,r]))
-  if(!is.null(model$Sigmae)) {
-    Sigmae <- as.matrix(model$Sigmae_x[,,r]) %*% t(as.matrix(model$Sigmae_x[,,r]))
+
+  Sigma_x <- if(is.Global(model$Sigma_x)) as.matrix(model$Sigma_x) else as.matrix(model$Sigma_x[,, r])
+  Sigma <- Sigma_x %*% t(Sigma_x)
+  if(!is.null(model$Sigmae_x)) {
+    Sigmae_x <- if(is.Global(model$Sigmae_x)) as.matrix(model$Sigmae_x) else as.matrix(model$Sigmae_x[,,r])
+    Sigmae <- Sigmae_x %*% t(Sigmae_x)
   } else {
     Sigmae <- NULL
   }
@@ -51,237 +54,47 @@ PCMCond.BM <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verb
   list(omega = omega, Phi = Phi, V = V)
 }
 
-
-#' @inherit PCMSpecifyParams
 #' @export
-PCMSpecifyParams.BM <- function(model, ...) {
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
+PCMDescribeParameters.BM <- function(model, ...) {
   list(
-    X0 = list(default = rep(0, k),
-              type = c("gvector", "full"),
-              description = "trait vector at the root; global for all model regimes"),
-    Sigma_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "upper.tri.diag", "positive.diag"),
-                 description = "Upper triangular Choleski factor of the unit-time variance-covariance matrix of the BM-process"),
-    Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "upper.tri.diag", "positive.diag"),
-                  description = "Upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
+    X0 = "trait values at the root",
+    Sigma_x = "Choleski factor of the unit-time variance rate",
+    Sigmae_x = "Choleski factor of the non-heritable variance or the variance of the measurement error")
 }
 
 #' @export
-PCMDescribe.BM__DiagPosdiagSigma_x <- function(model, ...) "BM with a (positive) diagonal Sigma_x with (assuming that the phylogeny does not contribute to the correlation between the traits)."
-#' @export
-PCMParentClasses.BM__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__DiagPosdiagSigma_x <- function(model, ...) {
-  spec <- NextMethod()
+PCMListParameterizations.BM <- function(model, ...) {
+  list(
+    X0 = list(c("VectorParameter", "_Global"),
+              c("VectorParameter", "_Fixed", "_Global"),
+              c("VectorParameter", "_AllEqual", "_Global"),
+              c("VectorParameter", "_Omitted")),
+    Sigma_x = list(c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+                   c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+                   c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")),
 
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
+    Sigmae_x = list(c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+                    c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+                    c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
+                    c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+                    c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
+                    c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+                    c("MatrixParameter", "_Omitted"))
+  )
+}
 
-  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                 type = c("matrix", "diag", "positive.diag"),
-                 description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
+
+#' @export
+PCMSpecify.BM <- function(model, ...) {
+  spec <- list(
+    X0 = structure(0.0, class = c('VectorParameter', '_Global'),
+                   description = 'trait values at the root'),
+    Sigma_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
+                        description = 'Choleski factor of the unit-time variance rate'),
+    Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
+                         description = 'Choleski factor of the non-heritable variance or the variance of the measurement error'))
+  attributes(spec) <- attributes(model)
+  if(is.null(names(spec))) names(spec) <- c('X0', 'Sigma_x', 'Sigmae_x')
+  if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')
   spec
 }
-
-#' @export
-PCMDescribe.BM__DiagPosdiagSigmae_x <- function(model, ...) "BM with a (positive) diagonal Sigmae_x (i.e., assuming that the non-phylogenetic factors do not contribute to the correlation between the traits)."
-#' @export
-PCMParentClasses.BM__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__DiagPosdiagSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the non-phylogenetic component")
-  spec
-}
-
-#' @export
-PCMDescribe.BM__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "BM with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
-#' @export
-PCMParentClasses.BM__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
-
-  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                        type = c("matrix", "diag", "positive.diag"),
-                        description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the non-phylogenetic component")
-  spec
-}
-
-
-
-
-
-
-#' @export
-PCMDescribe.BM__NoX0 <- function(model, ...) "BM without X0."
-#' @export
-PCMParentClasses.BM__NoX0 <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoX0 <- function(model, ...) {
-  spec <- NextMethod()
-  spec$X0 <- NULL
-  spec[!sapply(spec, is.null)]
-}
-
-#' @export
-PCMDescribe.BM__NoX0__DiagPosdiagSigma_x <- function(model, ...) "BM without X0 and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
-#' @export
-PCMParentClasses.BM__NoX0__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoX0__DiagPosdiagSigma_x <- function(model, ...) {
-  spec <- NextMethod()
-
-  spec$X0 <- NULL
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
-
-  spec[!sapply(spec, is.null)]
-}
-
-#' @export
-PCMDescribe.BM__NoX0__DiagPosdiagSigmae_x <- function(model, ...) "BM without X0 and with a diagonal Sigmae_x (i.e., assuming that the non-phylogenetic factors do not contribute to the correlation between the traits)."
-#' @export
-PCMParentClasses.BM__NoX0__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoX0__DiagPosdiagSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
-
-  spec$X0 <- NULL
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                        type = c("matrix", "diag", "positive.diag"),
-                        description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the non-phylogenetic component")
-
-  spec[!sapply(spec, is.null)]
-}
-
-#' @export
-PCMDescribe.BM__NoX0__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) "BM without X0 and with diagonal Sigma_x and Sigmae_x (i.e., assuming that the traits are uncorrelated)."
-#' @export
-PCMParentClasses.BM__NoX0__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoX0__DiagPosdiagSigma_x__DiagPosdiagSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
-
-  spec$X0 <- NULL
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
-
-  spec$Sigmae_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                        type = c("matrix", "diag", "positive.diag"),
-                        description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the non-phylogenetic component")
-
-  spec[!sapply(spec, is.null)]
-}
-
-
-
-
-
-#' @export
-PCMDescribe.BM__NoSigmae_x <- function(model, ...) "BM without Sigmae_x."
-#' @export
-PCMParentClasses.BM__NoSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
-  spec$Sigmae_x <- NULL
-  spec[!sapply(spec, is.null)]
-}
-
-#' @export
-PCMDescribe.BM__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) "BM without Sigmae_x and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
-#' @export
-PCMParentClasses.BM__NoSigmae_x__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) {
-  spec <- NextMethod()
-
-  spec$Sigmae_x <- NULL
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
-
-  spec[!sapply(spec, is.null)]
-}
-
-
-
-
-#' @export
-PCMDescribe.BM__NoX0__NoSigmae_x <- function(model, ...) "BM without X0 and Sigmae_x."
-#' @export
-PCMParentClasses.BM__NoX0__NoSigmae_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoX0__NoSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
-  spec$X0 <- NULL
-  spec$Sigmae_x <- NULL
-  spec[!sapply(spec, is.null)]
-}
-
-#' @export
-PCMDescribe.BM__NoX0__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) "BM without X0 and Sigmae_x and with a diagonal Sigma_x (i.e., assuming that the phylogeny does not contribute to the correlation between the traits)."
-#' @export
-PCMParentClasses.BM__NoX0__NoSigmae_x__DiagPosdiagSigma_x <- function(model) c("BM", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.BM__NoX0__NoSigmae_x__DiagPosdiagSigma_x <- function(model, ...) {
-  spec <- NextMethod()
-
-  spec$X0 <- NULL
-  spec$Sigmae_x <- NULL
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigma_x <- list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "Positive diagonal Choleski factor of the unit-time variance-covariance matrix of the BM-process")
-
-  spec[!sapply(spec, is.null)]
-}
-

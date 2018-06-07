@@ -1,7 +1,7 @@
 Package: PCMBase
 Type: Package
-Title: Calculating the likelihood of Gaussian phylogenetic comparative models
-Version: 1.1.1
+Title: Simulation and likelihood calculation of Gaussian phylogenetic comparative models
+Version: 1.2.1
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                     role = c("aut", "cre", "cph")),
              person("Krzysztof", "Bartoszek",
@@ -36,12 +36,12 @@ Depends:
 Imports:
     ape,
     expm,
-    mvtnorm
+    mvtnorm,
+    data.table
 Suggests:
     PCMBaseCpp,
     OptimMCMC,
     testthat,
-    data.table,
     ggplot2
 RoxygenNote: 6.0.1
 ByteCompile: yes

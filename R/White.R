@@ -33,12 +33,15 @@ PCMParentClasses.White <- function(model) {
 #'
 #' @export
 PCMDescribe.White <- function(model, ...) {
-  "White model ignoring phylogenetic history, treating trait values as independent samples
-  from a k-variate Gaussian."
+  "White model"
 }
 
 #' @export
 PCMInfo.White <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
+  if(is.Transformable(model)) {
+    model <- PCMApplyTransformation(model)
+  }
+
   res <- NextMethod()
   res$PCMBase.Skip.Singular <- TRUE
   res$PCMBase.Threshold.Skip.Singular <- Inf
@@ -47,7 +50,12 @@ PCMInfo.White <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...)
 
 #' @export
 PCMCond.White <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
-  Sigmae <- as.matrix(model$Sigmae_x[,,r]) %*% t(as.matrix(model$Sigmae_x[,,r]))
+  if(!is.null(model$Sigmae_x)) {
+    Sigmae_x <- if(is.Global(model$Sigmae_x)) as.matrix(model$Sigmae_x) else as.matrix(model$Sigmae_x[,,r])
+    Sigmae <- Sigmae_x %*% t(Sigmae_x)
+  } else {
+    Sigmae <- NULL
+  }
 
   V <- function(t, edgeIndex, metaI, e_Ht = NULL) {
     if(metaI$edge[edgeIndex,2] <= metaI$N) {
@@ -67,66 +75,37 @@ PCMCond.White <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, v
 }
 
 #' @export
-PCMSpecifyParams.White <- function(model, ...) {
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
+PCMDescribeParameters.White <- function(model, ...) {
   list(
-    X0 = list(default = rep(0, k),
-              type = c("gvector", "full"),
-              description = "trait vector at the root; global for all model regimes"),
-    Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                  type = c("matrix", "upper.tri.diag", "positive.diag"),
-                  description = "variance-covariance matrix for the non-phylogenetic trait component"))
+    X0 = "trait values at the root of the tree (for White model this is the mean vector)",
+    Sigmae_x = "Choleski factor of the non-phylogenetic variance-covariance matrix")
 }
 
 #' @export
-PCMDescribe.White__DiagPosdiagSigmae_x <- function(model, ...) "White with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
-#' @export
-PCMParentClasses.White__DiagPosdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.White__DiagPosdiagSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
+PCMListParameterizations.White <- function(model, ...) {
+  list(
+    X0 = list(c("VectorParameter", "_Global"),
+              c("VectorParameter", "_Fixed", "_Global"),
+              c("VectorParameter", "_AllEqual", "_Global"),
+              c("VectorParameter", "_Omitted")),
+    Sigmae_x = list(c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+                    c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+                    c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
+                    c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+                    c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
+                    c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"))
+  )
+}
 
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-
-  spec$Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "variance-covariance matrix for the non-phylogenetic trait component")
+#' @export
+PCMSpecify.White <- function(model, ...) {
+  spec <- list(
+    X0 = structure(0.0, class = c('VectorParameter', '_Global'),
+                   description = 'trait values at the root of the tree (for White model this is the mean vector)'),
+    Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
+                         description = 'Choleski factor of the non-phylogenetic variance-covariance matrix'))
+  attributes(spec) <- attributes(model)
+  if(is.null(names(spec))) names(spec) <- c('X0', 'Sigmae_x')
+  if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')
   spec
 }
-
-#' @export
-PCMDescribe.White__NoX0 <- function(model, ...) "White without X0."
-#' @export
-PCMParentClasses.White__NoX0 <- function(model) c("White", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.White__NoX0 <- function(model, ...) {
-  spec <- NextMethod()
-  spec$X0 <- NULL
-  spec[!sapply(spec, is.null)]
-}
-
-
-#' @export
-PCMDescribe.White__NoX0__DiagPosdiagSigmae_x <- function(model, ...) "White without X0 and with positive diagonal Sigmae_x (i.e. uncorrelated traits)."
-#' @export
-PCMParentClasses.White__NoX0__DiagPosdiagSigmae_x <- function(model) c("White", "GaussianPCM", "PCM")
-#' @export
-PCMSpecifyParams.White__NoX0__DiagPosdiagSigmae_x <- function(model, ...) {
-  spec <- NextMethod()
-  spec$X0 <- NULL
-
-  k <- attr(model, "k")
-  regimes <- attr(model, "regimes")
-  R <- length(regimes)
-  spec$Sigmae_x = list(default = array(0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-                       type = c("matrix", "diag", "positive.diag"),
-                       description = "variance-covariance matrix for the non-phylogenetic trait component")
-  spec[!sapply(spec, is.null)]
-}
-
-

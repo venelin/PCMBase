@@ -51,7 +51,7 @@ PCMTreePlot <- function(tree) {
 
 #' Scatter plot of 2-dimensional data
 #' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme
-#' @importFrom data.table data.table is.data.table setkey :=
+#' @importFrom data.table data.table is.data.table setkey := setnames
 #' @export
 PCMPlotTraitData2D <- function(X, tree, legend = FALSE, labeledTips = NULL) {
 
@@ -79,11 +79,17 @@ PCMPlotTraitData2D <- function(X, tree, legend = FALSE, labeledTips = NULL) {
     data[list(labeledTips), label:=id]
   }
 
-  pl <- ggplot(data) +
-    geom_point(aes(x=x, y=y, col=regime, size = time, alpha = time), na.rm = TRUE) +
-    scale_size_continuous(range = c(0.2, 2.8)) +
-    scale_alpha_continuous(range = c(0.2, 0.75)) +
-    scale_color_manual(name = "regime", values = palette)
+  pl <- ggplot(data)
+  if(length(unique(PCMTreeNodeTimes(tree, tipsOnly = TRUE))) > 1) {
+    # non-ultrametric tree
+    pl <- pl + geom_point(aes(x=x, y=y, col=regime, size = time, alpha = time), na.rm = TRUE) +
+      scale_size_continuous(range = c(0.2, 2.8)) +
+      scale_alpha_continuous(range = c(0.2, 0.75))
+  } else {
+    pl <- pl + geom_point(aes(x=x, y=y, col=regime), na.rm = TRUE)
+  }
+
+  pl <- pl + scale_color_manual(name = "regime", values = palette)
 
   if(!is.null(labeledTips)) {
     pl <- pl +
@@ -148,4 +154,26 @@ PCMParseErrorMessage <- function(x) {
   } else {
     res
   }
+}
+
+PCMCharacterVectorToRExpression <- function(v) {
+  expr <- "c("
+  for(i in 1:length(v)) {
+    if(i < length(v)) {
+      expr <- paste0(expr, "'", v[i], "', ")
+    } else {
+      # last element
+      expr <- paste0(expr, "'", v[i], "')")
+    }
+  }
+  expr
+}
+
+#' This function was used to autogenerate the code for PCMSpecify.OU, .JOU, .BM, .White and .DOU
+GenerateDefaultParameterizations <- function(libname, pkgname){
+  PCMGenerateParameterizations(structure(0.0, class = "OU"), PCMTableParameterizations(structure(0.0, class = "OU"))[1])
+  PCMGenerateParameterizations(structure(0.0, class = "DOU"), PCMTableParameterizations(structure(0.0, class = "DOU"))[1])
+  PCMGenerateParameterizations(structure(0.0, class = "BM"), PCMTableParameterizations(structure(0.0, class = "BM"))[1])
+  PCMGenerateParameterizations(structure(0.0, class = "JOU"), PCMTableParameterizations(structure(0.0, class = "JOU"))[1])
+  PCMGenerateParameterizations(structure(0.0, class = "White"), PCMTableParameterizations(structure(0.0, class = "White"))[1])
 }
