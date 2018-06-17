@@ -88,6 +88,7 @@ PCMOptions <- function() {
   list(PCMBase.Value.NA = getOption("PCMBase.Value.NA", as.double(NA)),
        PCMBase.Errors.As.Warnings = getOption("PCMBase.Errors.As.Warnings", TRUE),
        PCMBase.Threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8),
+       PCMBase.Threshold.EV = getOption("PCMBase.Threshold.EV", 1e-5),
        PCMBase.Threshold.SV = getOption("PCMBase.Threshold.SV", 1e-6),
        PCMBase.Threshold.Skip.Singular = getOption("PCMBase.Threshold.Skip.Singular", 1e-4),
        PCMBase.Skip.Singular = getOption("PCMBase.Skip.Singular", TRUE),
@@ -565,6 +566,24 @@ PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose),
   UseMethod("PCMCond", model)
 }
 
+#' Expected mean vector at each tip conditioned on a trait-value vector at the root
+#' @inheritParams PCMLik
+#' @param X0 a k-vector denoting the root trait
+#' @return a k x N matrix Mu, such that \code{Mu[, i]} equals the expected value under the model at node i,
+#' conditioned on \code{X0} and the tree.
+#' @export
+PCMMean <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+  UseMethod("PCMMean", model)
+}
+
+#' Expected variance-covariance matrix for each couple of tips (i,j)
+#' @inheritParams PCMLik
+#' @return a (k x N) x (k x N) matrix V, such that \code{V[i, j]} equals the expected
+#' covariance matrix between tips  i and j.
+#' @export
+PCMVar <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+  UseMethod("PCMVar", model)
+}
 
 #' Simulation of a phylogenetic comparative model on a tree
 #'

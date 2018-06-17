@@ -4,7 +4,7 @@
 \alias{PCMPlotTraitData2D}
 \title{Scatter plot of 2-dimensional data}
 \usage{
-PCMPlotTraitData2D(X, tree, legend = FALSE, labeledTips = NULL)
+PCMPlotTraitData2D(X, tree, labeledTips = NULL)
 }
 \description{
 Scatter plot of 2-dimensional data

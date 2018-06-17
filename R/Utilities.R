@@ -53,7 +53,7 @@ PCMTreePlot <- function(tree) {
 #' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme
 #' @importFrom data.table data.table is.data.table setkey := setnames
 #' @export
-PCMPlotTraitData2D <- function(X, tree, legend = FALSE, labeledTips = NULL) {
+PCMPlotTraitData2D <- function(X, tree, labeledTips = NULL) {
 
   gg_color_hue <- function(n) {
     hues = seq(15, 375, length = n + 1)
@@ -96,13 +96,6 @@ PCMPlotTraitData2D <- function(X, tree, legend = FALSE, labeledTips = NULL) {
       geom_text(aes(label = label, x = x, y = y, col = regime))
   }
 
-  pl <- pl + theme_gray()
-
-  if(!legend) {
-    pl <- pl + theme(legend.position = "none")
-  } else {
-    pl <- pl + theme(legend.position = "left")
-  }
   pl
 }
 
@@ -177,3 +170,4 @@ GenerateDefaultParameterizations <- function(libname, pkgname){
   PCMGenerateParameterizations(structure(0.0, class = "JOU"), PCMTableParameterizations(structure(0.0, class = "JOU"))[1])
   PCMGenerateParameterizations(structure(0.0, class = "White"), PCMTableParameterizations(structure(0.0, class = "White"))[1])
 }
+

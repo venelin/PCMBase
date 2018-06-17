@@ -38,6 +38,197 @@ PCMCond.GaussianPCM <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, mode
 }
 
 #' @export
+PCMMean.GaussianPCM <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+  if(is.Transformable(model)) {
+    model <- PCMApplyTransformation(model)
+  }
+  # number of regimes
+  R <- metaI$RModel
+  # number of tips
+  N <- metaI$N
+  # number of traits (variables)
+  k <- metaI$k
+  # number of nodes
+  M <- metaI$M
+  # present coordinates
+  pc <- metaI$pc
+
+  # preorder order of the edges in the tree
+  preord <- metaI$preorder
+
+  # create a list of random generator functions for each regime
+  PCMCondObjects <- lapply(1:metaI$RModel, function(r) {
+    PCMCond(tree, model = model, r = r, metaI = metaI, verbose = verbose)
+  })
+
+  Mu <- matrix(as.double(NA), k, M)
+  Mu[, N+1] <- X0
+
+  for(edgeIndex in preord) {
+    cond <- PCMCondObjects[[metaI$r[edgeIndex]]]
+    t <- tree$edge.length[edgeIndex]
+    # parent node
+    j <- tree$edge[edgeIndex, 1L]
+    # daughter node
+    i <- tree$edge[edgeIndex, 2L]
+    Mu[, i] <- cond$omega(t, edgeIndex, metaI) + cond$Phi(t, edgeIndex, metaI) %*% Mu[, j]
+  }
+
+  Mu[, 1:N]
+}
+
+#' @importFrom ape mrca
+#' @export
+PCMVar.GaussianPCM <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+
+  threshold_SV <- metaI$PCMBase.Threshold.SV
+  skip_singular <- metaI$PCMBase.Skip.Singular
+  threshold_skip_singular <- metaI$PCMBase.Threshold.Skip.Singular
+  threshold_eigval <- metaI$PCMBase.Threshold.EV
+
+  if(is.Transformable(model)) {
+    model <- PCMApplyTransformation(model)
+  }
+  # number of regimes
+  R <- metaI$RModel
+  # number of tips
+  N <- metaI$N
+  # number of traits (variables)
+  k <- metaI$k
+  # number of nodes
+  M <- metaI$M
+  # present coordinates
+  pc <- metaI$pc
+
+  # preorder order of the edges in the tree
+  preord <- metaI$preorder
+
+  # create a list of random generator functions for each regime
+  PCMCondObjects <- lapply(1:metaI$RModel, function(r) {
+    PCMCond(tree, model = model, r = r, metaI = metaI, verbose = verbose)
+  })
+
+  BlockI <- function(i) {
+    (i-1)*k + (1:k)
+  }
+
+  # Variance-covariance matrix at the tips
+  W <- matrix(as.double(NA), k*N, k*N)
+
+  # Variance-blocks matrix for all nodes
+  Wii <- matrix(as.double(NA), k, k*M)
+  Wii[, BlockI(N+1)] <- 0
+
+  # need to set the names of the nodes and tips to their integer indices converted to character strings
+  # this affects the local tree
+  PCMTreeSetLabels(tree)
+  listPathsToRoot <- PCMTreeListRootPaths(tree)
+
+  MRCA <- function(i, j) {
+    if(i == j) {
+      i
+    } else {
+      path_i <- listPathsToRoot[[i]]
+      path_j <- listPathsToRoot[[j]]
+
+      ii <- length(path_i)
+      jj <- length(path_j)
+
+      # the root is certainly a common ancestor
+      a <- as.integer(NA)
+      while(ii > 0 && jj > 0) {
+        if(path_i[[ii]] != path_j[[jj]]) {
+          break
+        } else {
+          a <- path_i[[ii]]
+          ii <- ii - 1
+          jj <- jj - 1
+        }
+      }
+      a
+    }
+  }
+
+  listProdPhi <- list()
+
+  # first we calculate the variance (diagonal) blocks (i,i) following preorder traversal
+  for(edgeIndex in preord) {
+    cond <- PCMCondObjects[[metaI$r[edgeIndex]]]
+    t <- tree$edge.length[edgeIndex]
+    # parent node
+    j <- tree$edge[edgeIndex, 1L]
+    # daughter node
+    i <- tree$edge[edgeIndex, 2L]
+
+    Phi_i <- cond$Phi(t, edgeIndex, metaI)
+
+    V <- cond$V(t, edgeIndex, metaI)
+
+    # force symmetric V
+    V <- 0.5 * (V + t(V))
+
+    # check that V is non-singular
+    svdV = svd(V, 0, 0)$d
+
+    eigval <- eigen(V, symmetric = TRUE, only.values = TRUE)$values
+
+    if(is.na(min(svdV)/max(svdV)) ||
+       min(svdV)/max(svdV) < threshold_SV ||
+       abs(eigval[k]) < threshold_eigval) {
+      if(!skip_singular || t > threshold_skip_singular ) {
+        err <- paste0(
+          "ERR:02121:PCMBase:GaussianPCM.R:PCMVar.GaussianPCM:",i,":",
+          " The matrix V for node ", i,
+          " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
+          ". Check the model parameters and the length of the branch",
+          " leading to the node. For details on this error, read the User Guide.")
+        stop(err)
+      } else {
+        V[] <- 0.0
+      }
+    }
+
+
+    Wii[, BlockI(i)] <- Phi_i %*% Wii[, BlockI(j)] %*% t(Phi_i) + V
+
+    listProdPhi[[i]] <- lapply(listPathsToRoot[[i]], function(jAnc) {
+      if(jAnc == j) {
+        Phi_i
+      } else {
+        Phi_i %*% listProdPhi[[j]][[as.character(jAnc)]]
+      }
+    })
+  }
+
+  if(N > 1) {
+    for(i in 1:N) {
+      for(j in i:N) {
+        mrca_ij <- MRCA(i, j)
+
+        if(mrca_ij == i) {
+          ProdPhi_i <- diag(k)
+        } else {
+          ProdPhi_i <- listProdPhi[[i]][[as.character(mrca_ij)]]
+        }
+
+        if(mrca_ij == j) {
+          ProdPhi_j <- diag(k)
+        } else {
+          ProdPhi_j <- listProdPhi[[j]][[as.character(mrca_ij)]]
+        }
+
+        W[BlockI(i), BlockI(j)] <- W[BlockI(j), BlockI(i)] <-
+          ProdPhi_i %*% Wii[, BlockI(mrca_ij)] %*% t(ProdPhi_j)
+      }
+    }
+  } else if(N == 1) {
+    W[BlockI(1), BlockI(1)] <- Wii[, BlockI(1)]
+  }
+  W
+}
+
+
+#' @export
 PCMSim.GaussianPCM <- function(
   tree, model, X0,
   metaI = PCMInfo(X = NULL, tree = tree, model = model, verbose = verbose),
@@ -54,14 +245,14 @@ PCMSim.GaussianPCM <- function(
   values <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
   values[, metaI$N + 1] <- X0
 
-  ordBF <- metaI$preorder
+  preord <- metaI$preorder
 
   # create a list of random generator functions for each regime
   PCMCondObjects <- lapply(1:metaI$RModel, function(r) {
     PCMCond(tree, model = model, r = r, metaI = metaI, verbose = verbose)
   })
 
-  for(edgeIndex in ordBF) {
+  for(edgeIndex in preord) {
     obj <- PCMCondObjects[[metaI$r[edgeIndex]]]
     if(!is.null(obj$random)) {
       values[, tree$edge[edgeIndex, 2]] <-
@@ -241,6 +432,7 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
   threshold_SV <- metaI$PCMBase.Threshold.SV
   skip_singular <- metaI$PCMBase.Skip.Singular
   threshold_skip_singular <- metaI$PCMBase.Threshold.Skip.Singular
+  threshold_eigval <- metaI$PCMBase.Threshold.EV
 
   # number of regimes
   R <- metaI$RModel
@@ -303,19 +495,23 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
     # Ensure that V[,,i] is symmetric. This is to prevent numerical errors
     # but can potentially hide a logical error in the model classes or the
     # parameters.
-    #V[,,i] <- 0.5*(V[,,i]+t(V[,,i]))
+    V[,,i] <- 0.5*(V[,,i]+t(V[,,i]))
 
     # check that V[ki,ki,] is non-singular
     svdV = svd(matrix(V[ki,ki,i], sum(ki)), 0, 0)$d
+    eigval <- eigen(V[ki,ki,i], symmetric = TRUE, only.values = TRUE)$values
 
-    if(is.na(min(svdV)/max(svdV)) || min(svdV)/max(svdV) < threshold_SV) {
+    if(is.na(min(svdV)/max(svdV)) ||
+       min(svdV)/max(svdV) < threshold_SV ||
+       abs(eigval[sum(ki)]) < threshold_eigval) {
       singular[edgeIndex] <- TRUE
       if(!skip_singular || ti > threshold_skip_singular ) {
         err <- paste0(
           "ERR:02131:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
           " The matrix V for node ", i,
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-          ". Check the model parameters and the length of the branch",
+          "; abs(eigval[sum(ki)]) = ", abs(eigval[sum(ki)]),
+          " Check the model parameters and the length of the branch",
           " leading to the node. For details on this error, read the User Guide.")
         stop(err)
       }
@@ -328,7 +524,7 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
           err <- paste0(
             "ERR:02132:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
             " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
-            " is not positive definite, V[ki,ki,i]. Check the model parameters.")
+            " is not positive definite, V[ki,ki,i]. Check the model parameters; V[ki,ki,i]=", V[ki,ki,i], ".")
           stop(err)
         }
       } else {
@@ -339,12 +535,12 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
             " is not symmetric. It must be symmetric positive definite.")
           stop(err)
         }
-        eigval <- eigen(V[ki,ki,i], symmetric = TRUE, only.values = TRUE)$values
+
         if(any(eigval<=0)) {
           err <- paste0(
             "ERR:02134:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
             " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
-            " is not positive definite. It must be symmetric positive definite.")
+            " is not positive definite. It must be symmetric positive definite; eigval=", toString(eigval), ".")
           stop(err)
         }
       }

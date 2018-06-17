@@ -106,10 +106,10 @@ model.ab.123 <- PCM("OU", k = 3, regimes = c("a", "b"), params = list(X0 = a.X0,
                                                         Sigmae_x=Sigmae_x[,,,drop=FALSE]))
 
 cat("PCMNumParams(model.ab.123)=", PCMParamCount(model.ab.123), "\n")
-cat("length(PCMGetVecParamsFull(model.ab.123)=", length(PCMParamGetFullVector(model.ab.123)), "\n")
+#cat("length(PCMGetVecParamsFull(model.ab.123)=", length(PCMParamGetFullVector(model.ab.123)), "\n")
 
-test_that("Check correctness of PCMGetVecParamsFull",
-          expect_equal(length(PCMParamGetFullVector(model.ab.123)), 2*(3 + 3*3 + 3 + 3*3 + 3*3)))
+# test_that("Check correctness of PCMGetVecParamsFull",
+#           expect_equal(length(PCMParamGetFullVector(model.ab.123)), 2*(3 + 3*3 + 3 + 3*3 + 3*3)))
 
 test_that("Check correctness of PCMNumParams",
           expect_equal(PCMParamCount(model.ab.123), 3 + 2*(3*3 + 3 + 6 + 6)))
@@ -294,6 +294,14 @@ POUMMlik <- (POUMM::likPOUMMGivenTreeVTips(
 
 cat('OU likelihood=',OUlik,'\n')
 cat('POUMM likelihood=',POUMMlik,'\n')
+
+MeanVec <- PCMMean(tree.a, model.a.123, model.a.123$X0)
+VarMat <- PCMVar(tree.a, model.a.123)
+OUW <- mvtnorm::dmvnorm(as.vector(traits.a.123[, 1:PCMTreeNumTips(tree.a)]), as.vector(MeanVec), VarMat, log = TRUE)
+cat("OU likelihood using matrix inverse:", OUW)
+
+PCMTreeSetLabels(tree.a)
+plot(tree.a)
 
 ## Calculate likelihood
 test_that(paste(ctx, "Match multivariate likelihood of independent traits regime a"), {

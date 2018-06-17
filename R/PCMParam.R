@@ -98,6 +98,32 @@ is.Transformed <- function(o) { inherits(o, "_Transformed") }
 #' @export
 is.SemiPositiveDefinite <- function(o) { inherits(o, "_SemiPositiveDefinite") }
 
+### .. Overwrite `base::diag<-` for the case of k=1
+`diag<-` <- function (x, value)
+{
+  dx <- dim(x)
+  if( is.null(dx) ) {
+    # x is a vector, assign the first element
+    if(length(value) != 1) {
+      stop("replacement diagonal has wrong length")
+    } else {
+      x[1] <- value
+    }
+  } else if (length(dx) != 2L) {
+    stop("only matrix diagonals can be replaced")
+  } else {
+    len.i <- min(dx)
+    len.v <- length(value)
+    if (len.v != 1L && len.v != len.i)
+      stop("replacement diagonal has wrong length")
+    if (len.i) {
+      i <- seq_len(len.i)
+      x[cbind(i, i)] <- value
+    }
+  }
+  x
+}
+
 ### ..Load a from b -----------
 `%load%` <- `<-`
 
@@ -865,13 +891,17 @@ PCMDefaultObject.ScalarParameter <- function(spec, model, ...) {
     o <- structure(
       0.0,
       class = c(class(spec), "numeric"),
-      description = attr(spec, "description", exact = TRUE))
+      description = attr(spec, "description", exact = TRUE),
+      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
+      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
   } else {
     o <- structure(
       double(R),
       names = regimes,
       class = c(class(spec), "numeric"),
-      description = attr(spec, "description", exact = TRUE))
+      description = attr(spec, "description", exact = TRUE),
+      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
+      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
   }
   o
 }
@@ -888,12 +918,16 @@ PCMDefaultObject.VectorParameter <- function(spec, model, ...) {
     o <- structure(
       double(k),
       class = c(class(spec), "numeric"),
-      description = attr(spec, "description", exact = TRUE))
+      description = attr(spec, "description", exact = TRUE),
+      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
+      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
   } else {
     o <- structure(
       array(0.0, dim = c(k, R), dimnames = list(NULL, regimes)),
       class = c(class(spec), "matrix"),
-      description = attr(spec, "description", exact = TRUE))
+      description = attr(spec, "description", exact = TRUE),
+      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
+      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
   }
   if(is.Ones(spec)) {
     o[] <- 1.0
@@ -913,12 +947,16 @@ PCMDefaultObject.MatrixParameter <- function(spec, model, ...) {
     o <- structure(
       matrix(0.0, k, k),
       class = c(class(spec), "matrix"),
-      description = attr(spec, "description", exact = TRUE))
+      description = attr(spec, "description", exact = TRUE),
+      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
+      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
   } else {
     o <- structure(
       array(0.0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
       class = class(spec),
-      description = attr(spec, "description", exact = TRUE))
+      description = attr(spec, "description", exact = TRUE),
+      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
+      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
   }
   if(is.Identity(spec)) {
     if(is.Global(spec)) {
