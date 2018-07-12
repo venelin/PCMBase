@@ -309,6 +309,7 @@ PCMDescribe.PCM <- function(model, ...) {
   "PCM base class model with no parameters; serves as a basis for PCM model classes"
 }
 
+
 #' Parameter specification of PCM model
 #' @param model a PCM model object
 #' @return a list
@@ -420,6 +421,39 @@ PCMGenerateParameterizations <- function(
 
 
 
+#' Fix a parameter in a PCM model
+#' @param model a PCM object
+#' @param name a character string
+#' @return a copy of the model with added class '_Fixed' to the class of the
+#' parameter \code{name}
+#' @export
+PCMFixParameter <- function(model, name) {
+  modelNew <- model
+  if(!is.Fixed(modelNew[[name]])) {
+    class(modelNew[[name]]) <- c(class(modelNew[[name]]), "_Fixed")
+    class(attr(modelNew, "spec")[[name]]) <- c(class(attr(modelNew, "spec")[[name]]), "_Fixed")
+  }
+  modelNew
+}
+
+#' Unfix a parameter in a PCM model
+#' @param model a PCM object
+#' @param name a character string
+#' @return a copy of the model with removed class '_Fixed' from the class of the
+#' parameter \code{name}
+#' @export
+PCMUnfixParameter <- function(model, name) {
+  modelNew <- model
+  if(is.Fixed(modelNew[[name]])) {
+    class(modelNew[[name]]) <- class(modelNew[[name]])[!class(modelNew[[name]])=="_Fixed"]
+    class(attr(modelNew, "spec")[[name]]) <-
+      class(attr(modelNew, "spec")[[name]])[!class(attr(modelNew, "spec")[[name]])=="_Fixed"]
+  }
+  modelNew
+}
+
+
+
 #' Number of traits modeled by a PCM
 #' @param model a PCM object
 #' @return an integer
@@ -435,23 +469,37 @@ PCMNumTraits.PCM <- function(model) {
 
 #' Regimes in a model
 #' @param model a PCM object
-#' @param tree a phylo object or NULL. If the regimes in the model are integers and tree is not NULL,
-#' then these integers are used as indexes in PCMTreeUniqueRegimes(tree). Default NULL.
-#' @return a character or an integer vector giving the regime names of the models
+#' @return a character or an integer vector giving the regime names in the model
 #' @export
-PCMRegimes <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
+PCMRegimes <- function(model) {
   UseMethod("PCMRegimes", model)
 }
 
 #' @export
-PCMRegimes.PCM <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
-  r <- attr(model, "regimes")
-  if(is.integer(r) && !is.null(tree)) {
-    PCMTreeUniqueRegimes(tree, preorder)[r]
-  } else {
-    r
-  }
+PCMRegimes.PCM <- function(model) {
+  attr(model, "regimes")
 }
+
+#' #' Regimes in a model
+#' #' @param model a PCM object
+#' #' @param tree a phylo object or NULL. If the regimes in the model are integers and tree is not NULL,
+#' #' then these integers are used as indexes in PCMTreeUniqueRegimes(tree). Default NULL.
+#' #' @return a character or an integer vector giving the regime names of the models
+#' #' @export
+#' PCMRegimes <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
+#'   UseMethod("PCMRegimes", model)
+#' }
+#'
+#' #' @export
+#' PCMRegimes.PCM <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
+#'   r <- attr(model, "regimes")
+#'   if(is.integer(r) && !is.null(tree)) {
+#'     PCMTreeUniqueRegimes(tree, preorder)[r]
+#'   } else {
+#'     r
+#'   }
+#' }
+
 
 #' Integer vector giving the model type index for each regime
 #' @param model a PCM model
@@ -569,21 +617,97 @@ PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose),
 #' Expected mean vector at each tip conditioned on a trait-value vector at the root
 #' @inheritParams PCMLik
 #' @param X0 a k-vector denoting the root trait
-#' @return a k x N matrix Mu, such that \code{Mu[, i]} equals the expected value under the model at node i,
-#' conditioned on \code{X0} and the tree.
+#' @param internal a logical indicating ig the per-node mean vectors should be returned (see Value). Default FALSE.
+#'
+#' @return If internal is FALSE (default), then a k x N matrix Mu, such that \code{Mu[, i]} equals the expected mean k-vector
+#' at tip i, conditioned on \code{X0} and the tree. Otherwise, a k x M matrix Mu containing the mean vector for each node.
 #' @export
-PCMMean <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+PCMMean <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
   UseMethod("PCMMean", model)
 }
 
+#' Calculate the mean at time t, given X0, under a PCM model
+#' @param t positive numeric denoting time
+#' @param model a PCM model object
+#' @param X0 a numeric vector of length k, where k is the number of traits in the model (Defaults to model$X0).
+#' @param regime an integer or a character denoting the regime in model for which to do the calculation;
+#' (Defaults to 1L meaning the first regime in the model)
+#' @param verbose a logical indicating if (debug) messages should be written on the console (Defaults to FALSE).
+#' @return A numeric vector of length k
+#' @export
+PCMMeanAtTime <- function(t, model, X0 = model$X0, regime = 1L, verbose = FALSE) {
+  if(is.character(regime)) {
+    regime <- match(regime, PCMRegimes(model))
+  }
+
+  cherry <- list(tip.labels=c("t1", "t2"),
+                 edge=rbind(c(3L, 1L), c(3L, 2L)),
+                 edge.length=rep(t, 2),
+                 Nnode = 1L,
+                 edge.regime = rep(regime, 2))
+  class(cherry) <- "phylo"
+
+  metaI <- PCMInfo(NULL, cherry, model, verbose = verbose)
+
+  metaI$r <- rep(regime, 2)
+
+  MeanCherry <- PCMMean(cherry, model, X0, metaI = metaI, verbose = verbose)
+  MeanCherry[, 1]
+}
+
+
 #' Expected variance-covariance matrix for each couple of tips (i,j)
 #' @inheritParams PCMLik
-#' @return a (k x N) x (k x N) matrix V, such that \code{V[i, j]} equals the expected
-#' covariance matrix between tips  i and j.
+#' @param W0 a numeric matrix denoting the initial k x k variance covariance matrix at the
+#'  root (default is the k x k zero matrix).
+#' @param internal a logical indicating if the per-node variance-covariances matrices for
+#' the internal nodes should be returned (see Value). Default FALSE.
+#' @return If internal is FALSE, a (k x N) x (k x N) matrix W, such that k x k block
+#' \code{W[((i-1)*k)+(1:k), ((j-1)*k)+(1:k)]} equals the expected
+#' covariance matrix between tips i and j. Otherwise, a list with an element 'W' as described above and
+#' a k x M matrix element 'Wii' containing the per-node variance covariance matrix for each node:
+#' The k x k block \code{Wii[, (i-1)*k + (1:k)]} represents the variance covariance matrix for node i.
 #' @export
-PCMVar <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+PCMVar <- function(tree, model, W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
+                   metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
   UseMethod("PCMVar", model)
 }
+
+#' Calculate the variance covariance k x k matrix at time t, under a PCM model
+#' @param t positive numeric denoting time
+#' @param model a PCM model object
+#' @param W0 a numeric matrix denoting the initial k x k variance covariance matrix at the
+#'  root (default is the k x k zero matrix).
+#' @param regime an integer or a character denoting the regime in model for which to do the calculation;
+#' (Defaults to 1L meaning the first regime in the model)
+#' @param verbose a logical indicating if (debug) messages should be written on the console (Defaults to FALSE).
+#' @return A numeric k x k matrix
+#' @export
+PCMVarAtTime <- function(t, model, W0 =  matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
+                         regime = 1L, verbose = FALSE) {
+  if(is.character(regime)) {
+    regime <- match(regime, PCMRegimes(model))
+  }
+
+  cherry <- list(tip.labels=c("t1", "t2"),
+                 edge=rbind(c(3L, 1L), c(3L, 2L)),
+                 edge.length=rep(t, 2),
+                 Nnode = 1L,
+                 edge.regime = rep(regime, 2))
+  class(cherry) <- "phylo"
+
+
+  metaI <- PCMInfo(NULL, cherry, model, verbose = verbose)
+
+  # need to manually set the r member in metaI to the regime index:
+  metaI$r <- rep(regime, 2)
+
+  VarCherry <- PCMVar(cherry, model, W0, metaI = metaI, verbose = verbose)
+
+  k <- PCMNumTraits(model)
+  VarCherry[1:k, 1:k]
+}
+
 
 #' Simulation of a phylogenetic comparative model on a tree
 #'

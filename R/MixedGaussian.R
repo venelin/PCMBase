@@ -102,7 +102,7 @@ PCMParamCount.MixedGaussian <- function(o, countRegimeChanges = FALSE, countMode
 #' regime. \code{mapping} does not have to be a named vector. If it is a named
 #' vector, then all the names must correspond to valid regime names in a tree to
 #' which the model will be fit (member tree$edge.regime should be a character vector).
-#' If it is not a named vector than the positions of the elements correspond to the
+#' If it is not a named vector then the positions of the elements correspond to the
 #' regimes in their order given by the function \code{\link{PCMTreeUniqueRegimes}}
 #' called on a tree object.
 #' @param className a character string definingn a valid S3 class name for the
@@ -134,7 +134,7 @@ MixedGaussian <- function(
   Sigmae_x = structure(0.0, class = c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
                        description = "Upper triangular Choleski factor of the non-phylogenetic variance-covariance")) {
 
-  regimes <- if(is.null(names(mapping))) 1:length(mapping) else names(mapping)
+  regimes <- if(is.null(names(mapping))) seq_len(length(mapping)) else names(mapping)
 
   if(is.character(mapping)) {
     mapping2 <- match(mapping, modelTypes)

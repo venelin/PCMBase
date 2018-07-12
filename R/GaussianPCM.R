@@ -38,7 +38,7 @@ PCMCond.GaussianPCM <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, mode
 }
 
 #' @export
-PCMMean.GaussianPCM <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+PCMMean.GaussianPCM <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
   if(is.Transformable(model)) {
     model <- PCMApplyTransformation(model)
   }
@@ -74,12 +74,18 @@ PCMMean.GaussianPCM <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, 
     Mu[, i] <- cond$omega(t, edgeIndex, metaI) + cond$Phi(t, edgeIndex, metaI) %*% Mu[, j]
   }
 
-  Mu[, 1:N]
+  if(internal) {
+    Mu
+  } else {
+    Mu[, 1:N]
+  }
 }
 
 #' @importFrom ape mrca
 #' @export
-PCMVar.GaussianPCM <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE)  {
+PCMVar.GaussianPCM <- function(tree, model,
+                               W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
+                               metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
 
   threshold_SV <- metaI$PCMBase.Threshold.SV
   skip_singular <- metaI$PCMBase.Skip.Singular
@@ -117,7 +123,7 @@ PCMVar.GaussianPCM <- function(tree, model, metaI=PCMInfo(NULL, tree, model, ver
 
   # Variance-blocks matrix for all nodes
   Wii <- matrix(as.double(NA), k, k*M)
-  Wii[, BlockI(N+1)] <- 0
+  Wii[, BlockI(N+1)] <- W0
 
   # need to set the names of the nodes and tips to their integer indices converted to character strings
   # this affects the local tree
@@ -174,30 +180,42 @@ PCMVar.GaussianPCM <- function(tree, model, metaI=PCMInfo(NULL, tree, model, ver
 
     if(is.na(min(svdV)/max(svdV)) ||
        min(svdV)/max(svdV) < threshold_SV ||
-       abs(eigval[k]) < threshold_eigval) {
+       eigval[k] < threshold_eigval) {
       if(!skip_singular || t > threshold_skip_singular ) {
         err <- paste0(
           "ERR:02121:PCMBase:GaussianPCM.R:PCMVar.GaussianPCM:",i,":",
           " The matrix V for node ", i,
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-          ". Check the model parameters and the length of the branch",
+          ". eigval[k] = ", eigval[k], "; Check PCMOptions()$PCMBase.Threshold.EV, PCMOptions()$PCMBase.Threshold.SV PCMOptions()$PCMBase.Threshold.Skip.Singular and the model parameters and the length of the branch",
           " leading to the node. For details on this error, read the User Guide.")
         stop(err)
       } else {
-        V[] <- 0.0
+        # skip the singular branch by taking the values from j unchanged
+        Wii[, BlockI(i)] <- Wii[, BlockI(j)]
+
+        listProdPhi[[i]] <- lapply(listPathsToRoot[[i]], function(jAnc) {
+          if(jAnc == j) {
+            diag(1, k, k)
+          } else {
+            listProdPhi[[j]][[as.character(jAnc)]]
+          }
+        })
       }
+    } else {
+      Wii[, BlockI(i)] <- Phi_i %*% Wii[, BlockI(j)] %*% t(Phi_i) + V
+
+      # debug message
+      #cat("daugter i:", i, ", label: ", PCMTreeGetLabels(tree)[i], "; parent j:", j, ", label: ", PCMTreeGetLabels(tree)[j], ", edge-index:", edgeIndex, ", metaI$r[edgeIndex]:", metaI$r[edgeIndex], ", tree$edge.regime[edgeIndex]:", tree$edge.regime[edgeIndex],", Wii:\n")
+      #print(Wii[, BlockI(i)])
+
+      listProdPhi[[i]] <- lapply(listPathsToRoot[[i]], function(jAnc) {
+        if(jAnc == j) {
+          Phi_i
+        } else {
+          Phi_i %*% listProdPhi[[j]][[as.character(jAnc)]]
+        }
+      })
     }
-
-
-    Wii[, BlockI(i)] <- Phi_i %*% Wii[, BlockI(j)] %*% t(Phi_i) + V
-
-    listProdPhi[[i]] <- lapply(listPathsToRoot[[i]], function(jAnc) {
-      if(jAnc == j) {
-        Phi_i
-      } else {
-        Phi_i %*% listProdPhi[[j]][[as.character(jAnc)]]
-      }
-    })
   }
 
   if(N > 1) {
@@ -224,7 +242,12 @@ PCMVar.GaussianPCM <- function(tree, model, metaI=PCMInfo(NULL, tree, model, ver
   } else if(N == 1) {
     W[BlockI(1), BlockI(1)] <- Wii[, BlockI(1)]
   }
-  W
+
+  if(internal) {
+    list(W = W, Wii = Wii)
+  } else {
+    W
+  }
 }
 
 
@@ -503,14 +526,14 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
 
     if(is.na(min(svdV)/max(svdV)) ||
        min(svdV)/max(svdV) < threshold_SV ||
-       abs(eigval[sum(ki)]) < threshold_eigval) {
+       eigval[sum(ki)] < threshold_eigval) {
       singular[edgeIndex] <- TRUE
       if(!skip_singular || ti > threshold_skip_singular ) {
         err <- paste0(
           "ERR:02131:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
           " The matrix V for node ", i,
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-          "; abs(eigval[sum(ki)]) = ", abs(eigval[sum(ki)]),
+          "; eigval[sum(ki)] = ", eigval[sum(ki)],
           " Check the model parameters and the length of the branch",
           " leading to the node. For details on this error, read the User Guide.")
         stop(err)
@@ -546,6 +569,7 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
       }
 
       V_1[ki,ki,i] <- solve(V[ki,ki,i])
+      # TODO: V_1.slice(i)(ki, ki) = real(eigvec * diagmat(1/eigval) * eigvec.t());
 
       `%op%` <- if(sum(ki) > 1) `%*%` else `*`
 

@@ -408,39 +408,43 @@ PCMParamLoadOrStore.PCM <- function(o, vecParams, offset, k, R, load, parentMode
 
   p <- 0
 
-  for(name in names(o)) {
-    if(is.Global(o[[name]]) && !is.null(parentModel)) {
-      # this is a nested model of parentModel, hence
-      # o[[name]] must have been loaded by the parentModel, because all global
-      # parameters by convention should precede the other entries.
-      if(load) {
-        eval(substitute( o[[name]][] <- parentModel[[name]][] ), parent.frame() )
-        # no need to update p
+  if(is.Fixed(o) || is.Omitted(o)) {
+    # do nothing
+  } else {
+    for(name in names(o)) {
+      if(is.Global(o[[name]]) && !is.null(parentModel)) {
+        # this is a nested model of parentModel, hence
+        # o[[name]] must have been loaded by the parentModel, because all global
+        # parameters by convention should precede the other entries.
+        if(load) {
+          eval(substitute( o[[name]][] <- parentModel[[name]][] ), parent.frame() )
+          # no need to update p
+        } else {
+          # nothing to do because the parentModel should already have taken care
+          # to store the parameter into vecParams.
+        }
       } else {
-        # nothing to do because the parentModel should already have taken care
-        # to store the parameter into vecParams.
+        # naming the first parameter (o) seems to fail:
+        #
+        # p <- p + eval(substitute(PCMParamLoadOrStore(
+        #   o = o[[name]],
+        #   vecParams = vecParams,
+        #   offset = offset + p,
+        #   k = k,
+        #   R = R,
+        #   load = load)), parent.frame())
+        #
+        p <- p + eval(substitute(PCMParamLoadOrStore(
+          o[[name]],
+          vecParams,
+          offset + p,
+          k,
+          R,
+          load,
+          o)), parent.frame())
       }
-    } else {
-      # naming the first parameter (o) seems to fail:
-      #
-      # p <- p + eval(substitute(PCMParamLoadOrStore(
-      #   o = o[[name]],
-      #   vecParams = vecParams,
-      #   offset = offset + p,
-      #   k = k,
-      #   R = R,
-      #   load = load)), parent.frame())
-      #
-      p <- p + eval(substitute(PCMParamLoadOrStore(
-        o[[name]],
-        vecParams,
-        offset + p,
-        k,
-        R,
-        load,
-        o)), parent.frame())
-    }
 
+    }
   }
   p
 }
@@ -609,22 +613,26 @@ PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = F
   R <- length(attr(o, "regimes"))
 
   p0 <- offset
-  for(name in names(o)) {
-    if(is.Global(o[[name]]) && !is.null(parentModel)) {
-      # Global parameters are already counted in the parentModel, so don't recount them
-    } else {
-      offset <- offset + PCMParamCount(o[[name]], offset = offset, k = k, R = R, parentModel = o)
+  if(is.Fixed(o) || is.Omitted(o)) {
+    # do nothing
+  } else {
+    for(name in names(o)) {
+      if(is.Global(o[[name]]) && !is.null(parentModel)) {
+        # Global parameters are already counted in the parentModel, so don't recount them
+      } else {
+        offset <- offset + PCMParamCount(o[[name]], offset = offset, k = k, R = R, parentModel = o)
+      }
     }
-  }
-  if(countRegimeChanges) {
-    # we don't count the root as a parameters, tha'ts why we substract one.
-    offset <- offset + PCMNumRegimes.PCM(o) - 1L
-  }
-  if(countModelTypes) {
-    # assume that all regimes have the same model-type. If there is only one
-    # model type than this is not counted as a parameter.
-    if(length(attr(o, "modelTypes", exact = TRUE)) > 1L) {
-      offset <- offset + 1L
+    if(countRegimeChanges) {
+      # we don't count the root as a parameters, tha'ts why we substract one.
+      offset <- offset + PCMNumRegimes.PCM(o) - 1L
+    }
+    if(countModelTypes) {
+      # assume that all regimes have the same model-type. If there is only one
+      # model type than this is not counted as a parameter.
+      if(length(attr(o, "modelTypes", exact = TRUE)) > 1L) {
+        offset <- offset + 1L
+      }
     }
   }
   unname(offset - p0)
@@ -725,6 +733,18 @@ PCMParamSetByName.PCM <- function(model, params, inplace = TRUE, replaceWholePar
   }
 }
 
+#' The object representing a lower limit for a given type
+#'
+#' @description \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit} are S3
+#' generic functions.
+#'
+#' @param o an object such as a VectorParameter a MatrixParameter or a PCM.
+#' @param k integer denoting the number of traits
+#' @param R integer denoting the number of regimes in the model in which o
+#' belongs to.
+#' @param ... additional arguments (optional or future use).
+#' @return an object of the same S3 class as o representing a lower limit for
+#' the class.
 #' @export
 PCMParamLowerLimit <- function(o, k, R, ...) {
   UseMethod("PCMParamLowerLimit", o)
@@ -1001,9 +1021,9 @@ PCMApplyTransformation._CholeskiFactor <- function(o, ...) {
 
 #' @export
 PCMApplyTransformation._Schur <- function(o, ...) {
-  # Assuming o is a MatrixParameter, for each matrix M in o, use the upper
-  # triangle without the diagonal as rotation angles for a Givens rotation
-  # to obtain an orthoganal matrix Q;
+  # Assuming o is a MatrixParameter, we transform each matrix M in o as follows:
+  # use the upper triangle without the diagonal of M as rotation angles for a Givens
+  # rotation to obtain an orthoganal matrix Q;
   # Then, use the lower triangle with the diagonal of M as a matrix T
   # Return the product Q %*% t(T) %*% t(Q).
   # The returned matrix will have all of its eigenvalues equal to the elements
@@ -1022,6 +1042,7 @@ PCMApplyTransformation._Schur <- function(o, ...) {
     M[upper.tri(M)] <- 0.0
     Q %*% t(M) %*% t(Q)
   }
+
   if(is.Global(o)) {
     o[] <- transformMatrix(o)
   } else {

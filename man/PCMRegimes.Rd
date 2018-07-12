@@ -4,17 +4,13 @@
 \alias{PCMRegimes}
 \title{Regimes in a model}
 \usage{
-PCMRegimes(model, tree = NULL, preorder = if (is.null(tree)) NULL else
-  PCMTreePreorder(tree))
+PCMRegimes(model)
 }
 \arguments{
 \item{model}{a PCM object}
-
-\item{tree}{a phylo object or NULL. If the regimes in the model are integers and tree is not NULL,
-then these integers are used as indexes in PCMTreeUniqueRegimes(tree). Default NULL.}
 }
 \value{
-a character or an integer vector giving the regime names of the models
+a character or an integer vector giving the regime names in the model
 }
 \description{
 Regimes in a model

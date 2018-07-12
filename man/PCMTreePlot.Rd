@@ -4,8 +4,20 @@
 \alias{PCMTreePlot}
 \title{Plot a tree with regimes}
 \usage{
-PCMTreePlot(tree)
+PCMTreePlot(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree),
+  PCMTreeUniqueRegimes(tree)), ...)
+}
+\arguments{
+\item{tree}{a phylo with set labels and regimes}
+
+\item{palette}{a named vector of colors corresponding to the regimes in tree}
+
+\item{...}{Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.}
 }
 \description{
 Plot a tree with regimes
+}
+\note{
+Currently, the ggtree package is not on CRAN and therefore it is not explicitly
+imported by PCMBase.
 }

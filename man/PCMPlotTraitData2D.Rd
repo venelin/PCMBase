@@ -4,7 +4,18 @@
 \alias{PCMPlotTraitData2D}
 \title{Scatter plot of 2-dimensional data}
 \usage{
-PCMPlotTraitData2D(X, tree, labeledTips = NULL)
+PCMPlotTraitData2D(X, tree, labeledTips = NULL, sizeLabeledTips = 8,
+  palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree),
+  PCMTreeUniqueRegimes(tree)))
+}
+\arguments{
+\item{X}{a k x N matrix}
+
+\item{tree}{a phylo object}
+
+\item{labeledTips}{a vector of tip-numbers to label (NULL by default)}
+
+\item{palette}{a named vector of colors}
 }
 \description{
 Scatter plot of 2-dimensional data

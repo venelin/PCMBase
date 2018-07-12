@@ -236,6 +236,17 @@ PCMTreeGetRegimeForNode <- function(tree, node) {
   tree$edge.regime[tree$edge[, 2]==node]
 }
 
+#' Get the tips belonging to a regime tree
+#' @param tree a phylo object with an edge.regime member
+#' @param regime a character or integer belonging to tree$edge.regime
+#' @return an integer vector with the ids of the tips belonging to regime
+#' @export
+PCMTreeGetTipsInRegime <- function(tree, regime) {
+  N <- PCMTreeNumTips(tree)
+  tipEdges <- tree$edge[, 2] <= N & tree$edge.regime == regime
+  tree$edge[tipEdges, 2]
+}
+
 #' Unique regimes on a tree in the order of occurrence from the root to the tips (preorder)
 #'
 #' @param tree a phylo object with an additional member edge.regime which should
@@ -310,12 +321,12 @@ PCMTreeJumps <- function(tree) {
 #' operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.
 #' @return an integer vector with entries corresponding to the rows in tree$edge
 #'   denoting the regime on each branch in the tree as an index in PCMRegimes(model).
-#' @export
 PCMTreeMatchRegimesWithModel <- function(tree, model, preorder = PCMTreePreorder(tree)) {
   if(is.null(tree$edge.regime)) {
     PCMTreeSetDefaultRegime(tree, model)
   }
-  regimes <- match(tree$edge.regime, PCMRegimes(model, tree, preorder))
+  #regimes <- match(tree$edge.regime, PCMRegimes(model, tree, preorder))
+  regimes <- match(tree$edge.regime, PCMRegimes(model))
   if(any(is.na(regimes))) {
     stop(paste0("ERR:02671:PCMBase:PCMTree.R:PCMTreeMatchRegimesWithModel:: ",
                 " Some of the regimes in tree$edge.regime not found in",
@@ -577,7 +588,7 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAnce
 #' @details In the current implementation, the edge.jump and edge.regime members
 #' of the tree will be discarded and not present in the clade.
 #'
-#' TODO: preserveJumps and preserveRegimes
+#' TODO: preserveRegimes and preserve regimes
 #'
 #' @importFrom ape drop.tip
 #' @export
@@ -589,12 +600,19 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
   M <- PCMTreeNumNodes(tree)
   nodeLabels <- PCMTreeGetLabels(tree)
   if(is.character(node)) {
-    node <- match(node, nodeLabels)
+    nodeLab <- node
+    node <- match(nodeLab, nodeLabels)
     if(is.na(node)) {
       stop(paste0("ERR:02601:PCMBase:PCMTree.R:PCMTreeSplit:: character node (", node, ") was not matched against the nodeLabels in tree."))
     }
+  } else {
+    nodeLab <- try(nodeLabels[node], silent = TRUE)
+    if(class(nodeLab) == "try-error") {
+      stop(paste0("ERR:02602:PCMBase:PCMTree.R:PCMTreeSplit:: non-character type node (", node, ") was not found: ", nodeLab, "."))
+    }
   }
 
+  # remove edge.regime and edge.jump from the tree - we currently do not update them.
   if( !is.null(tree$edge.regime) ) {
     tree <- tree[- which(names(tree) == "edge.regime")]
     class(tree) <- "phylo"
@@ -617,6 +635,7 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
     }
     nodesClade <- which(tableAncestors[, node] > 0)
     tipsClade <- nodesClade[nodesClade <= N]
+
     if(length(tipsClade) == 0 && node <= N) {
       tipsClade <- node
     }
@@ -624,8 +643,31 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
     if(!is.null(X)) {
       colnames(X) <- tree$tip.label <- as.character(1:N)
     }
-    clade = drop.tip(tree, tip = setdiff(1:N, tipsClade), trim.internal = TRUE, collapse.singles = TRUE)
-    rest = drop.tip(tree, tip = tipsClade, trim.internal = TRUE, collapse.singles = TRUE)
+
+
+    clade = drop.tip(tree, tip = setdiff(1:N, tipsClade), trim.internal = TRUE, collapse.singles = FALSE)
+
+    # Because we used collapse.singles=FALSE, clade is still holding the entire lineage from the root to
+    # node. We need to cut that part manually so that clade is rooted at node. We don't have to do this for rest,
+    # because it should indeed be rooted at the tree-root.
+    cladeNodeLabels <- PCMTreeGetLabels(clade)
+    cladeEdgeNodeLabels <- cbind(cladeNodeLabels[clade$edge[, 1]], cladeNodeLabels[clade$edge[, 2]])
+    cladeRootLab <- cladeNodeLabels[PCMTreeNumTips(clade) + 1]
+    # TODO:  avoid this while loop and remove all root-nodes at once
+    while(cladeRootLab != nodeLab) {
+      ei <- which(cladeEdgeNodeLabels[, 1] == cladeRootLab)
+
+      cladeRootLabNew <- cladeEdgeNodeLabels[ei, 2]
+      clade$edge <- clade$edge[-ei, ]
+      clade$edge[clade$edge > length(tipsClade)] <- clade$edge[clade$edge > length(tipsClade)] - 1
+      clade$edge.length <- clade$edge.length[-ei]
+      cladeEdgeNodeLabels <- cladeEdgeNodeLabels[-ei, ]
+      clade$node.label <- clade$node.label[-match(cladeRootLab, clade$node.label)]
+      clade$Nnode <- clade$Nnode - 1
+      cladeRootLab <- cladeRootLabNew
+    }
+
+    rest = drop.tip(tree, tip = tipsClade, trim.internal = TRUE, collapse.singles = FALSE)
     if(!is.null(X)) {
       Xclade <- X[, clade$tip.label, drop = FALSE]
       Xrest <- X[, rest$tip.label, drop = FALSE]
@@ -640,154 +682,6 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
   }
 }
 
-#' A matrix with the begin and end time from the root for each edge in tree
-#' @param tree a phylo
-#' @export
-PCMTreeEdgeTimes <- function(tree) {
-  nodeTimes <- PCMTreeNodeTimes(tree)
-
-  # begin and end-time of each edge relative to the root
-  edgeTimes <- matrix(0.0, nrow(tree$edge), 2)
-  edgeTimes[, 1] <- nodeTimes[tree$edge[, 1]]
-  edgeTimes[, 2] <- nodeTimes[tree$edge[, 2]]
-  edgeTimes
-}
-
-#' Find the crossing points of an epoch-time with each lineage of a tree
-#' @param tree a phylo
-#' @param epoch a positive numeric ing tip-ward distance from the root
-#' @return a named list with an integer vector element "nodes" denoting the ending nodes for each
-#' branch crossing epoch and numeric vector element "positions" denoting the root-ward offset
-#' from each node in nodes.
-#' @export
-PCMTreeLocateEpochOnBranches <- function(tree, epoch) {
-  edgeTimes <- PCMTreeEdgeTimes(tree)
-  where <- (edgeTimes[, 1] < epoch) & (epoch < edgeTimes[, 2])
-  nodes <- tree$edge[where, 2]
-  positions <- edgeTimes[where, 2] - epoch
-  list(nodes = nodes, positions = positions)
-}
-
-#' Find the middle point of each branch longer than a threshold
-#' @param tree a phylo
-#' @param threshold a positive numeric; only branches longer than threshold will be returned; Default 0.
-#' @return a named list with an integer vector element "nodes" denoting the ending nodes for each
-#' branch crossing epoch and numeric vector element "positions" denoting the root-ward offset
-#' from each node in nodes.
-#' @export
-PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
-  where <- tree$edge.length > threshold
-  nodes <- tree$edge[where, 2]
-  positions <- tree$edge.length[where]/2
-  list(nodes = nodes, positions = positions)
-}
-
-#' Insert singleton nodes on chosen edges
-#'
-#' @param tree a phylo object
-#' @param nodes an integer vector denoting the terminating nodes of the edges on which
-#' a singleton node is to be inserted
-#' @param positions a positive numeric vector of the same length as nodes denoting the root-ward
-#' distances from nodes at which the singleton nodes should be inserted
-#'
-#' @importFrom ape bind.tree drop.tip
-#' @return a modified version of tree with inserted singleton nodes at the specified locations
-#' @seealso \code{\link{PCMTreeEdgeTimes}} \code{\link{PCMTreeLocateEpochOnBranches}} \code{\link{PCMTreeLocateMidpointsOnBranches}}
-#' @export
-PCMTreeInsertSingletons <- function(tree, nodes, positions) {
-  M <- PCMTreeNumNodes(tree)
-  N <- PCMTreeNumTips(tree)
-  tip.label <- tree$tip.label
-  node.label <- tree$node.label
-  edge.regime <- tree$edge.regime
-  edge.length <- tree$edge.length
-
-  PCMTreeSetLabels(tree, paste0("x_", 1:PCMTreeNumNodes(tree)))
-
-  if( !is.null(node.label) ) {
-    names(node.label) <- paste0("x_", (N+1):M)
-  }
-
-  edgeNames <- paste0("x_", tree$edge[, 2])
-  if( !is.null(edge.regime) ) {
-    names(edge.regime) <- edgeNames
-  }
-  if( !is.null(edge.length) ) {
-    names(edge.length) <- edgeNames
-  }
-
-  edgeTimes <- PCMTreeEdgeTimes(tree)
-  rownames(edgeTimes) <- edgeNames
-
-  # which edges should be processed
-  names(nodes) <- names(positions) <- PCMTreeGetLabels(tree)[nodes]
-  edgesToCut <- tree$edge[, 2] %in% nodes
-  edgesToCutNames <- edgeNames[edgesToCut]
-
-  edge.regime.new <- rep("", length(edgesToCutNames))
-  names(edge.regime.new) <- paste0(
-    "i_", round(edgeTimes[edgesToCutNames, 2] - positions[edgesToCutNames], 2),
-    "_", edgesToCutNames)
-
-  node.label.new <- names(edge.regime.new)
-  names(node.label.new) <- names(edge.regime.new)
-
-  tipTree <- list(edge = matrix(c(2, 1), nrow = 1, ncol = 2),
-                  tip.label = "y_1",
-                  node.label = "y_2",
-                  edge.length = c(1.0),
-                  Nnode = 1)
-  class(tipTree) <- "phylo"
-
-  for(edgeName in edgesToCutNames) {
-    # find the number of the ending node for the edge
-    node <- N + match(edgeName, tree$node.label)
-    if(is.na(node)) {
-      # node should be a tip
-      node <- match(edgeName, tree$tip.label)
-    }
-    #cat("edgeName=", edgeName, "node=", node, "\n")
-
-    # find the position (root-ward offset from node) where to cut
-
-    # add, then drop the tipTree using ape's functions
-    tree <- bind.tree(tree, tipTree, node, positions[edgeName])
-    tree <- drop.tip(tree, "y_1", collapse.singles = FALSE)
-
-    # inserted edge
-    edgeNameNew <- paste0(
-      "i_",
-      round(edgeTimes[edgeName, 2] - positions[edgeName], 2), "_", edgeName)
-
-    tree$node.label[is.na(tree$node.label)] <- edgeNameNew
-
-    if(!is.null(edge.regime)) {
-      edge.regime.new[edgeNameNew] <- edge.regime[edgeName]
-    }
-  }
-
-  # The edge leading to the new internal node take the same regime as ITS
-  # DAUGHTER edge
-  if(!is.null(edge.regime)) {
-    edge.regime.new <- c(edge.regime, edge.regime.new)
-    nodeNamesNew <- PCMTreeGetLabels(tree)
-    tree$edge.regime <- edge.regime.new[nodeNamesNew[tree$edge[, 2]]]
-  }
-
-  # restore original node labels
-  if(!is.null(node.label)) {
-    node.label.new <- c(node.label, node.label.new)
-    node.label <- node.label.new[tree$node.label]
-    tree$node.label <- node.label
-  }
-
-  # restore original tip.label
-  if(!is.null(tip.label)) {
-    tree$tip.label <- tip.label
-  }
-
-  tree
-}
 
 #' Extract a clade from phylogenetic tree
 #' @param tree a phylo object
@@ -966,6 +860,258 @@ PCMTreeEvalNestedEDxOnTree <- function(expr, tree) {
   env$x <- tree
   eval(parse(text=expr), envir = env)
 }
+
+
+#' A matrix with the begin and end time from the root for each edge in tree
+#' @param tree a phylo
+#' @export
+PCMTreeEdgeTimes <- function(tree) {
+  nodeTimes <- PCMTreeNodeTimes(tree)
+
+  # begin and end-time of each edge relative to the root
+  edgeTimes <- matrix(0.0, nrow(tree$edge), 2)
+  edgeTimes[, 1] <- nodeTimes[tree$edge[, 1]]
+  edgeTimes[, 2] <- nodeTimes[tree$edge[, 2]]
+  edgeTimes
+}
+
+#' Find the crossing points of an epoch-time with each lineage of a tree
+#' @param tree a phylo
+#' @param epoch a positive numeric ing tip-ward distance from the root
+#' @return a named list with an integer vector element "nodes" denoting the ending nodes for each
+#' branch crossing epoch and numeric vector element "positions" denoting the root-ward offset
+#' from each node in nodes.
+#' @export
+PCMTreeLocateEpochOnBranches <- function(tree, epoch) {
+  edgeTimes <- PCMTreeEdgeTimes(tree)
+  where <- (edgeTimes[, 1] < epoch) & (epoch <= edgeTimes[, 2])
+  nodes <- tree$edge[where, 2]
+  positions <- edgeTimes[where, 2] - epoch
+  list(nodes = nodes, positions = positions)
+}
+
+#' Find the middle point of each branch longer than a threshold
+#' @param tree a phylo
+#' @param threshold a positive numeric; only branches longer than threshold will be returned; Default 0.
+#' @return a named list with an integer vector element "nodes" denoting the ending nodes for each
+#' branch crossing epoch and numeric vector element "positions" denoting the root-ward offset
+#' from each node in nodes.
+#' @export
+PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
+  where <- tree$edge.length > threshold
+  nodes <- tree$edge[where, 2]
+  positions <- tree$edge.length[where]/2
+  list(nodes = nodes, positions = positions)
+}
+
+#' Insert singleton nodes on chosen edges
+#'
+#' @param tree a phylo object
+#' @param nodes an integer vector denoting the terminating nodes of the edges on which
+#' a singleton node is to be inserted
+#' @param positions a positive numeric vector of the same length as nodes denoting the root-ward
+#' distances from nodes at which the singleton nodes should be inserted
+#'
+#' @importFrom ape bind.tree drop.tip
+#' @return a modified version of tree with inserted singleton nodes at the specified locations
+#' @seealso \code{\link{PCMTreeEdgeTimes}} \code{\link{PCMTreeLocateEpochOnBranches}} \code{\link{PCMTreeLocateMidpointsOnBranches}}
+#' @export
+PCMTreeInsertSingletons <- function(tree, nodes, positions) {
+  M <- PCMTreeNumNodes(tree)
+  N <- PCMTreeNumTips(tree)
+  tip.label <- tree$tip.label
+  node.label <- tree$node.label
+  edge.regime <- tree$edge.regime
+  edge.length <- tree$edge.length
+
+  PCMTreeSetLabels(tree, paste0("x_", 1:PCMTreeNumNodes(tree)))
+
+  if( !is.null(node.label) ) {
+    names(node.label) <- paste0("x_", (N+1):M)
+  }
+
+  edgeNames <- paste0("x_", tree$edge[, 2])
+  if( !is.null(edge.regime) ) {
+    names(edge.regime) <- edgeNames
+  }
+  if( !is.null(edge.length) ) {
+    names(edge.length) <- edgeNames
+  }
+
+  edgeTimes <- PCMTreeEdgeTimes(tree)
+  rownames(edgeTimes) <- edgeNames
+
+  # which edges should be processed
+  names(nodes) <- names(positions) <- PCMTreeGetLabels(tree)[nodes]
+  edgesToCut <- tree$edge[, 2] %in% nodes
+  edgesToCutNames <- edgeNames[edgesToCut]
+
+  edge.regime.new <- rep("", length(edgesToCutNames))
+  names(edge.regime.new) <- paste0(
+    "i_", round(edgeTimes[edgesToCutNames, 2] - positions[edgesToCutNames], 2),
+    "_", edgesToCutNames)
+
+  node.label.new <- names(edge.regime.new)
+  names(node.label.new) <- names(edge.regime.new)
+
+  tipTree <- list(edge = matrix(c(2, 1), nrow = 1, ncol = 2),
+                  tip.label = "y_1",
+                  node.label = "y_2",
+                  edge.length = c(1.0),
+                  Nnode = 1)
+  class(tipTree) <- "phylo"
+
+  for(edgeName in edgesToCutNames) {
+    # find the number of the ending node for the edge
+    node <- N + match(edgeName, tree$node.label)
+    if(is.na(node)) {
+      # node should be a tip
+      node <- match(edgeName, tree$tip.label)
+    }
+    #cat("edgeName=", edgeName, "node=", node, "\n")
+
+    # find the position (root-ward offset from node) where to cut
+
+    # add, then drop the tipTree using ape's functions
+    tree <- bind.tree(tree, tipTree, node, positions[edgeName])
+    tree <- drop.tip(tree, "y_1", collapse.singles = FALSE)
+
+    # inserted edge
+    edgeNameNew <- paste0(
+      "i_",
+      round(edgeTimes[edgeName, 2] - positions[edgeName], 2), "_", edgeName)
+
+    tree$node.label[is.na(tree$node.label)] <- edgeNameNew
+
+    if(!is.null(edge.regime)) {
+      edge.regime.new[edgeNameNew] <- edge.regime[edgeName]
+    }
+  }
+
+  # The edge leading to the new internal node take the same regime as ITS
+  # DAUGHTER edge
+  if(!is.null(edge.regime)) {
+    edge.regime.new <- c(edge.regime, edge.regime.new)
+    nodeNamesNew <- PCMTreeGetLabels(tree)
+    tree$edge.regime <- edge.regime.new[nodeNamesNew[tree$edge[, 2]]]
+  }
+
+  # restore original node labels
+  if(!is.null(node.label)) {
+    node.label.new <- c(node.label, node.label.new)
+    node.label <- node.label.new[tree$node.label]
+    tree$node.label <- node.label
+  }
+
+  # restore original tip.label
+  if(!is.null(tip.label)) {
+    tree$tip.label <- tip.label
+  }
+
+  tree
+}
+
+#' @describeIn PCMTreeInsertSingletons
+#'
+#' @export
+PCMTreeInsertSingletonsAtEpoch <- function(tree, epoch, minLength = 0.1) {
+  nodeTimes <- PCMTreeNodeTimes(tree)
+
+  points <- PCMTreeLocateEpochOnBranches(tree, epoch)
+
+  idxPoints <- sapply(seq_along(points$nodes), function(i) {
+    node <- points$nodes[i]
+    nodeTime <- nodeTimes[points$nodes[i]]
+    parentNode <- tree$edge[tree$edge[, 2] == points$nodes[i], 1]
+    parentTime <- nodeTimes[parentNode]
+    pos <- points$positions[i]
+
+    (points$positions[i] > minLength) && (nodeTime - pos - parentTime) > minLength
+    })
+
+  if(length(idxPoints) > 0) {
+    points$nodes <- points$nodes[idxPoints]
+    points$positions <- points$positions[idxPoints]
+    if(length(points$nodes) > 0) {
+      PCMTreeInsertSingletons(tree, points$nodes, points$positions)
+    } else {
+      tree
+    }
+  } else {
+    tree
+  }
+
+}
+
+#' Find the nearest node to a given time from the root (epoch) on each lineage crossing this epoch
+#' @param tree a phylo
+#' @param epoch a positive numeric
+#' @return an integer vector
+#' @export
+PCMTreeNearestNodesToEpoch <- function(tree, epoch) {
+  nodeTimes <- PCMTreeNodeTimes(tree)
+  points <- PCMTreeLocateEpochOnBranches(tree, epoch)
+  sapply(seq_along(points$nodes), function(i) {
+    node <- points$nodes[i]
+    parentNode <- tree$edge[tree$edge[, 2] == points$nodes[i], 1]
+
+    if(points$positions[i] > (nodeTimes[points$nodes[i]] - points$positions[i] - nodeTimes[parentNode])) {
+      parentNode
+    } else {
+      node
+    }
+  })
+}
+
+#' A data.table of the tips with their assigned regime
+#' @param tree a phylo object with node-labels and regimes
+#' @importFrom data.table data.table
+#' @export
+PCMTreeDtNodeRegimes <- function(tree) {
+  N <- PCMTreeNumTips(tree)
+  nodeTimes <- PCMTreeNodeTimes(tree)
+  nodeLabels <- PCMTreeGetLabels(tree)
+
+  data.table(
+    startNode = tree$edge[, 1], endNode = tree$edge[, 2],
+    startNodeLab = nodeLabels[tree$edge[, 1]], endNodeLab = nodeLabels[tree$edge[, 2]],
+    startTime = nodeTimes[tree$edge[, 1]], endTime = nodeTimes[tree$edge[, 2]],
+    regime = tree$edge.regime)
+}
+
+#' Prune the tree leaving one tip for each regime
+#' @param tree a phylo with set node-labels and regimes
+#' @return a pruned version of tree
+#'
+#' @seealso PCMTreeSetLabels PCMTreeSetRegimes
+#'
+#' @importFrom data.table data.table
+#' @importFrom ape drop.tip
+#'
+#' @export
+PCMTreeExtractBackboneRegimes <- function(tree) {
+  N <- PCMTreeNumTips(tree)
+  nodeTimes <- PCMTreeNodeTimes(tree)
+  nodeLabels <- PCMTreeGetLabels(tree)
+
+  regimeNodesTree <- PCMTreeGetStartingNodesRegimes(tree)
+
+  dtBranchRegimes <- data.table(
+    startNode = tree$edge[, 1], endNode = tree$edge[, 2],
+    startTime = nodeTimes[tree$edge[, 1]], endTime = nodeTimes[tree$edge[, 2]],
+    regime = tree$edge.regime)
+
+  dtTipRegimes <- dtBranchRegimes[endNode <= N]
+  dtTipRegimes <- dtTipRegimes[, list(endNode=endNode[which.max(endTime)]), keyby = regime]
+
+  tipsToDrop <- setdiff(1:N, dtTipRegimes[, endNode])
+
+  tree2 <- drop.tip(tree, tipsToDrop, collapse.singles = FALSE)
+
+  PCMTreeSetRegimes(tree2, nodeLabels[regimeNodesTree][-1], names(regimeNodesTree))
+  tree2
+}
+
 
 #' @export
 PCMTreeToString <- function(tree, includeLengths = FALSE, includeStartingNodesRegimes = FALSE) {

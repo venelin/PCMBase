@@ -15,34 +15,191 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
+#' @export
+PCMPlotMath <- function(o, roundDigits = 2, transformChol = FALSE) {
+  UseMethod("PCMPlotMath", o)
+}
+
+#' @export
+PCMPlotMath.default <- function(o, roundDigits = 2, transformChol = FALSE) {
+  if(is.numeric(o)) {
+    format(round(o, roundDigits), nsmall = roundDigits)
+  } else {
+    toString(o)
+  }
+}
+
+#' @export
+PCMPlotMath.VectorParameter <- function(o, roundDigits = 2, transformChol = FALSE) {
+  if(is.Global(o)) {
+    k <- length(o)
+    R <- 1
+  } else {
+    k <- dim(o)[1]
+    R <- dim(o)[2]
+  }
+
+  if(k <= 2) {
+    if(R > 1) {
+      res <- "list("
+    } else {
+      res <- ""
+    }
+    for(r in seq_len(R)) {
+      if(R > 1) {
+        res <- paste0(res, "", r, "==")
+      }
+      res <- paste0(res, 'bgroup("[", ')
+      if(k > 1) {
+        res <- paste0(res, "atop( ")
+      }
+      for(row in seq_len(k)) {
+        if(is.Global(o)) {
+          res <- paste0(res, '"', format(round(o[row], roundDigits), nsmall = roundDigits), '"')
+        } else {
+          res <- paste0(res, '"', format(round(o[row, r], roundDigits), nsmall = roundDigits), '"')
+        }
+
+        if(row != k) {
+          res <- paste0(res, ", ")
+        }
+      }
+      if(k > 1) {
+        res <- paste0(res, ')')
+      }
+      res <- paste0(res, ', "]")')
+      if(r < R && R > 1) {
+        res <- paste0(res, ",")
+      }
+    }
+    if(R > 1) {
+      res <- paste0(res, ")")
+    }
+    res
+  } else {
+    paste0("[", toString(o), "]")
+  }
+}
+
+#' @export
+PCMPlotMath.MatrixParameter <- function(o, roundDigits = 2, transformChol = FALSE) {
+  k <- dim(o)[1]
+  if(is.Global(o)) {
+    R <- 1
+    if(transformChol) {
+      o <- o %*% t(o)
+    }
+  } else {
+    R <- dim(o)[3]
+    if(transformChol) {
+      for(r in seq_len(R)) {
+        o[,,r] <- o[,,r] %*% t(o[,,r])
+      }
+    }
+  }
+
+  if(k <= 2) {
+    if(R > 1) {
+      res <- "list("
+    } else {
+      res <- ""
+    }
+    for(r in seq_len(R)) {
+      if(R > 1) {
+        res <- paste0(res, "", r, "==")
+      }
+      res <- paste0(res, 'bgroup("[", ')
+      if(k > 1) {
+        res <- paste0(res, "atop( ")
+      }
+      for(row in 1:k) {
+        res <- paste0(res, "paste(")
+        for(col in 1:k) {
+          if(is.Global(o)) {
+            res <- paste0(res, '"', format(round(o[row, col], roundDigits), nsmall = roundDigits), '"')
+          } else {
+            res <- paste0(res, '"', format(round(o[row, col, r], roundDigits), nsmall = roundDigits), '"')
+          }
+
+          if(col != k) {
+            res <- paste0(res, ', " ", ')
+          }
+        }
+        res <- paste0(res, ")")
+        if(row != k) {
+          res <- paste0(res, ", ")
+        }
+      }
+      if(k > 1) {
+        res <- paste0(res, ')')
+      }
+      res <- paste0(res, ', "]")')
+
+      if(r < R && R > 1) {
+        res <- paste0(res, ",")
+      }
+    }
+    if(R > 1) {
+      res <- paste0(res, ")")
+    }
+    res
+  } else {
+    paste0("[", toString(o), "]")
+  }
+}
+
+#' @export
+PCMPlotMath.PCM <- function(o, roundDigits = 2, transformChol = FALSE) {
+  res <- 'bgroup("{", list('
+  for(i in seq_along(o)) {
+    name <- names(o)[i]
+    transformChol <- FALSE
+    if(name == "Sigma_x") {
+      name <- "Sigma"
+      transformChol <- TRUE
+    }
+    res <- paste0(res, name, "==", PCMPlotMath(o[[i]], roundDigits = roundDigits, transformChol = transformChol))
+    if(i < length(o)) {
+      res <- paste0(res, ", ")
+    }
+  }
+  res <- paste0(res, '), "}")')
+  res
+}
+
+
+#' A fixed palette of n colors
+#' @export
+PCMColorPalette <- function(n, names) {
+  hues = seq(15, 375, length = n + 1)
+  palette <- hcl(h = hues, l = 65, c = 100)[1:n]
+  names(palette) <- names
+  palette
+}
+
 #' Plot a tree with regimes
+#' @param tree a phylo with set labels and regimes
+#' @param palette a named vector of colors corresponding to the regimes in tree
+#' @param ... Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.
+#' @note Currently, the ggtree package is not on CRAN and therefore it is not explicitly
+#' imported by PCMBase.
 #' @importFrom data.table data.table
 #' @importFrom grDevices hcl
 #' @importFrom ggplot2 aes scale_color_manual
 #' @export
-PCMTreePlot <- function(tree) {
+PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree)), ...) {
   if(!require(ggtree)) {
     stop("ERR:02400:PCMBase:Utilities.R:PCMTreePlot:: Calling PCMTreePlot needs ggtree package to be installed from Bioconductor. Check the instructions at https://bioconductor.org/packages/release/bioc/html/ggtree.html. Ggtree was not on CRAN at the time of releasing PCMBase and is not declared as dependency in the PCMBase-description.")
   }
 
-  gg_color_hue <- function(n) {
-    hues = seq(15, 375, length = n + 1)
-    hcl(h = hues, l = 65, c = 100)[1:n]
-  }
-
-  if(is.null(tree$edge.regime)) {
-    PCMTreeSetDefaultRegime(tree, 1)
-  }
   N <- PCMTreeNumTips(tree)
   R <- PCMTreeNumUniqueRegimes(tree)
-  palette <- gg_color_hue(R)
-  names(palette) <- PCMTreeUniqueRegimes(tree)
 
   data <- rbind(data.table(node = tree$edge[, 2],
                            regime = as.factor(tree$edge.regime)),
                 data.table(node = N+1, regime = as.factor(tree$edge.regime[1])))
 
-  plotTree <- ggtree(tree, layout = 'fan', open.angle = 8, size=.25) %<+% data
+  plotTree <- ggtree(tree, ...) %<+% data
 
   plotTree + aes(color = regime) +
     scale_color_manual(name = "regime", values = palette)
@@ -50,20 +207,18 @@ PCMTreePlot <- function(tree) {
 
 
 #' Scatter plot of 2-dimensional data
+#' @param X a k x N matrix
+#' @param tree a phylo object
+#' @param labeledTips a vector of tip-numbers to label (NULL by default)
+#' @param palette a named vector of colors
 #' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme
 #' @importFrom data.table data.table is.data.table setkey := setnames
 #' @export
-PCMPlotTraitData2D <- function(X, tree, labeledTips = NULL) {
-
-  gg_color_hue <- function(n) {
-    hues = seq(15, 375, length = n + 1)
-    hcl(h = hues, l = 65, c = 100)[1:n]
-  }
+PCMPlotTraitData2D <- function(X, tree, labeledTips = NULL, sizeLabeledTips = 8,
+                               palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree))) {
 
   N <- PCMTreeNumTips(tree)
   R <- PCMTreeNumUniqueRegimes(tree)
-  palette <- gg_color_hue(R)
-  names(palette) <- PCMTreeUniqueRegimes(tree)
 
   times <- PCMTreeNodeTimes(tree, tipsOnly = TRUE)
   Xt <- t(X)
@@ -86,19 +241,56 @@ PCMPlotTraitData2D <- function(X, tree, labeledTips = NULL) {
       scale_size_continuous(range = c(0.2, 2.8)) +
       scale_alpha_continuous(range = c(0.2, 0.75))
   } else {
-    pl <- pl + geom_point(aes(x=x, y=y, col=regime), na.rm = TRUE)
+    pl <- pl + geom_point(aes(x=x, y=y, col=regime, alpha=.8), na.rm = TRUE)
   }
 
   pl <- pl + scale_color_manual(name = "regime", values = palette)
 
   if(!is.null(labeledTips)) {
     pl <- pl +
-      geom_text(aes(label = label, x = x, y = y, col = regime))
+      geom_text(aes(label = label, x = x, y = y, col = regime), size = sizeLabeledTips)
   }
 
   pl
 }
 
+#' A 2D Gaussian distribution density grid in the form of a ggplot object
+#' @param mu numerical mean vector of length 2
+#' @param Sigma numerical 2 x 2 covariance matrix
+#' @param xlim,ylim numerical vectors of length 2
+#' @param xNumPoints,yNumPoints integers denoting how many points should the grid contain for each axis.
+#' @param ... additional arguments passed to ggplot
+#' @param return a ggplot object
+#' @importFrom mvtnorm dmvnorm
+#' @importFrom ggplot2 ggplot geom_contour coord_fixed
+#'
+#' @export
+PCMPlotGaussianDensityGrid2D <- function(mu, Sigma, xlim, ylim, xNumPoints = 100, yNumPoints = 100, ...) {
+  data.grid <- expand.grid(
+    x = seq(xlim[1], xlim[2], length.out = xNumPoints),
+    y = seq(ylim[1], ylim[2], length.out = yNumPoints))
+
+  q.samp <- cbind(data.grid, prob = dmvnorm(data.grid, mean = mu, sigma = Sigma))
+  ggplot(q.samp, aes(x=x, y=y, z=prob), ...) + coord_fixed(xlim = xlim, ylim = ylim, ratio = 1)
+}
+
+#' A 2D sample from Gaussian distribution
+#' @param mu numerical mean vector of length 2
+#' @param Sigma numerical 2 x 2 covariance matrix
+#' @param numPoints an integer denoting how many points should be randomly sampled (see details).
+#' @param ... additional arguments passed to ggplot.
+#' @param return a ggplot object
+#' @importFrom mvtnorm rmvnorm
+#' @importFrom ggplot2 ggplot
+#'
+#' @details This function generates a random sample of numPoints 2d points using \code{\link{mvtnorm::rmvnorm}}. Then
+#' it produces a ggplot on the generated points and calls stat_ellipse(...).
+#' @export
+PCMPlotGaussianSample2D <- function(mu, Sigma, numPoints = 1000, ...) {
+  samp <- rmvnorm(numPoints, mean = mu, sigma = Sigma)
+  colnames(samp) <- c("x", "y")
+  ggplot(as.data.frame(samp), aes(x, y), ...)
+}
 
 #' Extract error information from a formatted error message.
 #' @param x character string representing the error message.
