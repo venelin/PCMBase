@@ -295,10 +295,10 @@ POUMMlik <- (POUMM::likPOUMMGivenTreeVTips(
 cat('OU likelihood=',OUlik,'\n')
 cat('POUMM likelihood=',POUMMlik,'\n')
 
-MeanVec <- PCMMean(tree.a, model.a.123, model.a.123$X0)
-VarMat <- PCMVar(tree.a, model.a.123)
-OUW <- mvtnorm::dmvnorm(as.vector(traits.a.123[, 1:PCMTreeNumTips(tree.a)]), as.vector(MeanVec), VarMat, log = TRUE)
-cat("OU likelihood using matrix inverse:", OUW)
+# MeanVec <- PCMMean(tree.a, model.a.123, model.a.123$X0)
+# VarMat <- PCMVar(tree.a, model.a.123)
+# OUW <- mvtnorm::dmvnorm(as.vector(traits.a.123[, 1:PCMTreeNumTips(tree.a)]), as.vector(MeanVec), VarMat, log = TRUE)
+# cat("OU likelihood using matrix inverse:", OUW)
 
 PCMTreeSetLabels(tree.a)
 plot(tree.a)
