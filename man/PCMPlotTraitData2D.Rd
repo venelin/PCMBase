@@ -6,7 +6,7 @@
 \usage{
 PCMPlotTraitData2D(X, tree, labeledTips = NULL, sizeLabeledTips = 8,
   palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree),
-  PCMTreeUniqueRegimes(tree)))
+  PCMTreeUniqueRegimes(tree)), scaleSizeWithTime = !is.ultrametric(tree))
 }
 \arguments{
 \item{X}{a k x N matrix}
@@ -16,6 +16,11 @@ PCMPlotTraitData2D(X, tree, labeledTips = NULL, sizeLabeledTips = 8,
 \item{labeledTips}{a vector of tip-numbers to label (NULL by default)}
 
 \item{palette}{a named vector of colors}
+
+\item{scaleSizeWithTime}{logical indicating if the size and the transparency of the points
+should reflect the distance from the present (points that are farther away in time with
+respect to the present moment, i.e. closer to the root of the tree, are displayed smaller
+and more transparent.). By default this is set to \code{!is.ultrametric(tree)}.}
 }
 \description{
 Scatter plot of 2-dimensional data

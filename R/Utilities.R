@@ -211,11 +211,18 @@ PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(
 #' @param tree a phylo object
 #' @param labeledTips a vector of tip-numbers to label (NULL by default)
 #' @param palette a named vector of colors
+#' @param scaleSizeWithTime logical indicating if the size and the transparency of the points
+#'   should reflect the distance from the present (points that are farther away in time with
+#'   respect to the present moment, i.e. closer to the root of the tree, are displayed smaller
+#'   and more transparent.). By default this is set to \code{!is.ultrametric(tree)}.
 #' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme
 #' @importFrom data.table data.table is.data.table setkey := setnames
+#' @importFrom ape is.ultrametric
 #' @export
-PCMPlotTraitData2D <- function(X, tree, labeledTips = NULL, sizeLabeledTips = 8,
-                               palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree))) {
+PCMPlotTraitData2D <- function(
+  X, tree, labeledTips = NULL, sizeLabeledTips = 8,
+  palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree)),
+  scaleSizeWithTime = !is.ultrametric(tree)) {
 
   N <- PCMTreeNumTips(tree)
   R <- PCMTreeNumUniqueRegimes(tree)
@@ -235,13 +242,13 @@ PCMPlotTraitData2D <- function(X, tree, labeledTips = NULL, sizeLabeledTips = 8,
   }
 
   pl <- ggplot(data)
-  if(length(unique(PCMTreeNodeTimes(tree, tipsOnly = TRUE))) > 1) {
+  if(scaleSizeWithTime) {
     # non-ultrametric tree
     pl <- pl + geom_point(aes(x=x, y=y, col=regime, size = time, alpha = time), na.rm = TRUE) +
       scale_size_continuous(range = c(0.2, 2.8)) +
       scale_alpha_continuous(range = c(0.2, 0.75))
   } else {
-    pl <- pl + geom_point(aes(x=x, y=y, col=regime, alpha=.8), na.rm = TRUE)
+    pl <- pl + geom_point(aes(x=x, y=y, col=regime), alpha=.8, na.rm = TRUE)
   }
 
   pl <- pl + scale_color_manual(name = "regime", values = palette)
