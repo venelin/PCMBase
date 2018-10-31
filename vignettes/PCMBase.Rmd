@@ -1,17 +1,19 @@
 ---
-title: "A User Guide to the PCMBase R-package"
+title: "Getting Started with the PCMBase R-package"
 author: "Venelin Mitov"
 date: '`r Sys.Date()`'
 output: 
-  rmarkdown::pdf_document:
+  rmarkdown::html_vignette:
     fig_caption: yes
     toc: true
-    toc_depth: 2
+    toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{A User Guide to the PCMBase R-package}
+  %\VignetteIndexEntry{Getting started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(phytools)
@@ -21,16 +23,16 @@ library(PCMBase)
 
 # Data 
 
-The input data for the phylogenetic comparative methods covered in the PCMBase package consists of a phylogenetic tree of $N$ tips and a $k\times N$ matrix, $X$ of observed trait-values, where $k$ is the number of traits. The matrix $X$ can contain ```NA```s corresponding to missing values.
+The input data for the phylogenetic comparative methods covered in the PCMBase package consists of a phylogenetic tree of $N$ tips and a $k\times N$ matrix, $X$ of observed trait-values, where $k$ is the number of traits. The matrix $X$ can contain `NA`s corresponding to missing measurements and `NaN`'s corresponding to non-existing traits for some of the tips.
 
 # Models
 A *model* is defined by a set of parameters and a rule stating how these parameters should be fit to the data. For example, a multivariate phylogenetic Ornstein-Uhlenbeck mixed model has the following parameters:
 
-- ```X0``` : a $k$-vector of initial values;
-- ```H``` : a $k\times k$ matrix denoting the selection strength of the process;
-- ```Theta``` : a $k$-vector of long-term optimal trait values;
-- ```Sigma``` : a $k\times k$ matrix denoting the stochastic drift variance-covariances;
-- ```Sigmae``` : a $k\times k$ matrix denoting the non-genetic (non-heritable) variance covariance;
+- `X0` : a $k$-vector of initial values;
+- `H` : a $k\times k$ matrix denoting the selection strength of the process;
+- `Theta` : a $k$-vector of long-term optimal trait values;
+- `Sigma` : a $k\times k$ matrix denoting the stochastic drift variance-covariances;
+- `Sigmae` : a $k\times k$ matrix denoting the non-genetic (non-heritable) variance covariance;
 
 The rule defining how the above OU-parameters should be fit to the data is defined by the multivariate OU Gaussian distribution, as described in (insert reference); Currently, PCMBase supports multivariate Gaussian models satisfying the following two conditions:
 
@@ -49,16 +51,10 @@ Printing the model object shows a short verbal description, the S3-class, the nu
 modelBM
 ```
 
-One may wonder why in the above description, p = 8 instead of 10 (see also `?PCMNumParams`). The reason is that both, the matrix Sigma and the matrix Sigmae, are symmetric matrices and their matching off-diagonal elements are counted only one time. This is specified in the attribute specParams of the model object (see `?PCMSpecifyParams`). Manipulating the `specParams` attribute of the PCM object is an advanced topic but, quickly, here is how it looks like for the model we've just created:
-
-```{r}
-attr(modelBM, "specParams", exact = TRUE)
-```
-
-As you can see, the `specParams` attribute of the model is a list with the same named entries as the model itself. Each of these entries defines a scalar, vector or matrix parameter of the model. 
+One may wonder why in the above description, p = 8 instead of 10 (see also `?PCMParamCount`). The reason is that both, the matrix Sigma and the matrix Sigmae, are symmetric matrices and their matching off-diagonal elements are counted only one time.
 
 ## Model regimes
-Model *regimes* are different models associated with different branches of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a BM model with two regimes called a and b:
+Model *regimes* are different models associated with different branches of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a 2-trait BM model with two regimes called a and b:
 
 ```{r}
 modelBM.ab <- PCM("BM", k = 2, regimes = c("a", "b"))
@@ -68,14 +64,14 @@ modelBM.ab
 Now, we can set some different values for the parameters of the model we've just created. First, let us specify an initial value vector different from the default 0-vector:
 
 ```{r}
-modelBM.ab$X0 <- c(5, 2)
+modelBM.ab$X0[] <- c(5, 2)
 ```
 
-X0 is defined as a parameter of type "gvector", which stays for a global vector parameter shared by all model regimes. This is also the reason, why the number of parameters is not the double of the number of parameters in the first model:
+X0 is defined as a parameter with S3 class `class(modelBM.ab$X0)`. This specifies that `X0` is global vector parameter shared by all model regimes. This is also the reason, why the number of parameters is not the double of the number of parameters in the first model:
 
 ```{r}
-PCMNumParams(modelBM)
-PCMNumParams(modelBM.ab)
+PCMParamCount(modelBM)
+PCMParamCount(modelBM.ab)
 ```
 
 The other parameters, Sigma and Sigmae are local for each regime:
@@ -96,10 +92,10 @@ modelBM.ab$Sigmae_x[,, "b"] <- rbind(c(.1, 0),
 The above way of setting values for model parameters, while human readable, is not handy during model fitting procedures, such as likelihood maximization. Thus, there is another way to set (or get) the model parameter values from a numerical vector:
 
 ```{r}
-param <- double(PCMNumParams(modelBM.ab))
+param <- double(PCMParamCount(modelBM.ab))
 
 # load the current model parameters into param
-PCMSetOrGetVecParams(modelBM.ab, param, set = FALSE)
+PCMParamLoadOrStore(modelBM.ab, param, offset=0, load=FALSE)
 
 print(param)
 
@@ -109,7 +105,7 @@ param2 <- jitter(param)
 print(param2)
 
 # set the new parameter vector
-PCMSetOrGetVecParams(modelBM.ab, param2)
+PCMParamLoadOrStore(modelBM.ab, param2, offset = 0, load=TRUE)
 
 print(modelBM.ab)
 ```

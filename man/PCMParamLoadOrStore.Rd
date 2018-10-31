@@ -4,7 +4,7 @@
 \alias{PCMParamLoadOrStore}
 \title{Load a PCM parameter from a vector of the variable parameters in a model.}
 \usage{
-PCMParamLoadOrStore(о, vecParams, offset, k, R, load, parentModel = NULL)
+PCMParamLoadOrStore(o, vecParams, offset, k, R, load, parentModel = NULL)
 }
 \value{
 an integer equaling the number of elemnents read from vecParams.

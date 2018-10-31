@@ -1,14 +1,16 @@
 ---
-title: "Using the PCMBase parametrization API"
+title: "The PCMBase Parametrization API"
 author: "Venelin Mitov"
 date: '`r Sys.Date()`'
 output: 
-  rmarkdown::pdf_document:
+  rmarkdown::html_vignette:
     fig_caption: yes
     toc: true
     toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Using the PCMBase parametrization API}
+  %\VignetteIndexEntry{The PCMBase Parametrization API}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup}
@@ -46,7 +48,6 @@ modelObject <- structure(
 PCMRegimes(modelObject)
 PCMParamCount(modelObject)
 PCMParamGetShortVector(modelObject)
-PCMParamGetFullVector(modelObject)
 
 vec <- double(PCMParamCount(modelObject))
 PCMParamLoadOrStore(modelObject, vec, offset = 0, load=FALSE)
@@ -71,7 +72,7 @@ class(OUModelDummy) <- c("OU")
 listParameterizationsOU <- PCMListParameterizations(OUModelDummy)
 dtParameterizations <- PCMTableParameterizations(OUModelDummy)
 
-PCMGenerateParameterizations(OUModelDummy, dtParameterizations[1:10])
+PCMGenerateParameterizations(OUModelDummy, tableParameterizations = dtParameterizations[1:10])
 
 attr(OUModelDummy, "k") <- 2
 attr(OUModelDummy, "regimes") <- letters[1:3]
@@ -88,7 +89,7 @@ class(OUModelDummy) <- c("OU")
 listParameterizationsOU <- PCMListParameterizations(OUModelDummy)
 dtParameterizations <- PCMTableParameterizations(OUModelDummy)
 
-PCMGenerateParameterizations(OUModelDummy, dtParameterizations[1:10])
+PCMGenerateParameterizations(OUModelDummy, tableParameterizations = dtParameterizations[1:10])
 
 MGObject <- MixedGaussian(k = 2, modelTypes =  PCMModels(), mapping = c(1, 3, 5))
 

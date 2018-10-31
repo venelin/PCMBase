@@ -136,12 +136,12 @@ is.SemiPositiveDefinite <- function(o) { inherits(o, "_SemiPositiveDefinite") }
 #' @return an integer equaling the number of elemnents read from vecParams.
 #' In the case of type=="custom", the number of indices bigger than offset returned by the function indices(offset, k).
 #' @export
-PCMParamLoadOrStore <- function(о, vecParams, offset, k, R, load, parentModel = NULL) {
-  UseMethod("PCMParamLoadOrStore", о)
+PCMParamLoadOrStore <- function(o, vecParams, offset, k, R, load, parentModel = NULL) {
+  UseMethod("PCMParamLoadOrStore", o)
 }
 
 #' @export
-PCMParamLoadOrStore.ScalarParameter <- function(о, vecParams, offset, k, R, load, parentModel = NULL) {
+PCMParamLoadOrStore.ScalarParameter <- function(o, vecParams, offset, k, R, load, parentModel = NULL) {
   `%op%` <- if(load) `%load%` else `%store%`
   if(is.Fixed(o) || is.Omitted(o)) {
     # do nothing
@@ -357,7 +357,7 @@ PCMParamLoadOrStore.MatrixParameter <- function(o, vecParams, offset, k, R, load
     if(is.Global(o)) {
       mask <- upper.tri(o, diag = TRUE)
       maskLower <- lower.tri(o)
-      eval(substitute(о[mask] %op% vecParams[offset + (1:numForOneMatrix)]), parent.frame())
+      eval(substitute(o[mask] %op% vecParams[offset + (1:numForOneMatrix)]), parent.frame())
       if(load) {
         eval(substitute({
           o[maskLower] <- 0.0

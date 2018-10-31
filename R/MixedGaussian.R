@@ -76,7 +76,7 @@ PCMCond.MixedGaussian <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, 
 }
 
 #' @export
-PCMParamCount.MixedGaussian <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE,  offset = 0, k = 1, R = 1) {
+PCMParamCount.MixedGaussian <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE,  offset = 0, k = 1, R = 1, parentModel = NULL) {
   p <- NextMethod()
   if(countModelTypes) {
     if(length(attr(o, "modelTypes", exact = TRUE)) > 1) {

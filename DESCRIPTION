@@ -37,12 +37,14 @@ Imports:
     ape,
     expm,
     mvtnorm,
-    data.table
+    data.table,
+    ggplot2
 Suggests:
     PCMBaseCpp,
     OptimMCMC,
     testthat,
-    ggplot2
+    knitr,
+    rmarkdown
 RoxygenNote: 6.0.1
 ByteCompile: yes
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
