@@ -209,6 +209,7 @@ PCMColorPalette <- function(n, names) {
 #'
 #' @return a ggplot object
 #' @importFrom data.table data.table is.data.table setkey := setnames
+#' @importFrom ggplot2 scale_color_manual
 #' @importFrom ape is.ultrametric
 #' @export
 PCMPlotTraitData2D <- function(

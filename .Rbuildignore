@@ -1,6 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^docs
 ^tests
 ^README.Rmd
 ^_pkgdown.yml
