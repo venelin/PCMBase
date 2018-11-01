@@ -1,0 +1,25 @@
+url: http://venelin.github.io/PCMBase
+
+navbar:
+  title: PCMBase
+  type: default
+  left:
+  - icon: fa-home fa-lg
+    href: index.html
+  - text: Get started
+    href: articles/PCMBase.html
+  - text: Articles
+    menu:
+    - text: The PCMBase Parametrization API
+      href: articles/PCMParam.html
+  - text: Reference
+    href: reference/index.html
+  - text: News
+    href: news/index.html
+  right: []
+
+articles:
+- title: All vignettes
+  desc: ~
+  contents:
+  - '`PCMParam`'

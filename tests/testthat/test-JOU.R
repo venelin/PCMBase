@@ -1,4 +1,8 @@
-library(ape)
+.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
+
+if(.RunPCMBaseTests) {
+
+  library(ape)
 library(testthat)
 library(mvtnorm)
 library(PCMBase)
@@ -172,3 +176,4 @@ if(require(PCMBaseCpp)) {
 
 }
 
+}

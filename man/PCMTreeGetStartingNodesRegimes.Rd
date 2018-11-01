@@ -10,7 +10,10 @@ PCMTreeGetStartingNodesRegimes(tree, preorder = PCMTreePreorder(tree))
 \item{tree}{a phylo object with an edge.regime member denoting regimes. The
 function assumes that each regime covers a linked set of branches on the tree.}
 
-\item{preorder}{an integer vector of row-indices in tree$edge as returned by}
+\item{preorder}{an integer vector of row-indices in tree$edge as returned by
+\code{\link{PCMTreePreorder}}. Defaults to \code{PCMTreePreorder(tree)}.
+Specifying this argument may improve performance if PCMTreePreorder had to be
+called earlier.}
 }
 \value{
 an integer with elements equal to the starting nodes for each regime in

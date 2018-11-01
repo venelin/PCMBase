@@ -1,4 +1,8 @@
-library(ape)
+.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
+
+if(.RunPCMBaseTests) {
+
+  library(ape)
 library(testthat)
 library(PCMBase)
 
@@ -105,4 +109,5 @@ if(FALSE) {
 
   PCMTreePlot(PCMTreeSetRegimes(tree, c(PCMTreeGetStartingNodesRegimes(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[15]]])), inplace = FALSE))
 
+}
 }

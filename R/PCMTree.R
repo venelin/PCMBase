@@ -184,7 +184,7 @@ PCMTreeMatchLabels <- function(tree, labels) {
 #' @param tree a phylo object with an edge.regime member denoting regimes. The
 #' function assumes that each regime covers a linked set of branches on the tree.
 #' @param preorder an integer vector of row-indices in tree$edge as returned by
-#' @code{\link{PCMTreePreorder}}. Defaults to \code{PCMTreePreorder(tree)}.
+#' \code{\link{PCMTreePreorder}}. Defaults to \code{PCMTreePreorder(tree)}.
 #' Specifying this argument may improve performance if PCMTreePreorder had to be
 #' called earlier.
 #' @return an integer with elements equal to the starting nodes for each regime in

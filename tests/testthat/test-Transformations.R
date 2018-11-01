@@ -1,40 +1,46 @@
-# Test for ScalarDiagonal_Sigma_x matrices - this causes a problem with the default
-# arma::eig_gen implementation.
-#
-library(ape)
-library(testthat)
-library(PCMBase)
-library(PCMFit)
-library(abind)
-library(data.table)
+.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
 
-# number of traits
-k <- 3
+if(.RunPCMBaseTests) {
 
-listParameterizationsOU <- list(
-  X0 = list(c("VectorParameter", "_Global")),
-  H = list(c("MatrixParameter", "_Zeros"),
-           c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable"),
-           c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable")),
-  Theta = list(c("VectorParameter", "_Zeros")),
-  Sigma_x = list(c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
-                 c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
-                 c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal")),
+  context("Test parameter transformaitons")
 
-  Sigmae_x = list(c("MatrixParameter", "_Zeros"))
-)
+  # Test for ScalarDiagonal_Sigma_x matrices - this causes a problem with the default
+  # arma::eig_gen implementation.
+  #
+  library(ape)
+  library(PCMBase)
+  library(abind)
+  library(data.table)
 
-PCMGenerateParameterizations(structure(0.0, class="OU"), listParameterizations = listParameterizationsOU)
+  # number of traits
+  k <- 3
 
-PCMModels("^OU")
-model <- PCM("OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Zeros_Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Zeros_Sigmae_x",
-              modelTypes = PCMModels("^OU"),
-              k = k,
-              regimes = letters[1:3])
+  listParameterizationsOU <- list(
+    X0 = list(c("VectorParameter", "_Global")),
+    H = list(c("MatrixParameter", "_Zeros"),
+             c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable"),
+             c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable")),
+    Theta = list(c("VectorParameter", "_Zeros")),
+    Sigma_x = list(c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+                   c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
+                   c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal")),
 
-vecModelRandom <- round(PCMParamRandomVecParams(model), 1)
-modelRandom <- model
-PCMParamLoadOrStore(modelRandom, vecModelRandom, offset = 0, load=TRUE)
-model <- modelRandom
+    Sigmae_x = list(c("MatrixParameter", "_Zeros"))
+  )
 
-model2 <- PCMApplyTransformation(model)
+  PCMGenerateParameterizations(structure(0.0, class="OU"), listParameterizations = listParameterizationsOU)
+
+  PCMModels("^OU")
+  model <- PCM("OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Zeros_Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Zeros_Sigmae_x",
+               modelTypes = PCMModels("^OU"),
+               k = k,
+               regimes = letters[1:3])
+
+  vecModelRandom <- round(PCMParamRandomVecParams(model), 1)
+  modelRandom <- model
+  PCMParamLoadOrStore(modelRandom, vecModelRandom, offset = 0, load=TRUE)
+  model <- modelRandom
+
+  model2 <- PCMApplyTransformation(model)
+
+}

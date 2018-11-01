@@ -21,6 +21,15 @@ model.}
 \item{verbose}{a logical indicating if informative messages should be written
 during execution.}
 }
+\value{
+numeric M x k matrix of values at all nodes of the tree, i.e. root,
+internal and tip, where M is the number of nodes: \code{M=dim(tree$edge)[1]+1},
+with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
+corresponding to the root and bigger than N+1 corresponding to internal nodes.
+The function will fail in case that the length of the argument vector X0 differs
+from the number of traits specified in \code{metaI$k}. Error message:
+"ERR:02002:PCMBase:PCM.R:PCMSim:: X0 must be of length ...".
+}
 \description{
 Generate trait data on a tree according to a multivariate stochastic
 model with one or several regimes

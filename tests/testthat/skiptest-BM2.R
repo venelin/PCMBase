@@ -1,3 +1,7 @@
+.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
+
+if(.RunPCMBaseTests) {
+
 # Test for ScalarDiagonal_Sigma_x matrices - this causes a problem with the default
 # arma::eig_gen implementation.
 #
@@ -75,9 +79,11 @@ if(require(PCMBaseCpp)) {
 
   print(likFun2(p = PCMParamGetShortVector(model)))
   print(likR)
-  test_that("Equal R and PCMBaseCpp values with scalar diagonal Sigma matrix", expect_equal(likFun2(p = PCMParamGetShortVector(model)), likR))
+  test_that("Equal R and PCMBaseCpp values with scalar diagonal Sigma matrix",
+            expect_equal(likFun2(p = PCMParamGetShortVector(model)), likR))
 
 }
 
 
 
+}

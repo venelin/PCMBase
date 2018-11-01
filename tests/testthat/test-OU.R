@@ -1,3 +1,7 @@
+.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
+
+if(.RunPCMBaseTests) {
+
 library(ape)
 library(testthat)
 library(PCMBase)
@@ -62,11 +66,13 @@ Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL
 ## Simulations of trait data
 
 # regime 'a', trait 1
-model.a.1 <- PCM("OU", k = 1, regimes = "a", params = list(X0 = a.X0[1],
-                                             H=H[1,1,'a',drop=FALSE],
-                                             Theta=Theta[1,'a',drop=FALSE],
-                                             Sigma_x=Sigma_x[1,1,'a',drop=FALSE],
-                                             Sigmae_x=Sigmae_x[1,1,'a',drop=FALSE]))
+model.a.1 <- PCM("OU", k = 1, regimes = "a",
+                 params = list(
+                   X0 = a.X0[1],
+                   H=H[1,1,'a',drop=FALSE],
+                   Theta=Theta[1,'a',drop=FALSE],
+                   Sigma_x=Sigma_x[1,1,'a',drop=FALSE],
+                   Sigmae_x=Sigmae_x[1,1,'a',drop=FALSE]))
 
 
 # regime 'a', trait 2
@@ -406,3 +412,4 @@ if(require(OUwie)) {
 
 }
 
+}

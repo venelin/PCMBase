@@ -1,4 +1,8 @@
-library(ape)
+.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
+
+if(.RunPCMBaseTests) {
+
+  library(ape)
 library(testthat)
 library(PCMBase)
 library(abind)
@@ -246,3 +250,5 @@ tree <- phytools::starTree(species = 1:1000, branch.lengths = rep(0.14, 1000))
 PCMTreeSetDefaultRegime(tree, model)
 #tree$edge.regime <- rep(1, length(tree$edge.length))
 data <- PCMSim(tree, model, X0 = 9)
+
+}

@@ -803,7 +803,7 @@ PCMVarAtTime <- function(t, model, W0 =  matrix(0.0, PCMNumTraits(model), PCMNum
 #' The function will fail in case that the length of the argument vector X0 differs
 #' from the number of traits specified in \code{metaI$k}. Error message:
 #' "ERR:02002:PCMBase:PCM.R:PCMSim:: X0 must be of length ...".
-#'}
+#'
 #' @importFrom mvtnorm rmvnorm
 #' @seealso \code{\link{PCMLik}} \code{\link{PCMInfo}} \code{\link{PCMCond}}
 #' @export
