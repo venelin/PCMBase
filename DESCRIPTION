@@ -1,7 +1,7 @@
 Package: PCMBase
 Type: Package
-Title: Simulation and likelihood calculation of Gaussian phylogenetic comparative models
-Version: 1.2.6
+Title: Simulation and likelihood calculation of phylogenetic comparative models
+Version: 1.2.7.1
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                     role = c("aut", "cre", "cph")),
              person("Krzysztof", "Bartoszek",
@@ -11,9 +11,8 @@ Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
              person("Tanja", "Stadler",
                     role = c("ctb")))
 Maintainer: Who to complain to <vmitov@gmail.com>
-Description: Gaussian phylogenetic comparative models represent models of 
-  continuous trait data associated with the tips of a phylogenetic tree, under 
-  which the distribution of the trait values is multivariate Gaussian. Examples 
+Description: Phylogenetic comparative models represent models of continuous trait 
+  data associated with the tips of a phylogenetic tree. Examples 
   of such models are Gaussian continuous time branching stochastic processes 
   such as Brownian motion (BM) and Ornstein-Uhlenbeck (OU), which regard the 
   data at the tips of the tree as an observed (final) state of a Markov chain 
@@ -22,10 +21,10 @@ Description: Gaussian phylogenetic comparative models represent models of
   such models. This framework consists of an application programming interface 
   for specifying data and model parameters, and efficient algorithms for 
   simulating trait evolution under a model and calculating the likelihood of 
-  model parameters for an assumed model and trait data. The package implements a growing 
-  collection of models, which currently includes BM, OU, BM/OU with jumps, 
-  two-speed OU as well as mixed Gaussian models, in which different types of the above 
-  models can be associated with different branches of the tree. The PCMBase
+  model parameters for an assumed model and trait data. The package implements a 
+  growing collection of models, which currently includes BM, OU, BM/OU with jumps, 
+  two-speed OU as well as mixed Gaussian models, in which different types of the
+  above models can be associated with different branches of the tree. The PCMBase
   package is limited to trait-simulation and likelihood calculation of (mixed) Gaussian
   phylogenetic models. The PCMFit package provides functionality for ML and Bayesian 
   fit of these models to tree and trait data.
@@ -44,7 +43,9 @@ Suggests:
     OptimMCMC,
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggtree,
+    abind
 RoxygenNote: 6.0.1
 ByteCompile: yes
 VignetteBuilder: knitr, rmarkdown
