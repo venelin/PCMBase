@@ -8,6 +8,8 @@ PCMDescribe(model, ...)
 }
 \arguments{
 \item{model}{a PCM model object}
+
+\item{...}{additional arguments used by implementing methods.}
 }
 \value{
 a character string

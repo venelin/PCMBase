@@ -15,18 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' @name BM
-#' @title Brownian motion PCMs
-NULL
-
-#' @inherit PCMParentClasses
 #' @export
 PCMParentClasses.BM <- function(model) {
   c("GaussianPCM", "PCM")
 }
 
-#' @inherit PCMDescribe
-#'
 #' @export
 PCMDescribe.BM <- function(model, ...) {
   "Brownian motion model"

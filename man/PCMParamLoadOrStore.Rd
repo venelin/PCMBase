@@ -2,16 +2,33 @@
 % Please edit documentation in R/PCMParam.R
 \name{PCMParamLoadOrStore}
 \alias{PCMParamLoadOrStore}
-\title{Load a PCM parameter from a vector of the variable parameters in a model.}
+\title{Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model.}
 \usage{
 PCMParamLoadOrStore(o, vecParams, offset, k, R, load, parentModel = NULL)
+}
+\arguments{
+\item{o}{a PCM model object or a parameter of a PCM object}
+
+\item{vecParams}{a numeric vector.}
+
+\item{offset}{an integer denoting an offset count from which to start counting
+(internally used). Default: 0.}
+
+\item{k}{an integer denoting the number of modeled traits. Default: 1.}
+
+\item{R}{an integer denoting the number of regimes in the model. Default: 1.}
+
+\item{load}{logical indicating if parameters should be loaded from vecParams into o (TRUE)
+or stored to vecParams from o (FALSE).}
+
+\item{parentModel}{NULL or a PCM object. Default: NULL.}
 }
 \value{
 an integer equaling the number of elemnents read from vecParams.
 In the case of type=="custom", the number of indices bigger than offset returned by the function indices(offset, k).
 }
 \description{
-Load a PCM parameter from a vector of the variable parameters in a model.
+Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model.
 }
 \details{
 This S3 generic function has both, a returned value and side effects.

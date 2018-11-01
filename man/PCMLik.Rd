@@ -27,18 +27,6 @@ containing meta-data such as N, M and k.}
 is TRUE.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
-
-\item{pruneI}{a named list containing cached preprocessing data for the tree used
-to perform post-order traversal (pruning). By default, this is created
-using \code{PCMTreePruningOrder(tree)}. This will use the default R-implementation of the
-likelihood calculation, which is based on the default R-implementation of the
-function \code{\link{PCMLmr}} (\code{\link{PCMLmr.default}}) and the S3 specification
-of the function
-\code{\link{PCMAbCdEf}} for the given model (a function called \code{PCMAbCdEf.MODEL},
-where model is the name of the mode and the class attribute of the \code{model}
-argument. For a different implementation of the function \code{\link{PCMLmr}},
-provide an S3 object for which an S3 specification has been written (see Details
-and example section).}
 }
 \value{
 a numerical value with named attributes as follows:

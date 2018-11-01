@@ -23,14 +23,11 @@
 #' option PCMBase.Singular.Skip is set to FALSE.
 NULL
 
-#' @inherit PCMParentClasses
 #' @export
 PCMParentClasses.White <- function(model) {
   c("GaussianPCM", "PCM")
 }
 
-#' @inherit PCMDescribe
-#'
 #' @export
 PCMDescribe.White <- function(model, ...) {
   "White model"

@@ -10,10 +10,14 @@ PCMParamRandomVecParams(o, k, R, n = 1L, argsPCMParamLowerLimit = NULL,
 \arguments{
 \item{o}{a PCM model object or a parameter}
 
+\item{k}{integer denoting the number of traits.}
+
+\item{R}{integer denoting the number of regimes.}
+
 \item{n}{an integer specifying the number of random vectors to generate}
 
 \item{argsPCMParamLowerLimit, argsPCMParamUpperLimit}{named lists of arguments passed to
-\code{\link{PCMParamLowerLimit}} and \code{\link{PCMParamUpperLimit}}.}
+\code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}.}
 }
 \value{
 if n = 1, a numeric vector of length \code{PCMParamCount(o)}; if n > 1,
@@ -23,5 +27,5 @@ a numeric matrix of dimension n x \code{PCMParamCount(o)}.
 Generate a random parameter vector for a model using uniform distribution between its lower and upper bounds.
 }
 \seealso{
-PCMParamUpperLimit PCMParamLowerLimit PCMParamGetShortVector
+PCMParamLimits PCMParamGetShortVector
 }

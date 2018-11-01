@@ -17,6 +17,9 @@ trait values at the root of the tree.}
 
 \item{metaI}{a named list containg meta-information about the data and the
 model.}
+
+\item{verbose}{a logical indicating if informative messages should be written
+during execution.}
 }
 \description{
 Generate trait data on a tree according to a multivariate stochastic

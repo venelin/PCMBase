@@ -17,8 +17,9 @@ PCMPlotGaussianDensityGrid2D(mu, Sigma, xlim, ylim, xNumPoints = 100,
 \item{xNumPoints, yNumPoints}{integers denoting how many points should the grid contain for each axis.}
 
 \item{...}{additional arguments passed to ggplot}
-
-\item{return}{a ggplot object}
+}
+\value{
+a ggplot object
 }
 \description{
 A 2D Gaussian distribution density grid in the form of a ggplot object

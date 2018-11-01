@@ -442,6 +442,33 @@ PCMTreeNodeTimes <- function(tree, tipsOnly=FALSE) {
   }
 }
 
+#' A vector of the daughter nodes for a given parent node id in a tree
+#' @param tree a phylo object.
+#' @param parentId an integer denoting the id of the parent node
+#' @return an integer vector of the direct descendants of parentId
+#' @export
+PCMTreeGetDaughters <- function(tree, parentId) {
+  tree$edge[tree$edge[, 1] == parentId, 2]
+}
+
+#' The parent node id of a daughter node in a tree
+#' @param tree a phylo object.
+#' @param daughterId an integer denoting the id of the daughter node
+#' @return an integer denoting the parent of daughterId
+#' @export
+PCMTreeGetParent <- function(tree, daughterId) {
+  tree$edge[tree$edge[, 2] == daughterId, 1]
+}
+
+#' The length of the branch leading to a node
+#' @param tree a phylo object.
+#' @param daughterId an integer denoting the id of a daughter node
+#' @return a double denoting the length of the branch leading to daughterId
+#' @export
+PCMTreeGetBranchLength <- function(tree, daughterId) {
+  tree$edge.length[tree$edge[, 2] == daughterId]
+}
+
 #' A list of the descendants for each node in a tree
 #' @details This function has time and memory complexity O(M^2), where M is the
 #'  number of nodes in the tree. It can take several minutes and gigabytes of
@@ -806,37 +833,6 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
 }
 
 
-#' Evaluate nested extractions (E) or deletions (D) of clades from a tree
-#' @param expr an R expression (or a character string evaluating to an R expression) of nested calls of functions
-#' \code{E(x,node)} denoting extracting the clade rooted at node from the tree x, or \code{D(x,node)},
-#' denoting dropping the clade rooted at node from the tree x. These calls can be nested, i.e. x can
-#' be a symbol or r expression evaluating to a  phylo object in
-#' the global or calling environment (corresponding to the original tree passed
-#'  as argument) or a nested call to D or E.
-#' @return the resulting phylo object from evaluating expr in the calling environment
-#' @seealso PCMTreeEvalNestedEDxOnTree
-#' @export
-PCMTreeEvalNestedED <- function(expr) {
-  exprSubst <- substitute(expr)
-  exprString <- if(is.call(exprSubst)) {
-    deparse(exprSubst)
-  } else if(is.character(expr)) {
-    expr
-  } else {
-    stop("ERR:02640:PCMBase:PCMTree.R:PCMTreeEvalNestedED:: expr is neither an expression evaluating to a call, nor a character string evaluating to such an expression.")
-  }
-  tableAncestors <- PCMTreeTableAncestors(tree)
-
-  E <- function(x, node) {
-    PCMTreeExtractClade(tree = x, cladeRootNode = as.character(node), tableAncestors = tableAncestors)
-  }
-  D <- function(x, node) {
-    PCMTreeDropClade(tree = x, cladeRootNode = as.character(node), tableAncestors = tableAncestors)
-  }
-
-  eval(eval(parse(text = paste0("substitute(", exprString, ", parent.frame())"))))
-}
-
 #' Perfrorm nested extractions or drops of clades from a tree
 #' @param tree a phylo object with named tips and internal nodes
 #' @param expr a character string representing an R expression of nested calls of functions
@@ -909,8 +905,15 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #' @param tree a phylo object
 #' @param nodes an integer vector denoting the terminating nodes of the edges on which
 #' a singleton node is to be inserted
-#' @param positions a positive numeric vector of the same length as nodes denoting the root-ward
-#' distances from nodes at which the singleton nodes should be inserted
+#' @param positions a positive numeric vector of the same length as nodes denoting
+#' the root-ward distances from nodes at which the singleton nodes should be
+#' inserted.
+#' @param epoch a numeric indicating a distance from the root at which a singleton
+#' node should be inserted in all lineages that are alive at that time.
+#' @param minLength a numeric indicating the minimum allowed branch-length after
+#' dividing a branch by insertion of a singleton nodes. No singleton node is inserted
+#' if this would result in a branch shorter than `minLength`. Note that this condition
+#' is checked only in `PCMTreeInsertSingletonsAtEpoch`.
 #'
 #' @importFrom ape bind.tree drop.tip
 #' @return a modified version of tree with inserted singleton nodes at the specified locations
@@ -1090,6 +1093,10 @@ PCMTreeDtNodeRegimes <- function(tree) {
 #'
 #' @export
 PCMTreeExtractBackboneRegimes <- function(tree) {
+
+  # Needed to pass the check.
+  regime <- endNode <- endTime <- NULL
+
   N <- PCMTreeNumTips(tree)
   nodeTimes <- PCMTreeNodeTimes(tree)
   nodeLabels <- PCMTreeGetLabels(tree)
@@ -1112,7 +1119,12 @@ PCMTreeExtractBackboneRegimes <- function(tree) {
   tree2
 }
 
-
+#' A character representation of a phylo object.
+#'
+#' @param tree a phylo object.
+#' @param includeLengths logical. Default: FALSE.
+#' @param includeStartingNodesRegimes logical. Default: FALSE.
+#' @return a character string.
 #' @export
 PCMTreeToString <- function(tree, includeLengths = FALSE, includeStartingNodesRegimes = FALSE) {
 

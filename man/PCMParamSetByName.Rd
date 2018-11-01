@@ -14,9 +14,13 @@ PCMParamSetByName(model, params, inplace = TRUE,
 
 \item{inplace}{logical indicating if the parameters should be set "inplace" for the
 model object in the calling environment or a new model object with the parameters set
-as specified should be returned. Defaults to TRUE}
+as specified should be returned. Defaults to TRUE.}
 
-\item{tree}{a phylo object (possible future use)}
+\item{replaceWholeParameters}{logical, by default set to FALSE. If TRUE, the
+parameters will be completely replaced, meaning that their attributes (e.g.
+S3 class) will be replaced as well (dangerous).}
+
+\item{...}{other arguments that can be used by implementing methods.}
 }
 \value{
 If inplace is TRUE, the function only has a side effect of setting the

@@ -17,84 +17,187 @@
 
 
 ## API for loading or storing parameters from/to a vector ----------------------
-# The PCM framework has a helper API for storing, transforming and interpreting
-# model parameters. This is build upon a hierarchy of S3-classes. There are
-# three types of S3 classes:
-# 1. Storage classes:
-#   - ScalarParameter: numeric parameter (a single number), local to a regime;
-#   - VectorParameter: numeric vector of length k, local to a regime;
-#   - MatrixParameter: numeric matrix of dimension k x k, local to a regime;
-# 2.
 
-##  scope
+#' @name PCMParam
+#'
+#' @title Module PCMParam
+#'
+#' @description Global and S3 generic functions for manipulating model parameters.
+#' The parameters in a PCM are named objects with a class attribute specifying
+#' the main type and optional properties (tags).
+#'
+#' S3 generic functions:
+#' \describe{
+#' \item{PCMParamCount()}{Counting the number of actual numeric parameters (used,
+#'  e.g. for calculating information scores, e.g. AIC);}
+#' \item{PCMParamLoadOrStore(), PCMParamLoadOrStore()}{Storing/loading a parameter
+#' to/from a numerical vector;}
+#' \item{PCMParamLowerLimit(),PCMParamUpperLimit()}{Specifying parameter upper and lower limits;}
+#' \item{PCMParamRandomVecParams()}{Generating a random parameter vector;}
+#' }
+#'
+#' For all the above properties, check-functions are defined, e.g. `is.Local(o)`,
+#' `is.Global(o)`, `is.ScalarParameter(o)`, `is.VectorParameter`, etc.
+NULL
+
+#' Parameter types
+#' @name PCMParamType
+#'
+#' @description The parameter types are divided in the following categories:
+#' \describe{
+#' \item{Main type}{These are the "ScalarParameter", "VectorParameter" and "MatrixParameter"
+#' classes. Each model parameter must have a main type.}
+#' \item{Scope/Omission}{These are the "_Global" and "_Omitted" classes. Every
+#' parameter can be global for all regimes or local for a single regime. If not
+#' specified, local scope is assumed. In some special cases a parameter (e.g.
+#' Sigmae can be omitted from a model. This is done by adding "_Omitted" to its
+#' class attribute.}
+#' \item{Constancy (optional)}{These are the "_Fixed", "_Ones", "_Identity" and
+#' "_Zeros" classes.}
+#' \item{Transformation (optional)}{These are the "_Transformable", "_CholeskiFactor"
+#'  and "_Schur" classes. }
+#' \item{Other properties (optional)}{These are the "_NonNegative",
+#' "_WithNonNegativeDiagonal", "_LowerTriangular", "_AllEqual", "_ScalarDiagonal",
+#' "_Symmetric", "_UpperTriangular", "_LowerTriangularWithDiagonal" and
+#' "_UpperTriangularWithDiagonal" classes.}
+#' }
+#' @param o an object, i.e. a PCM or a parameter object.
+#' @return logical indicating if the object passed is from the type appearing in
+#' the function-name.
+NULL
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Local <- function(o) { !inherits(o, "_Global") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Global <- function(o) { inherits(o, "_Global") }
 
-## data-type
+#' @describeIn PCMParamType
+#'
 #' @export
 is.ScalarParameter <- function(o) { inherits(o, "ScalarParameter") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.VectorParameter <- function(o) { inherits(o, "VectorParameter") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.MatrixParameter <- function(o) { inherits(o, "MatrixParameter") }
 
-
+#' @describeIn PCMParamType
+#'
 #' @export
 is.WithCustomVecParams <- function(o) { inherits(o, "_WithCustomVecParams") }
 
-
-## constant
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Fixed <- function(o) { inherits(o, "_Fixed") || inherits(o, "_Zeros") || inherits(o, "_Ones") || inherits(o, "_Identity") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Zeros <- function(o) { inherits(o, "_Zeros") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Ones <- function(o) { inherits(o, "_Ones") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Identity <- function(o) { inherits(o, "_Identity") }
 
 ## Properties
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.AllEqual <- function(o) { inherits(o, "_AllEqual") || inherits(o, "_ScalarDiagonal") || inherits(o, "ScalarParameter") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.NonNegative <- function(o) { inherits(o, "_NonNegative") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Diagonal <- function(o) { inherits(o, "_Diagonal") || inherits(o, "_ScalarDiagonal") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.ScalarDiagonal <- function(o) { inherits(o, "_ScalarDiagonal") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Symmetric <- function(o) { inherits(o, "_Symmetric") }
+
 # upper triangular excluding diagonal
+#' @describeIn PCMParamType
+#'
 #' @export
 is.UpperTriangular <- function(o) { inherits(o, "_UpperTriangular") }
+
 # upper triangular including diagonal
+#' @describeIn PCMParamType
+#'
 #' @export
 is.UpperTriangularWithDiagonal <- function(o) { inherits(o, "_UpperTriangularWithDiagonal") || inherits(o, "_CholeskiFactor") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.WithNonNegativeDiagonal <- function(o) { inherits(o, "_WithNonNegativeDiagonal") || inherits(o, "_CholeskiFactor") }
+
 # lower triangular excluding diagonal
+#' @describeIn PCMParamType
+#'
 #' @export
 is.LowerTriangular <- function(o) { inherits(o, "_LowerTriangular") }
 # lower triangular with diagonal
+#' @describeIn PCMParamType
+#'
 #' @export
 is.LowerTriangularWithDiagonal <- function(o) { inherits(o, "_LowerTriangularWithDiagonal") }
+
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Omitted <- function(o) { inherits(o, "_Omitted") }
 
+#' @describeIn PCMParamType
+#'
 #' @export
 is.CholeskiFactor <- function(o) { inherits(o, "_CholeskiFactor") }
 
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Schur <- function(o) { inherits(o, "_Schur") }
 
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Transformable <- function(o) { inherits(o, "_Transformable") }
 
+#' @describeIn PCMParamType
+#'
 #' @export
 is.Transformed <- function(o) { inherits(o, "_Transformed") }
 
+#' @describeIn PCMParamType
+#'
 #' @export
 is.SemiPositiveDefinite <- function(o) { inherits(o, "_SemiPositiveDefinite") }
 
@@ -130,7 +233,12 @@ is.SemiPositiveDefinite <- function(o) { inherits(o, "_SemiPositiveDefinite") }
 ### ..Store a to b ------------
 `%store%` <- function(a,b) eval(substitute(b<-a), parent.frame())
 
-#' Load a PCM parameter from a vector of the variable parameters in a model.
+#' Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model.
+#'
+#' @inheritParams PCMParamCount
+#' @param vecParams a numeric vector.
+#' @param load logical indicating if parameters should be loaded from vecParams into o (TRUE)
+#' or stored to vecParams from o (FALSE).
 #'
 #' @details This S3 generic function has both, a returned value and side effects.
 #' @return an integer equaling the number of elemnents read from vecParams.
@@ -462,6 +570,11 @@ PCMParamLoadOrStore.PCM <- function(o, vecParams, offset, k, R, load, parentMode
 #'  assuming that all regimes are regimes of the same model type (e.g. OU). The
 #'  implementation for MRG models will add +1 for every regime if there are more than
 #'  one modelTypes. Default FALSE.
+#' @param offset an integer denoting an offset count from which to start counting
+#' (internally used). Default: 0.
+#' @param k an integer denoting the number of modeled traits. Default: 1.
+#' @param R an integer denoting the number of regimes in the model. Default: 1.
+#' @param parentModel NULL or a PCM object. Default: NULL.
 #' @return an integer
 #' @export
 PCMParamCount <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0, k = 1, R = 1, parentModel = NULL) {
@@ -638,7 +751,13 @@ PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = F
   unname(offset - p0)
 }
 
-
+#' Get a vector of the variable numeric parameters in a model
+#' @inheritParams PCMParamCount
+#' @param ... other arguments that could be used by implementing methods.
+#' @return a numeric vector of length equal to `PCMParamCount(o, FALSE, FALSE, 0L, k, R)`.
+#' @description The short vector of the model parameters does not include the
+#' nodes in the tree where a regime change occurs, nor the the model types associated
+#' with each regime.
 #' @export
 PCMParamGetShortVector <- function(o, k = 1, R = 1, ...) {
   UseMethod("PCMParamGetShortVector", o)
@@ -662,15 +781,19 @@ PCMParamGetShortVector.default <- function(o, k, R, ...) {
 }
 
 #' Set model parameters from a named list
-#' @param tree a phylo object (possible future use)
 #' @param model a PCM model object
 #' @param params a named list with elements among the names found in model
 #' @param inplace logical indicating if the parameters should be set "inplace" for the
 #' model object in the calling environment or a new model object with the parameters set
-#' as specified should be returned. Defaults to TRUE
+#' as specified should be returned. Defaults to TRUE.
+#' @param replaceWholeParameters logical, by default set to FALSE. If TRUE, the
+#' parameters will be completely replaced, meaning that their attributes (e.g.
+#' S3 class) will be replaced as well (dangerous).
+#' @param ... other arguments that can be used by implementing methods.
 #' @return If inplace is TRUE, the function only has a side effect of setting the
 #' parameters of the model object in the calling environment; otherwise the function
 #' returns a modified copy of the model object.
+#' @importFrom utils str
 #' @export
 PCMParamSetByName <- function(model, params, inplace = TRUE, replaceWholeParameters = FALSE, ...) {
   UseMethod("PCMParamSetByName", model)
@@ -733,18 +856,18 @@ PCMParamSetByName.PCM <- function(model, params, inplace = TRUE, replaceWholePar
   }
 }
 
-#' The object representing a lower limit for a given type
+#' @title The lower limit for a given model or parameter type
 #'
-#' @description \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit} are S3
-#' generic functions.
+#' @description This is an S3 generic function.
 #'
 #' @param o an object such as a VectorParameter a MatrixParameter or a PCM.
 #' @param k integer denoting the number of traits
 #' @param R integer denoting the number of regimes in the model in which o
 #' belongs to.
 #' @param ... additional arguments (optional or future use).
-#' @return an object of the same S3 class as o representing a lower limit for
-#' the class.
+#' @return an object of the same S3 class as o representing a lower limit
+#' for the class.
+#'
 #' @export
 PCMParamLowerLimit <- function(o, k, R, ...) {
   UseMethod("PCMParamLowerLimit", o)
@@ -806,6 +929,15 @@ PCMParamLowerLimit._WithNonNegativeDiagonal <- function(o, k, R, ...) {
   o
 }
 
+#' @title The upper limit for a given model or parameter type
+#'
+#' @description This is an S3 generic function.
+#'
+#' @inheritParams PCMParamLowerLimit
+#'
+#' @return an object of the same S3 class as o representing an upper limit
+#' for the class.
+#'
 #' @export
 PCMParamUpperLimit <- function(o, k, R,  ...) {
   UseMethod("PCMParamUpperLimit", o)
@@ -842,12 +974,14 @@ PCMParamUpperLimit.default <- function(o, k, R,  ...) {
 
 #' Generate a random parameter vector for a model using uniform distribution between its lower and upper bounds.
 #' @param o a PCM model object or a parameter
+#' @param k integer denoting the number of traits.
+#' @param R integer denoting the number of regimes.
 #' @param n an integer specifying the number of random vectors to generate
 #' @param argsPCMParamLowerLimit,argsPCMParamUpperLimit named lists of arguments passed to
-#' \code{\link{PCMParamLowerLimit}} and \code{\link{PCMParamUpperLimit}}.
+#' \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}.
 #' @return if n = 1, a numeric vector of length \code{PCMParamCount(o)}; if n > 1,
 #' a numeric matrix of dimension n x \code{PCMParamCount(o)}.
-#' @seealso PCMParamUpperLimit PCMParamLowerLimit PCMParamGetShortVector
+#' @seealso PCMParamLimits PCMParamGetShortVector
 #' @export
 PCMParamRandomVecParams <- function(o, k, R, n = 1L,
                                     argsPCMParamLowerLimit = NULL,
@@ -858,8 +992,8 @@ PCMParamRandomVecParams <- function(o, k, R, n = 1L,
 #' @importFrom stats runif
 #' @export
 PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
-                                        argsPCMParamLowerLimit = NULL,
-                                        argsPCMParamUpperLimit = NULL) {
+                                            argsPCMParamLowerLimit = NULL,
+                                            argsPCMParamUpperLimit = NULL) {
 
   if(is.PCM(o)) {
     k <- attr(o, "k", exact = TRUE)
@@ -885,6 +1019,9 @@ PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
 #' @param model a PCM object used to extract attributes needed for creating a
 #' default object of class specified in \code{class(spec)}, such as the number of
 #' traits (k) or the regimes and the number of regimes;
+#' @param ... additional arguments that can be used by methdos.
+#'
+#' @description This is an S3 generic. See, e.g. `PCMDefaultObject.MatrixParameter`.
 #' @return a parameter or a PCM object.
 #' @export
 PCMDefaultObject <- function(spec, model, ...) {

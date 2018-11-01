@@ -15,8 +15,17 @@ PCMTreeInsertSingletonsAtEpoch(tree, epoch, minLength = 0.1)
 \item{nodes}{an integer vector denoting the terminating nodes of the edges on which
 a singleton node is to be inserted}
 
-\item{positions}{a positive numeric vector of the same length as nodes denoting the root-ward
-distances from nodes at which the singleton nodes should be inserted}
+\item{positions}{a positive numeric vector of the same length as nodes denoting
+the root-ward distances from nodes at which the singleton nodes should be
+inserted.}
+
+\item{epoch}{a numeric indicating a distance from the root at which a singleton
+node should be inserted in all lineages that are alive at that time.}
+
+\item{minLength}{a numeric indicating the minimum allowed branch-length after
+dividing a branch by insertion of a singleton nodes. No singleton node is inserted
+if this would result in a branch shorter than `minLength`. Note that this condition
+is checked only in `PCMTreeInsertSingletonsAtEpoch`.}
 }
 \value{
 a modified version of tree with inserted singleton nodes at the specified locations

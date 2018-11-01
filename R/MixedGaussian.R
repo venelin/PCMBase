@@ -15,9 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' @name MixedGaussian
-#' @title Multiple regime Gaussian PCMs
-
+#' Check if an object is a `MixedGaussian` PCM
+#' @param x any object
+#' @return TRUE if x inherits from the S3 class `MixedGaussian`, FALSE otherwise.
+#'
 #' @export
 is.MixedGaussian <- function(x) inherits(x, "MixedGaussian")
 
@@ -93,18 +94,18 @@ PCMParamCount.MixedGaussian <- function(o, countRegimeChanges = FALSE, countMode
 #' @param k integer defining the number of traits.
 #' @param modelTypes a character string vector with the class names of the
 #' model-types that can possibly be included (assigned to regimes) in the MixedGaussian,
-#' e.g. c("BM3", "OU3").
+#' e.g. c("BM", "OU") (see also \code{\link{PCMModels}}).
 #' @param mapping a character string vector with elements from modelTypes or an
 #' integer vector with elements between 1 and length(modelTypes)
-#' mapping modelTypes to regimes, e.g. if \code{modelTypes = c("BM3", "OU3")} and
+#' mapping modelTypes to regimes, e.g. if \code{modelTypes = c("BM", "OU")} and
 #' \code{mapping = c(a = 1, b = 1, c = 2, d = 1)} defines an MixedGaussian with four
 #' different regimes with model-types BM3, BM3, OU3 and BM3, corresponding to each
 #' regime. \code{mapping} does not have to be a named vector. If it is a named
 #' vector, then all the names must correspond to valid regime names in a tree to
-#' which the model will be fit (member tree$edge.regime should be a character vector).
-#' If it is not a named vector then the positions of the elements correspond to the
-#' regimes in their order given by the function \code{\link{PCMTreeUniqueRegimes}}
-#' called on a tree object.
+#' which the model will be fit or simulated (member tree$edge.regime should be a
+#' character vector). If it is not a named vector then the positions of the
+#' elements correspond to the regimes in their order given by the function
+#' \code{\link{PCMTreeUniqueRegimes}} called on a tree object.
 #' @param className a character string definingn a valid S3 class name for the
 #' resulting MixedGaussian object. If not specified, a className is generated using the
 #' expression \code{ paste0("MixedGaussian_", do.call(paste0, as.list(mapping)))}.
@@ -118,9 +119,10 @@ PCMParamCount.MixedGaussian <- function(o, countRegimeChanges = FALSE, countMode
 #'
 #' @details If X0 is not NULL it has no sense to use model-types including X0 as a
 #' parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae_x is
-#' not NULL there is no meaning in using model-types including Sigmae_x as a parameter,
-#' (e.g. use OU2 or OU3 instead of OU or OU1).
+#' not NULL there is no meaning in using model-types including Sigmae_x as a
+#' parameter, (e.g. use OU2 or OU3 instead of OU or OU1).
 #' @seealso \code{\link{PCMTreeUniqueRegimes}}
+#' @seealso \code{\link{PCMModels}()}
 #'
 #' @export
 MixedGaussian <- function(

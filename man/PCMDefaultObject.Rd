@@ -13,10 +13,12 @@ used, but its class is used for method-dispatch.}
 \item{model}{a PCM object used to extract attributes needed for creating a
 default object of class specified in \code{class(spec)}, such as the number of
 traits (k) or the regimes and the number of regimes;}
+
+\item{...}{additional arguments that can be used by methdos.}
 }
 \value{
 a parameter or a PCM object.
 }
 \description{
-Generate a default object of a given PCM model type or parameter type
+This is an S3 generic. See, e.g. `PCMDefaultObject.MatrixParameter`.
 }

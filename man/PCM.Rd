@@ -48,7 +48,7 @@ This is the entry-point function for creating model objects within
 the PCMBase framework representing a single model-type with one or several
 model-regimes of this type associated with the branches of a tree. For mixed
 Gaussian phylogenetic models, which enable multiple model-types, use the
-\code{\link{MRG}} function.
+\code{\link{MixedGaussian}} function.
 }
 \details{
 This is an S3 generic. The PCMBase package defines three methods for
@@ -63,5 +63,5 @@ found. When called this constructor raises an error message.}
 }
 }
 \seealso{
-\code{\link{MRG}}
+\code{\link{MixedGaussian}}
 }

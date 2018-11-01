@@ -10,6 +10,8 @@ PCMModels(pattern = NULL, parentClass = NULL, ...)
 \item{pattern}{a character string specifying an optional for the model-names to search for.}
 
 \item{parentClass}{a character string specifying an optional parent class of the models to look for.}
+
+\item{...}{additional arguments used by implementing methods.}
 }
 \value{
 a character vector of the model classes found.
@@ -18,6 +20,6 @@ a character vector of the model classes found.
 Get a list of PCM models currently implemented
 }
 \details{
-The function is using the S3 api function \code{\link{methods}} looking for all registered
-implementations of the function \code{\link{PCMSpecify}}
+The function is using the S3 api function \code{\link{methods}} looking
+for all registered implementations of the function \code{\link{PCMSpecify}}.
 }

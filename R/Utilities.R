@@ -15,6 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
+#' Beautiful model description based on plotmath
+#' @description This is an S3 generic that produces a plotmath expression for
+#' its argument.
+#' @param o a PCM or a parameter object.
+#' @param roundDigits an integer, default: 2.
+#' @param transformChol a logical indicating if Choleski transformation should be
+#' applied to Choleski-factor parameters prior to generating the plotmath expression.
+#' @return a character string.
 #' @export
 PCMPlotMath <- function(o, roundDigits = 2, transformChol = FALSE) {
   UseMethod("PCMPlotMath", o)
@@ -169,6 +177,15 @@ PCMPlotMath.PCM <- function(o, roundDigits = 2, transformChol = FALSE) {
 
 
 #' A fixed palette of n colors
+#'
+#' @param n an integer defining the number of colors in the resulting palette.
+#' @param names a character vector of length `n`.
+#'
+#' @return A vector of character strings which can be used as color
+#' specifications by R graphics functions.
+#'
+#' @importFrom grDevices hcl
+#'
 #' @export
 PCMColorPalette <- function(n, names) {
   hues = seq(15, 375, length = n + 1)
@@ -188,7 +205,10 @@ PCMColorPalette <- function(n, names) {
 #' @importFrom ggplot2 aes scale_color_manual
 #' @export
 PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree)), ...) {
-  if(!require(ggtree)) {
+  # Needed to pass the check
+  regime <- NULL
+
+  if(!requireNamespace("ggtree")) {
     stop("ERR:02400:PCMBase:Utilities.R:PCMTreePlot:: Calling PCMTreePlot needs ggtree package to be installed from Bioconductor. Check the instructions at https://bioconductor.org/packages/release/bioc/html/ggtree.html. Ggtree was not on CRAN at the time of releasing PCMBase and is not declared as dependency in the PCMBase-description.")
   }
 
@@ -199,7 +219,7 @@ PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(
                            regime = as.factor(tree$edge.regime)),
                 data.table(node = N+1, regime = as.factor(tree$edge.regime[1])))
 
-  plotTree <- ggtree(tree, ...) %<+% data
+  plotTree <- ggtree::`%<+%`(ggtree::ggtree(tree, ...), data)
 
   plotTree + aes(color = regime) +
     scale_color_manual(name = "regime", values = palette)
@@ -216,6 +236,9 @@ PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(
 #'   respect to the present moment, i.e. closer to the root of the tree, are displayed smaller
 #'   and more transparent.). By default this is set to \code{!is.ultrametric(tree)}.
 #' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme
+#' @param sizeLabeledTips passed geom_text to specify the size of tip-labels for the trait-points.
+#'
+#' @return a ggplot object
 #' @importFrom data.table data.table is.data.table setkey := setnames
 #' @importFrom ape is.ultrametric
 #' @export
@@ -223,6 +246,11 @@ PCMPlotTraitData2D <- function(
   X, tree, labeledTips = NULL, sizeLabeledTips = 8,
   palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree)),
   scaleSizeWithTime = !is.ultrametric(tree)) {
+
+  # Needed to pass the check
+  id <- .N <- time <- regime <- label <- x <- y <- NULL
+
+
 
   N <- PCMTreeNumTips(tree)
   R <- PCMTreeNumUniqueRegimes(tree)
@@ -267,12 +295,17 @@ PCMPlotTraitData2D <- function(
 #' @param xlim,ylim numerical vectors of length 2
 #' @param xNumPoints,yNumPoints integers denoting how many points should the grid contain for each axis.
 #' @param ... additional arguments passed to ggplot
-#' @param return a ggplot object
+#'
+#' @return a ggplot object
+#'
 #' @importFrom mvtnorm dmvnorm
 #' @importFrom ggplot2 ggplot geom_contour coord_fixed
 #'
 #' @export
 PCMPlotGaussianDensityGrid2D <- function(mu, Sigma, xlim, ylim, xNumPoints = 100, yNumPoints = 100, ...) {
+  # needed to pass the check
+  x <- y <- prob <- NULL
+
   data.grid <- expand.grid(
     x = seq(xlim[1], xlim[2], length.out = xNumPoints),
     y = seq(ylim[1], ylim[2], length.out = yNumPoints))
@@ -286,14 +319,20 @@ PCMPlotGaussianDensityGrid2D <- function(mu, Sigma, xlim, ylim, xNumPoints = 100
 #' @param Sigma numerical 2 x 2 covariance matrix
 #' @param numPoints an integer denoting how many points should be randomly sampled (see details).
 #' @param ... additional arguments passed to ggplot.
-#' @param return a ggplot object
+#'
+#' @return a ggplot object
+#'
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom ggplot2 ggplot
 #'
-#' @details This function generates a random sample of numPoints 2d points using \code{\link{mvtnorm::rmvnorm}}. Then
-#' it produces a ggplot on the generated points and calls stat_ellipse(...).
+#' @details This function generates a random sample of numPoints 2d points using
+#' the function rmvnorm from the mvtnorm R-package. Then
+#' it produces a ggplot on the generated points.
 #' @export
 PCMPlotGaussianSample2D <- function(mu, Sigma, numPoints = 1000, ...) {
+  # Needed to pass the check
+  x <- y <- NULL
+
   samp <- rmvnorm(numPoints, mean = mu, sigma = Sigma)
   colnames(samp) <- c("x", "y")
   ggplot(as.data.frame(samp), aes(x, y), ...)
@@ -361,7 +400,6 @@ PCMCharacterVectorToRExpression <- function(v) {
   expr
 }
 
-#' This function was used to autogenerate the code for PCMSpecify.OU, .JOU, .BM, .White and .DOU
 GenerateDefaultParameterizations <- function(libname, pkgname){
   PCMGenerateParameterizations(structure(0.0, class = "OU"), PCMTableParameterizations(structure(0.0, class = "OU"))[1])
   PCMGenerateParameterizations(structure(0.0, class = "DOU"), PCMTableParameterizations(structure(0.0, class = "DOU"))[1])

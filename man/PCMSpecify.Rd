@@ -7,11 +7,16 @@
 PCMSpecify(model, ...)
 }
 \arguments{
-\item{model}{a PCM model object}
+\item{model}{a PCM model object.}
+
+\item{...}{additional arguments used by implementing methods.}
 }
 \value{
-a list
+a list specifying the paramters of a PCM.
 }
 \description{
-Parameter specification of PCM model
+The parameter specification of a PCM model represents a named
+list with an entry for each parameter of the model. Each entry in the list is
+a structure defining the S3 class of the parameter and its verbal description.
+This is an S3 generic. See `PCMSpecify.OU` for an example method.
 }

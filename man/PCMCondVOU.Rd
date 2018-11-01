@@ -11,13 +11,17 @@ PCMCondVOU(H, Sigma, Sigmae = NULL, Sigmaj = NULL, xi = NULL,
 \arguments{
 \item{H}{a numerical k x k matrix - selection strength parameter.}
 
-\item{Sigma}{a numerical k x k matrix - neutral dift unit-time variance-covariance matrix.}
+\item{Sigma}{a numerical k x k matrix - neutral drift unit-time variance-covariance matrix.}
+
+\item{Sigmae}{a numerical k x k matrix - environmental variance-covariance matrix.}
 
 \item{Sigmaj}{is the variance matrix of the normal jump distribution (default is NULL).}
 
 \item{xi}{a vector of 0's and 1's corresponding to each branch in the tree. A value of 1
 indicates that a jump takes place at the beginning of the branch. This arugment is only
 used if Sigmaj is not NULL. Default is NULL.}
+
+\item{e_Ht}{a numerical k x k matrix - the result of the matrix exponential expm(-t*H).}
 
 \item{threshold.Lambda_ij}{a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i
 and Lambda_j are eigenvalues of the parameter matrix H. This threshold-values is used as

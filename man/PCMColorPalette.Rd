@@ -6,6 +6,15 @@
 \usage{
 PCMColorPalette(n, names)
 }
+\arguments{
+\item{n}{an integer defining the number of colors in the resulting palette.}
+
+\item{names}{a character vector of length `n`.}
+}
+\value{
+A vector of character strings which can be used as color
+specifications by R graphics functions.
+}
 \description{
 A fixed palette of n colors
 }

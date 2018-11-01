@@ -24,6 +24,8 @@ calculated (see also Details).}
 \item{preorder}{an integer vector of row-indices in tree$edge matrix as returned
 by PCMTreePreorder. This can be given for performance speed-up when several
 operations needing preorder are executed on the tree. Default : \code{NULL}.}
+
+\item{...}{additional arguments used by implementing methods.}
 }
 \value{
 a named list with the following elements:
@@ -39,4 +41,9 @@ branch in tree;}
 indicating the presence of a jump at the corresponding branch;}
 \item{pc}{a logical matrix of dimension k x M denoting the present coordinates
 for each node;}
+This list is passed to \code{\link{PCMLik}}.
+}
+\description{
+This function pre-processes the given tree and data in order to
+create meta-information used during likelihood calculaiton.
 }

@@ -17,9 +17,6 @@ Parent S3 classes for a model class
 }
 \details{
 This S3 generic function is intended to be specified for user models.
-This function is called by PCM.character to determine the parent classes for
-a given model class.
-}
-\seealso{
-\code{\link{PCM.character}}
+This function is called by the `PCM.character` method to determine the parent
+classes for a given model class.
 }

@@ -15,13 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' @name PCMBase
-#'
-#' @title A General Framework for Gaussian Phylogenetic Comparative Models
-#'
-#' @description
-NULL
-
 #' @export
 PCMParentClasses.GaussianPCM <- function(model) {
   "PCM"
@@ -289,6 +282,8 @@ PCMSim.GaussianPCM <- function(
   values
 }
 
+#' @importFrom utils capture.output
+#'
 #' @export
 PCMLik.GaussianPCM <- function(
   X, tree, model,
@@ -379,7 +374,7 @@ PCMLik.GaussianPCM <- function(
     loglik <- try(X0 %*% L_root %*% X0 + m_root %*% X0 + r_root, silent = TRUE)
     if(class(loglik) == "try-error") {
       err <- paste0(
-        "ERR:02144:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L), "; m=", toString(m), "; r=", r,
+        "ERR:02144:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L_root), "; m=", toString(m_root), "; r=", r_root,
         ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik, "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
@@ -587,8 +582,6 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
 
 #' Quadratic polynomial parameters L, m, r
 #'
-#' @description
-#'
 #' @inheritParams PCMLik
 #' @param root.only logical indicatin whether to return the calculated values of L,m,r
 #'  only for the root or for all nodes in the tree.
@@ -753,11 +746,13 @@ PCMPExpxMeanExp <- function(
 
 #' Variance-covariance matrix of an OU process with optional measurement error and jump at the start
 #' @param H a numerical k x k matrix - selection strength parameter.
-#' @param Sigma a numerical k x k matrix - neutral dift unit-time variance-covariance matrix.
+#' @param Sigma a numerical k x k matrix - neutral drift unit-time variance-covariance matrix.
+#' @param Sigmae a numerical k x k matrix - environmental variance-covariance matrix.
 #' @param Sigmaj is the variance matrix of the normal jump distribution (default is NULL).
 #' @param xi a vector of 0's and 1's corresponding to each branch in the tree. A value of 1
 #' indicates that a jump takes place at the beginning of the branch. This arugment is only
 #' used if Sigmaj is not NULL. Default is NULL.
+#' @param e_Ht a numerical k x k matrix - the result of the matrix exponential expm(-t*H).
 #'
 #' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i
 #' and Lambda_j are eigenvalues of the parameter matrix H. This threshold-values is used as

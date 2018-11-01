@@ -33,5 +33,5 @@ A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
   only for the root if root.only=TRUE.
 }
 \description{
-
+Quadratic polynomial parameters L, m, r
 }

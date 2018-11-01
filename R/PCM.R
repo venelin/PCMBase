@@ -15,21 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' @name PCMBase
-#'
-#' @title A General Framework for Gaussian Phylogenetic Comparative Models
-#'
-#' @description
-#'
-#'
-NULL
-
 #' Get a list of PCM models currently implemented
 #' @param pattern a character string specifying an optional for the model-names to search for.
 #' @param parentClass a character string specifying an optional parent class of the models to look for.
+#' @param ... additional arguments used by implementing methods.
+#'
 #' @return a character vector of the model classes found.
-#' @details The function is using the S3 api function \code{\link{methods}} looking for all registered
-#' implementations of the function \code{\link{PCMSpecify}}
+#' @details The function is using the S3 api function \code{\link{methods}} looking
+#' for all registered implementations of the function \code{\link{PCMSpecify}}.
+#' @importFrom utils methods
 #' @export
 PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
   models <- sub("PCMSpecify.", "", as.character(methods("PCMSpecify")), fixed = TRUE)
@@ -107,7 +101,7 @@ PCMOptions <- function() {
 #' the PCMBase framework representing a single model-type with one or several
 #' model-regimes of this type associated with the branches of a tree. For mixed
 #' Gaussian phylogenetic models, which enable multiple model-types, use the
-#' \code{\link{MRG}} function.
+#' \code{\link{MixedGaussian}} function.
 #' @param model This argument can take one of the following forms:
 #' \itemize{
 #' \item a character vector of the S3-classes of the model object to be
@@ -143,7 +137,7 @@ PCMOptions <- function() {
 #' \item{PCM.default:}{A default constructor called when no other constructor is
 #' found. When called this constructor raises an error message.}
 #' }
-#' @seealso \code{\link{MRG}}
+#' @seealso \code{\link{MixedGaussian}}
 #' @export
 PCM <- function(
   model, modelTypes = class(model)[1], k = 1, regimes = 1L,
@@ -223,6 +217,9 @@ PCM.character <- function(
   PCM(modelObj, modelTypes, k, regimes, params, vecParams, offset, spec, ...)
 }
 
+#' Check if an object is a PCM.
+#' @param x an object.
+#' @return TRUE if `x` inherits from the S3 class "PCM".
 #' @export
 is.PCM <- function(x) inherits(x, "PCM")
 
@@ -283,10 +280,9 @@ format.PCM <- function(x, ...) {
 #' Parent S3 classes for a model class
 #' @param model an S3 object.
 #' @details This S3 generic function is intended to be specified for user models.
-#' This function is called by PCM.character to determine the parent classes for
-#' a given model class.
+#' This function is called by the `PCM.character` method to determine the parent
+#' classes for a given model class.
 #' @return a vector of character string denoting the names of the parent classes
-#' @seealso \code{\link{PCM.character}}
 #' @export
 PCMParentClasses <- function(model) {
   UseMethod("PCMParentClasses", model)
@@ -297,6 +293,7 @@ PCMParentClasses.PCM <- function(model) c()
 
 #' Human friendly description of a PCM
 #' @param model a PCM model object
+#' @param ... additional arguments used by implementing methods.
 #' @details This S3 generic function is intended to be specified for user models
 #' @return a character string
 #' @export
@@ -311,24 +308,61 @@ PCMDescribe.PCM <- function(model, ...) {
 
 
 #' Parameter specification of PCM model
-#' @param model a PCM model object
-#' @return a list
+#' @param model a PCM model object.
+#' @param ... additional arguments used by implementing methods.
+#'
+#' @description The parameter specification of a PCM model represents a named
+#' list with an entry for each parameter of the model. Each entry in the list is
+#' a structure defining the S3 class of the parameter and its verbal description.
+#' This is an S3 generic. See `PCMSpecify.OU` for an example method.
+#'
+#' @return a list specifying the paramters of a PCM.
 #' @export
 PCMSpecify <- function(model, ...) {
   UseMethod("PCMSpecify", model)
 }
 
+#' Describe the parameters of a PCM
+#' @param model a PCM object.
+#' @param ... additional arguments that can be used by implementing methods.
+#' @return a named list with character elements corresponding to each parameter.
+#'
+#' @description This is an S3 generic.
+#'
 #' @export
 PCMDescribeParameters <- function(model, ...) {
   UseMethod("PCMDescribeParameters", model)
 }
 
 #' Specify the parameterizations for each parameter of a model
+#' @param model a PCM.
+#' @param ... additional arguments used by implementing methods.
+#'
+#' @description This is an S3 generic.
+#' @return a named list with list elements corresponding to each parameter in
+#' model. Each list element is a list of character vectors, specifying the possible
+#' S3 class attributes for the parameter in question. For an example, type
+#' `PCMListParameterizations.BM` to see the possible parameterizations for the
+#' BM model.
+#'
 #' @export
 PCMListParameterizations <- function(model, ...) {
   UseMethod("PCMListParameterizations", model)
 }
 
+#' Cartesian product of possible parameterizations for the different parameters of a model
+#' @param model a PCM object.
+#' @param listParameterizations a list returned by a method for `PCMListParameterizations`.
+#' Default: `PCMListParameterizations(model, ...)`.
+#' @param ... additional arguments passed to `PCMListParameterizations(model, ...)`.
+#'
+#' @description This function generates a data.table in which each column corresponds to
+#' one parameter of model and each row corresponds to one combination of parameterizations
+#' for the model parameters, such that the whole table corresponds to the Cartesian product
+#' of the lists found in `listParameterizations`. Usually, subsets of this table shold be
+#' passed to `PCMGenerateParameterizations`
+#' @return a data.table object.
+#'
 #' @importFrom data.table data.table as.data.table
 #' @export
 PCMTableParameterizations <- function(
@@ -340,7 +374,30 @@ PCMTableParameterizations <- function(
   dtClasses
 }
 
-
+#' Generate possible parameterizations for a given type of model
+#'
+#' @description A parameterization of a PCM of given type, e.g. OU, is a PCM-class
+#' inheriting from this type, which imposes some restrictions or transformations of
+#' the parameters in the base-type. This function generates the S3 methods responsible
+#' for creating such parameterizations, in particular it generates the definition
+#' of the methods for the two S3 generics `PCMParentClasses` and `PCMSpecify` for
+#' al parameterizations specified in the `tableParameterizations` argument.
+#' @param model a PCM object.
+#' @param listParameterizations a list or a sublist returned by `PCMListParameterizations`.
+#' Default: `PCMListParameterizations(model)`.
+#' @param tableParameterizations a data.table containing the parameterizations to
+#' generate. By default this is generated from `listParameterizations` using a
+#' call `PCMTableParameterizations(model, listParameterizations)`. If specified
+#' by the user, this parameter takes precedence over `listParameterizations` and
+#' `listParameterizations` is not used.
+#' @param env an environment where the method definitions will be stored.
+#' Default: `env = .GlobalEnv`.
+#' @param useModelClassNameForFirstRow A logical specifying if the S3 class name of
+#' `model` should be used as a S3 class for the model defined in the first row of
+#' `tableParameterizations`. Default: FALSE.
+#' @return This function does not return a value. It only has a side effect by
+#' defining S3 methods in `env`.
+#'
 #' @export
 PCMGenerateParameterizations <- function(
   model,
@@ -567,7 +624,20 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
 
 
 #' Map a parametrization to its original form.
-#' @description This is an S3 generic that
+#' @description This is an S3 generic that transforms the passed argument by
+#' applying the transformation rules for its S3 class.
+#' @param o a PCM object or a parameter
+#' @param ... additional arguments that can be used by implementing methods.
+#'
+#' @return a transformed version of o.
+#'
+#' @description This is an S3 generic. See `PCMApplyTransformation._CholeskiFactor`
+#' for an example.
+#'
+#' @details This function returns the same object if it is not transformable.
+#'
+#' @seealso \code{\link{is.Transformable}}
+#'
 #' @export
 PCMApplyTransformation <- function(o, ...) {
   if(is.Transformable(o)) {
@@ -720,6 +790,8 @@ PCMVarAtTime <- function(t, model, W0 =  matrix(0.0, PCMNumTraits(model), PCMNum
 #' @param model an S3 object specifying the model (see Details).
 #' @param metaI a named list containg meta-information about the data and the
 #' model.
+#' @param verbose a logical indicating if informative messages should be written
+#' during execution.
 #'
 #' @details Internally, this function uses the \code{\link{PCMCond}} iimplementation
 #'  for the given model class.
@@ -768,17 +840,6 @@ PCMSim <- function(
 #'   calculated (see also Details).
 #' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model)},
 #'   containing meta-data such as N, M and k.
-#' @param pruneI a named list containing cached preprocessing data for the tree used
-#'   to perform post-order traversal (pruning). By default, this is created
-#'   using \code{PCMTreePruningOrder(tree)}. This will use the default R-implementation of the
-#'   likelihood calculation, which is based on the default R-implementation of the
-#'   function \code{\link{PCMLmr}} (\code{\link{PCMLmr.default}}) and the S3 specification
-#'   of the function
-#'   \code{\link{PCMAbCdEf}} for the given model (a function called \code{PCMAbCdEf.MODEL},
-#'   where model is the name of the mode and the class attribute of the \code{model}
-#'   argument. For a different implementation of the function \code{\link{PCMLmr}},
-#'   provide an S3 object for which an S3 specification has been written (see Details
-#'   and example section).
 #' @param log logical indicating whether a log-liklehood should be calculated. Default
 #'  is TRUE.
 #' @param verbose logical indicating if some debug-messages should printed.
@@ -921,11 +982,14 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 
 #' Meta-information about a tree associated with a PCM
 #'
-#' @description
+#' @description This function pre-processes the given tree and data in order to
+#' create meta-information used during likelihood calculaiton.
 #' @inheritParams PCMLik
 #' @param preorder an integer vector of row-indices in tree$edge matrix as returned
 #' by PCMTreePreorder. This can be given for performance speed-up when several
 #' operations needing preorder are executed on the tree. Default : \code{NULL}.
+#' @param ... additional arguments used by implementing methods.
+#'
 #' @return a named list with the following elements:
 #' \item{M}{total number of nodes in the tree;}
 #' \item{N}{number of tips;}
@@ -939,6 +1003,7 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 #' indicating the presence of a jump at the corresponding branch;}
 #' \item{pc}{a logical matrix of dimension k x M denoting the present coordinates
 #' for each node;}
+#' This list is passed to \code{\link{PCMLik}}.
 #'
 #' @export
 PCMInfo <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {

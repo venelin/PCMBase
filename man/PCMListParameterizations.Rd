@@ -6,6 +6,18 @@
 \usage{
 PCMListParameterizations(model, ...)
 }
+\arguments{
+\item{model}{a PCM.}
+
+\item{...}{additional arguments used by implementing methods.}
+}
+\value{
+a named list with list elements corresponding to each parameter in
+model. Each list element is a list of character vectors, specifying the possible
+S3 class attributes for the parameter in question. For an example, type
+`PCMListParameterizations.BM` to see the possible parameterizations for the
+BM model.
+}
 \description{
-Specify the parameterizations for each parameter of a model
+This is an S3 generic.
 }

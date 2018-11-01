@@ -6,6 +6,24 @@
 \usage{
 PCMApplyTransformation(o, ...)
 }
+\arguments{
+\item{o}{a PCM object or a parameter}
+
+\item{...}{additional arguments that can be used by implementing methods.}
+}
+\value{
+a transformed version of o.
+}
 \description{
-This is an S3 generic that
+This is an S3 generic that transforms the passed argument by
+applying the transformation rules for its S3 class.
+
+This is an S3 generic. See `PCMApplyTransformation._CholeskiFactor`
+for an example.
+}
+\details{
+This function returns the same object if it is not transformable.
+}
+\seealso{
+\code{\link{is.Transformable}}
 }

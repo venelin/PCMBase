@@ -14,13 +14,15 @@ PCMPlotGaussianSample2D(mu, Sigma, numPoints = 1000, ...)
 \item{numPoints}{an integer denoting how many points should be randomly sampled (see details).}
 
 \item{...}{additional arguments passed to ggplot.}
-
-\item{return}{a ggplot object}
+}
+\value{
+a ggplot object
 }
 \description{
 A 2D sample from Gaussian distribution
 }
 \details{
-This function generates a random sample of numPoints 2d points using \code{\link{mvtnorm::rmvnorm}}. Then
-it produces a ggplot on the generated points and calls stat_ellipse(...).
+This function generates a random sample of numPoints 2d points using
+the function rmvnorm from the mvtnorm R-package. Then
+it produces a ggplot on the generated points.
 }

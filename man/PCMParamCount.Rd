@@ -20,6 +20,15 @@ one modelTypes (\code{length(attr(model, "modelTypes", exact = TRUE)) > 1}),
 assuming that all regimes are regimes of the same model type (e.g. OU). The
 implementation for MRG models will add +1 for every regime if there are more than
 one modelTypes. Default FALSE.}
+
+\item{offset}{an integer denoting an offset count from which to start counting
+(internally used). Default: 0.}
+
+\item{k}{an integer denoting the number of modeled traits. Default: 1.}
+
+\item{R}{an integer denoting the number of regimes in the model. Default: 1.}
+
+\item{parentModel}{NULL or a PCM object. Default: NULL.}
 }
 \value{
 an integer
