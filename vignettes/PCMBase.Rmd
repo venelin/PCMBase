@@ -15,8 +15,7 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-library(phytools)
+library(ape)
 library(PCMBase)
 ```
 
@@ -118,8 +117,6 @@ The first functionality of the PCMBase package is to provide an easy way to simu
 For this example, first we simulate a birth death tree with two regimes "a" and "b" using the `phytools` R-package:
 
 ```{r}
-library(phytools)
-
 # make results reproducible
 set.seed(2)
 
@@ -133,28 +130,31 @@ N <- 100
 Q <- matrix(c(-0.1, 0.1, 0.01, -0.01), R, R)
 colnames(Q) <- rownames(Q) <- letters[1:R]
 
-tree.a <- pbtree(n=N, scale=1, b = 1, d = 0.4)
-tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
+tree.a <- rtree(n=N)
+PCMTreeSetLabels(tree.a)
+PCMTreeSetDefaultRegime(tree.a, regime = "a")
 
-# convert the simmap tree to a normal phylo object with singleton nodes at the
-# within-branch regime changes. The regimes are encoded as names of the edge.length
-# vector
-tree.ab.singles <- map.to.singleton(tree.ab)
-tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
-plotTree.singletons(tree.ab.singles)
+lstDesc <- PCMTreeListDescendants(tree.a)
+splitNode <- names(lstDesc)[which(sapply(lstDesc, length) > N/2 & sapply(lstDesc, length) < 2*N/3)][1]
+
+tree.ab <- PCMTreeInsertSingletons(tree.a, nodes = as.integer(splitNode), 
+                                   positions = PCMTreeGetBranchLength(tree.a, as.integer(splitNode))/2)
+PCMTreeSetRegimes(tree.ab, nodes = splitNode, regimes = c("a", "b"), inplace = TRUE)
+
+PCMTreePlot(tree.ab)
 ```
 
 Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:
 
 ```{r}
-traits <- PCMSim(tree.ab.singles, modelBM.ab, modelBM.ab$X0)
+traits <- PCMSim(tree.ab, modelBM.ab, modelBM.ab$X0)
 ```
 
 # Calculating likelihoods
 Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.
 
 ```{r}
-PCMLik(traits, tree.ab.singles, modelBM.ab)
+PCMLik(traits, tree.ab, modelBM.ab)
 ```
 
 For faster and repeated likelihood evaluation, I recommend creating a likelihood function for a given 
@@ -163,7 +163,7 @@ likelihood evaluation.
 
 ```{r}
 # a function of a numerical parameter vector:
-likFun <- PCMCreateLikelihood(traits, tree.ab.singles, modelBM.ab)
+likFun <- PCMCreateLikelihood(traits, tree.ab, modelBM.ab)
 
 likFun(param2)
 ```
