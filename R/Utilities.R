@@ -194,37 +194,6 @@ PCMColorPalette <- function(n, names) {
   palette
 }
 
-#' Plot a tree with regimes
-#' @param tree a phylo with set labels and regimes
-#' @param palette a named vector of colors corresponding to the regimes in tree
-#' @param ... Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.
-#' @note Currently, the ggtree package is not on CRAN and therefore it is not explicitly
-#' imported by PCMBase.
-#' @importFrom data.table data.table
-#' @importFrom grDevices hcl
-#' @importFrom ggplot2 aes scale_color_manual
-#' @export
-PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree)), ...) {
-  # Needed to pass the check
-  regime <- NULL
-
-  if(!requireNamespace("ggtree")) {
-    stop("ERR:02400:PCMBase:Utilities.R:PCMTreePlot:: Calling PCMTreePlot needs ggtree package to be installed from Bioconductor. Check the instructions at https://bioconductor.org/packages/release/bioc/html/ggtree.html. Ggtree was not on CRAN at the time of releasing PCMBase and is not declared as dependency in the PCMBase-description.")
-  }
-
-  N <- PCMTreeNumTips(tree)
-  R <- PCMTreeNumUniqueRegimes(tree)
-
-  data <- rbind(data.table(node = tree$edge[, 2],
-                           regime = as.factor(tree$edge.regime)),
-                data.table(node = N+1, regime = as.factor(tree$edge.regime[1])))
-
-  plotTree <- ggtree::`%<+%`(ggtree::ggtree(tree, ...), data)
-
-  plotTree + aes(color = regime) +
-    scale_color_manual(name = "regime", values = palette)
-}
-
 
 #' Scatter plot of 2-dimensional data
 #' @param X a k x N matrix

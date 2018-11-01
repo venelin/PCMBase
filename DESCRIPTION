@@ -44,7 +44,6 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    ggtree,
     abind
 RoxygenNote: 6.1.0
 ByteCompile: yes
