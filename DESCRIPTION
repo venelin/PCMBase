@@ -27,7 +27,8 @@ Description: Phylogenetic comparative models represent models of continuous trai
   above models can be associated with different branches of the tree. The PCMBase
   package is limited to trait-simulation and likelihood calculation of (mixed) Gaussian
   phylogenetic models. The PCMFit package provides functionality for ML and Bayesian 
-  fit of these models to tree and trait data.
+  fit of these models to tree and trait data. The package web-site https://venelin.github.io/PCMBase/
+  provides access to the documentation and other resources. 
 License: GPL (>= 3.0)
 LazyData: true
 Depends:
