@@ -19,7 +19,9 @@
 
 ## Added by Venelin Mitov
 # cause every message to result in an error
-.my_message <- .my_warning <- stop
+.my_message <- .my_warning <- function(...) {
+  stop(...)
+}
 
 ## ------------- parametrization of symmetric positive definite matrix ------------------------------
 .sym.par <- function (x,nchar) {
@@ -325,7 +327,7 @@
     lAparams<-.par.inv.transform.decomp.real.matrix(A,eigenSigns,mCSigns,tol)
     vTooBig<-which(lAparams$vParams[1:n]>(-1)*maxEigenValue)
     if (length(vTooBig)>0){
-	lAparams$vParams[vTooSmall]<-(-1.25)*maxEigenValue
+	lAparams$vParams[vTooBig]<-(-1.25)*maxEigenValue
     }
     n<-nrow(A)
     lAparams$vParams[1:n]<-log((-1)*lAparams$vParams[1:n]-maxEigenValue)
