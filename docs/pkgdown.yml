@@ -1,0 +1,10 @@
+pandoc: 1.19.2.1
+pkgdown: 1.1.0
+pkgdown_sha: ~
+articles:
+  PCMBase: PCMBase.html
+  PCMParam: PCMParam.html
+urls:
+  reference: http://venelin.github.io/PCMBase/reference
+  article: http://venelin.github.io/PCMBase/articles
+

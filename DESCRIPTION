@@ -1,7 +1,7 @@
 Package: PCMBase
 Type: Package
 Title: Simulation and likelihood calculation of phylogenetic comparative models
-Version: 1.2.7.1
+Version: 1.2.7
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                     role = c("aut", "cre", "cph")),
              person("Krzysztof", "Bartoszek",

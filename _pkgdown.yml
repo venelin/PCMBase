@@ -22,4 +22,5 @@ articles:
 - title: All vignettes
   desc: ~
   contents:
+  - '`PCMBase`'
   - '`PCMParam`'

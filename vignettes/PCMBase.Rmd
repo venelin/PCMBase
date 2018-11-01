@@ -110,7 +110,6 @@ print(modelBM.ab)
 ```
 
 
-
 # Simulating data on a phylogenetic tree
 The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM. 
 
@@ -126,10 +125,6 @@ R <- 2
 # number of extant tips
 N <- 100
 
-# rate mtrix of transition from one regime to another
-Q <- matrix(c(-0.1, 0.1, 0.01, -0.01), R, R)
-colnames(Q) <- rownames(Q) <- letters[1:R]
-
 tree.a <- rtree(n=N)
 PCMTreeSetLabels(tree.a)
 PCMTreeSetDefaultRegime(tree.a, regime = "a")
@@ -141,7 +136,12 @@ tree.ab <- PCMTreeInsertSingletons(tree.a, nodes = as.integer(splitNode),
                                    positions = PCMTreeGetBranchLength(tree.a, as.integer(splitNode))/2)
 PCMTreeSetRegimes(tree.ab, nodes = splitNode, regimes = c("a", "b"), inplace = TRUE)
 
-PCMTreePlot(tree.ab)
+# Currently this is causing a failure of the pkgdown::build_site(), so we use the 
+# ape's tree-plotting function
+# PCMTreePlot(tree.ab)
+
+palette <- PCMColorPalette(2, c("a", "b"))
+plot(tree.ab, show.tip.label=FALSE, edge.color = palette[tree.ab$edge.regime])
 ```
 
 Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:
@@ -168,7 +168,5 @@ likFun <- PCMCreateLikelihood(traits, tree.ab, modelBM.ab)
 likFun(param2)
 ```
 
-# Fitting PCMs
-TODO
 
 
