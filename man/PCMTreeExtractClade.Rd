@@ -4,8 +4,8 @@
 \alias{PCMTreeExtractClade}
 \title{Extract a clade from phylogenetic tree}
 \usage{
-PCMTreeExtractClade(tree, cladeRootNode, tableAncestors = NULL, X = NULL,
-  returnPhylo = is.null(X))
+PCMTreeExtractClade(tree, cladeRootNode, tableAncestors = NULL,
+  X = NULL, returnPhylo = is.null(X))
 }
 \arguments{
 \item{tree}{a phylo object}

@@ -223,9 +223,12 @@ PCM.character <- function(
 #' @export
 is.PCM <- function(x) inherits(x, "PCM")
 
-#' @export
-print.PCM <- function(x, ...) cat (format(x, ...), "\n")
 
+#' @method print PCM
+#' @export
+print.PCM <- function(x, ...) cat(format(x, ...), "\n")
+
+#' @method print PCM
 #' @export
 format.PCM <- function(x, ...) {
   if( !is.PCM(x) ) {

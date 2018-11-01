@@ -4,7 +4,8 @@
 \alias{PCMTreeListDescendants}
 \title{A list of the descendants for each node in a tree}
 \usage{
-PCMTreeListDescendants(tree, tableAncestors = PCMTreeTableAncestors(tree))
+PCMTreeListDescendants(tree,
+  tableAncestors = PCMTreeTableAncestors(tree))
 }
 \arguments{
 \item{tree}{a phylo object}

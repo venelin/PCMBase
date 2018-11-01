@@ -4,7 +4,8 @@
 \alias{PCMTreePlot}
 \title{Plot a tree with regimes}
 \usage{
-PCMTreePlot(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree),
+PCMTreePlot(tree,
+  palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree),
   PCMTreeUniqueRegimes(tree)), ...)
 }
 \arguments{

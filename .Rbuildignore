@@ -1,4 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^tests
 ^docs
+^tests
+^README.Rmd
+^_pkgdown.yml

@@ -4,8 +4,8 @@
 \alias{PCMLmr}
 \title{Quadratic polynomial parameters L, m, r}
 \usage{
-PCMLmr(X, tree, model, metaI = PCMInfo(X, tree, model, verbose = verbose),
-  root.only = TRUE, verbose = FALSE)
+PCMLmr(X, tree, model, metaI = PCMInfo(X, tree, model, verbose =
+  verbose), root.only = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each

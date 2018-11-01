@@ -4,8 +4,8 @@
 \alias{PCMTreeSetRegimes}
 \title{Assign regimes on a tree given a set of starting branches}
 \usage{
-PCMTreeSetRegimes(tree, nodes, regimes = as.integer(1:(length(nodes) + 1)),
-  inplace = TRUE)
+PCMTreeSetRegimes(tree, nodes, regimes = as.integer(1:(length(nodes) +
+  1)), inplace = TRUE)
 }
 \arguments{
 \item{tree}{a phylo object}

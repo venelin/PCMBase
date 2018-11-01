@@ -1,6 +1,6 @@
 Package: PCMBase
 Type: Package
-Title: Simulation and likelihood calculation of phylogenetic comparative models
+Title: Simulation and Likelihood Calculation of Phylogenetic Comparative Models
 Version: 1.2.7
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                     role = c("aut", "cre", "cph")),
@@ -10,7 +10,7 @@ Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                     role = c("ctb")),
              person("Tanja", "Stadler",
                     role = c("ctb")))
-Maintainer: Who to complain to <vmitov@gmail.com>
+Maintainer: Venelin Mitov <vmitov@gmail.com>
 Description: Phylogenetic comparative models represent models of continuous trait 
   data associated with the tips of a phylogenetic tree. Examples 
   of such models are Gaussian continuous time branching stochastic processes 
@@ -27,7 +27,8 @@ Description: Phylogenetic comparative models represent models of continuous trai
   above models can be associated with different branches of the tree. The PCMBase
   package is limited to trait-simulation and likelihood calculation of (mixed) Gaussian
   phylogenetic models. The PCMFit package provides functionality for ML and Bayesian 
-  fit of these models to tree and trait data. The package web-site https://venelin.github.io/PCMBase/
+  fit of these models to tree and trait data. The package web-site 
+  <https://venelin.github.io/PCMBase/>
   provides access to the documentation and other resources. 
 License: GPL (>= 3.0)
 LazyData: true
@@ -40,13 +41,11 @@ Imports:
     data.table,
     ggplot2
 Suggests:
-    PCMBaseCpp,
-    OptimMCMC,
     testthat,
     knitr,
     rmarkdown,
     ggtree,
     abind
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 ByteCompile: yes
 VignetteBuilder: knitr, rmarkdown

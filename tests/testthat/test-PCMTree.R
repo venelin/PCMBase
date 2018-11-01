@@ -2,7 +2,7 @@
 
 if(.RunPCMBaseTests) {
 
-  library(ape)
+library(ape)
 library(testthat)
 library(PCMBase)
 

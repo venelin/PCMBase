@@ -4,8 +4,8 @@
 \alias{PCMTreeSplitAtNode}
 \title{Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade}
 \usage{
-PCMTreeSplitAtNode(tree, node, tableAncestors = PCMTreeTableAncestors(tree),
-  X = NULL)
+PCMTreeSplitAtNode(tree, node,
+  tableAncestors = PCMTreeTableAncestors(tree), X = NULL)
 }
 \arguments{
 \item{tree}{a phylo object}

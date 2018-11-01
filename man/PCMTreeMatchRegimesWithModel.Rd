@@ -4,7 +4,8 @@
 \alias{PCMTreeMatchRegimesWithModel}
 \title{Regimes associated with branches in a tree}
 \usage{
-PCMTreeMatchRegimesWithModel(tree, model, preorder = PCMTreePreorder(tree))
+PCMTreeMatchRegimesWithModel(tree, model,
+  preorder = PCMTreePreorder(tree))
 }
 \arguments{
 \item{tree}{a phylo object}

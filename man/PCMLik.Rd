@@ -4,8 +4,8 @@
 \alias{PCMLik}
 \title{Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages}
 \usage{
-PCMLik(X, tree, model, metaI = PCMInfo(X, tree, model, verbose = verbose),
-  log = TRUE, verbose = FALSE)
+PCMLik(X, tree, model, metaI = PCMInfo(X, tree, model, verbose =
+  verbose), log = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each

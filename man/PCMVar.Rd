@@ -4,9 +4,9 @@
 \alias{PCMVar}
 \title{Expected variance-covariance matrix for each couple of tips (i,j)}
 \usage{
-PCMVar(tree, model, W0 = matrix(0, PCMNumTraits(model), PCMNumTraits(model)),
-  metaI = PCMInfo(NULL, tree, model, verbose), internal = FALSE,
-  verbose = FALSE)
+PCMVar(tree, model, W0 = matrix(0, PCMNumTraits(model),
+  PCMNumTraits(model)), metaI = PCMInfo(NULL, tree, model, verbose),
+  internal = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}
