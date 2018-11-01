@@ -46,7 +46,7 @@ devtools::install_github("venelin/PCMBase")
 
 ## Resources
 
-The user guides and technical reference for the library are available from the [PCMBase web-page](https://venelin.github.io/PCMBase/index.html). 
+The user guides and technical reference for the library are available from the [PCMBase web-page](https://venelin.github.io/PCMBase/). 
 
 * The [Getting started](https://venelin.github.io/PCMBase/articles/PCMBase.html) 
 * The [The PCMBase parameterizations](https://venelin.github.io/PCMBase/articles/PCMParam.html) (in preparation) 
