@@ -30,6 +30,7 @@ Description: Phylogenetic comparative models represent models of continuous trai
   fit of these models to tree and trait data. The package web-site 
   <https://venelin.github.io/PCMBase/>
   provides access to the documentation and other resources. 
+Encoding: UTF-8
 License: GPL (>= 3.0)
 LazyData: true
 Depends:
