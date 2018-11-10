@@ -151,29 +151,6 @@ JOU.lik.ab <-  PCMLik(traits.ab.123, tree.ab.singles, model.ab.123)
 
 
 
-if(require(PCMBaseCpp)) {
-  cat("Testing PCMBaseCpp on JOU:\n")
 
-  test_that("a.123",
-            expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
-                         PCMLik(traits.a.123, tree.a, model.a.123,
-                               metaI = PCMInfoCpp(X = traits.a.123[, 1:length(tree.a$tip.label)],
-                                                     tree = tree.a,
-                                                     model.a.123))))
-
-
-  cat("Testing PCMBaseCpp on JOU with missing values:\n")
-
-  values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
-
-  metaI <- PCMInfoCpp(X = values, tree = tree.ab.singles, model.ab.123)
-
-  PCMAbCdEf(tree.ab.singles, model.ab.123, PCMInfo(X = values, tree.ab.singles, model.ab.123))
-
-  test_that("ab.123",
-            expect_equal(PCMLik(values, tree.ab.singles, model.ab.123),
-                         PCMLik(tree = tree.ab.singles, model = model.ab.123, metaI = metaI)))
-
-}
 
 }

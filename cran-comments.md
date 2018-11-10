@@ -1,6 +1,92 @@
 Hello, 
 
-I am resubmitting the package after fixing the 1 NOTE about the non-standard directory docs and file cran-comments.md present in the built package (added to .Rbuildignore). Please, ignore the note about misspelled words - they are all correct.
+I am resubmitting the package after fixing the 1 NOTE about the non-standard directory docs and file cran-comments.md present in the built package (added to .Rbuildignore). 
+
+There was a problem with the installation of the package on Fedora (during check_rhub()). I could find the following error in the log-file (the whole log-file is available from this link: https://builder.r-hub.io/status/original/PCMBase_1.2.7.tar.gz-405a62181dd847fc9e3dce58b70b6ab9):
+
+Error response from daemon: No such container: PCMBase_1.2.7.tar.gz-405a62181dd847fc9e3dce58b70b6ab9-3
++
+
+Please, ignore the note about misspelled words - they are all correct. 
+
+# Output from check_win_devel()
+* using log directory 'd:/RCompile/CRANguest/R-devel/PCMBase.Rcheck'
+* using R Under development (unstable) (2018-11-08 r75566)
+* using platform: x86_64-w64-mingw32 (64-bit)
+* using session charset: ISO8859-1
+* checking for file 'PCMBase/DESCRIPTION' ... OK
+* checking extension type ... Package
+* this is package 'PCMBase' version '1.2.7'
+* package encoding: UTF-8
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: 'Venelin Mitov <vmitov@gmail.com>'
+
+New submission
+
+Possibly mis-spelled words in DESCRIPTION:
+  OU (18:56, 26:62, 26:69, 27:13)
+  Ornstein (18:36)
+  PCMBase (21:17, 28:75)
+  PCMFit (30:28)
+  Uhlenbeck (18:45)
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking serialization versions ... OK
+* checking whether package 'PCMBase' can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking 'build' directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* loading checks for arch 'i386'
+** checking whether the package can be loaded ... OK
+** checking whether the package can be loaded with stated dependencies ... OK
+** checking whether the package can be unloaded cleanly ... OK
+** checking whether the namespace can be loaded with stated dependencies ... OK
+** checking whether the namespace can be unloaded cleanly ... OK
+** checking loading without being on the library search path ... OK
+** checking use of S3 registration ... OK
+* loading checks for arch 'x64'
+** checking whether the package can be loaded ... OK
+** checking whether the package can be loaded with stated dependencies ... OK
+** checking whether the package can be unloaded cleanly ... OK
+** checking whether the namespace can be loaded with stated dependencies ... OK
+** checking whether the namespace can be unloaded cleanly ... OK
+** checking loading without being on the library search path ... OK
+** checking use of S3 registration ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... [19s] OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd line widths ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking installed files from 'inst/doc' ... OK
+* checking files in 'vignettes' ... OK
+* checking examples ... NONE
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in 'inst/doc' ... OK
+* checking re-building of vignette outputs ... [6s] OK
+* checking PDF version of manual ... OK
+* DONE
+Status: 1 NOTE
 
 # Output from check_rhub:
 
@@ -139,25 +225,4 @@ N  checking CRAN incoming feasibility
   Build ID:   PCMBase_1.2.7.tar.gz-405a62181dd847fc9e3dce58b70b6ab9
   Platform:   Fedora Linux, R-devel, clang, gfortran
   Submitted:  4.4s ago
-
-Venelin Mitov: All of the words are correclty spelled.
-
-── PCMBase 1.2.7: NOTE
-
-  Build ID:   PCMBase_1.2.7.tar.gz-3c1a4aa5287e4677b5b12df498e01c05
-  Platform:   Ubuntu Linux 16.04 LTS, R-release, GCC
-  Submitted:  6.5s ago
-  
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: ‘Venelin Mitov <vmitov@gmail.com>’
-
-New submission
-
-Possibly mis-spelled words in DESCRIPTION:
-  Ornstein (18:36)
-  OU (18:56, 26:62, 26:69, 27:13)
-  PCMBase (21:17, 28:75)
-  PCMFit (30:28)
-  Uhlenbeck (18:45)
-  
 

@@ -334,68 +334,6 @@ if(require(phytools)) {
 
 traits.ab.123 <- PCMSim(tree.ab.singles, model.ab.123, c(0,0,0), verbose=TRUE)
 
-if(require(PCMBaseCpp)) {
-  cat("Testing PCMBaseCpp on OU:\n")
-
-  PCMTreeSetDefaultRegime(tree.a, model.a.123)
-  test_that("a.123",
-            expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
-                         PCMLik(traits.a.123, tree.a, model.a.123,
-                               metaI = PCMInfoCpp(X = traits.a.123[, 1:length(tree.a$tip.label)],
-                                                     tree = tree.a,
-                                                     model.a.123))))
-
-  test_that("ab.123",
-            expect_equal(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123),
-                         PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
-                               metaI = PCMInfoCpp(X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
-                                                     tree = tree.ab.singles,
-                                                     model.ab.123))))
-
-
-  values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
-  values[sample(x=1:length(values), 88)] <- NA
-
-  metaIR <- PCMInfo(X = values,
-                     tree = tree.ab.singles,
-                     model.ab.123)
-  metaICpp <- PCMInfoCpp(X = values,
-                               tree = tree.ab.singles,
-                               model.ab.123)
-  test_that("ab.123 with missing values",
-            expect_equal(PCMLik(values, tree.ab.singles, model.ab.123,
-                               metaI = metaIR),
-                         PCMLik(values, tree.ab.singles, model.ab.123,
-                               metaI = metaICpp)))
-
-  print(PCMLik(traits.ab.123, tree.ab.singles, model.ab.123,
-               metaI = PCMInfoCpp(
-                 X = traits.ab.123[, 1:length(tree.ab.singles$tip.label)],
-                 tree = tree.ab.singles,
-                 model.ab.123)))
-
-  print(PCMLik(values, tree.ab.singles, model.ab.123,
-              metaI = PCMInfoCpp(X = values,
-                                    tree = tree.ab.singles,
-                                    model.ab.123)))
-
-
-  if(require(microbenchmark)) {
-    cat("microbenchmark test")
-
-    options(PCMBase.PCMLmr.mode=11)
-    print(microbenchmark(
-      PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaIR),
-      PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaICpp),
-      times = 10
-    ))
-
-    options(PCMBase.PCMLmr.mode=21)
-    print(microbenchmark(
-      PCMLik(values, tree.ab.singles, model.ab.123, metaI = metaICpp)
-    ))
-  }
-}
 
 if(require(OUwie)) {
   data(tworegime)

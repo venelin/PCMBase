@@ -5,7 +5,6 @@ if(.RunPCMBaseTests) {
   library(ape)
 library(testthat)
 library(PCMBase)
-library(PCMBaseCpp)
 library(abind)
 
 set.seed(1)
