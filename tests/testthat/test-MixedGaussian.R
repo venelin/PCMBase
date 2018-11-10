@@ -5,7 +5,6 @@ if(.RunPCMBaseTests) {
   library(ape)
 library(testthat)
 library(PCMBase)
-library(PCMBaseCpp)
 library(abind)
 
 set.seed(1)
@@ -205,22 +204,6 @@ test_that("Equal OU and MixedGaussian likelihoods with global Sigmae_x", expect_
   PCMLik(traits.ab.123, tree.ab.singles, model.ab.123_bSigmae_x)
 ))
 
-if(require(PCMBaseCpp)) {
-  cat("Testing PCMBaseCpp on MixedGaussian model:\n")
-  test_that("Equal OU and MixedGaussian likelihoods", expect_equal(
-    PCMLik(traits.ab.123, tree.ab.singles, model_MixedGaussian_ab,
-           metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MixedGaussian_ab)),
-    PCMLik(traits.ab.123, tree.ab.singles, model.ab.123)
-  ))
-  test_that("Equal OU and MixedGaussian likelihoods with global Sigmae_x", expect_equal(
-    PCMLik(traits.ab.123, tree.ab.singles, model_MixedGaussian_ab_globalSigmae_x,
-           metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MixedGaussian_ab_globalSigmae_x)),
-    PCMLik(traits.ab.123, tree.ab.singles, model.ab.123_bSigmae_x)
-  ))
 
-  metaI = PCMInfoCpp(traits.ab.123, tree.ab.singles, model_MixedGaussian_ab)
-  microbenchmark::microbenchmark(PCMLik(traits.ab.123, tree.ab.singles, model_MixedGaussian_ab,
-         metaI = metaI))
-}
 
 }

@@ -1,6 +1,6 @@
 .RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
 
-if(.RunPCMBaseTests) {
+#if(.RunPCMBaseTests) {
 
 # Test for ScalarDiagonal_Sigma_x matrices - this causes a problem with the default
 # arma::eig_gen implementation.
@@ -8,10 +8,8 @@ if(.RunPCMBaseTests) {
 library(ape)
 library(testthat)
 library(PCMBase)
-library(PCMFit)
 library(abind)
 library(data.table)
-library(phytools)
 
 set.seed(2)
 
@@ -23,7 +21,7 @@ k <- 2
 # number of tips
 N <- 200
 
-tree.a <- pbtree(n=N, scale=1, b = 1, d = 0.4)
+tree.a <- rtree(n=N)
 PCMTreeSetRegimes(tree.a, c(322, 513), regimes = c("a", "b", "c"))
 PCMTreeSetLabels(tree.a)
 
@@ -71,19 +69,6 @@ traits <- PCMSim(tree.a, model, X0 = model$X0, verbose=TRUE)
 options(PCMBase.Value.NA = -1e20)
 values <- traits[, 1:length(tree.a$tip.label)]
 
-likR <- PCMLik(values, tree.a, model)
-
-if(require(PCMBaseCpp)) {
-  metaInfo <- PCMInfoCpp(values, tree.a, model)
-  likFun2 <- PCMCreateLikelihood(values, tree.a, model, metaInfo)
-
-  print(likFun2(p = PCMParamGetShortVector(model)))
-  print(likR)
-  test_that("Equal R and PCMBaseCpp values with scalar diagonal Sigma matrix",
-            expect_equal(likFun2(p = PCMParamGetShortVector(model)), likR))
-
-}
 
 
-
-}
+#}

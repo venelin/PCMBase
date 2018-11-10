@@ -237,44 +237,7 @@ test_that(paste(ctx, "Match multivariate likelihood of independent traits regime
 })
 
 
-if(require(PCMBaseCpp)) {
-  cat("Testing PCMBaseCpp on BM:\n")
 
-  test_that("a.123",
-            expect_equal(PCMLik(traits.a.123, tree.a, model.a.123),
-                         PCMLik(traits.a.123, tree.a, model.a.123,
-                               metaI = PCMInfoCpp(X = traits.a.123[, 1:length(tree.a$tip.label)],
-                                                     tree = tree.a,
-                                                     model.a.123))))
-
-  values <- traits.a.123[, 1:length(tree.a$tip.label)]
-  values[sample(x=1:length(values), 50)] <- NA
-
-  metaIR <- PCMInfo(X = values, tree = tree.a, model = model.a.123)
-  metaICpp <- PCMInfoCpp(X = values, tree = tree.a, model = model.a.123)
-
-  test_that("a.123 with missing values",
-            expect_equal(PCMLik(values, tree.a, model.a.123),
-                         PCMLik(tree = tree.a, model = model.a.123, metaI = metaICpp)))
-
-
-
-
-  if(require(microbenchmark)) {
-    cat("microbenchmark test")
-
-    options(PCMBase.PCMLmr.mode=11)
-    print(microbenchmark(
-      PCMLik(values, tree.a, model.a.123, metaI = metaIR),
-      PCMLik(values, tree.a, model.a.123, metaI = metaICpp), times = 10
-    ))
-
-    options(PCMBase.PCMLmr.mode=21)
-    print(microbenchmark(
-      PCMLik(values, tree.a, model.a.123, metaI = metaICpp)
-    ))
-  }
-}
 
 
 }

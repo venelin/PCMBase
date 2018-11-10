@@ -1,8 +1,10 @@
 ^docs$
 ^_pkgdown\.yml$
+^CRAN-RELEASE$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^docs
 ^tests
+^docs
+^cran-comments.md
 ^README.Rmd
 ^_pkgdown.yml
