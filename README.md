@@ -32,4 +32,4 @@ The research article "Fast likelihood evaluation for multivariate phylogenetic c
 
 The PCMBase source code is located in the [PCMBase github repository](https://github.com/venelin/PCMBase).
 
-Feature requests, bugs, etc can be reported in the [SPLITT issues list](https://github.com/venelin/PCMBase/issues).
+Feature requests, bugs, etc can be reported in the [PCMBase issues list](https://github.com/venelin/PCMBase/issues).

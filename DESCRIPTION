@@ -49,3 +49,5 @@ Suggests:
 RoxygenNote: 6.1.0
 ByteCompile: yes
 VignetteBuilder: knitr, rmarkdown
+URL: https://venelin.github.io/PCMBase/, https://github.com/venelin/PCMBase
+BugReports: https://github.com/venelin/PCMBase/issues
