@@ -1,16 +1,9 @@
 library(PCMBase)
+library(testthat)
+
+context("Test parameter transformaitons")
 
 if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
-
-  context("Test parameter transformaitons")
-
-  # Test for ScalarDiagonal_Sigma_x matrices - this causes a problem with the default
-  # arma::eig_gen implementation.
-  #
-  library(ape)
-  library(PCMBase)
-  library(abind)
-  library(data.table)
 
   # number of traits
   k <- 3
@@ -40,7 +33,16 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
   modelRandom <- model
   PCMParamLoadOrStore(modelRandom, vecModelRandom, offset = 0, load=TRUE)
   model <- modelRandom
+  test_that(
+    "Before applying a transformation", {
+      expect_true(is.Transformable(model))
+    })
 
   model2 <- PCMApplyTransformation(model)
+
+  test_that(
+    "After applying a transformation", {
+      expect_false(is.Transformable(model2))
+    })
 
 }
