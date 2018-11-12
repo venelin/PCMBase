@@ -4,7 +4,7 @@
 \alias{PCMParamGetShortVector}
 \title{Get a vector of the variable numeric parameters in a model}
 \usage{
-PCMParamGetShortVector(o, k = 1, R = 1, ...)
+PCMParamGetShortVector(o, k = 1L, R = 1L, ...)
 }
 \arguments{
 \item{o}{a PCM model object or a parameter of a PCM object}

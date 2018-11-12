@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model. — PCMParamLoadOrStore • PCMBase</title>
+<title>Check if the PCMBase version correpsonds to a dev release — PCMBaseIsADevRelease • PCMBase</title>
 
 <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
 
@@ -32,9 +32,10 @@
 
 
 
-<meta property="og:title" content="Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model. — PCMParamLoadOrStore" />
+<meta property="og:title" content="Check if the PCMBase version correpsonds to a dev release — PCMBaseIsADevRelease" />
 
-<meta property="og:description" content="Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model." />
+<meta property="og:description" content="We define a dev release as having a sub-release, eg 0.9.15.5 is
+one whereas 0.9.16 is not." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -113,73 +114,31 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMParam.R'><code>R/PCMParam.R</code></a></small>
-    <div class="hidden name"><code>PCMParamLoadOrStore.Rd</code></div>
+    <h1>Check if the PCMBase version correpsonds to a dev release</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/Utilities.R'><code>R/Utilities.R</code></a></small>
+    <div class="hidden name"><code>PCMBaseIsADevRelease.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Load (or store) a PCM parameter from (or to) a vector of the variable parameters in a model.</p>
+    <p>We define a dev release as having a sub-release, eg 0.9.15.5 is
+one whereas 0.9.16 is not.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMParamLoadOrStore</span>(<span class='no'>o</span>, <span class='no'>vecParams</span>, <span class='no'>offset</span>, <span class='no'>k</span>, <span class='no'>R</span>, <span class='no'>load</span>, <span class='kw'>parentModel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>o</th>
-      <td><p>a PCM model object or a parameter of a PCM object</p></td>
-    </tr>
-    <tr>
-      <th>vecParams</th>
-      <td><p>a numeric vector.</p></td>
-    </tr>
-    <tr>
-      <th>offset</th>
-      <td><p>an integer denoting an offset count from which to start counting
-(internally used). Default: 0.</p></td>
-    </tr>
-    <tr>
-      <th>k</th>
-      <td><p>an integer denoting the number of modeled traits. Default: 1.</p></td>
-    </tr>
-    <tr>
-      <th>R</th>
-      <td><p>an integer denoting the number of regimes in the model. Default: 1.</p></td>
-    </tr>
-    <tr>
-      <th>load</th>
-      <td><p>logical indicating if parameters should be loaded from vecParams into o (TRUE)
-or stored to vecParams from o (FALSE).</p></td>
-    </tr>
-    <tr>
-      <th>parentModel</th>
-      <td><p>NULL or a PCM object. Default: NULL.</p></td>
-    </tr>
-    </table>
-    
+    <pre class="usage"><span class='fu'>PCMBaseIsADevRelease</span>()</pre>
+        
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an integer equaling the number of elemnents read from vecParams.
-In the case of type=="custom", the number of indices bigger than offset returned by the function indices(offset, k).</p>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>This S3 generic function has both, a returned value and side effects.</p>
+    <p>a logical</p>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>

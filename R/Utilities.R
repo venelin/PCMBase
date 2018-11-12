@@ -16,7 +16,7 @@
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
 #' Check if the PCMBase version correpsonds to a dev release
-#'
+#' @importFrom utils packageDescription
 #' @description We define a dev release as having a sub-release, eg 0.9.15.5 is
 #' one whereas 0.9.16 is not.
 #' @return a logical
