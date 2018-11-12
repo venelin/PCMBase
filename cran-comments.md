@@ -6,7 +6,7 @@ For running the rhub check I've used the command:
 
 rhub::check_for_cran(env_vars = c(`_R_CHECK_FORCE_SUGGESTS_` = "false", `_R_CHECK_CRAN_INCOMING_USE_ASPELL_` = "true"))
 
-Setting _R_CHECK_FORCE_SUGGESTS_ to false was necessary because of the package ggtree, which is listed in Suggests and is used conditionally within one function. 
+Setting _R_CHECK_FORCE_SUGGESTS_ to false was necessary because of the package ggtree, which is listed in Suggests and is used conditionally in one function of the package. The ggtree package is hosted on Bioconductor.
 
 There was a problem with the installation of the package on Fedora (during check_rhub()). I could find the following error in the log-file (the whole log-file is available from this link: https://builder.r-hub.io/status/original/PCMBase_1.2.7.tar.gz-405a62181dd847fc9e3dce58b70b6ab9):
 
@@ -207,16 +207,17 @@ N  checking package dependencies
 
 0 errors ✔ | 0 warnings ✔ | 1 note ✖
 
-── PCMBase 1.2.7: IN-PROGRESS
+── PCMBase 1.2.7: NOTE
 
   Build ID:   PCMBase_1.2.7.tar.gz-f2ccbd3838c2402bb984becf1e1bd6f0
   Platform:   Ubuntu Linux 16.04 LTS, R-release, GCC
   Submitted:  4.4s ago
 
 
-── PCMBase 1.2.7: IN-PROGRESS
+── PCMBase 1.2.7: ERROR 
 
   Build ID:   PCMBase_1.2.7.tar.gz-405a62181dd847fc9e3dce58b70b6ab9
   Platform:   Fedora Linux, R-devel, clang, gfortran
   Submitted:  4.4s ago
+
 

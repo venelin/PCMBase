@@ -3,7 +3,7 @@ context("PCMTree")
 
 library(PCMBase)
 
-if(PCMBaseIsADevRelease()) {
+if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   load("testobjects.RData")
 

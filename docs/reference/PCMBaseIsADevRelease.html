@@ -35,7 +35,8 @@
 <meta property="og:title" content="Check if the PCMBase version correpsonds to a dev release — PCMBaseIsADevRelease" />
 
 <meta property="og:description" content="We define a dev release as having a sub-release, eg 0.9.15.5 is
-one whereas 0.9.16 is not." />
+one whereas 0.9.16 is not. The number of components in the version can be
+changed through the argument numVersionComponents." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -65,7 +66,7 @@ one whereas 0.9.16 is not." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.7.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.7</span>
       </span>
     </div>
 
@@ -122,12 +123,22 @@ one whereas 0.9.16 is not." />
     <div class="ref-description">
     
     <p>We define a dev release as having a sub-release, eg 0.9.15.5 is
-one whereas 0.9.16 is not.</p>
+one whereas 0.9.16 is not. The number of components in the version can be
+changed through the argument numVersionComponents.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMBaseIsADevRelease</span>()</pre>
-        
+    <pre class="usage"><span class='fu'>PCMBaseIsADevRelease</span>(<span class='kw'>numVersionComponents</span> <span class='kw'>=</span> <span class='fl'>4L</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>numVersionComponents</th>
+      <td><p>an integer, default 4.</p></td>
+    </tr>
+    </table>
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a logical</p>
@@ -137,6 +148,7 @@ one whereas 0.9.16 is not.</p>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
           </ul>

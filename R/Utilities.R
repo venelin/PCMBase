@@ -16,14 +16,16 @@
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
 #' Check if the PCMBase version correpsonds to a dev release
+#' @param numVersionComponents an integer, default 4.
 #' @importFrom utils packageDescription
 #' @description We define a dev release as having a sub-release, eg 0.9.15.5 is
-#' one whereas 0.9.16 is not.
+#' one whereas 0.9.16 is not. The number of components in the version can be
+#' changed through the argument numVersionComponents.
 #' @return a logical
 #' @export
-PCMBaseIsADevRelease <- function() {
+PCMBaseIsADevRelease <- function(numVersionComponents = 4L) {
   !is.na( packageDescription("PCMBase") ) &&
-    length(strsplit(packageDescription("PCMBase")$Version, "\\.")[[1]]) > 3
+    length(strsplit(packageDescription("PCMBase")$Version, "\\.")[[1]]) >= numVersionComponents
 }
 
 #' Beautiful model description based on plotmath

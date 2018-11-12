@@ -3,7 +3,7 @@ context("PCMLik, OU")
 
 library(PCMBase)
 
-if(PCMBaseIsADevRelease()) {
+if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   library(mvtnorm)
 

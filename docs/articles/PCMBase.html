@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.7.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.7</span>
       </span>
     </div>
 
@@ -206,9 +206,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 
 <span class="kw">print</span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.018690082  2.002173687  1.606814751  0.002685077  2.402667917
-##  [6]  1.602674292  0.788895783  2.412670491  0.109879236 -0.011590541
-## [11]  0.417345898  0.103486208  0.004413811  0.384996224</code></pre>
+<pre><code>##  [1]  4.991341773  2.007857949  1.611466600  0.003497349  2.411075399
+##  [6]  1.617850728  0.807828992  2.388293614  0.113829336 -0.006826839
+## [11]  0.415318617  0.110022546  0.015090289  0.398380544</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -216,32 +216,32 @@ param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.018690 2.002174
+## [1] 4.991342 2.007858
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
 ##          [,1]        [,2]
-## [1,] 1.606815 0.002685077
-## [2,] 0.000000 2.402667917
+## [1,] 1.611467 0.003497349
+## [2,] 0.000000 2.411075399
 ## 
 ## , , b
 ## 
-##          [,1]      [,2]
-## [1,] 1.602674 0.7888958
-## [2,] 0.800000 2.4126705
+##          [,1]     [,2]
+## [1,] 1.617851 0.807829
+## [2,] 0.800000 2.388294
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]        [,2]
-## [1,] 0.1098792 -0.01159054
-## [2,] 0.0000000  0.41734590
+##           [,1]         [,2]
+## [1,] 0.1138293 -0.006826839
+## [2,] 0.0000000  0.415318617
 ## 
 ## , , b
 ## 
-##           [,1]        [,2]
-## [1,] 0.1034862 0.004413811
-## [2,] 0.0000000 0.384996224
+##           [,1]       [,2]
+## [1,] 0.1100225 0.01509029
+## [2,] 0.0000000 0.39838054
 ## 
 ## </code></pre>
 </div>
@@ -286,9 +286,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -409.6836
+<pre><code>## [1] -410.0223
 ## attr(,"X0")
-## [1] 5.018690 2.002174
+## [1] 4.991342 2.007858
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -298,9 +298,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -409.6836
+<pre><code>## [1] -410.0223
 ## attr(,"X0")
-## [1] 5.018690 2.002174
+## [1] 4.991342 2.007858
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")

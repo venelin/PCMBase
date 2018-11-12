@@ -1,7 +1,7 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "01 November, 2018"
+date: "12 November, 2018"
 output: html_document
 ---
 
