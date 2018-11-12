@@ -448,7 +448,12 @@ PCMTreeNodeTimes <- function(tree, tipsOnly=FALSE) {
 #' @return an integer vector of the direct descendants of parentId
 #' @export
 PCMTreeGetDaughters <- function(tree, parentId) {
-  tree$edge[tree$edge[, 1] == parentId, 2]
+  if(is.character(daughterId)) {
+    stop(paste0("ERR:026k1:PCMBase:PCMTree.R:PCMTreeGetParent::",
+                " parentId should be integer but was character"))
+  } else {
+    tree$edge[tree$edge[, 1] == parentId, 2]
+  }
 }
 
 #' The parent node id of a daughter node in a tree
@@ -457,7 +462,13 @@ PCMTreeGetDaughters <- function(tree, parentId) {
 #' @return an integer denoting the parent of daughterId
 #' @export
 PCMTreeGetParent <- function(tree, daughterId) {
-  tree$edge[tree$edge[, 2] == daughterId, 1]
+  if(is.character(daughterId)) {
+    stop(paste0("ERR:026j1:PCMBase:PCMTree.R:PCMTreeGetParent::",
+                     " daughterId should be integer but was character"))
+  } else {
+    tree$edge[tree$edge[, 2] == daughterId, 1]
+  }
+
 }
 
 #' The length of the branch leading to a node
