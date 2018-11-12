@@ -32,7 +32,6 @@ be the case for a non-heritable variance-covariance parameter $\Sigma_{e}$ if it
 So let us create
 
 ```{r}
-
 modelObject <- structure(
   list(X0 = structure(c(0.0, 0.2),
                       class = c("VectorParameter", "_Global", "numeric")),
