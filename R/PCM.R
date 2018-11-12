@@ -140,24 +140,25 @@ PCMOptions <- function() {
 #' @seealso \code{\link{MixedGaussian}}
 #' @export
 PCM <- function(
-  model, modelTypes = class(model)[1], k = 1, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0,
+  model, modelTypes = class(model)[1], k = 1L, regimes = 1L,
+  params = NULL, vecParams = NULL, offset = 0L,
   spec = NULL, ...) {
   UseMethod("PCM", model)
 }
 
 #' @export
 PCM.default <- function(
-  model, modelTypes = class(model)[1], k = 1, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0,
+  model, modelTypes = class(model)[1], k = 1L, regimes = 1L,
+  params = NULL, vecParams = NULL, offset = 0L,
   spec = NULL, ...) {
   stop(paste0("ERR:02091:PCMBase:PCM.R:PCM.default:: You should provide a PCM object, but provided a ", class(model)[1]))
 }
 
 #' @export
 PCM.PCM <- function(
-  model, modelTypes = class(model)[1], k = 1, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0, spec = NULL, ...) {
+  model, modelTypes = class(model)[1], k = 1L, regimes = 1L,
+  params = NULL, vecParams = NULL, offset = 0L,
+  spec = NULL, ...) {
 
   if(is.null(spec)) {
     spec <- PCMSpecify(model, ...)
@@ -166,7 +167,7 @@ PCM.PCM <- function(
   obj <- PCMDefaultObject(spec, model, ...)
 
   if(is.null(attr(obj, "k", exact = TRUE))) {
-    attr(obj, "k") <- k
+    attr(obj, "k") <- as.integer(k)
   }
 
   if(is.null(attr(obj, "regimes", exact = TRUE))) {
@@ -203,15 +204,16 @@ PCM.PCM <- function(
 
 #' @export
 PCM.character <- function(
-  model, modelTypes = model[1], k = 1, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0, spec = NULL, ...) {
+  model, modelTypes = model[1], k = 1L, regimes = 1L,
+  params = NULL, vecParams = NULL, offset = 0L,
+  spec = NULL, ...) {
 
   modelObj <- list()
   class(modelObj) <- model
   if(length(model) == 1) {
     class(modelObj) <- c(class(modelObj), PCMParentClasses(modelObj))
   }
-  attr(modelObj, "k") <- k
+  attr(modelObj, "k") <- as.integer(k)
   attr(modelObj, "regimes") <- regimes
 
   PCM(modelObj, modelTypes, k, regimes, params, vecParams, offset, spec, ...)
@@ -222,6 +224,30 @@ PCM.character <- function(
 #' @return TRUE if `x` inherits from the S3 class "PCM".
 #' @export
 is.PCM <- function(x) inherits(x, "PCM")
+
+#' Generate a default object of a given PCM model type or parameter type
+#' @param spec any object having a class attribute. The value of this object is not
+#' used, but its class is used for method-dispatch.
+#' @param model a PCM object used to extract attributes needed for creating a
+#' default object of class specified in \code{class(spec)}, such as the number of
+#' traits (k) or the regimes and the number of regimes;
+#' @param ... additional arguments that can be used by methdos.
+#'
+#' @description This is an S3 generic. See, e.g. `PCMDefaultObject.MatrixParameter`.
+#' @return a parameter or a PCM object.
+#' @export
+PCMDefaultObject <- function(spec, model, ...) {
+  UseMethod("PCMDefaultObject", spec)
+}
+
+#' @export
+PCMDefaultObject.PCM <- function(spec, model, ...) {
+  o <- spec
+  PCMParamSetByName(o, lapply(spec, PCMDefaultObject, model = o), replaceWholeParameters = TRUE, ...)
+  o[] <- o[!sapply(o, is.null)]
+  attr(o, "spec") <- spec
+  o
+}
 
 
 #' @method print PCM

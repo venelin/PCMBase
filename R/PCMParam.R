@@ -577,12 +577,12 @@ PCMParamLoadOrStore.PCM <- function(o, vecParams, offset, k, R, load, parentMode
 #' @param parentModel NULL or a PCM object. Default: NULL.
 #' @return an integer
 #' @export
-PCMParamCount <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0, k = 1, R = 1, parentModel = NULL) {
+PCMParamCount <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0L, k = 1L, R = 1L, parentModel = NULL) {
   UseMethod("PCMParamCount", o)
 }
 
 #' @export
-PCMParamCount.ScalarParameter <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE,  offset = 0, k = 1, R = 1, parentModel = NULL) {
+PCMParamCount.ScalarParameter <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE,  offset = 0L, k = 1L, R = 1L, parentModel = NULL) {
   if(is.Fixed(o)) {
     0L
   } else if(is.WithCustomVecParams(o)) {
@@ -602,20 +602,20 @@ PCMParamCount.ScalarParameter <- function(o, countRegimeChanges = FALSE, countMo
     if(is.Global(o)) {
       1L
     } else {
-      R
+      as.integer(R)
     }
   }
 }
 
 #' @export
-PCMParamCount.VectorParameter <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0, k = 1, R = 1, parentModel = NULL) {
+PCMParamCount.VectorParameter <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0L, k = 1L, R = 1L, parentModel = NULL) {
   if(is.Fixed(o) || is.Omitted(o)) {
     0L
   } else if(is.AllEqual(o)) {
     if(is.Global(o)) {
       1L
     } else {
-      R
+      as.integer(R)
     }
   } else if(is.WithCustomVecParams(o)) {
     indices <- attr(o, "indices", exact = TRUE)
@@ -636,15 +636,15 @@ PCMParamCount.VectorParameter <- function(o, countRegimeChanges = FALSE, countMo
     }
   } else {
     if(is.Global(o)) {
-      k
+      as.integer(k)
     } else {
-      R * k
+      as.integer(R * k)
     }
   }
 }
 
 #' @export
-PCMParamCount.MatrixParameter <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE,  offset = 0, k = 1, R = 1, parentModel = NULL) {
+PCMParamCount.MatrixParameter <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE,  offset = 0L, k = 1L, R = 1L, parentModel = NULL) {
   if(is.Fixed(o) || is.Omitted(o)) {
     # nothing to do
     0L
@@ -669,63 +669,63 @@ PCMParamCount.MatrixParameter <- function(o, countRegimeChanges = FALSE, countMo
     if(is.Global(o)) {
       1L
     } else {
-      R
+      as.integer(R)
     }
   } else if(is.Diagonal(o)) {
     if(is.Global(o)) {
-      k
+      as.integer(k)
     } else {
-      R * k
+      as.integer(R * k)
     }
   } else if(is.UpperTriangular(o)) {
     # without diagonal
     if(is.Global(o)) {
-      k*(k-1)/2
+      as.integer(k*(k-1)/2)
     } else {
-      R * k*(k-1)/2
+      as.integer(R * k*(k-1)/2)
     }
   } else if(is.UpperTriangularWithDiagonal(o)) {
     # with diagonal
     if(is.Global(o)) {
-      k*(k+1)/2
+      as.integer(k*(k+1)/2)
     } else {
-      R * k*(k+1)/2
+      as.integer(R * k*(k+1)/2)
     }
   } else if(is.LowerTriangular(o)) {
     # without diagonal
     if(is.Global(o)) {
-      k*(k-1)/2
+      as.integer(k*(k-1)/2)
     } else {
-      R * k*(k-1)/2
+      as.integer(R * k*(k-1)/2)
     }
   } else if(is.LowerTriangularWithDiagonal(o)) {
     if(is.Global(o)) {
-      k*(k+1)/2
+      as.integer(k*(k+1)/2)
     } else {
-      R * k*(k+1)/2
+      as.integer(R * k*(k+1)/2)
     }
   } else if(is.Symmetric(o)) {
     if(is.Global(o)) {
-      k*(k+1)/2
+      as.integer(k*(k+1)/2)
     } else {
-      R * k*(k+1)/2
+      as.integer(R * k*(k+1)/2)
     }
   } else {
     # Full matrix
     if(is.Global(o)) {
-      k*k
+      as.integer(k*k)
     } else {
-      R * k*k
+      as.integer(R * k*k)
     }
   }
 }
 
 #' @export
-PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0, k = 1, R = 1, parentModel = NULL) {
+PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0L, k = 1L, R = 1L, parentModel = NULL) {
   k <- attr(o, "k")
   R <- length(attr(o, "regimes"))
 
-  p0 <- offset
+  p0 <- as.integer(offset)
   if(is.Fixed(o) || is.Omitted(o)) {
     # do nothing
   } else {
@@ -748,7 +748,7 @@ PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = F
       }
     }
   }
-  unname(offset - p0)
+  unname(as.integer(offset - p0))
 }
 
 #' Get a vector of the variable numeric parameters in a model
@@ -759,7 +759,7 @@ PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = F
 #' nodes in the tree where a regime change occurs, nor the the model types associated
 #' with each regime.
 #' @export
-PCMParamGetShortVector <- function(o, k = 1, R = 1, ...) {
+PCMParamGetShortVector <- function(o, k = 1L, R = 1L, ...) {
   UseMethod("PCMParamGetShortVector", o)
 }
 
@@ -811,7 +811,7 @@ PCMParamSetByName.PCM <- function(model, params, inplace = TRUE, replaceWholePar
       if(! is.PCM(params[[name]]) ) {
         stop(paste0("ERR:02752:PCMBase:PCMParam.R:PCMParamSetByName.PCM::model[['", name, "']] is a nested PCM object but params[['", name, "']] is not."))
       } else if( !identical(attr(model, "k", exact = TRUE), attr(params[[name]], "k", exact = TRUE)) ) {
-        stop(paste0("ERR:02753:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: model[['", name, "']] has a different number of traits (k) from params[['", name, ",]]."))
+        stop(paste0("ERR:02753:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: model[['", name, "']] has a different number of traits (k) from params[['", name, "']]."))
       } else {
         if(inplace) {
           eval(substitute(model[[name]] <- params[[name]]), parent.frame())
@@ -1011,30 +1011,6 @@ PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
     runif(n, lowerVecParams[i], upperVecParams[i])
   })
   res
-}
-
-#' Generate a default object of a given PCM model type or parameter type
-#' @param spec any object having a class attribute. The value of this object is not
-#' used, but its class is used for method-dispatch.
-#' @param model a PCM object used to extract attributes needed for creating a
-#' default object of class specified in \code{class(spec)}, such as the number of
-#' traits (k) or the regimes and the number of regimes;
-#' @param ... additional arguments that can be used by methdos.
-#'
-#' @description This is an S3 generic. See, e.g. `PCMDefaultObject.MatrixParameter`.
-#' @return a parameter or a PCM object.
-#' @export
-PCMDefaultObject <- function(spec, model, ...) {
-  UseMethod("PCMDefaultObject", spec)
-}
-
-#' @export
-PCMDefaultObject.PCM <- function(spec, model, ...) {
-  o <- spec
-  PCMParamSetByName(o, lapply(spec, PCMDefaultObject, model = o), replaceWholeParameters = TRUE, ...)
-  o[] <- o[!sapply(o, is.null)]
-  attr(o, "spec") <- spec
-  o
 }
 
 #' @export

@@ -156,15 +156,15 @@ MixedGaussian <- function(
     subModel <- structure(0.0, class = mappingModelRegime[m])
     class(subModel) <- c(class(subModel), PCMParentClasses(subModel))
     spec[[as.character(regimes[m])]] <- PCMSpecify(subModel)
-    attr(spec[[as.character(regimes[m])]], "k") <- k
-    attr(spec[[as.character(regimes[m])]], "regimes") <- 1
+    attr(spec[[as.character(regimes[m])]], "k") <- as.integer(k)
+    attr(spec[[as.character(regimes[m])]], "regimes") <- 1L
   }
 
   spec[["Sigmae_x"]] <- Sigmae_x
 
   #spec[] <- spec[!sapply(spec, is.null)]
 
-  attr(spec, "k") <- k
+  attr(spec, "k") <- as.integer(k)
 
   class(spec) <- c(className, "MixedGaussian", "GaussianPCM", "PCM")
 

@@ -30,7 +30,7 @@ PCMTreeNumTips <- function(tree) {
 #' @return the number of nodes in tree including root, internal and tips.
 #' @export
 PCMTreeNumNodes <- function(tree) {
-  nrow(tree$edge) + 1
+  nrow(tree$edge) + 1L
 }
 
 #' Set a default edge.regime member ot the passed tree object
@@ -80,7 +80,7 @@ PCMTreeSetRegimes <- function(tree, nodes, regimes = as.integer(1:(length(nodes)
     stop("ERR:026d0:PCMBase:PCMTree.R:PCMTreeSetRegimes:: argument tree should be a phylo.")
   }
   if(!is.null(regimes)) {
-    if(length(regimes) != length(nodes) + 1 ||
+    if(length(regimes) != length(nodes) + 1L ||
        length(unique(regimes)) < length(regimes)) {
       stop("ERR:026d1:PCMBase:PCMTree.R:PCMTreeSetRegimes:: regimes should be a character or integer vector of length equal to length(nodes) + 1 and not have duplicated elements.")
     }
@@ -204,17 +204,17 @@ PCMTreeGetStartingNodesRegimes <- function(tree, preorder = PCMTreePreorder(tree
 
   # start with all regimes being descending from the root; we will update them
   # as we encounter them in a preorder traversal.
-  nodes[] <- 0
+  nodes[] <- 0L
 
-  eFromRoot <- which(tree$edge[, 1] == N + 1)
-  rootRegime <- sort(tree$edge.regime[eFromRoot])[1]
-  nodes[as.character(rootRegime)] <- N + 1
+  eFromRoot <- which(tree$edge[, 1] == N + 1L)
+  rootRegime <- sort(tree$edge.regime[eFromRoot])[1L]
+  nodes[as.character(rootRegime)] <- N + 1L
 
   for(ei in preorder) {
     if(as.character(tree$edge.regime[ei]) %in% regimes &&
-       nodes[as.character(tree$edge.regime[ei])] == 0) {
-      i <- tree$edge[ei, 2]
-      j <- tree$edge[ei, 1]
+       nodes[as.character(tree$edge.regime[ei])] == 0L) {
+      i <- tree$edge[ei, 2L]
+      j <- tree$edge[ei, 1L]
 
       nodes[as.character(tree$edge.regime[ei])] <- i
     }
