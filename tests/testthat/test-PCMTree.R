@@ -1,10 +1,48 @@
-.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
+library(testthat)
+context("PCMTree")
 
-if(.RunPCMBaseTests) {
+library(PCMBase)
+
+if(PCMBaseIsADevRelease()) {
+
+  load("testobjects.RData")
 
   library(ape)
-  library(testthat)
-  library(PCMBase)
+
+
+  set.seed(1)
+  # number of tips
+  N <- 40
+
+  # tree with one regime
+  tree.a <- rtree(N)
+  PCMTreeSetDefaultRegime(tree.a, model.a.1)
+  PCMTreeSetLabels(tree.a)
+  #PCMTreePlot(tree.a)
+
+  test_that(
+    "Tree with 40 tips and one regime", {
+      expect_identical(PCMTreeGetParent(tree.a, 71L), 52L)
+      expect_identical(PCMTreeGetParent(tree.a, "71"), 52L)
+      expect_identical(PCMTreeGetLabels(tree.a)[52L], "52")
+      expect_identical(PCMTreeGetRegimeForNode(tree.a, "71"), "a")
+      expect_identical(PCMTreeNumUniqueRegimes(tree.a), 1L)
+      expect_identical(PCMTreeGetStartingNodesRegimes(tree.a), c(a = 41L))
+    })
+
+  tree.ab <- tree.a
+  PCMTreeSetRegimes(tree.ab, nodes = N + 31, regimes = c("a", "b"))
+  #PCMTreePlot(tree.ab)
+
+  test_that(
+    "Tree with 40 tips and two regimes", {
+      expect_identical(PCMTreeGetParent(tree.ab, 71L), 52L)
+      expect_identical(PCMTreeGetParent(tree.ab, "71"), 52L)
+      expect_identical(PCMTreeGetLabels(tree.ab)[52L], "52")
+      expect_identical(PCMTreeGetRegimeForNode(tree.ab, "71"), "b")
+      expect_identical(PCMTreeGetStartingNodesRegimes(tree.ab), c(a = 41L, b = 71L))
+    })
+
 
   if(FALSE) {
     # MANUAL/VISUAL TEST ONLY

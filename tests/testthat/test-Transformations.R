@@ -1,6 +1,6 @@
-.RunPCMBaseTests <- Sys.getenv("RunPCMBaseTests") == "yes"
+library(PCMBase)
 
-if(.RunPCMBaseTests) {
+if(PCMBaseIsADevRelease()) {
 
   context("Test parameter transformaitons")
 
