@@ -80,8 +80,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
   # plot(tree4); nodelabels(text = tree4$node.label)
   test_that("Test PCMTreeEvalNestedEDxOnTree 4: D(D(D(E(tree,22),17),26),25)", {
     expect_identical(PCMTreeGetLabels(tree4)[PCMTreeNumTips(tree4) + 1], "22")
-    expect_identical(PCMTreeGetParent(tree4, "8"), "24")
-    #expect_error(PCMTreeGetParent(tree4, "8"))
+    expect_error(PCMTreeGetParent(tree4, "8"))
     expect_identical(PCMTreeGetParent(tree4, PCMTreeMatchLabels(tree4, "8")), PCMTreeMatchLabels(tree4, "24"))
     expect_identical(PCMTreeGetParent(tree4, PCMTreeMatchLabels(tree4, "24")), PCMTreeMatchLabels(tree4, "23"))
   })
