@@ -5,7 +5,8 @@
 ^CRAN-RELEASE$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^tests
+^tests/benchmark
+^tests/PosteriorQuantileTests
 ^docs
 ^cran-comments.md
 ^README.Rmd

@@ -448,7 +448,7 @@ PCMTreeNodeTimes <- function(tree, tipsOnly=FALSE) {
 #' @return an integer vector of the direct descendants of parentId
 #' @export
 PCMTreeGetDaughters <- function(tree, parentId) {
-  if(is.character(daughterId)) {
+  if(is.character(parentId)) {
     stop(paste0("ERR:026k1:PCMBase:PCMTree.R:PCMTreeGetParent::",
                 " parentId should be integer but was character"))
   } else {

@@ -5,8 +5,10 @@ sudo: false
 cache: packages
 use_bioc: true
 bioc_required: true
+r:
+    - release
+    - devel
 r_packages:
-    - devtools
     - covr
 after_success:
-    - Rscript -e 'devtools::test(); covr::codecov()'
+    - Rscript -e 'covr::codecov()'
