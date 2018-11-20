@@ -1,6 +1,8 @@
 Hello, 
 
-I am resubmitting the package after fixing the 1 NOTE about the non-standard directory docs and file cran-comments.md present in the built package (added to .Rbuildignore). 
+I am resubmitting the package after fixing the 1 NOTE that there were no examples in the Rd pages. I've now written examples to the most important functions. Additional examples are available in the package web-site and vignettes. 
+
+Previous notes:
 
 For running the rhub check I've used the command: 
 
