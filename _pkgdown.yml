@@ -1,5 +1,9 @@
 url: http://venelin.github.io/PCMBase
 
+template:
+  params:
+    ganalytics: UA-129563006-3
+
 navbar:
   title: PCMBase
   type: default
