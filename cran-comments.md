@@ -1,6 +1,6 @@
 Hello, 
 
-I am resubmitting the package after fixing the 1 NOTE that there were no examples in the Rd pages. I've now written examples to the most important functions. Additional examples are available in the package web-site and vignettes. 
+I am resubmitting the package after fixing the 1 NOTE that there were no examples in the Rd pages. I've now written examples to the most important functions. Additional examples are available in the package web-site and vignettes. I've also fixed the note about non-canonical url in the REAMDE.md. 
 
 Previous notes:
 
