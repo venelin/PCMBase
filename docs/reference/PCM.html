@@ -209,6 +209,135 @@ found. When called this constructor raises an error message.</p></li>
     <div class='dont-index'><p><code><a href='MixedGaussian.html'>MixedGaussian</a></code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># a Brownian motion model with one regime</span>
+<span class='no'>modelBM</span> <span class='kw'>&lt;-</span> <span class='fu'>PCM</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='st'>"BM"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='co'># print the model</span>
+<span class='no'>modelBM</span></div><div class='output co'>#&gt; Brownian motion model
+#&gt; S3 class: BM, GaussianPCM, PCM; k=2; p=8; regimes: 1. Parameters/sub-models:
+#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):
+#&gt; [1] 0 0
+#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
+#&gt; , , 1
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt; Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
+#&gt; , , 1
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt;  </div><div class='input'>
+<span class='co'># a BM model with two regimes</span>
+<span class='no'>modelBM.ab</span> <span class='kw'>&lt;-</span> <span class='fu'>PCM</span>(<span class='st'>"BM"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))
+<span class='no'>modelBM.ab</span></div><div class='output co'>#&gt; Brownian motion model
+#&gt; S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
+#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):
+#&gt; [1] 0 0
+#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
+#&gt; , , a
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt; , , b
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt; Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
+#&gt; , , a
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt; , , b
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt;  </div><div class='input'>
+<span class='co'># print a single parameter of the model (in this case, the root value)</span>
+<span class='no'>modelBM.ab</span>$<span class='no'>X0</span></div><div class='output co'>#&gt; [1] 0 0
+#&gt; attr(,"class")
+#&gt; [1] "VectorParameter" "_Global"         "numeric"        
+#&gt; attr(,"description")
+#&gt; [1] "trait values at the root"</div><div class='input'>
+<span class='co'># assign a value to this parameter (note that the brackets [] are necessary</span>
+<span class='co'># to preserve  the parameter attributes):</span>
+<span class='no'>modelBM.ab</span>$<span class='no'>X0</span>[] <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='fl'>5</span>, <span class='fl'>2</span>)
+
+<span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] 2</div><div class='input'><span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] 1</div><div class='input'><span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM.ab</span>)</div><div class='output co'>#&gt; [1] 2</div><div class='input'>
+<span class='co'># number of numerical parameters in the model</span>
+<span class='fu'><a href='PCMParamCount.html'>PCMParamCount</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
+<span class='co'># Get a vector representation of all parameters in the model</span>
+<span class='fu'><a href='PCMParamGetShortVector.html'>PCMParamGetShortVector</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] 0 0 0 0 0 0 0 0</div><div class='input'>
+<span class='co'># Limits for the model parameters:</span>
+<span class='no'>lowerLimit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamLowerLimit.html'>PCMParamLowerLimit</a></span>(<span class='no'>modelBM</span>)
+<span class='no'>upperLimit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamUpperLimit.html'>PCMParamUpperLimit</a></span>(<span class='no'>modelBM</span>)
+
+<span class='co'># assign the model parameters at random: this will use uniform distribution</span>
+<span class='co'># with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit</span>
+<span class='co'># We do this in two steps:</span>
+<span class='co'># 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)</span>
+<span class='no'>randomParams</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>))
+<span class='no'>randomParams</span></div><div class='output co'>#&gt; [1] -8.38499725  6.68666075  6.00760886 -6.85583117  0.07399441  4.66393497
+#&gt; [7] -0.04445223  2.89767245</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
+<span class='fu'><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM</span>, <span class='no'>randomParams</span>, <span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>), <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
+<span class='fu'>print</span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; Brownian motion model
+#&gt; S3 class: BM, GaussianPCM, PCM; k=2; p=8; regimes: 1. Parameters/sub-models:
+#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):
+#&gt; [1] -8.384997  6.686661
+#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
+#&gt; , , 1
+#&gt; 
+#&gt;          [,1]        [,2]
+#&gt; [1,] 6.007609 -6.85583117
+#&gt; [2,] 0.000000  0.07399441
+#&gt; 
+#&gt; Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
+#&gt; , , 1
+#&gt; 
+#&gt;          [,1]        [,2]
+#&gt; [1,] 4.663935 -0.04445223
+#&gt; [2,] 0.000000  2.89767245
+#&gt; 
+#&gt;  </div><div class='input'>
+<span class='fu'><a href='PCMParamGetShortVector.html'>PCMParamGetShortVector</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] -8.38499725  6.68666075  6.00760886 -6.85583117  0.07399441  4.66393497
+#&gt; [7] -0.04445223  2.89767245</div><div class='input'>
+<span class='co'># generate a random phylogenetic tree of 10 tips</span>
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>10</span>)
+
+<span class='co'>#simulate the model on the tree</span>
+<span class='no'>traitValues</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMSim.html'>PCMSim</a></span>(<span class='no'>tree</span>, <span class='no'>modelBM</span>, <span class='kw'>X0</span> <span class='kw'>=</span> <span class='no'>modelBM</span>$<span class='no'>X0</span>)
+
+<span class='co'># calculate the likelihood for the model parameters, given the tree and the trait values</span>
+<span class='fu'><a href='PCMLik.html'>PCMLik</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] -64.16157
+#&gt; attr(,"X0")
+#&gt; [1] -8.384997  6.686661
+#&gt; attr(,"class")
+#&gt; [1] "VectorParameter" "_Global"         "numeric"        
+#&gt; attr(,"description")
+#&gt; [1] "trait values at the root"</div><div class='input'>
+<span class='co'># create a likelihood function for faster processing for this specific model.</span>
+<span class='co'># This function is convenient for calling in optim because it recieves and parameter</span>
+<span class='co'># vector instead of a model object.</span>
+<span class='no'>likFun</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMCreateLikelihood.html'>PCMCreateLikelihood</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)
+<span class='fu'>likFun</span>(<span class='no'>randomParams</span>)</div><div class='output co'>#&gt; [1] -64.16157
+#&gt; attr(,"X0")
+#&gt; [1] -8.384997  6.686661
+#&gt; attr(,"class")
+#&gt; [1] "VectorParameter" "_Global"         "numeric"        
+#&gt; attr(,"description")
+#&gt; [1] "trait values at the root"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -220,7 +349,9 @@ found. When called this constructor raises an error message.</p></li>
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

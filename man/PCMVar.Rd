@@ -53,5 +53,4 @@ PCMParamLoadOrStore(modelBM, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegim
 # create a random tree of 10 tips
 tree <- ape::rtree(10)
 covMat <- PCMVar(tree, modelBM)
-is.Symmetric(PCMVar(tree, modelBM)[1:10,1:10])
 }

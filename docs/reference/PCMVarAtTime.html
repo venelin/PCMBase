@@ -159,6 +159,43 @@ root (default is the k x k zero matrix).</p></td>
     <p>A numeric k x k matrix</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># a Brownian motion model with one regime</span>
+<span class='no'>modelBM</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCM.html'>PCM</a></span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='st'>"BM"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='co'># print the model</span>
+<span class='no'>modelBM</span></div><div class='output co'>#&gt; Brownian motion model
+#&gt; S3 class: BM, GaussianPCM, PCM; k=2; p=8; regimes: 1. Parameters/sub-models:
+#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):
+#&gt; [1] 0 0
+#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
+#&gt; , , 1
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt; Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
+#&gt; , , 1
+#&gt; 
+#&gt;      [,1] [,2]
+#&gt; [1,]    0    0
+#&gt; [2,]    0    0
+#&gt; 
+#&gt;  </div><div class='input'><span class='co'># assign the model parameters at random: this will use uniform distribution</span>
+<span class='co'># with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit</span>
+<span class='co'># We do this in two steps:</span>
+<span class='co'># 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)</span>
+<span class='no'>randomParams</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>))
+<span class='no'>randomParams</span></div><div class='output co'>#&gt; [1]  7.087678 -5.737014  2.103107 -9.209586  9.447748  2.449280  5.622451
+#&gt; [8]  2.882372</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
+<span class='fu'><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM</span>, <span class='no'>randomParams</span>, <span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>), <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
+<span class='co'># PCMVarAtTime(1, modelBM)</span>
+
+<span class='co'># note that the variance at time 0 is not the 0 matrix because the model has a non-zero</span>
+<span class='co'># environmental deviation</span>
+<span class='fu'>PCMVarAtTime</span>(<span class='fl'>0</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt;          [,1]      [,2]
+#&gt; [1,] 37.61093 16.205995
+#&gt; [2,] 16.20599  8.308067</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -166,7 +203,9 @@ root (default is the k x k zero matrix).</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

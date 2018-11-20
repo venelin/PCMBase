@@ -1,5 +1,6 @@
 ---
 output: github_document
+bibliography: vignettes/REFERENCES.bib
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -46,4 +47,45 @@ The research article "Fast likelihood evaluation for multivariate phylogenetic c
 The PCMBase source code is located in the [PCMBase github repository](https://github.com/venelin/PCMBase). 
 
 Feature requests, bugs, etc can be reported in the [PCMBase issues list](https://github.com/venelin/PCMBase/issues).
+
+# Citing PCMBase
+
+To give credit to the PCMBase package in a publication, please cite the following article:
+
+Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2018, September 24). Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package. arXiv.org. https://arxiv.org/abs/1809.09014.
+
+# Used R-packages
+```{r create-references, echo=FALSE, include=FALSE, eval=TRUE}
+treeProcessing <- c("ape", "data.table")
+maths <- c("expm", "mvtnorm")
+plots <- c("ggtree", "ggplot2")
+testing <- c("testthat", "covr")
+docs <- c("roxygen2", "pkgdown")
+
+packagesUsed <- c(treeProcessing, maths, plots, testing, docs)
+
+printPackages <- function(packs) {
+  res <- ""
+  for(i in 1:length(packs)) {
+    res <- paste0(res, paste0(packs[i], ' v', packageVersion(packs[i]), ' [@R-', packs[i], ']'))
+    if(i < length(packs)) {
+      res <- paste0(res, ', ')
+    }
+  }
+  res
+}
+
+# Write bib information (this line is executed manually and the bib-file is edited manually after that)
+knitr::write_bib(packagesUsed, file = "./vignettes/REFERENCES-R.bib")
+```
+
+The PCMBase R-package uses the following 3rd party R-packages:
+
+* For tree processing in R: `r printPackages(treeProcessing)`;
+* For algebraic manipulation: `r printPackages(maths)`;
+* For plotting: `r printPackages(plots)`;
+* For unit-testing: `r printPackages(testing)`;
+* For documentation and web-site generation: `r printPackages(docs)`;
+
+# References
 

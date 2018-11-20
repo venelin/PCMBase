@@ -80,7 +80,7 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2018-11-12</h4>
+            <h4 class="date">2018-11-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
@@ -206,9 +206,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 
 <span class="kw">print</span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.014382755  2.008217233  1.612403441 -0.005753739  2.380490553
-##  [6]  1.608073459  0.798419400  2.411975167  0.115953306 -0.019154019
-## [11]  0.406794558  0.093007691 -0.009950226  0.395757452</code></pre>
+<pre><code>##  [1]  5.0169975896  2.0188073815  1.6147821480 -0.0008840397  2.4111930198
+##  [6]  1.5948208113  0.7810217160  2.3801192231  0.1013677085 -0.0116312413
+## [11]  0.3942892596  0.0962051350 -0.0139688665  0.3828454317</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -216,32 +216,32 @@ param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.014383 2.008217
+## [1] 5.016998 2.018807
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]         [,2]
-## [1,] 1.612403 -0.005753739
-## [2,] 0.000000  2.380490553
+##          [,1]          [,2]
+## [1,] 1.614782 -0.0008840397
+## [2,] 0.000000  2.4111930198
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.608073 0.7984194
-## [2,] 0.800000 2.4119752
+## [1,] 1.594821 0.7810217
+## [2,] 0.800000 2.3801192
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
 ##           [,1]        [,2]
-## [1,] 0.1159533 -0.01915402
-## [2,] 0.0000000  0.40679456
+## [1,] 0.1013677 -0.01163124
+## [2,] 0.0000000  0.39428926
 ## 
 ## , , b
 ## 
-##            [,1]         [,2]
-## [1,] 0.09300769 -0.009950226
-## [2,] 0.00000000  0.395757452
+##            [,1]        [,2]
+## [1,] 0.09620513 -0.01396887
+## [2,] 0.00000000  0.38284543
 ## 
 ## </code></pre>
 </div>
@@ -286,9 +286,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -409.5303
+<pre><code>## [1] -409.545
 ## attr(,"X0")
-## [1] 5.014383 2.008217
+## [1] 5.016998 2.018807
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -298,9 +298,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -409.5303
+<pre><code>## [1] -409.545
 ## attr(,"X0")
-## [1] 5.014383 2.008217
+## [1] 5.016998 2.018807
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")

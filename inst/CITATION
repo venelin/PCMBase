@@ -1,0 +1,39 @@
+citHeader("To cite PCMBase in publications use one of the following articles:")
+
+citEntry(entry = "Article",
+  title        = "Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package",
+  author       = personList(as.person("Venelin Mitov"),
+                   as.person("Krzysztof Bartoszek"),
+                   as.person("Georgios Asimomitis"),
+                   as.person("Tanja Stadler")),
+  journal      = "arxiv q-bio.PE",
+  year         = "2018",
+  volume       = "",
+  number       = "",
+  pages        = "arXiv:1809.09014",
+  url          = "https://arxiv.org/abs/1809.09014",
+
+  textVersion  =
+  paste("Venelin Mitov, Krzysztof Bartoszek, Georgios Asimomitis, Tanja Stadler (2018).",
+        "Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package",
+        "arxiv",
+        "URL https://arxiv.org/abs/1809.09014")
+)
+
+citEntry(entry = "Article",
+  title        = "Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library",
+  author       = personList(as.person("Venelin Mitov"),
+                   as.person("Tanja Stadler")),
+  journal      = "BiorXiv",
+  year         = "2018",
+  volume       = "",
+  number       = "",
+  pages        = "",
+  url          = "https://www.biorxiv.org/content/early/2018/10/29/235739",
+
+  textVersion  =
+  paste("Venelin Mitov, Tanja Stadler (2018).",
+        "Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library",
+        "BiorXiv",
+        "URL https://www.biorxiv.org/content/early/2018/10/29/235739")
+)
