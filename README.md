@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Travis build status](https://travis-ci.org/venelin/PCMBase.svg?branch=master)](https://travis-ci.org/venelin/PCMBase) [![Coverage status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMBase?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](http://cran.rstudio.com/package=PCMBase) [![Downloads](http://cranlogs.r-pkg.org/badges/PCMBase?color=blue)](http://cran.rstudio.com/package=PCMBase)
+[![Travis build status](https://travis-ci.org/venelin/PCMBase.svg?branch=master)](https://travis-ci.org/venelin/PCMBase) [![Coverage status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMBase?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase) [![Downloads](http://cranlogs.r-pkg.org/badges/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
 
 PCMBase : Simulation and likelihood calculation of phylogenetic comparative methods
 ===================================================================================
