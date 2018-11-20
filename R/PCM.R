@@ -25,6 +25,9 @@
 #' for all registered implementations of the function \code{\link{PCMSpecify}}.
 #' @importFrom utils methods
 #' @export
+#' @examples
+#' PCMModels()
+#' PCMModels("^OU")
 PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
   models <- sub("PCMSpecify.", "", as.character(methods("PCMSpecify")), fixed = TRUE)
   if(!is.null(pattern)) {
@@ -78,6 +81,8 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.ParamValue.UpperLimit}}{Default upper limit value for parameters, default setting is 10.0.}
 #' }
 #' @export
+#' @examples
+#' PCMOptions()
 PCMOptions <- function() {
   list(PCMBase.Value.NA = getOption("PCMBase.Value.NA", as.double(NA)),
        PCMBase.Errors.As.Warnings = getOption("PCMBase.Errors.As.Warnings", TRUE),
@@ -138,7 +143,69 @@ PCMOptions <- function() {
 #' found. When called this constructor raises an error message.}
 #' }
 #' @seealso \code{\link{MixedGaussian}}
+#'
+#' @importFrom ape rtree
+#'
 #' @export
+#'
+#' @examples
+#' # a Brownian motion model with one regime
+#' modelBM <- PCM(model = "BM", k = 2)
+#' # print the model
+#' modelBM
+#'
+#' # a BM model with two regimes
+#' modelBM.ab <- PCM("BM", k = 2, regimes = c("a", "b"))
+#' modelBM.ab
+#'
+#' # print a single parameter of the model (in this case, the root value)
+#' modelBM.ab$X0
+#'
+#' # assign a value to this parameter (note that the brackets [] are necessary
+#' # to preserve  the parameter attributes):
+#' modelBM.ab$X0[] <- c(5, 2)
+#'
+#' PCMNumTraits(modelBM)
+#' PCMNumRegimes(modelBM)
+#' PCMNumRegimes(modelBM.ab)
+#'
+#' # number of numerical parameters in the model
+#' PCMParamCount(modelBM)
+#'
+#' # Get a vector representation of all parameters in the model
+#' PCMParamGetShortVector(modelBM)
+#'
+#' # Limits for the model parameters:
+#' lowerLimit <- PCMParamLowerLimit(modelBM)
+#' upperLimit <- PCMParamUpperLimit(modelBM)
+#'
+#' # assign the model parameters at random: this will use uniform distribution
+#' # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
+#' # We do this in two steps:
+#' # 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
+#' randomParams <- PCMParamRandomVecParams(modelBM, PCMNumTraits(modelBM), PCMNumRegimes(modelBM))
+#' randomParams
+#' # 2. Then we load this random vector into the model.
+#' PCMParamLoadOrStore(modelBM, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), TRUE)
+#'
+#' print(modelBM)
+#'
+#' PCMParamGetShortVector(modelBM)
+#'
+#' # generate a random phylogenetic tree of 10 tips
+#' tree <- ape::rtree(10)
+#'
+#' #simulate the model on the tree
+#' traitValues <- PCMSim(tree, modelBM, X0 = modelBM$X0)
+#'
+#' # calculate the likelihood for the model parameters, given the tree and the trait values
+#' PCMLik(traitValues, tree, modelBM)
+#'
+#' # create a likelihood function for faster processing for this specific model.
+#' # This function is convenient for calling in optim because it recieves and parameter
+#' # vector instead of a model object.
+#' likFun <- PCMCreateLikelihood(traitValues, tree, modelBM)
+#' likFun(randomParams)
 PCM <- function(
   model, modelTypes = class(model)[1], k = 1L, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0L,
@@ -721,6 +788,23 @@ PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose),
 #' @return If internal is FALSE (default), then a k x N matrix Mu, such that \code{Mu[, i]} equals the expected mean k-vector
 #' at tip i, conditioned on \code{X0} and the tree. Otherwise, a k x M matrix Mu containing the mean vector for each node.
 #' @export
+#' @examples
+#' # a Brownian motion model with one regime
+#' modelBM <- PCM(model = "BM", k = 2)
+#' # print the model
+#' modelBM
+#' # assign the model parameters at random: this will use uniform distribution
+#' # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
+#' # We do this in two steps:
+#' # 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
+#' randomParams <- PCMParamRandomVecParams(modelBM, PCMNumTraits(modelBM), PCMNumRegimes(modelBM))
+#' randomParams
+#' # 2. Then we load this random vector into the model.
+#' PCMParamLoadOrStore(modelBM, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), TRUE)
+#'
+#' # create a random tree of 10 tips
+#' tree <- ape::rtree(10)
+#' PCMMean(tree, modelBM)
 PCMMean <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
   UseMethod("PCMMean", model)
 }
@@ -734,6 +818,25 @@ PCMMean <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model,
 #' @param verbose a logical indicating if (debug) messages should be written on the console (Defaults to FALSE).
 #' @return A numeric vector of length k
 #' @export
+#' @examples
+#' # a Brownian motion model with one regime
+#' modelBM <- PCM(model = "BM", k = 2)
+#' # print the model
+#' modelBM
+#' # assign the model parameters at random: this will use uniform distribution
+#' # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
+#' # We do this in two steps:
+#' # 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
+#' randomParams <- PCMParamRandomVecParams(modelBM, PCMNumTraits(modelBM), PCMNumRegimes(modelBM))
+#' randomParams
+#' # 2. Then we load this random vector into the model.
+#' PCMParamLoadOrStore(modelBM, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), TRUE)
+#'
+#' # PCMMeanAtTime(1, modelBM)
+#'
+#' # note that the variance at time 0 is not the 0 matrix because the model has a non-zero
+#' # environmental deviation
+#' PCMMeanAtTime(0, modelBM)
 PCMMeanAtTime <- function(t, model, X0 = model$X0, regime = 1L, verbose = FALSE) {
   if(is.character(regime)) {
     regime <- match(regime, PCMRegimes(model))
@@ -767,6 +870,23 @@ PCMMeanAtTime <- function(t, model, X0 = model$X0, regime = 1L, verbose = FALSE)
 #' a k x M matrix element 'Wii' containing the per-node variance covariance matrix for each node:
 #' The k x k block \code{Wii[, (i-1)*k + (1:k)]} represents the variance covariance matrix for node i.
 #' @export
+#' @examples
+#' # a Brownian motion model with one regime
+#' modelBM <- PCM(model = "BM", k = 2)
+#' # print the model
+#' modelBM
+#' # assign the model parameters at random: this will use uniform distribution
+#' # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
+#' # We do this in two steps:
+#' # 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
+#' randomParams <- PCMParamRandomVecParams(modelBM, PCMNumTraits(modelBM), PCMNumRegimes(modelBM))
+#' randomParams
+#' # 2. Then we load this random vector into the model.
+#' PCMParamLoadOrStore(modelBM, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), TRUE)
+#'
+#' # create a random tree of 10 tips
+#' tree <- ape::rtree(10)
+#' covMat <- PCMVar(tree, modelBM)
 PCMVar <- function(tree, model, W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
                    metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
   UseMethod("PCMVar", model)
@@ -782,6 +902,25 @@ PCMVar <- function(tree, model, W0 = matrix(0.0, PCMNumTraits(model), PCMNumTrai
 #' @param verbose a logical indicating if (debug) messages should be written on the console (Defaults to FALSE).
 #' @return A numeric k x k matrix
 #' @export
+#' @examples
+#' # a Brownian motion model with one regime
+#' modelBM <- PCM(model = "BM", k = 2)
+#' # print the model
+#' modelBM
+#' # assign the model parameters at random: this will use uniform distribution
+#' # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
+#' # We do this in two steps:
+#' # 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
+#' randomParams <- PCMParamRandomVecParams(modelBM, PCMNumTraits(modelBM), PCMNumRegimes(modelBM))
+#' randomParams
+#' # 2. Then we load this random vector into the model.
+#' PCMParamLoadOrStore(modelBM, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), TRUE)
+#'
+#' # PCMVarAtTime(1, modelBM)
+#'
+#' # note that the variance at time 0 is not the 0 matrix because the model has a non-zero
+#' # environmental deviation
+#' PCMVarAtTime(0, modelBM)
 PCMVarAtTime <- function(t, model, W0 =  matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
                          regime = 1L, verbose = FALSE) {
   if(is.character(regime)) {

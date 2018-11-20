@@ -47,3 +47,6 @@ for symmetric matrices. Default 1e-8; see also \code{\link{isSymmetric}}.}
 \description{
 Global options for the PCMBase package
 }
+\examples{
+PCMOptions()
+}

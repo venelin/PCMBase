@@ -23,3 +23,7 @@ Get a list of PCM models currently implemented
 The function is using the S3 api function \code{\link{methods}} looking
 for all registered implementations of the function \code{\link{PCMSpecify}}.
 }
+\examples{
+PCMModels()
+PCMModels("^OU")
+}
