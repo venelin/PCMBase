@@ -206,9 +206,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 
 <span class="kw">print</span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.0169975896  2.0188073815  1.6147821480 -0.0008840397  2.4111930198
-##  [6]  1.5948208113  0.7810217160  2.3801192231  0.1013677085 -0.0116312413
-## [11]  0.3942892596  0.0962051350 -0.0139688665  0.3828454317</code></pre>
+<pre><code>##  [1]  5.0099016522  1.9923188971  1.5834276101 -0.0003266012  2.3854611526
+##  [6]  1.6119469369  0.7845819225  2.3876669909  0.1094832406  0.0062758154
+## [11]  0.3987595619  0.1158197114  0.0168482882  0.3821499666</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -216,32 +216,32 @@ param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.016998 2.018807
+## [1] 5.009902 1.992319
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
 ##          [,1]          [,2]
-## [1,] 1.614782 -0.0008840397
-## [2,] 0.000000  2.4111930198
+## [1,] 1.583428 -0.0003266012
+## [2,] 0.000000  2.3854611526
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.594821 0.7810217
-## [2,] 0.800000 2.3801192
+## [1,] 1.611947 0.7845819
+## [2,] 0.800000 2.3876670
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
 ##           [,1]        [,2]
-## [1,] 0.1013677 -0.01163124
-## [2,] 0.0000000  0.39428926
+## [1,] 0.1094832 0.006275815
+## [2,] 0.0000000 0.398759562
 ## 
 ## , , b
 ## 
-##            [,1]        [,2]
-## [1,] 0.09620513 -0.01396887
-## [2,] 0.00000000  0.38284543
+##           [,1]       [,2]
+## [1,] 0.1158197 0.01684829
+## [2,] 0.0000000 0.38214997
 ## 
 ## </code></pre>
 </div>
@@ -286,9 +286,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -409.545
+<pre><code>## [1] -407.9756
 ## attr(,"X0")
-## [1] 5.016998 2.018807
+## [1] 5.009902 1.992319
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -298,9 +298,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -409.545
+<pre><code>## [1] -407.9756
 ## attr(,"X0")
-## [1] 5.016998 2.018807
+## [1] 5.009902 1.992319
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
