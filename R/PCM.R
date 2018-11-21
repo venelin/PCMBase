@@ -946,6 +946,23 @@ PCMVarAtTime <- function(t, model, W0 =  matrix(0.0, PCMNumTraits(model), PCMNum
   VarCherry[1:k, 1:k]
 }
 
+#' Calculate the likelihood of a model using the standard formula for multivariate pdf
+#' @inheritParams PCMLik
+#' @return a numerical value with named attributes as follows:
+#' @importFrom mvtnorm dmvnorm
+#' @export
+PCMLikDmvNorm <- function(
+  X, tree, model,
+  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  log = TRUE,
+  verbose = FALSE) {
+
+  dmvnorm(as.vector(X[, 1:PCMTreeNumTips(tree)]),
+          as.vector(PCMMean(tree, model, model$X0)),
+          PCMVar(tree, model), log = TRUE)
+
+}
+
 
 #' Simulation of a phylogenetic comparative model on a tree
 #'

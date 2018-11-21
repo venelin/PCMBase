@@ -78,7 +78,8 @@ PCMMean.GaussianPCM <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, 
 #' @export
 PCMVar.GaussianPCM <- function(tree, model,
                                W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
-                               metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
+                               metaI=PCMInfo(NULL, tree, model, verbose),
+                               internal = FALSE, verbose = FALSE)  {
 
   threshold_SV <- metaI$PCMBase.Threshold.SV
   skip_singular <- metaI$PCMBase.Skip.Singular
@@ -197,9 +198,8 @@ PCMVar.GaussianPCM <- function(tree, model,
     } else {
       Wii[, BlockI(i)] <- Phi_i %*% Wii[, BlockI(j)] %*% t(Phi_i) + V
 
-      # debug message
-      #cat("daugter i:", i, ", label: ", PCMTreeGetLabels(tree)[i], "; parent j:", j, ", label: ", PCMTreeGetLabels(tree)[j], ", edge-index:", edgeIndex, ", metaI$r[edgeIndex]:", metaI$r[edgeIndex], ", tree$edge.regime[edgeIndex]:", tree$edge.regime[edgeIndex],", Wii:\n")
-      #print(Wii[, BlockI(i)])
+      # force symmetry for Wii[, BlockI(i)]
+      Wii[, BlockI(i)] <- 0.5*(Wii[, BlockI(i)] + t(Wii[, BlockI(i)]))
 
       listProdPhi[[i]] <- lapply(listPathsToRoot[[i]], function(jAnc) {
         if(jAnc == j) {
@@ -228,8 +228,13 @@ PCMVar.GaussianPCM <- function(tree, model,
           ProdPhi_j <- listProdPhi[[j]][[as.character(mrca_ij)]]
         }
 
+        W[BlockI(i), BlockI(j)] <- # W[BlockI(j), BlockI(i)] <-
+           ProdPhi_i %*% Wii[, BlockI(mrca_ij)] %*% t(ProdPhi_j)
+
+        # assign mirror block and
+        # force symmetry for W[BlockI(i), BlockI(j)] and W[BlockI(j), BlockI(i)]
         W[BlockI(i), BlockI(j)] <- W[BlockI(j), BlockI(i)] <-
-          ProdPhi_i %*% Wii[, BlockI(mrca_ij)] %*% t(ProdPhi_j)
+          0.5 * (W[BlockI(i), BlockI(j)] + t(W[BlockI(i), BlockI(j)]))
       }
     }
   } else if(N == 1) {
@@ -237,8 +242,10 @@ PCMVar.GaussianPCM <- function(tree, model,
   }
 
   if(internal) {
+    #list(W = 0.5*(W + t(W)), Wii = Wii)
     list(W = W, Wii = Wii)
   } else {
+    #0.5*(W + t(W))
     W
   }
 }
