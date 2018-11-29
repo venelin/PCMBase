@@ -26,12 +26,17 @@ PCMParentClasses.GaussianPCM <- function(model) {
 #' \item{Phi}{}
 #' \item{V}{}
 #' @export
-PCMCond.GaussianPCM <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
+PCMCond.GaussianPCM <- function(
+  tree, model, r=1,
+  metaI=PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
   stop(paste('ERR:02111:PCMBase:GaussianPCM.R:PCMCond.GaussianPCM:: This is an abstract function which only defines an interface but should not be called explicitly. Possibly you forgot implementing PCMCond for a daughter class.'))
 }
 
 #' @export
-PCMMean.GaussianPCM <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
+PCMMean.GaussianPCM <- function(
+  tree, model, X0 = model$X0,
+  metaI=PCMInfo(NULL, tree, model, verbose = verbose),
+  internal = FALSE, verbose = FALSE)  {
   if(is.Transformable(model)) {
     model <- PCMApplyTransformation(model)
   }
@@ -76,10 +81,11 @@ PCMMean.GaussianPCM <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, 
 
 #' @importFrom ape mrca
 #' @export
-PCMVar.GaussianPCM <- function(tree, model,
-                               W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
-                               metaI=PCMInfo(NULL, tree, model, verbose),
-                               internal = FALSE, verbose = FALSE)  {
+PCMVar.GaussianPCM <- function(
+  tree, model,
+  W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
+  metaI=PCMInfo(NULL, tree, model, verbose = verbose),
+  internal = FALSE, verbose = FALSE)  {
 
   threshold_SV <- metaI$PCMBase.Threshold.SV
   skip_singular <- metaI$PCMBase.Skip.Singular
@@ -162,7 +168,16 @@ PCMVar.GaussianPCM <- function(tree, model,
 
     Phi_i <- cond$Phi(t, edgeIndex, metaI)
 
-    V <- cond$V(t, edgeIndex, metaI)
+    # handle measurement error
+    if(i <= metaI$N) {
+      # tip node
+      SE <- metaI$SE[, i]
+    } else {
+      # internal node
+      SE <- rep(0.0, metaI$k)
+    }
+
+    V <- cond$V(t, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k)
 
     # force symmetric V
     V <- 0.5 * (V + t(V))
@@ -277,12 +292,25 @@ PCMSim.GaussianPCM <- function(
 
   for(edgeIndex in preord) {
     obj <- PCMCondObjects[[metaI$r[edgeIndex]]]
-    if(!is.null(obj$random)) {
-      values[, tree$edge[edgeIndex, 2]] <-
-        obj$random(n=1, x0 = values[, tree$edge[edgeIndex,1]], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex)
+    # parent node
+    j <- tree$edge[edgeIndex, 1]
+    # daughter node
+    i <- tree$edge[edgeIndex, 2]
+
+    if(i <= metaI$N) {
+      # daughter is a tip
+      SE <- metaI$SE[, i]
     } else {
-      values[, tree$edge[edgeIndex, 2]] <-
-        PCMCondRandom(obj, n=1, x0 = values[, tree$edge[edgeIndex,1]], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, metaI = metaI)
+      # daughter is an internal node
+      SE <- rep(0.0, metaI$k)
+    }
+
+    if(!is.null(obj$random)) {
+      values[, i] <-
+        obj$random(n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, SE)
+    } else {
+      values[, i] <-
+        PCMCondRandom(obj, n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, metaI = metaI, SE)
     }
   }
 
@@ -294,7 +322,8 @@ PCMSim.GaussianPCM <- function(
 #' @export
 PCMLik.GaussianPCM <- function(
   X, tree, model,
-  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE, verbose = verbose),
   log = TRUE,
   verbose = FALSE) {
 
@@ -448,12 +477,14 @@ PCMLik.GaussianPCM <- function(
 #'  model class. This function is called by \code{\link{PCMLik}}.
 #' @inheritParams PCMLik
 #' @export
-PCMAbCdEf <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
+PCMAbCdEf <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
   UseMethod("PCMAbCdEf", model)
 }
 
 #' @export
-PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
+PCMAbCdEf.default <- function(
+  tree, model,
+  metaI=PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
   threshold_SV <- metaI$PCMBase.Threshold.SV
   skip_singular <- metaI$PCMBase.Skip.Singular
   threshold_skip_singular <- metaI$PCMBase.Threshold.Skip.Singular
@@ -506,6 +537,13 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
     # daughter node
     i <- tree$edge[edgeIndex, 2]
 
+    # standard error
+    if(i <= N) {
+      SE <- metaI$SE[, i]
+    } else {
+      SE <- rep(0.0, metaI$k)
+    }
+
     # length of edge leading to i
     ti <- tree$edge.length[edgeIndex]
 
@@ -515,7 +553,7 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
 
     omega[,i] <- cond[[r[edgeIndex]]]$omega(ti, edgeIndex, metaI)
     Phi[,,i] <- cond[[r[edgeIndex]]]$Phi(ti, edgeIndex, metaI)
-    V[,,i] <- cond[[r[edgeIndex]]]$V(ti, edgeIndex, metaI)
+    V[,,i] <- cond[[r[edgeIndex]]]$V(ti, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k)
 
     # Ensure that V[,,i] is symmetric. This is to prevent numerical errors
     # but can potentially hide a logical error in the model classes or the
@@ -595,9 +633,10 @@ PCMAbCdEf.default <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verb
 #' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
 #'   only for the root if root.only=TRUE.
 #' @export
-PCMLmr <- function(X, tree, model,
-                metaI = PCMInfo(X, tree, model, verbose = verbose),
-                root.only = TRUE, verbose = FALSE) {
+PCMLmr <- function(
+  X, tree, model,
+  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  root.only = TRUE, verbose = FALSE) {
   UseMethod("PCMLmr", metaI)
 }
 
@@ -824,17 +863,17 @@ PCMCondVOU <- function(
 }
 
 #' @importFrom mvtnorm rmvnorm
-PCMCondRandom <- function(PCMCondObject, n=1, x0, t, edgeIndex, metaI) {
+PCMCondRandom <- function(PCMCondObject, n=1, x0, t, edgeIndex, metaI, SE) {
   rmvnorm(n = n,
           mean = PCMCondObject$omega(t, edgeIndex, metaI) + PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0,
-          sigma = PCMCondObject$V(t, edgeIndex, metaI))
+          sigma = PCMCondObject$V(t, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k))
 
 }
 
 #' @importFrom mvtnorm dmvnorm
-PCMCondDensity <- function(PCMCondObject, x, x0, t, edgeIndex, metaI, log=FALSE) {
+PCMCondDensity <- function(PCMCondObject, x, x0, t, edgeIndex, metaI, SE, log=FALSE) {
   dmvnorm(x,
           mean = PCMCondObject$omega(t, edgeIndex, metaI) + PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0,
-          sigma = PCMCondObject$V(t, edgeIndex, metaI),
+          sigma = PCMCondObject$V(t, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k),
           log=log)
 }

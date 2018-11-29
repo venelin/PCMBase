@@ -24,6 +24,28 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   })
 
+  test_that("Equal likelihood with dmvnorm on a random model, with single regime (a) and SE >0", {
+    expect_silent(model.a.123.BM <- PCM("BM", k = 3, regimes = "a"))
+    expect_silent(PCMParamLoadOrStore(model.a.123.BM,
+                                      PCMParamRandomVecParams(model.a.123.BM),
+                                      offset = 0, k = 3, load = TRUE))
+    expect_equivalent(
+      PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123)),
+      PCMLikDmvNorm(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123)))
+    expect_equivalent(
+      PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123)),
+      {
+        dmvnorm(
+          as.vector(traits.a.123[, 1:PCMTreeNumTips(tree.a)]),
+          as.vector(PCMMean(tree.a, model.a.123.BM, model.a.123.BM$X0)),
+          PCMVar(tree.a, model.a.123.BM) + diag(abs(0.01*as.vector(traits.a.123[, 1:PCMTreeNumTips(tree.a)]))^2),
+          log = TRUE
+        )
+      }
+    )
+
+  })
+
   test_that("Equal likelihood with dmvnorm on a random model, multiple regimes (ab)", {
     expect_silent(model.ab.123.BM <- PCM("BM", k = 3, regimes = c("a", "b")))
     expect_silent(PCMParamLoadOrStore(model.ab.123.BM,
@@ -37,3 +59,4 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   })
 }
+

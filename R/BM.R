@@ -26,7 +26,9 @@ PCMDescribe.BM <- function(model, ...) {
 }
 
 #' @export
-PCMCond.BM <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+PCMCond.BM <- function(
+  tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose=FALSE) {
 
   Sigma_x <- if(is.Global(model$Sigma_x)) as.matrix(model$Sigma_x) else as.matrix(model$Sigma_x[,, r])
   Sigma <- Sigma_x %*% t(Sigma_x)

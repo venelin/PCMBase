@@ -21,7 +21,10 @@ PCMParentClasses.DOU <- function(model) {
 }
 
 #' @export
-PCMCond.DOU <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+PCMCond.DOU <- function(
+  tree, model, r=1,
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose=FALSE) {
   H1 <- if(is.Global(model$H1)) as.matrix(model$H1) else as.matrix(model$H1[,, r])
 
   H2 <- if(is.Global(model$H2)) as.matrix(model$H2) else as.matrix(model$H2[,, r])

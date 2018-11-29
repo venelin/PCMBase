@@ -5,7 +5,7 @@
 \title{Expected mean vector at each tip conditioned on a trait-value vector at the root}
 \usage{
 PCMMean(tree, model, X0 = model$X0, metaI = PCMInfo(NULL, tree, model,
-  verbose), internal = FALSE, verbose = FALSE)
+  verbose = verbose), internal = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}
@@ -16,7 +16,7 @@ calculated (see also Details).}
 
 \item{X0}{a k-vector denoting the root trait}
 
-\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model)},
+\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}
 
 \item{internal}{a logical indicating ig the per-node mean vectors should be returned (see Value). Default FALSE.}

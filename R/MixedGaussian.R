@@ -33,7 +33,9 @@ PCMDescribe.MixedGaussian <- function(model, ...) {
 }
 
 #' @export
-PCMCond.MixedGaussian <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+PCMCond.MixedGaussian <- function(
+  tree, model, r=1,
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose), verbose=FALSE) {
   if(! is.MixedGaussian(model) ) {
     stop("ERR:02501:PCMBase:MixedGaussian.R:PCMCond.MixedGaussian:: model should inherit from S3 class 'MixedGaussian'.")
   }
@@ -53,9 +55,9 @@ PCMCond.MixedGaussian <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, 
   if(is.null(Sigmae)) {
     # Sigmae_x is omitted in the parent model, so just return the result from the
     # sub-model
-    PCMCond(tree, model[[r]], 1, metaI, verbose)
+    PCMCond(tree, model[[r]], 1, metaI, verbose = verbose)
   } else {
-    OmegaPhiV2 <- OmegaPhiV <- PCMCond(tree, model[[r]], 1, metaI, verbose)
+    OmegaPhiV2 <- OmegaPhiV <- PCMCond(tree, model[[r]], 1, metaI, verbose = verbose)
     if(is.null(model[[r]]$Sigmae_x)) {
       # Sigmae_x is _Omitted in model[[r]]
       OmegaPhiV2$V <- function(t, edgeIndex, metaI, e_Ht = NULL) {

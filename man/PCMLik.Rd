@@ -4,7 +4,8 @@
 \alias{PCMLik}
 \title{Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages}
 \usage{
-PCMLik(X, tree, model, metaI = PCMInfo(X, tree, model, verbose =
+PCMLik(X, tree, model, SE = matrix(0, PCMNumTraits(model),
+  PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE, verbose =
   verbose), log = TRUE, verbose = FALSE)
 }
 \arguments{
@@ -20,7 +21,10 @@ likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
 
-\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model)},
+\item{SE}{a k x N matrix specifying the standard error for each measurement in X.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
+
+\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}
 
 \item{log}{logical indicating whether a log-liklehood should be calculated. Default

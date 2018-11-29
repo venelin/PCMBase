@@ -5,8 +5,8 @@
 \title{Expected variance-covariance matrix for each couple of tips (i,j)}
 \usage{
 PCMVar(tree, model, W0 = matrix(0, PCMNumTraits(model),
-  PCMNumTraits(model)), metaI = PCMInfo(NULL, tree, model, verbose),
-  internal = FALSE, verbose = FALSE)
+  PCMNumTraits(model)), metaI = PCMInfo(NULL, tree, model, verbose =
+  verbose), internal = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}
@@ -18,7 +18,7 @@ calculated (see also Details).}
 \item{W0}{a numeric matrix denoting the initial k x k variance covariance matrix at the
 root (default is the k x k zero matrix).}
 
-\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model)},
+\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}
 
 \item{internal}{a logical indicating if the per-node variance-covariances matrices for

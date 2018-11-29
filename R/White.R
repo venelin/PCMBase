@@ -34,7 +34,10 @@ PCMDescribe.White <- function(model, ...) {
 }
 
 #' @export
-PCMInfo.White <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
+PCMInfo.White <- function(
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  verbose = FALSE, preorder = NULL, ...) {
   if(is.Transformable(model)) {
     model <- PCMApplyTransformation(model)
   }
@@ -46,7 +49,10 @@ PCMInfo.White <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...)
 }
 
 #' @export
-PCMCond.White <- function(tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+PCMCond.White <- function(
+  tree, model, r=1,
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose=FALSE) {
   if(!is.null(model$Sigmae_x)) {
     Sigmae_x <- if(is.Global(model$Sigmae_x)) as.matrix(model$Sigmae_x) else as.matrix(model$Sigmae_x[,,r])
     Sigmae <- Sigmae_x %*% t(Sigmae_x)

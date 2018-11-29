@@ -4,8 +4,8 @@
 \alias{PCMAbCdEf}
 \title{Quadratic polynomial parameters A, b, C, d, E, f for each node}
 \usage{
-PCMAbCdEf(tree, model, metaI = PCMInfo(NULL, tree, model, verbose),
-  verbose = FALSE)
+PCMAbCdEf(tree, model, metaI = PCMInfo(NULL, tree, model, verbose =
+  verbose), verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}
@@ -14,7 +14,7 @@ PCMAbCdEf(tree, model, metaI = PCMInfo(NULL, tree, model, verbose),
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
 
-\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model)},
+\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}

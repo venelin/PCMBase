@@ -22,7 +22,10 @@ PCMParentClasses.JOU <- function(model) {
 
 
 #' @export
-PCMCond.JOU <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose=FALSE) {
+PCMCond.JOU <- function(
+  tree, model, r=1,
+  metaI=PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose=FALSE) {
   H <- if(is.Global(model$H)) as.matrix(model$H) else as.matrix(model$H[,, r])
 
   Theta <- if(is.Global(model$Theta)) as.vector(model$Theta) else model$Theta[, r]

@@ -776,7 +776,7 @@ PCMApplyTransformation.PCM <- function(o, ...) {
 #' @param r an integer specifying a model regime
 #' @return an object of type specific to the type of model
 #' @export
-PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose), verbose = FALSE) {
+PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
   UseMethod("PCMCond", model)
 }
 
@@ -805,7 +805,7 @@ PCMCond <- function(tree, model, r=1, metaI=PCMInfo(NULL, tree, model, verbose),
 #' # create a random tree of 10 tips
 #' tree <- ape::rtree(10)
 #' PCMMean(tree, modelBM)
-PCMMean <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
+PCMMean <- function(tree, model, X0 = model$X0, metaI=PCMInfo(NULL, tree, model, verbose = verbose), internal = FALSE, verbose = FALSE)  {
   UseMethod("PCMMean", model)
 }
 
@@ -887,8 +887,10 @@ PCMMeanAtTime <- function(t, model, X0 = model$X0, regime = 1L, verbose = FALSE)
 #' # create a random tree of 10 tips
 #' tree <- ape::rtree(10)
 #' covMat <- PCMVar(tree, modelBM)
-PCMVar <- function(tree, model, W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
-                   metaI=PCMInfo(NULL, tree, model, verbose), internal = FALSE, verbose = FALSE)  {
+PCMVar <- function(
+  tree, model, W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
+  metaI=PCMInfo(NULL, tree, model, verbose = verbose),
+  internal = FALSE, verbose = FALSE)  {
   UseMethod("PCMVar", model)
 }
 
@@ -953,14 +955,14 @@ PCMVarAtTime <- function(t, model, W0 =  matrix(0.0, PCMNumTraits(model), PCMNum
 #' @export
 PCMLikDmvNorm <- function(
   X, tree, model,
-  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE, verbose = verbose),
   log = TRUE,
   verbose = FALSE) {
 
   dmvnorm(as.vector(X[, 1:PCMTreeNumTips(tree)]),
-          as.vector(PCMMean(tree, model, model$X0)),
-          PCMVar(tree, model), log = TRUE)
-
+          as.vector(PCMMean(tree, model, model$X0, metaI = metaI)),
+          PCMVar(tree, model, metaI = metaI), log = log)
 }
 
 
@@ -1023,7 +1025,9 @@ PCMSim <- function(
 #' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
 #'   well as the concrete model parameter values at which the likelihood is to be
 #'   calculated (see also Details).
-#' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model)},
+#' @param SE a k x N matrix specifying the standard error for each measurement in X.
+#'   Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
+#' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 #'   containing meta-data such as N, M and k.
 #' @param log logical indicating whether a log-liklehood should be calculated. Default
 #'  is TRUE.
@@ -1058,7 +1062,8 @@ PCMSim <- function(
 #' @export
 PCMLik <- function(
   X, tree, model,
-  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE, verbose = verbose),
   log = TRUE,
   verbose = FALSE) {
 
@@ -1075,15 +1080,19 @@ logLik.PCM <- function(object, ...) {
   if( !is.matrix(X) ) {
     stop("ERR:02032:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object, it should have a k x N numeric matrix attribute called 'X'.")
   }
+  SE <- attr(object, "SE", exact = TRUE)
+  if( !is.matrix(SE) ) {
+    stop("ERR:02033:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object, it should have a k x N numeric matrix attribute called 'SE'.")
+  }
   tree <- attr(object, "tree", exact = TRUE)
   if( !inherits(tree, "phylo") ) {
-    stop("ERR:02033:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
+    stop("ERR:02034:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
   }
 
   if(is.function(attr(object, "PCMInfoFun", exact = TRUE))) {
-    value <- PCMLik(X, tree, object, log = TRUE, attr(object, "PCMInfoFun", exact = TRUE)(X, tree, object))
+    value <- PCMLik(X, tree, object, SE, metaI = attr(object, "PCMInfoFun", exact = TRUE)(X, tree, object, SE), log = TRUE)
   } else {
-    value <- PCMLik(X, tree, object, log = TRUE)
+    value <- PCMLik(X, tree, object, SE, log = TRUE)
   }
 
   attr(value, "df") <- PCMParamCount(object, countRegimeChanges = TRUE, countModelTypes = TRUE)
@@ -1176,6 +1185,8 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 #' @param ... additional arguments used by implementing methods.
 #'
 #' @return a named list with the following elements:
+#' \item{X}{k x N matrix denoting the trait data;}
+#' \item{SE}{k x N matrix denoting the measurement error for each value in X.}
 #' \item{M}{total number of nodes in the tree;}
 #' \item{N}{number of tips;}
 #' \item{k}{number of traits;}
@@ -1191,12 +1202,18 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 #' This list is passed to \code{\link{PCMLik}}.
 #'
 #' @export
-PCMInfo <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
+PCMInfo <- function(
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  verbose = FALSE, preorder = NULL, ...) {
   UseMethod("PCMInfo", model)
 }
 
 #' @export
-PCMInfo.PCM <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
+PCMInfo.PCM <- function(
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  verbose = FALSE, preorder = NULL, ...) {
 
   if(is.Transformable(model)) {
     model <- PCMApplyTransformation(model)
@@ -1211,6 +1228,8 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
   }
 
   res <- list(
+    X = X,
+    SE = SE,
     M = PCMTreeNumNodes(tree),
     N = PCMTreeNumTips(tree),
     k = PCMNumTraits(model),
@@ -1240,15 +1259,23 @@ PCMInfo.PCM <- function(X, tree, model, verbose = FALSE, preorder = NULL, ...) {
 #' have three parameters (X, tree, model) and should return a metaInfo object. (see \code{\link{PCMInfo}}).
 #'
 #' @export
-PCMCreateLikelihood <- function(X, tree, model, metaI = PCMInfo(X, tree, model), positiveValueGuard = Inf) {
+PCMCreateLikelihood <- function(
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE),
+  positiveValueGuard = Inf) {
+
   if(is.function(metaI)) {
     metaI <- metaI(X, tree, model)
   }
   value.NA <- PCMOptions()$PCMBase.Value.NA
 
   function(p, log = TRUE) {
-    PCMParamLoadOrStore(model, p, offset = 0L, k = PCMNumTraits(model), R = PCMNumRegimes(model), load = TRUE)
-    value <- PCMLik(X, tree, model, metaI, log = log)
+    PCMParamLoadOrStore(model, p, offset = 0L,
+                        k = PCMNumTraits(model),
+                        R = PCMNumRegimes(model),
+                        load = TRUE)
+    value <- PCMLik(X, tree, model, SE, metaI, log = log)
     if(value > positiveValueGuard) {
       value <- value.NA
     }

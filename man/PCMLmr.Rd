@@ -20,7 +20,7 @@ likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
 
-\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model)},
+\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}
 
 \item{root.only}{logical indicatin whether to return the calculated values of L,m,r
