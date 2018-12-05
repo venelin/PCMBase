@@ -75,7 +75,7 @@ create meta-information used during likelihood calculaiton." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.7</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.8</span>
       </span>
     </div>
 
@@ -136,7 +136,8 @@ create meta-information used during likelihood calculaiton.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMInfo</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>preorder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMInfo</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'>matrix</span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
+  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>preorder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -160,6 +161,11 @@ well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).</p></td>
     </tr>
     <tr>
+      <th>SE</th>
+      <td><p>a k x N matrix specifying the standard error for each measurement in X.
+Default: <code>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</code>.</p></td>
+    </tr>
+    <tr>
       <th>verbose</th>
       <td><p>logical indicating if some debug-messages should printed.</p></td>
     </tr>
@@ -178,6 +184,8 @@ operations needing preorder are executed on the tree. Default : <code>NULL</code
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a named list with the following elements:</p>
+<dt>X</dt><dd><p>k x N matrix denoting the trait data;</p></dd>
+<dt>SE</dt><dd><p>k x N matrix denoting the measurement error for each value in X.</p></dd>
 <dt>M</dt><dd><p>total number of nodes in the tree;</p></dd>
 <dt>N</dt><dd><p>number of tips;</p></dd>
 <dt>k</dt><dd><p>number of traits;</p></dd>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>The parent node id of a daughter node in a tree — PCMTreeGetParent • PCMBase</title>
+<title>Calculate the likelihood of a model using the standard formula for multivariate pdf — PCMLikDmvNorm • PCMBase</title>
 
 <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
 
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="The parent node id of a daughter node in a tree — PCMTreeGetParent" />
+<meta property="og:title" content="Calculate the likelihood of a model using the standard formula for multivariate pdf — PCMLikDmvNorm" />
 
-<meta property="og:description" content="The parent node id of a daughter node in a tree" />
+<meta property="og:description" content="Calculate the likelihood of a model using the standard formula for multivariate pdf" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,35 +123,66 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>The parent node id of a daughter node in a tree</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTree.R'><code>R/PCMTree.R</code></a></small>
-    <div class="hidden name"><code>PCMTreeGetParent.Rd</code></div>
+    <h1>Calculate the likelihood of a model using the standard formula for multivariate pdf</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCM.R'><code>R/PCM.R</code></a></small>
+    <div class="hidden name"><code>PCMLikDmvNorm.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The parent node id of a daughter node in a tree</p>
+    <p>Calculate the likelihood of a model using the standard formula for multivariate pdf</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMTreeGetParent</span>(<span class='no'>tree</span>, <span class='no'>daughterId</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMLikDmvNorm</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'>matrix</span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
+  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>metaI</span> <span class='kw'>=</span> <span class='fu'><a href='PCMInfo.html'>PCMInfo</a></span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span>
+  <span class='no'>verbose</span>), <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>tree</th>
-      <td><p>a phylo object.</p></td>
+      <th>X</th>
+      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
+Thse two values have are treated differently when calculating
+likelihoods: see <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>.</p></td>
     </tr>
     <tr>
-      <th>daughterId</th>
-      <td><p>an integer denoting the id of the daughter node</p></td>
+      <th>tree</th>
+      <td><p>a phylo object with N tips.</p></td>
+    </tr>
+    <tr>
+      <th>model</th>
+      <td><p>an S3 object specifying both, the model type (class, e.g. "OU") as
+well as the concrete model parameter values at which the likelihood is to be
+calculated (see also Details).</p></td>
+    </tr>
+    <tr>
+      <th>SE</th>
+      <td><p>a k x N matrix specifying the standard error for each measurement in X.
+Default: <code>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</code>.</p></td>
+    </tr>
+    <tr>
+      <th>metaI</th>
+      <td><p>a list returned from a call to <code><a href='PCMInfo.html'>PCMInfo(X, tree, model, SE)</a></code>,
+containing meta-data such as N, M and k.</p></td>
+    </tr>
+    <tr>
+      <th>log</th>
+      <td><p>logical indicating whether a log-liklehood should be calculated. Default
+is TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical indicating if some debug-messages should printed.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an integer denoting the parent of daughterId</p>
+    <p>a numerical value with named attributes as follows:</p>
     
 
   </div>

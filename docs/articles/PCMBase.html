@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.7</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.8</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2018-11-20</h4>
+            <h4 class="date">2018-12-05</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
@@ -212,9 +212,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 
 <span class="kw">print</span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.002444577  2.000515458  1.614343854  0.002638264  2.416376172
-##  [6]  1.606833252  0.811840410  2.394543680  0.117176751 -0.002238600
-## [11]  0.418420486  0.084833321  0.006698060  0.407769732</code></pre>
+<pre><code>##  [1] 5.002785468 2.000487318 1.598010555 0.017017373 2.405440646
+##  [6] 1.598512985 0.788621291 2.388603979 0.110111291 0.011505748
+## [11] 0.399589095 0.090616214 0.006882168 0.396724148</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -222,32 +222,32 @@ param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.002445 2.000515
+## [1] 5.002785 2.000487
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]        [,2]
-## [1,] 1.614344 0.002638264
-## [2,] 0.000000 2.416376172
+##          [,1]       [,2]
+## [1,] 1.598011 0.01701737
+## [2,] 0.000000 2.40544065
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.606833 0.8118404
-## [2,] 0.800000 2.3945437
+## [1,] 1.598513 0.7886213
+## [2,] 0.800000 2.3886040
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
 ##           [,1]       [,2]
-## [1,] 0.1171768 -0.0022386
-## [2,] 0.0000000  0.4184205
+## [1,] 0.1101113 0.01150575
+## [2,] 0.0000000 0.39958910
 ## 
 ## , , b
 ## 
-##            [,1]       [,2]
-## [1,] 0.08483332 0.00669806
-## [2,] 0.00000000 0.40776973
+##            [,1]        [,2]
+## [1,] 0.09061621 0.006882168
+## [2,] 0.00000000 0.396724148
 ## 
 ## </code></pre>
 </div>
@@ -292,9 +292,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -410.187
+<pre><code>## [1] -408.8815
 ## attr(,"X0")
-## [1] 5.002445 2.000515
+## [1] 5.002785 2.000487
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -304,9 +304,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -410.187
+<pre><code>## [1] -408.8815
 ## attr(,"X0")
-## [1] 5.002445 2.000515
+## [1] 5.002785 2.000487
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
