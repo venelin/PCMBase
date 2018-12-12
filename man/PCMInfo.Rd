@@ -20,7 +20,10 @@ likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
 
-\item{SE}{a k x N matrix specifying the standard error for each measurement in X.
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Choleski factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
@@ -34,7 +37,9 @@ operations needing preorder are executed on the tree. Default : \code{NULL}.}
 \value{
 a named list with the following elements:
 \item{X}{k x N matrix denoting the trait data;}
-\item{SE}{k x N matrix denoting the measurement error for each value in X.}
+\item{VE}{k x k x N array denoting the measurement error variance covariance
+matrix for each for each tip i = 1,...,N. See the parameter \code{SE} in
+\code{\link{PCMLik}.}}
 \item{M}{total number of nodes in the tree;}
 \item{N}{number of tips;}
 \item{k}{number of traits;}

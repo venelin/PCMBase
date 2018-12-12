@@ -30,10 +30,10 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
                                       PCMParamRandomVecParams(model.a.123.BM),
                                       offset = 0, k = 3, load = TRUE))
     expect_equivalent(
-      PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123)),
-      PCMLikDmvNorm(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123)))
+      PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])),
+      PCMLikDmvNorm(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])))
     expect_equivalent(
-      PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123)),
+      PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])),
       {
         dmvnorm(
           as.vector(traits.a.123[, 1:PCMTreeNumTips(tree.a)]),

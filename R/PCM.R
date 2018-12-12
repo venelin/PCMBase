@@ -1025,8 +1025,11 @@ PCMSim <- function(
 #' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
 #'   well as the concrete model parameter values at which the likelihood is to be
 #'   calculated (see also Details).
-#' @param SE a k x N matrix specifying the standard error for each measurement in X.
-#'   Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
+#' @param SE a k x N matrix specifying the standard error for each measurement in
+#' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+#' Choleski factor of the variance covariance matrix for the measurement error
+#' for each node i=1, ..., N.
+#' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 #'   containing meta-data such as N, M and k.
 #' @param log logical indicating whether a log-liklehood should be calculated. Default
@@ -1186,7 +1189,9 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 #'
 #' @return a named list with the following elements:
 #' \item{X}{k x N matrix denoting the trait data;}
-#' \item{SE}{k x N matrix denoting the measurement error for each value in X.}
+#' \item{VE}{k x k x N array denoting the measurement error variance covariance
+#' matrix for each for each tip i = 1,...,N. See the parameter \code{SE} in
+#' \code{\link{PCMLik}.}}
 #' \item{M}{total number of nodes in the tree;}
 #' \item{N}{number of tips;}
 #' \item{k}{number of traits;}
@@ -1227,12 +1232,28 @@ PCMInfo.PCM <- function(
     preorder <- PCMTreePreorder(tree)
   }
 
+  k <- PCMNumTraits(model)
+  N <- PCMTreeNumTips(tree)
+  M <- PCMTreeNumNodes(tree)
+
+  VE <- array(0.0, dim = c(k, k, N))
+  if(is.matrix(SE) && identical(unname(dim(SE)), c(k, N)) ) {
+    # SE is k x N matrix
+    for(i in seq_len(N)) {
+      VE[, , i] <- diag(SE[, i]*SE[, i], nrow = k)
+    }
+  } else if(is.array(SE) && identical(unname(dim(SE)), c(k, k, N)) ) {
+    VE[, , i] <- SE[, , i] %*% t(SE[, , i])
+  } else {
+    stop("SE should be a k x N matrix or a k x k x N array.")
+  }
+
   res <- list(
     X = X,
-    SE = SE,
-    M = PCMTreeNumNodes(tree),
-    N = PCMTreeNumTips(tree),
-    k = PCMNumTraits(model),
+    VE = VE,
+    M = M,
+    N = N,
+    k = k,
     RTree = PCMTreeNumUniqueRegimes(tree),
     RModel = PCMNumRegimes(model),
     r = PCMTreeMatchRegimesWithModel(tree, model, preorder),
@@ -1266,7 +1287,7 @@ PCMCreateLikelihood <- function(
   positiveValueGuard = Inf) {
 
   if(is.function(metaI)) {
-    metaI <- metaI(X, tree, model)
+    metaI <- metaI(X, tree, model, SE)
   }
   value.NA <- PCMOptions()$PCMBase.Value.NA
 

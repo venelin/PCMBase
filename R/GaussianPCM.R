@@ -171,13 +171,13 @@ PCMVar.GaussianPCM <- function(
     # handle measurement error
     if(i <= metaI$N) {
       # tip node
-      SE <- metaI$SE[, i]
+      VE <- metaI$VE[, , i]
     } else {
       # internal node
-      SE <- rep(0.0, metaI$k)
+      VE <- matrix(0.0, metaI$k, metaI$k)
     }
 
-    V <- cond$V(t, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k)
+    V <- cond$V(t, edgeIndex, metaI) + VE
 
     # force symmetric V
     V <- 0.5 * (V + t(V))
@@ -299,18 +299,18 @@ PCMSim.GaussianPCM <- function(
 
     if(i <= metaI$N) {
       # daughter is a tip
-      SE <- metaI$SE[, i]
+      VE <- metaI$VE[, , i]
     } else {
       # daughter is an internal node
-      SE <- rep(0.0, metaI$k)
+      VE <- matrix(0.0, metaI$k, metaI$k)
     }
 
     if(!is.null(obj$random)) {
       values[, i] <-
-        obj$random(n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, SE)
+        obj$random(n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, VE)
     } else {
       values[, i] <-
-        PCMCondRandom(obj, n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, metaI = metaI, SE)
+        PCMCondRandom(obj, n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, metaI = metaI, VE)
     }
   }
 
@@ -539,9 +539,9 @@ PCMAbCdEf.default <- function(
 
     # standard error
     if(i <= N) {
-      SE <- metaI$SE[, i]
+      VE <- metaI$VE[, , i]
     } else {
-      SE <- rep(0.0, metaI$k)
+      VE <- matrix(0.0, metaI$k, metaI$k)
     }
 
     # length of edge leading to i
@@ -553,7 +553,7 @@ PCMAbCdEf.default <- function(
 
     omega[,i] <- cond[[r[edgeIndex]]]$omega(ti, edgeIndex, metaI)
     Phi[,,i] <- cond[[r[edgeIndex]]]$Phi(ti, edgeIndex, metaI)
-    V[,,i] <- cond[[r[edgeIndex]]]$V(ti, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k)
+    V[,,i] <- cond[[r[edgeIndex]]]$V(ti, edgeIndex, metaI) + VE
 
     # Ensure that V[,,i] is symmetric. This is to prevent numerical errors
     # but can potentially hide a logical error in the model classes or the
@@ -863,17 +863,17 @@ PCMCondVOU <- function(
 }
 
 #' @importFrom mvtnorm rmvnorm
-PCMCondRandom <- function(PCMCondObject, n=1, x0, t, edgeIndex, metaI, SE) {
+PCMCondRandom <- function(PCMCondObject, n=1, x0, t, edgeIndex, metaI, VE) {
   rmvnorm(n = n,
           mean = PCMCondObject$omega(t, edgeIndex, metaI) + PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0,
-          sigma = PCMCondObject$V(t, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k))
+          sigma = PCMCondObject$V(t, edgeIndex, metaI) + VE)
 
 }
 
 #' @importFrom mvtnorm dmvnorm
-PCMCondDensity <- function(PCMCondObject, x, x0, t, edgeIndex, metaI, SE, log=FALSE) {
+PCMCondDensity <- function(PCMCondObject, x, x0, t, edgeIndex, metaI, VE, log=FALSE) {
   dmvnorm(x,
           mean = PCMCondObject$omega(t, edgeIndex, metaI) + PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0,
-          sigma = PCMCondObject$V(t, edgeIndex, metaI) + diag(SE^2, nrow = metaI$k),
+          sigma = PCMCondObject$V(t, edgeIndex, metaI) + VE,
           log=log)
 }
