@@ -996,20 +996,23 @@ PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
                                             argsPCMParamUpperLimit = NULL) {
 
   if(is.PCM(o)) {
-    k <- attr(o, "k", exact = TRUE)
-    R <- length(attr(o, "regimes", exact = TRUE))
+    k <- PCMNumTraits(o)
+    R <- PCMNumRegimes(o)
   }
 
-  lowerModel <- do.call(PCMParamLowerLimit, c(list(o, k = k, R = R), argsPCMParamLowerLimit))
+  lowerModel <- do.call(
+    PCMParamLowerLimit, c(list(o, k = k, R = R), argsPCMParamLowerLimit))
   lowerVecParams <- PCMParamGetShortVector(lowerModel, k = k, R = R)
 
-  upperModel <- do.call(PCMParamUpperLimit, c(list(o, k = k, R = R), argsPCMParamUpperLimit))
+  upperModel <- do.call(
+    PCMParamUpperLimit, c(list(o, k = k, R = R), argsPCMParamUpperLimit))
   upperVecParams <- PCMParamGetShortVector(upperModel, k = k, R = R)
 
   p <- PCMParamCount(o, k = k, R = R)
   res <- sapply(1:p, function(i) {
     runif(n, lowerVecParams[i], upperVecParams[i])
   })
+
   res
 }
 

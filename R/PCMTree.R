@@ -223,17 +223,18 @@ PCMTreeGetStartingNodesRegimes <- function(tree, preorder = PCMTreePreorder(tree
   nodes
 }
 
-#' Get the regime of the branch leading to a node or a tip
+#' Get the regimes of the branches leading to a set of nodes or tips
 #' @param tree a phylo object with an edge.regime member denoting regimes.
-#' @param node an integer denoting the node
-#' @return a character or an integer denoting the regime of the branch leading
-#' to the node, according to tree$edge.regime
+#' @param node an integer vector denoting the nodes
+#' @return a character or an integer vector denoting the regimes of the branches
+#' leading to the nodes, according to tree$edge.regime.
 #' @export
-PCMTreeGetRegimeForNode <- function(tree, node) {
+PCMTreeGetRegimesForNodes <- function(tree, nodes) {
   if(!inherits(tree, "phylo")) {
-    stop("ERR:026h0:PCMBase:PCMTree.R:PCMTreeGetRegimeForNode:: argument tree should be a phylo.")
+    stop("ERR:026h0:PCMBase:PCMTree.R:PCMTreeGetRegimesForNodes:: argument tree should be a phylo.")
   }
-  tree$edge.regime[tree$edge[, 2]==node]
+
+  tree$edge.regime[match(nodes, tree$edge[, 2])]
 }
 
 #' Get the tips belonging to a regime tree

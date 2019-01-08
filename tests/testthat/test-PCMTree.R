@@ -24,7 +24,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     "Tree with 40 tips and one regime", {
       expect_identical(PCMTreeGetParent(tree.a, 71L), 52L)
       expect_identical(PCMTreeGetLabels(tree.a)[52L], "52")
-      expect_identical(PCMTreeGetRegimeForNode(tree.a, "71"), "a")
+      expect_identical(PCMTreeGetRegimesForNodes(tree.a, "71"), "a")
       expect_identical(PCMTreeNumUniqueRegimes(tree.a), 1L)
       expect_identical(PCMTreeGetStartingNodesRegimes(tree.a), c(a = 41L))
     })
@@ -37,7 +37,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     "Tree with 40 tips and two regimes", {
       expect_identical(PCMTreeGetParent(tree.ab, 71L), 52L)
       expect_identical(PCMTreeGetLabels(tree.ab)[52L], "52")
-      expect_identical(PCMTreeGetRegimeForNode(tree.ab, "71"), "b")
+      expect_identical(PCMTreeGetRegimesForNodes(tree.ab, "71"), "b")
       expect_identical(PCMTreeGetStartingNodesRegimes(tree.ab), c(a = 41L, b = 71L))
     })
 

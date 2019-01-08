@@ -245,7 +245,7 @@ PCMPlotTraitData2D <- function(
   data[, id:=1:(.N)]
   data[, time:=times]
 
-  data[, regime:=as.factor(sapply(id, function(i) PCMTreeGetRegimeForNode(tree, i)))]
+  data[, regime:=as.factor(sapply(id, function(i) PCMTreeGetRegimesForNodes(tree, i)))]
   setkey(data, id)
 
   if(!is.null(labeledTips)) {

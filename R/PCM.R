@@ -617,7 +617,7 @@ PCMNumTraits <- function(model) {
 
 #' @export
 PCMNumTraits.PCM <- function(model) {
-  attr(model, "k")
+  attr(model, "k", exact = TRUE)
 }
 
 #' Regimes in a model
@@ -630,7 +630,7 @@ PCMRegimes <- function(model) {
 
 #' @export
 PCMRegimes.PCM <- function(model) {
-  attr(model, "regimes")
+  attr(model, "regimes", exact = TRUE)
 }
 
 #' #' Regimes in a model
@@ -662,9 +662,9 @@ PCMRegimes.PCM <- function(model) {
 #' \code{PCMTreeUniqueRegimes(tree)}
 #' @details This is a generic S3 method. The default implementation for the basic
 #' class PCM returns a vector of 1's, because it assumes that a single model type
-#' is associated with each regime. The implementation for multi-regime models (MRG)
-#' returns the mapping attribute of the MRG object reordered to correspond to
-#' \code{PCMTreeUniqueRegimes(tree)}.
+#' is associated with each regime. The implementation for mixed Gaussian models
+#' returns the mapping attribute of the MixedGaussian object reordered to
+#' correspond to \code{PCMTreeUniqueRegimes(tree)}.
 #' @export
 PCMMapModelTypesToRegimes <- function(model, tree, ...) {
   UseMethod("PCMMapModelTypesToRegimes", model)
@@ -1297,7 +1297,7 @@ PCMCreateLikelihood <- function(
                         R = PCMNumRegimes(model),
                         load = TRUE)
     value <- PCMLik(X, tree, model, SE, metaI, log = log)
-    if(value > positiveValueGuard) {
+    if(is.na(value) || value > positiveValueGuard) {
       value <- value.NA
     }
     value

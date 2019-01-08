@@ -53,8 +53,8 @@ PCMCond.MixedGaussian <- function(
   }
 
   if(is.null(Sigmae)) {
-    # Sigmae_x is omitted in the parent model, so just return the result from the
-    # sub-model
+    # Sigmae_x is omitted in the parent model, so just return the result from
+    # the sub-model
     PCMCond(tree, model[[r]], 1, metaI, verbose = verbose)
   } else {
     OmegaPhiV2 <- OmegaPhiV <- PCMCond(tree, model[[r]], 1, metaI, verbose = verbose)
