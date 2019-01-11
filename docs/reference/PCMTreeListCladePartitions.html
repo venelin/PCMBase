@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A list of all possible partitions of a tree with a number of splitting nodes — PCMTreeListCladePartitions • PCMBase</title>
+<title>A list of all possible clade partitions of a tree with a number of splitting nodes — PCMTreeListCladePartitions • PCMBase</title>
 
 <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
 
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="A list of all possible partitions of a tree with a number of splitting nodes — PCMTreeListCladePartitions" />
+<meta property="og:title" content="A list of all possible clade partitions of a tree with a number of splitting nodes — PCMTreeListCladePartitions" />
 
-<meta property="og:description" content="A list of all possible partitions of a tree with a number of splitting nodes" />
+<meta property="og:description" content="A list of all possible clade partitions of a tree with a number of splitting nodes" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,19 +123,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>A list of all possible partitions of a tree with a number of splitting nodes</h1>
+    <h1>A list of all possible clade partitions of a tree with a number of splitting nodes</h1>
     <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTree.R'><code>R/PCMTree.R</code></a></small>
     <div class="hidden name"><code>PCMTreeListCladePartitions.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>A list of all possible partitions of a tree with a number of splitting nodes</p>
+    <p>A list of all possible clade partitions of a tree with a number of splitting nodes</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>PCMTreeListCladePartitions</span>(<span class='no'>tree</span>, <span class='no'>nNodes</span>, <span class='kw'>minCladeSize</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'>integer</span>(<span class='fl'>0</span>), <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,6 +152,11 @@
     <tr>
       <th>minCladeSize</th>
       <td><p>integer indicating the minimum number of tips allowed in a clade.</p></td>
+    </tr>
+    <tr>
+      <th>skipNodes</th>
+      <td><p>integer vector indicating nodes that should not be used as
+partition nodes. By default, this is an empty vector.</p></td>
     </tr>
     <tr>
       <th>tableAncestors</th>

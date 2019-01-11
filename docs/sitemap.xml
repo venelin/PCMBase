@@ -187,7 +187,7 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetParent.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetRegimeForNode.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetRegimesForNodes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetStartingNodesRegimes.html</loc>
@@ -200,6 +200,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeJumps.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeListAllPartitions.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeListCladePartitions.html</loc>

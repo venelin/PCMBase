@@ -2,10 +2,10 @@
 % Please edit documentation in R/PCMTree.R
 \name{PCMTreeListCladePartitions}
 \alias{PCMTreeListCladePartitions}
-\title{A list of all possible partitions of a tree with a number of splitting nodes}
+\title{A list of all possible clade partitions of a tree with a number of splitting nodes}
 \usage{
 PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0,
-  tableAncestors = NULL, verbose = FALSE)
+  skipNodes = integer(0), tableAncestors = NULL, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object}
@@ -14,6 +14,9 @@ PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0,
 \code{nNodes+1} blocks in each partition (see details).}
 
 \item{minCladeSize}{integer indicating the minimum number of tips allowed in a clade.}
+
+\item{skipNodes}{integer vector indicating nodes that should not be used as
+partition nodes. By default, this is an empty vector.}
 
 \item{tableAncestors}{NULL (default) or an integer matrix returned by a previous call
 to \code{PCMTreeTableAncestors(tree)}.}
@@ -25,7 +28,7 @@ the console.}
 a list of integer \code{nNodes}-vectors.
 }
 \description{
-A list of all possible partitions of a tree with a number of splitting nodes
+A list of all possible clade partitions of a tree with a number of splitting nodes
 }
 \details{
 Each subset of \code{nNodes} distinct internal or tip nodes

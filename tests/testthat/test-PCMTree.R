@@ -111,7 +111,10 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     listCladePartitions <- list(integer(0))
     numPartNodes <- 1
     while(TRUE) {
-      listNew <- PCMTreeListCladePartitions(tree, numPartNodes, 20, tableAncestors)
+      listNew <- PCMTreeListCladePartitions(tree = tree,
+                                            nNodes = numPartNodes,
+                                            minCladeSize = 20,
+                                            tableAncestors = tableAncestors)
       if(length(listNew) == 0) {
         break
       } else {
@@ -138,7 +141,12 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     listCladePartitionsPart <- list(integer(0))
     numPartNodes <- 1
     while(TRUE) {
-      listNew <- PCMTreeListCladePartitions(treePartRoot, numPartNodes, 12, tableAncestors[PCMTreeGetLabels(treePartRoot), PCMTreeGetLabels(treePartRoot)])
+      listNew <- PCMTreeListCladePartitions(
+        tree = treePartRoot,
+        nNodes = numPartNodes,
+        minCladeSize = 12,
+        tableAncestors = tableAncestors[PCMTreeGetLabels(treePartRoot),
+                                        PCMTreeGetLabels(treePartRoot)])
       if(length(listNew) == 0) {
         break
       } else {
@@ -157,4 +165,34 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     PCMTreePlot(PCMTreeSetRegimes(tree, c(PCMTreeGetStartingNodesRegimes(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[15]]])), inplace = FALSE))
 
   }
+
+
+  test_that(
+    "PCMTreeListCladePartitions with nNodes=1L returns correct number of nodes",
+    expect_identical(unlist(PCMTreeListCladePartitions(tree, 1L, minCladeSize = 3)),
+                     as.integer(c(17, 20, 21, 22, 23, 24, 26, 27)))
+  )
+
+
+  tree20 <- PCMTreeEvalNestedEDxOnTree("E(tree,20)", tree)
+
+  tableAnc <- PCMTreeTableAncestors(tree)
+
+  PCMTreeGetLabels(tree20)[unlist(PCMTreeListCladePartitions(tree20, 1, 3))]
+
+  tree_20 <- PCMTreeEvalNestedEDxOnTree("D(tree,20)", tree)
+
+  tree26 <- PCMTreeEvalNestedEDxOnTree("E(tree,26)", tree20)
+
+  tree23 <- PCMTreeEvalNestedEDxOnTree("E(tree,23)", tree)
+
+  tree21 <- PCMTreeEvalNestedEDxOnTree("E(tree,21)", tree)
+
+  spl <- PCMTreeSplitAtNode(tree, "20", tableAnc)
+
+  r <- PCMTreeListAllPartitions(tree = tree20, minCladeSize = 3, verbose = FALSE)
+
+  test_that("PCMTreeListAllClades returns 12 partitions",
+            expect_equal(length(r), 12L)
+            )
 }

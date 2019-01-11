@@ -9,7 +9,7 @@ PCMTreeGetRegimesForNodes(tree, nodes)
 \arguments{
 \item{tree}{a phylo object with an edge.regime member denoting regimes.}
 
-\item{node}{an integer vector denoting the nodes}
+\item{nodes}{an integer vector denoting the nodes}
 }
 \value{
 a character or an integer vector denoting the regimes of the branches

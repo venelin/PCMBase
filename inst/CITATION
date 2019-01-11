@@ -24,16 +24,16 @@ citEntry(entry = "Article",
   title        = "Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library",
   author       = personList(as.person("Venelin Mitov"),
                    as.person("Tanja Stadler")),
-  journal      = "BiorXiv",
-  year         = "2018",
-  volume       = "",
+  journal      = "Methods Ecol Evol.",
+  year         = "2019",
+  volume       = "00",
   number       = "",
-  pages        = "",
-  url          = "https://www.biorxiv.org/content/early/2018/10/29/235739",
+  pages        = "1–14",
+  url          = "https://doi.org/10.1111/2041-210X.13136",
 
   textVersion  =
   paste("Venelin Mitov, Tanja Stadler (2018).",
         "Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library",
-        "BiorXiv",
-        "URL https://www.biorxiv.org/content/early/2018/10/29/235739")
+        "Methods in Ecology and Evolution",
+        "URL https://doi.org/10.1111/2041-210X.13136")
 )

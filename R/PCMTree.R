@@ -225,7 +225,7 @@ PCMTreeGetStartingNodesRegimes <- function(tree, preorder = PCMTreePreorder(tree
 
 #' Get the regimes of the branches leading to a set of nodes or tips
 #' @param tree a phylo object with an edge.regime member denoting regimes.
-#' @param node an integer vector denoting the nodes
+#' @param nodes an integer vector denoting the nodes
 #' @return a character or an integer vector denoting the regimes of the branches
 #' leading to the nodes, according to tree$edge.regime.
 #' @export
@@ -515,7 +515,7 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
   })
 }
 
-#' A list of all possible partitions of a tree with a number of splitting nodes
+#' A list of all possible clade partitions of a tree with a number of splitting nodes
 #'
 #' @details Each subset of \code{nNodes} distinct internal or tip nodes
 #' defines a partitioning of the branches of the tree into \code{nNodes+1} blocks.
@@ -527,6 +527,8 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
 #' @param nNodes an integer giving the number of partitioning nodes. There would be
 #' \code{nNodes+1} blocks in each partition (see details).
 #' @param minCladeSize integer indicating the minimum number of tips allowed in a clade.
+#' @param skipNodes integer vector indicating nodes that should not be used as
+#' partition nodes. By default, this is an empty vector.
 #' @param tableAncestors NULL (default) or an integer matrix returned by a previous call
 #' to \code{PCMTreeTableAncestors(tree)}.
 #' @param verbose a logical indicating if informative messages should be printed to
@@ -534,7 +536,9 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
 #'
 #' @return a list of integer \code{nNodes}-vectors.
 #' @export
-PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAncestors = NULL, verbose = FALSE) {
+PCMTreeListCladePartitions <- function(
+  tree, nNodes, minCladeSize = 0, skipNodes = integer(0),
+  tableAncestors = NULL, verbose = FALSE) {
   envir <- new.env()
 
   envir$M <- PCMTreeNumNodes(tree)
@@ -552,18 +556,22 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAnce
 
 
   envir$nodesInUse <- rep(FALSE, envir$M)
+  envir$nodesInUse[skipNodes] <- TRUE
   envir$nodesInUse[envir$N+1] <- TRUE
-  envir$numNodesInUse <- 1
+  envir$numNodesInUse <- sum(envir$nodesInUse)
 
   envir$listPartitions <- list()
-  envir$nextPartition <- 1
-  envir$numTries <- 0
+  envir$nextPartition <- 1L
+  envir$numTries <- 0L
+  envir$numRemainingTips <- envir$N
 
   addToPartition <- function(partition, i, envir) {
 
+    numTips <- sum(envir$listDesc[[i]] <= envir$N)
     if(envir$nodesInUse[i] ||
-       sum(envir$listDesc[[i]] <= envir$N) < envir$minCladeSize) {
-      envir$numTries <- envir$numTries + 1
+       numTips < envir$minCladeSize ||
+       (envir$numRemainingTips - numTips) < envir$minCladeSize) {
+      envir$numTries <- envir$numTries + 1L
       return(NULL)
     } else {
       partition <- c(partition, i)
@@ -573,15 +581,16 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAnce
       newNodesInUse <- c(
         envir$listRootPaths[[i]][ !envir$nodesInUse[envir$listRootPaths[[i]]] ],
         i,
-        envir$listDesc[[i]])
+        envir$listDesc[[i]][ !envir$nodesInUse[envir$listDesc[[i]]] ])
 
       numNewNodesInUse <- length(newNodesInUse)
 
       envir$nodesInUse[newNodesInUse] <- TRUE
       envir$numNodesInUse <- envir$numNodesInUse + numNewNodesInUse
+      envir$numRemainingTips <- envir$numRemainingTips - numTips
 
       if(length(partition) == envir$nNodes) {
-        envir$numTries <- envir$numTries + 1
+        envir$numTries <- envir$numTries + 1L
 
         envir$listPartitions[[envir$nextPartition]] <- partition
         if(verbose && envir$nextPartition %% 1000 == 0) {
@@ -589,7 +598,7 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAnce
               envir$numTries, " ...\n")
         }
 
-        envir$nextPartition <- envir$nextPartition + 1
+        envir$nextPartition <- envir$nextPartition + 1L
       } else {
         if(envir$numNodesInUse < envir$M) {
           for(iNext in (i+1):envir$M) {
@@ -599,6 +608,7 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAnce
       }
       envir$nodesInUse[newNodesInUse] <- FALSE
       envir$numNodesInUse <- envir$numNodesInUse - numNewNodesInUse
+      envir$numRemainingTips <- envir$numRemainingTips + numTips
     }
   }
 
@@ -611,6 +621,157 @@ PCMTreeListCladePartitions <- function(tree, nNodes, minCladeSize = 0, tableAnce
 
   envir$listPartitions
 }
+
+#' A list of all possible (including recursive) partitions of a tree
+#'
+#' @param tree a phylo object with set labels for the internal nodes
+#' @param minCladeSize integer indicating the minimum number of tips allowed in
+#' one part.
+#' @param tableAncestors NULL (default) or an integer matrix returned by a
+#' previous call to \code{PCMTreeTableAncestors(tree)}.
+#' @param verbose a logical indicating if informative messages should be printed to
+#' the console.
+#'
+#' @return a list of integer vectors.
+#' @export
+PCMTreeListAllPartitions <- function(
+  tree,
+  minCladeSize,
+  tableAncestors = NULL,
+  verbose = FALSE) {
+
+  if(is.null(tableAncestors)) {
+    if(verbose) {
+      cat("Creating tableAncestors...\n")
+    }
+    tableAncestors <- PCMTreeTableAncestors(tree)
+  } else {
+    colnames(tableAncestors) <- rownames(tableAncestors) <- PCMTreeGetLabels(tree)
+  }
+
+  res <- PCMTreeListAllPartitionsInternal(
+    tree = tree,
+    minCladeSize = minCladeSize,
+    withoutNodesLabels = character(0),
+    tableAncestors = tableAncestors,
+    verbose = verbose,
+    level = 0L
+  )
+
+  lapply(res, function(p) PCMTreeMatchLabels(tree, p))
+}
+
+PCMTreeListAllPartitionsInternal <- function(
+  tree,
+  minCladeSize,
+  withoutNodesLabels,
+  tableAncestors,
+  verbose = FALSE,
+  level = 0L) {
+
+  if(verbose) {
+    indent <- do.call(paste0, as.list(rep("  ", level)))
+  }
+
+  N <- PCMTreeNumTips(tree)
+  M <- PCMTreeNumNodes(tree)
+  labels <- PCMTreeGetLabels(tree)
+  rootNodeLabel <- labels[N + 1L]
+
+  if(verbose) {
+    cat(indent,
+        "PCMTreeListAllPartitionsInternal called on a tree with", N, "tips and", M,
+        "nodes. Skipping ",
+        length(intersect(PCMTreeGetLabels(tree), withoutNodesLabels)),
+        "nodes\n")
+  }
+
+  partitionNodesLabels <- labels[
+    unlist(PCMTreeListCladePartitions(
+      tree = tree, nNodes = 1L, minCladeSize = minCladeSize,
+      skipNodes = PCMTreeMatchLabels(
+        tree, intersect(PCMTreeGetLabels(tree), withoutNodesLabels)),
+      tableAncestors = tableAncestors, verbose = FALSE))]
+
+  if(verbose) {
+    cat(indent, "partitionNodesLabels:\n")
+    print(partitionNodesLabels)
+  }
+
+  if(length(partitionNodesLabels) == 0L) {
+    list(character(0))
+  } else {
+    iLabel <- partitionNodesLabels[1]
+
+    # The set of all partitions of tree can be divided in two subsets:
+    # 1. the subset containign all partitions without node i
+    # 2. ths subset containing all partitions with node i
+
+    if(verbose) {
+      cat(indent, "1. find all partitions without node", iLabel, "\n")
+    }
+    partitionsWithouti <- PCMTreeListAllPartitionsInternal(
+      tree = tree,
+      minCladeSize = minCladeSize,
+      withoutNodesLabels = c(withoutNodesLabels, iLabel),
+      tableAncestors = tableAncestors,
+      verbose = verbose,
+      level = level + 1L)
+
+    if(verbose) {
+      print(partitionsWithouti)
+    }
+
+    if(verbose) {
+      cat(indent, "2. find all partitions with node", iLabel, "\n")
+    }
+
+    # 2. list all partitions with node i:
+    if(verbose) {
+      cat(indent, "Splitting tree at node", iLabel, "\n")
+    }
+    spl <- PCMTreeSplitAtNode(
+      tree = tree, node = iLabel, tableAncestors = tableAncestors)
+
+    partitionsClade <- PCMTreeListAllPartitionsInternal(
+      tree = spl$clade,
+      minCladeSize = minCladeSize,
+      withoutNodesLabels = withoutNodesLabels,
+      tableAncestors = tableAncestors[
+        PCMTreeGetLabels(spl$clade), PCMTreeGetLabels(spl$clade)],
+      verbose = verbose,
+      level = level + 1L)
+
+    if(verbose) {
+      cat(indent, "partitionsClade:\n")
+      print(partitionsClade)
+    }
+
+    partitionsRest <- PCMTreeListAllPartitionsInternal(
+      tree = spl$rest,
+      minCladeSize = minCladeSize,
+      withoutNodesLabels = withoutNodesLabels,
+      tableAncestors = tableAncestors[
+        PCMTreeGetLabels(spl$rest), PCMTreeGetLabels(spl$rest)],
+      verbose = verbose,
+      level = level + 1L)
+
+    res <- partitionsWithouti
+
+    for(k in seq_along(partitionsClade)) {
+      for(l in seq_along(partitionsRest)) {
+        res[[length(res) + 1L]] <-
+          c(partitionsRest[[l]], iLabel, partitionsClade[[k]])
+        if(verbose) {
+          cat(indent, "Adding\n")
+          print(c(partitionsRest[[l]], iLabel, partitionsClade[[k]]))
+        }
+      }
+    }
+    res
+  }
+}
+
 
 #' Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade
 #' @param tree a phylo object
