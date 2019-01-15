@@ -1009,9 +1009,9 @@ PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
   upperVecParams <- PCMParamGetShortVector(upperModel, k = k, R = R)
 
   p <- PCMParamCount(o, k = k, R = R)
-  res <- sapply(1:p, function(i) {
+  res <- do.call(cbind, lapply(seq_len(p), function(i) {
     runif(n, lowerVecParams[i], upperVecParams[i])
-  })
+  }))
 
   res
 }

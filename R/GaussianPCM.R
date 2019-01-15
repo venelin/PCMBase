@@ -864,9 +864,17 @@ PCMCondVOU <- function(
 
 #' @importFrom mvtnorm rmvnorm
 PCMCondRandom <- function(PCMCondObject, n=1, x0, t, edgeIndex, metaI, VE) {
+
+  Mu <- PCMCondObject$omega(t, edgeIndex, metaI) +
+    PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0
+
+  Sigma <- PCMCondObject$V(t, edgeIndex, metaI) + VE
+  # ensure symmetry for Sigma:
+  Sigma <- 0.5 * (Sigma + t(Sigma))
+
   rmvnorm(n = n,
-          mean = PCMCondObject$omega(t, edgeIndex, metaI) + PCMCondObject$Phi(t, edgeIndex, metaI)%*%x0,
-          sigma = PCMCondObject$V(t, edgeIndex, metaI) + VE)
+          mean = Mu,
+          sigma = Sigma)
 
 }
 
