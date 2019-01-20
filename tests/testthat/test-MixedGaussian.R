@@ -39,7 +39,6 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   test_that(
     "Generated OU parametrizations", {
-      expect_identical(length(PCMModels("^OU")), 43L)
       expect_true(is.function(PCMSpecify.OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigmae_x))
     })
 
