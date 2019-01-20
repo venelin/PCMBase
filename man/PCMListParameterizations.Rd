@@ -2,9 +2,12 @@
 % Please edit documentation in R/PCM.R
 \name{PCMListParameterizations}
 \alias{PCMListParameterizations}
+\alias{PCMListDefaultParameterizations}
 \title{Specify the parameterizations for each parameter of a model}
 \usage{
 PCMListParameterizations(model, ...)
+
+PCMListDefaultParameterizations(model, ...)
 }
 \arguments{
 \item{model}{a PCM.}
@@ -19,5 +22,19 @@ S3 class attributes for the parameter in question. For an example, type
 BM model.
 }
 \description{
-This is an S3 generic.
+These are S3 generics. `PCMListParameterizations` should return
+all possible parametrizations for the class of `model`.
+`PCMListDefaultParameterizations` is a handy way to specify a subset of all
+parametrizations. `PCMListDefaultParameterizations` should be used to avoid
+generating too many model parametrizations which occupy space in the R-global
+environment while they are not used (see \link{PCMGenerateParameterizations}).
+It is mandatory to implement a specification for `PCMListParameterizations`
+for each newly defined class of models.
+`PCMListDefaultParameterizations` has a default implementation that calls
+`PCMListParameterizations` and returns the first parametrization for each
+parameter. Hence, implementing a method for `PCMListDefaultParameterizations`
+for a newly defined model type is optional.
+}
+\seealso{
+PCMGenerateParameterizations
 }

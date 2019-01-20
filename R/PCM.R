@@ -434,16 +434,40 @@ PCMDescribeParameters <- function(model, ...) {
 #' @param model a PCM.
 #' @param ... additional arguments used by implementing methods.
 #'
-#' @description This is an S3 generic.
+#' @description These are S3 generics. `PCMListParameterizations` should return
+#' all possible parametrizations for the class of `model`.
+#' `PCMListDefaultParameterizations` is a handy way to specify a subset of all
+#' parametrizations. `PCMListDefaultParameterizations` should be used to avoid
+#' generating too many model parametrizations which occupy space in the R-global
+#' environment while they are not used (see \link{PCMGenerateParameterizations}).
+#' It is mandatory to implement a specification for `PCMListParameterizations`
+#' for each newly defined class of models.
+#' `PCMListDefaultParameterizations` has a default implementation that calls
+#' `PCMListParameterizations` and returns the first parametrization for each
+#' parameter. Hence, implementing a method for `PCMListDefaultParameterizations`
+#' for a newly defined model type is optional.
+#'
 #' @return a named list with list elements corresponding to each parameter in
 #' model. Each list element is a list of character vectors, specifying the possible
 #' S3 class attributes for the parameter in question. For an example, type
 #' `PCMListParameterizations.BM` to see the possible parameterizations for the
 #' BM model.
 #'
+#' @seealso PCMGenerateParameterizations
 #' @export
 PCMListParameterizations <- function(model, ...) {
   UseMethod("PCMListParameterizations", model)
+}
+
+#' @rdname PCMListParameterizations
+#' @export
+PCMListDefaultParameterizations <- function(model, ...) {
+  UseMethod("PCMListDefaultParameterizations", model)
+}
+
+#' @export
+PCMListDefaultParameterizations.default <- function(model, ...) {
+  lapply(PCMListParameterizations(model, ...), function(item) item[1])
 }
 
 #' Cartesian product of possible parameterizations for the different parameters of a model
@@ -573,6 +597,37 @@ PCMGenerateParameterizations <- function(
 }
 
 
+#' Generate default model types for given PCM base-classes
+#' @description This function calls `PCMListParameterizations` or
+#' `PCMListDefaultParameterizations` and generates the corresponding
+#' `PCMParentClasses` and `PCMSpecify` methods in the global environment.
+#' @param baseTypes a character vector specifying base S3-class names for which
+#' the default parametrizations (sub-classes) will be generated. Defaults to
+#' `c("BM", "OU")`.
+#' @param parametrizations a character string specifying which one of
+#' `PCMListParameterizations` or `PCMListDefaultParameterizations` should be used.
+#' This argument should be one of:
+#' \itemize{
+#' \item{"all"}{for calling `PCMListParameterizations`}
+#' \item{"default"}{for calling `PCMListDefaultParameterizations`}
+#' }
+#' @return This function has side effects only and does not return a value.
+#' @seealso PCMListDefaultParameterizations
+#' @export
+PCMGenerateModelTypes <- function(
+  baseTypes = c("BM", "OU"),
+  parametrizations = c("default", "all")) {
+  for(bt in baseTypes) {
+    o <- structure(0.0, class=bt)
+    PCMGenerateParameterizations(
+      o,
+      listParameterizations = if(parametrizations[[1]] == "all") {
+        PCMListParameterizations(o)
+      } else {
+        PCMListDefaultParameterizations(o)
+      })
+  }
+}
 
 #' Fix a parameter in a PCM model
 #' @param model a PCM object

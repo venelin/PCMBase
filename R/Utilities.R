@@ -383,11 +383,3 @@ PCMCharacterVectorToRExpression <- function(v) {
   expr
 }
 
-GenerateDefaultParameterizations <- function(libname, pkgname){
-  PCMGenerateParameterizations(structure(0.0, class = "OU"), PCMTableParameterizations(structure(0.0, class = "OU"))[1])
-  PCMGenerateParameterizations(structure(0.0, class = "DOU"), PCMTableParameterizations(structure(0.0, class = "DOU"))[1])
-  PCMGenerateParameterizations(structure(0.0, class = "BM"), PCMTableParameterizations(structure(0.0, class = "BM"))[1])
-  PCMGenerateParameterizations(structure(0.0, class = "JOU"), PCMTableParameterizations(structure(0.0, class = "JOU"))[1])
-  PCMGenerateParameterizations(structure(0.0, class = "White"), PCMTableParameterizations(structure(0.0, class = "White"))[1])
-}
-
