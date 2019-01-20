@@ -1,3 +1,3 @@
-.onLoad <- function(pkgname, pkglib) {
+.onLoad <- function(lib, pkg) {
   PCMGenerateModelTypes()
 }
