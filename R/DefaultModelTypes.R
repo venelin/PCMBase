@@ -90,7 +90,7 @@ MGPMSurfaceOUType <- function() {
 #' Arguments for the MixedGaussian constructor for SURFACE OU MGPM models.
 #' @return a list.
 #' @export
-Args_MixedGaussian_MPGMSurfaceOUType <- function() {
+Args_MixedGaussian_MGPMSurfaceOUType <- function() {
   list(
     H = structure(
       0.0,
