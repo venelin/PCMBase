@@ -135,16 +135,24 @@ MixedGaussian <- function(
   X0 = structure(0.0, class = c("VectorParameter", "_Global"),
                  description = "trait values at the root"),
   ...,
-  Sigmae_x = structure(0.0, class = c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-                       description = "Upper triangular Choleski factor of the non-phylogenetic variance-covariance")) {
+  Sigmae_x = structure(
+    0.0,
+    class = c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+    description = "Upper triangular Choleski factor of the non-phylogenetic variance-covariance")) {
 
-  regimes <- if(is.null(names(mapping))) seq_len(length(mapping)) else names(mapping)
-
+  regimes <- if(is.null(names(mapping))) {
+    seq_len(length(mapping))
+  } else {
+    names(mapping)
+  }
   if(is.character(mapping)) {
     mapping2 <- match(mapping, modelTypes)
     if(any(is.na(mapping2))) {
-      stop(paste0("ERR:02511:PCMBase:MixedGaussian.R:MixedGaussian:: some of the models in mapping not found in modelTypes: ",
-                  "modelTypes = ", toString(modelTypes), ", mapping =", toString(mapping)))
+      stop(
+        paste0(
+          "ERR:02511:PCMBase:MixedGaussian.R:MixedGaussian:: some of the models in mapping not found in modelTypes: ",
+          "modelTypes = ", toString(modelTypes),
+          ", mapping =", toString(mapping)))
     } else {
       mapping <- mapping2
     }
@@ -154,7 +162,7 @@ MixedGaussian <- function(
 
   spec <- list(X0 = X0, ...)
 
-  for(m in 1:length(mapping)) {
+  for(m in seq_along(mapping)) {
     subModel <- structure(0.0, class = mappingModelRegime[m])
     class(subModel) <- c(class(subModel), PCMParentClasses(subModel))
     spec[[as.character(regimes[m])]] <- PCMSpecify(subModel)

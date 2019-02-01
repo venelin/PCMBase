@@ -83,9 +83,11 @@ Args_MixedGaussian_MGPMScalarOUType <- function() {
 #' @export
 MGPMSurfaceOUType <- function() {
   c(
-    SURFACE = "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"
+    SURFACE = "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"
   )
 }
+
+
 
 #' Arguments for the MixedGaussian constructor for SURFACE OU MGPM models.
 #' @return a list.
@@ -94,7 +96,7 @@ Args_MixedGaussian_MGPMSurfaceOUType <- function() {
   list(
     H = structure(
       0.0,
-      class = c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
+      class = c("MatrixParameter", "_Schur", "_Diagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
       description = "adaptation rate matrix"),
     Sigma_x = structure(
       0.0,
@@ -105,7 +107,6 @@ Args_MixedGaussian_MGPMSurfaceOUType <- function() {
       description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
   )
 }
-
 
 # GenerateDefaultParameterizations <- function(libname, pkgname){
 #   PCMGenerateParameterizations(

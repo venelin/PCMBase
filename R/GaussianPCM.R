@@ -331,6 +331,10 @@ PCMLik.GaussianPCM <- function(
     model <- PCMApplyTransformation(model)
   }
 
+  if(is.function(metaI)) {
+    metaI <- metaI(X, tree, model, SE, verbose = verbose)
+  }
+
   # will change this value if there is no error
   value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
 
