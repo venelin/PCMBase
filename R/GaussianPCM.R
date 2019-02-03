@@ -35,7 +35,8 @@ PCMCond.GaussianPCM <- function(
 #' @export
 PCMMean.GaussianPCM <- function(
   tree, model, X0 = model$X0,
-  metaI=PCMInfo(NULL, tree, model, verbose = verbose),
+  metaI = PCMInfo(
+    X = NULL, tree = tree, model = model, verbose = verbose),
   internal = FALSE, verbose = FALSE)  {
   if(is.Transformable(model)) {
     model <- PCMApplyTransformation(model)
@@ -84,7 +85,9 @@ PCMMean.GaussianPCM <- function(
 PCMVar.GaussianPCM <- function(
   tree, model,
   W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
-  metaI=PCMInfo(NULL, tree, model, verbose = verbose),
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(
+    X = NULL, tree = tree, model = model, SE = SE, verbose = verbose),
   internal = FALSE, verbose = FALSE)  {
 
   threshold_SV <- metaI$PCMBase.Threshold.SV
@@ -269,7 +272,9 @@ PCMVar.GaussianPCM <- function(
 #' @export
 PCMSim.GaussianPCM <- function(
   tree, model, X0,
-  metaI = PCMInfo(X = NULL, tree = tree, model = model, verbose = verbose),
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(
+    X = NULL, tree = tree, model = model, SE = SE, verbose = verbose),
   verbose = FALSE) {
 
   if(is.Transformable(model)) {
@@ -307,10 +312,22 @@ PCMSim.GaussianPCM <- function(
 
     if(!is.null(obj$random)) {
       values[, i] <-
-        obj$random(n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, VE)
+        obj$random(
+          n=1,
+          x0 = values[, j],
+          t = tree$edge.length[edgeIndex],
+          edgeIndex = edgeIndex,
+          VE = VE)
     } else {
       values[, i] <-
-        PCMCondRandom(obj, n=1, x0 = values[, j], t = tree$edge.length[edgeIndex], edgeIndex = edgeIndex, metaI = metaI, VE)
+        PCMCondRandom(
+          obj,
+          n=1,
+          x0 = values[, j],
+          t = tree$edge.length[edgeIndex],
+          edgeIndex = edgeIndex,
+          metaI = metaI,
+          VE = VE)
     }
   }
 
@@ -323,7 +340,8 @@ PCMSim.GaussianPCM <- function(
 PCMLik.GaussianPCM <- function(
   X, tree, model,
   SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
-  metaI = PCMInfo(X, tree, model, SE, verbose = verbose),
+  metaI = PCMInfo(
+    X = X, tree = tree, model = model, SE = SE, verbose = verbose),
   log = TRUE,
   verbose = FALSE) {
 
@@ -332,14 +350,17 @@ PCMLik.GaussianPCM <- function(
   }
 
   if(is.function(metaI)) {
-    metaI <- metaI(X, tree, model, SE, verbose = verbose)
+    metaI <- metaI(
+      X = X, tree = tree, model = model, SE = SE, verbose = verbose)
   }
 
   # will change this value if there is no error
   value.NA <- getOption("PCMBase.Value.NA", as.double(NA))
 
-  PCMLmr <- try(PCMLmr(X, tree, model, metaI, verbose = verbose, root.only = TRUE),
-             silent = TRUE)
+  PCMLmr <- try(PCMLmr(
+    X = X, tree = tree, model = model, SE = SE, metaI = metaI,
+    verbose = verbose, root.only = TRUE),
+    silent = TRUE)
 
   if(class(PCMLmr) == "try-error") {
     errL <- PCMParseErrorMessage(PCMLmr)
@@ -481,14 +502,22 @@ PCMLik.GaussianPCM <- function(
 #'  model class. This function is called by \code{\link{PCMLik}}.
 #' @inheritParams PCMLik
 #' @export
-PCMAbCdEf <- function(tree, model, metaI=PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
+PCMAbCdEf <- function(
+  tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI=PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose = FALSE) {
+
   UseMethod("PCMAbCdEf", model)
 }
 
 #' @export
 PCMAbCdEf.default <- function(
   tree, model,
-  metaI=PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose = FALSE) {
+
   threshold_SV <- metaI$PCMBase.Threshold.SV
   skip_singular <- metaI$PCMBase.Skip.Singular
   threshold_skip_singular <- metaI$PCMBase.Threshold.Skip.Singular
@@ -639,7 +668,9 @@ PCMAbCdEf.default <- function(
 #' @export
 PCMLmr <- function(
   X, tree, model,
-  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(
+    X = X, tree = tree, model = model, SE = SE, verbose = verbose),
   root.only = TRUE, verbose = FALSE) {
   UseMethod("PCMLmr", metaI)
 }
@@ -647,7 +678,9 @@ PCMLmr <- function(
 #' @export
 PCMLmr.default <- function(
   X, tree, model,
-  metaI = PCMInfo(X, tree, model, verbose = verbose),
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(
+    X = X, tree = tree, model = model, SE = SE, verbose = verbose),
   root.only = FALSE,
   verbose = FALSE
 ) {
@@ -660,7 +693,9 @@ PCMLmr.default <- function(
   m <- array(0, dim=c(k, M))
   r <- array(0, dim=c(M))
 
-  AbCdEf <- PCMAbCdEf(tree = tree, model = model, metaI = metaI, verbose = verbose)
+  AbCdEf <- PCMAbCdEf(
+    tree = tree, model = model, SE = SE, metaI = metaI,
+    verbose = verbose)
 
   postorder <- rev(metaI$preorder)
 

@@ -4,7 +4,8 @@
 \alias{PCMAbCdEf}
 \title{Quadratic polynomial parameters A, b, C, d, E, f for each node}
 \usage{
-PCMAbCdEf(tree, model, metaI = PCMInfo(NULL, tree, model, verbose =
+PCMAbCdEf(tree, model, SE = matrix(0, PCMNumTraits(model),
+  PCMTreeNumTips(tree)), metaI = PCMInfo(NULL, tree, model, verbose =
   verbose), verbose = FALSE)
 }
 \arguments{
@@ -13,6 +14,12 @@ PCMAbCdEf(tree, model, metaI = PCMInfo(NULL, tree, model, verbose =
 \item{model}{an S3 object specifying both, the model type (class, e.g. "OU") as
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Choleski factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}

@@ -4,7 +4,8 @@
 \alias{PCMSim}
 \title{Simulation of a phylogenetic comparative model on a tree}
 \usage{
-PCMSim(tree, model, X0, metaI = PCMInfo(X = NULL, tree = tree, model =
+PCMSim(tree, model, X0, SE = matrix(0, PCMNumTraits(model),
+  PCMTreeNumTips(tree)), metaI = PCMInfo(X = NULL, tree = tree, model =
   model, verbose = verbose), verbose = FALSE)
 }
 \arguments{
@@ -14,6 +15,12 @@ PCMSim(tree, model, X0, metaI = PCMInfo(X = NULL, tree = tree, model =
 
 \item{X0}{a numeric vector of length k (the number of traits) specifying the
 trait values at the root of the tree.}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Choleski factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{metaI}{a named list containg meta-information about the data and the
 model.}

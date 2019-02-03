@@ -1030,6 +1030,11 @@ PCMLikDmvNorm <- function(
 #' trait values at the root of the tree.
 #' @param tree a phylo object specifying a rooted tree.
 #' @param model an S3 object specifying the model (see Details).
+#' @param SE a k x N matrix specifying the standard error for each measurement in
+#' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+#' Choleski factor of the variance covariance matrix for the measurement error
+#' for each node i=1, ..., N.
+#' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a named list containg meta-information about the data and the
 #' model.
 #' @param verbose a logical indicating if informative messages should be written
@@ -1051,6 +1056,7 @@ PCMLikDmvNorm <- function(
 #' @export
 PCMSim <- function(
   tree, model, X0,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
   metaI = PCMInfo(X = NULL, tree = tree, model = model, verbose = verbose),
   verbose = FALSE) {
 
@@ -1121,7 +1127,8 @@ PCMSim <- function(
 PCMLik <- function(
   X, tree, model,
   SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
-  metaI = PCMInfo(X, tree, model, SE, verbose = verbose),
+  metaI = PCMInfo(
+    X = X, tree = tree, model = model, SE = SE, verbose = verbose),
   log = TRUE,
   verbose = FALSE) {
 
