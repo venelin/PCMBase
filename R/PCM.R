@@ -956,11 +956,9 @@ PCMVar <- function(
 #' @param model a PCM model object
 #' @param W0 a numeric matrix denoting the initial k x k variance covariance matrix at the
 #'  root (default is the k x k zero matrix).
-#' @param SE a k x N matrix specifying the standard error for each measurement in
-#' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-#' Choleski factor of the variance covariance matrix for the measurement error
-#' for each node i=1, ..., N.
-#' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
+#' @param SE a k x k matrix specifying the upper triangular Choleski factor of the measurement error variance-covariance matrix. The product
+#' SE %*% t(SE) is added to the variance calculated from the model.
+#' Default: SE = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)).
 #' @param regime an integer or a character denoting the regime in model for which to do the calculation;
 #' (Defaults to 1L meaning the first regime in the model)
 #' @param verbose a logical indicating if (debug) messages should be written on the console (Defaults to FALSE).
@@ -988,7 +986,7 @@ PCMVar <- function(
 PCMVarAtTime <- function(
   t, model,
   W0 =  matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
-  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  SE = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
   regime = 1L, verbose = FALSE) {
   if(is.character(regime)) {
     regime <- match(regime, PCMRegimes(model))
@@ -1003,17 +1001,17 @@ PCMVarAtTime <- function(
 
 
   metaI <- PCMInfo(
-    X = NULL, tree = cherry, model = model, SE = SE, verbose = verbose)
+    X = NULL, tree = cherry, model = model, verbose = verbose)
 
   # need to manually set the r member in metaI to the regime index:
   metaI$r <- rep(regime, 2)
 
   VarCherry <- PCMVar(
-    tree = cherry, model = model, W0 = W0, SE = SE,
+    tree = cherry, model = model, W0 = W0,
     metaI = metaI, verbose = verbose)
 
   k <- PCMNumTraits(model)
-  VarCherry[1:k, 1:k]
+  VarCherry[1:k, 1:k] + (SE %*% t(SE))
 }
 
 #' Calculate the likelihood of a model using the standard formula for multivariate pdf

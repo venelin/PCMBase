@@ -6,7 +6,7 @@
 \usage{
 PCMVarAtTime(t, model, W0 = matrix(0, PCMNumTraits(model),
   PCMNumTraits(model)), SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), regime = 1L, verbose = FALSE)
+  PCMNumTraits(model)), regime = 1L, verbose = FALSE)
 }
 \arguments{
 \item{t}{positive numeric denoting time}
@@ -16,11 +16,9 @@ PCMVarAtTime(t, model, W0 = matrix(0, PCMNumTraits(model),
 \item{W0}{a numeric matrix denoting the initial k x k variance covariance matrix at the
 root (default is the k x k zero matrix).}
 
-\item{SE}{a k x N matrix specifying the standard error for each measurement in
-X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-Choleski factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
-Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
+\item{SE}{a k x k matrix specifying the upper triangular Choleski factor of the measurement error variance-covariance matrix. The product
+SE %*% t(SE) is added to the variance calculated from the model.
+Default: SE = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)).}
 
 \item{regime}{an integer or a character denoting the regime in model for which to do the calculation;
 (Defaults to 1L meaning the first regime in the model)}
