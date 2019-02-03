@@ -5,7 +5,8 @@
 \title{Expected variance-covariance matrix for each couple of tips (i,j)}
 \usage{
 PCMVar(tree, model, W0 = matrix(0, PCMNumTraits(model),
-  PCMNumTraits(model)), metaI = PCMInfo(NULL, tree, model, verbose =
+  PCMNumTraits(model)), SE = matrix(0, PCMNumTraits(model),
+  PCMTreeNumTips(tree)), metaI = PCMInfo(NULL, tree, model, verbose =
   verbose), internal = FALSE, verbose = FALSE)
 }
 \arguments{
@@ -17,6 +18,12 @@ calculated (see also Details).}
 
 \item{W0}{a numeric matrix denoting the initial k x k variance covariance matrix at the
 root (default is the k x k zero matrix).}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Choleski factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}
