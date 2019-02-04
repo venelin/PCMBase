@@ -1068,7 +1068,8 @@ PCMLikDmvNorm <- function(
 PCMSim <- function(
   tree, model, X0,
   SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
-  metaI = PCMInfo(X = NULL, tree = tree, model = model, verbose = verbose),
+  metaI = PCMInfo(
+    X = NULL, tree = tree, model = model, SE = SE, verbose = verbose),
   verbose = FALSE) {
 
   UseMethod("PCMSim", model)
