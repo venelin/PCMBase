@@ -1310,7 +1310,7 @@ PCMInfo.PCM <- function(
     k = k,
     RTree = PCMTreeNumUniqueRegimes(tree),
     RModel = PCMNumRegimes(model),
-    r = PCMTreeMatchRegimesWithModel(tree, model, preorder),
+    r = PCMTreeGetRegimesForEdges(tree, model, preorder),
     p = PCMParamCount(model),
     xi = PCMTreeJumps(tree),
     edge = tree$edge,

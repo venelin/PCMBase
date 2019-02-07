@@ -512,7 +512,7 @@ PCMParamLoadOrStore.MatrixParameter <- function(o, vecParams, offset, k, R, load
 #' @export
 PCMParamLoadOrStore.PCM <- function(o, vecParams, offset, k, R, load, parentModel = NULL) {
   k <- PCMNumTraits(o)
-  R <- length(PCMRegimes(o))
+  R <- PCMNumRegimes(o)
 
   p <- 0
 
@@ -728,7 +728,7 @@ PCMParamCount.PCM <- function(
   R = 1L, parentModel = NULL) {
 
   k <- PCMNumTraits(o)
-  R <- length(PCMRegimes(o))
+  R <- PCMNumRegimes(o)
 
   p0 <- as.integer(offset)
   if(is.Fixed(o) || is.Omitted(o)) {
@@ -774,7 +774,7 @@ PCMParamGetShortVector <- function(o, k = 1L, R = 1L, ...) {
 #' @export
 PCMParamGetShortVector.PCM <- function(o, k, R, ...) {
   k <- PCMNumTraits(o)
-  R <- length(PCMRegimes(o))
+  R <- PCMNumRegimes(o)
 
   vec <- double(PCMParamCount(o, FALSE, FALSE, 0L, k, R))
   PCMParamLoadOrStore(
@@ -890,7 +890,7 @@ PCMParamLowerLimit <- function(o, k, R, ...) {
 #' @export
 PCMParamLowerLimit.PCM <- function(o, k, R,  ...) {
   k <- PCMNumTraits(o)
-  R <- length(PCMRegimes(o))
+  R <- PCMNumRegimes(o)
 
   vecParamsLowerLimit <- attr(o, "vecParamsLowerLimit", exact = TRUE)
 
@@ -972,7 +972,7 @@ PCMParamUpperLimit <- function(o, k, R,  ...) {
 #' @export
 PCMParamUpperLimit.PCM <- function(o, k, R,  ...) {
   k <- PCMNumTraits(o)
-  R <- length(PCMRegimes(o))
+  R <- PCMNumRegimes(o)
 
   vecParamsUpperLimit <- attr(o, "vecParamsUpperLimit", exact = TRUE)
 

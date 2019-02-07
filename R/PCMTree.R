@@ -33,68 +33,70 @@ PCMTreeNumNodes <- function(tree) {
   nrow(tree$edge) + 1L
 }
 
-#' Set a default edge.regime member ot the passed tree object
+#' Set a default partition in a tree
 #' @param tree a phylo object
-#' @param regime a character, an integer or PCM model object
+#' @param part a character, an integer or PCM model object
 #'
-#' @description This function sets or overwrites the current member edge.regime
+#' @description This function sets or overwrites the current member edge.part
 #' in tree with one of the following:
 #' \itemize{
-#' \item{rep(regime[1], length(tree$edge.length))}{if regime is a character or an integer}
-#' \item{rep(PCMRegimes(regime)[1], length(tree$edge.length))}{if regime is a PCM model}
+#' \item{rep(part[1], length(tree$edge.length))}{if part is a character or an integer}
+#' \item{rep(PCMRegimes(part)[1], length(tree$edge.length))}{if part is a PCM model}
 #' } Note that the function modifies the passed tree object inplace.
 #' @return This function does not return a value but has a side effect on the
 #'  passed tree object.
 #' @export
-PCMTreeSetDefaultRegime <- function(tree, regime) {
-  if(is.PCM(regime)) {
-    regime <- PCMRegimes(regime)
+PCMTreeSetDefaultPartition <- function(tree, part) {
+  if(is.PCM(part)) {
+    part <- PCMRegimes(part)
   }
-  eval(substitute(tree$edge.regime <- rep(regime[1], length(tree$edge.length))),
+  eval(substitute(tree$edge.part <- rep(part[1], length(tree$edge.length))),
        parent.frame())
 }
 
-#' Assign regimes on a tree given a set of starting branches
+#' Assign parts on a tree given a set of starting branches
 #'
-#' @details It is assumed that each regime "paints" a linked subset of branches
-#' on a tree. Thus, each regime is fully described by its starting branch. The
-#' descendant branches inherit this regime until reaching a tip or a node that is
-#' present in the \code{nodes} parameter.
+#' @details It is assumed that each part represents a linked subset of branches
+#' on a tree. Thus, each part is identifiable by its starting branch. The
+#' descendant branches belong to this part until reaching a tip or a node that
+#' is present in the \code{nodes} parameter.
 #'
 #' @param tree a phylo object
 #' @param nodes a character vector containing tip or node labels or an integer
-#' vector denoting tip or internal nodes in tree - the regimes change at the
+#' vector denoting tip or internal nodes in tree - the parts change at the
 #' start of the branches leading to these nodes.
-#' @param regimes an integer or character vector of length equal to
-#' length(nodes) + 1 containing the regime-names to be assigned for each regime.
-#' If NULL the regime names will be the integers 1:(length(nodes) + 1).
+#' @param parts an integer or character vector of length equal to
+#' length(nodes) + 1 containing the part-names to be assigned for each part.
+#' If NULL the part names will be the integers 1:(length(nodes) + 1).
 #' @param inplace a logical indicating if the change should be done to the tree
-#' in the calling environment (TRUE) or a copy of the tree with set edge.regime
+#' in the calling environment (TRUE) or a copy of the tree with set edge.part
 #' member should be returned (FALSE). Default is TRUE.
 #' @return If inplace is TRUE nothing, otherwise a copy of the tree with set
-#' edge.regime member.
+#' edge.part member.
 #'
-#' @seealso \code{\link{PCMTreeGetStartingNodesRegimes}}
+#' @seealso \code{\link{PCMTreeGetPartition}}
 #' @export
-PCMTreeSetRegimes <- function(tree, nodes, regimes = as.integer(1:(length(nodes) + 1)), inplace=TRUE) {
+PCMTreeSetPartition <- function(
+  tree, nodes, parts = as.integer(1:(length(nodes) + 1)), inplace=TRUE) {
+
   if(!inherits(tree, "phylo")) {
-    stop("ERR:026d0:PCMBase:PCMTree.R:PCMTreeSetRegimes:: argument tree should be a phylo.")
+    stop("ERR:026d0:PCMBase:PCMTree.R:PCMTreeSetPartition:: argument tree should be a phylo.")
   }
-  if(!is.null(regimes)) {
-    if(length(regimes) != length(nodes) + 1L ||
-       length(unique(regimes)) < length(regimes)) {
-      stop("ERR:026d1:PCMBase:PCMTree.R:PCMTreeSetRegimes:: regimes should be a character or integer vector of length equal to length(nodes) + 1 and not have duplicated elements.")
+  if(!is.null(parts)) {
+    if(length(parts) != length(nodes) + 1L ||
+       length(unique(parts)) < length(parts)) {
+      stop("ERR:026d1:PCMBase:PCMTree.R:PCMTreeSetPartition:: parts should be a character or integer vector of length equal to length(nodes) + 1 and not have duplicated elements.")
     }
   }
   if(is.character(nodes)) {
     nodes <- match(nodes, PCMTreeGetLabels(tree))
     if(any(is.na(nodes))) {
-      stop("ERR:026d2:PCMBase:PCMTree.R:PCMTreeSetRegimes:: if nodes is a character vector it should be a subset of PCMTreeGetLabels(tree), but some of the elements in nodes could not be matched.")
+      stop("ERR:026d2:PCMBase:PCMTree.R:PCMTreeSetPartition:: if nodes is a character vector it should be a subset of PCMTreeGetLabels(tree), but some of the elements in nodes could not be matched.")
     }
   }
   preorder <- PCMTreePreorder(tree)
-  edge.regime <- rep(1, nrow(tree$edge))
-  nextRegime <- 2
+  edge.part <- rep(1, nrow(tree$edge))
+  nextPart <- 2
   N <- PCMTreeNumTips(tree)
 
   endingAt <- order(rbind(tree$edge, c(0, N+1))[, 2])
@@ -106,20 +108,20 @@ PCMTreeSetRegimes <- function(tree, nodes, regimes = as.integer(1:(length(nodes)
     ej <- endingAt[j]
 
     if(i %in% nodes) {
-      edge.regime[ei] <- nextRegime
-      nextRegime <- nextRegime + 1
+      edge.part[ei] <- nextPart
+      nextPart <- nextPart + 1
     } else if(j != N+1) {
-      edge.regime[ei] <- edge.regime[ej]
+      edge.part[ei] <- edge.part[ej]
     }
   }
 
-  if(!is.null(regimes)) {
-    edge.regime <- regimes[edge.regime]
+  if(!is.null(parts)) {
+    edge.part <- parts[edge.part]
   }
   if(inplace) {
-    eval(substitute(tree[["edge.regime"]] <- edge.regime), parent.frame())
+    eval(substitute(tree[["edge.part"]] <- edge.part), parent.frame())
   } else {
-    tree$edge.regime <- edge.regime
+    tree$edge.part <- edge.part
     tree
   }
 }
@@ -177,123 +179,127 @@ PCMTreeMatchLabels <- function(tree, labels) {
   m
 }
 
-#' Get the starting branch' nodes for each regime on a tree
+#' Get the starting branch' nodes for each part on a tree
 #'
 #' @details We call a starting branch the first branch from the root to the tips
-#' with a given regime. A starting node is the node at which a starting branch
+#' of a given part. A starting node is the node at which a starting branch
 #' ends.
-#' @param tree a phylo object with an edge.regime member denoting regimes. The
-#' function assumes that each regime covers a linked set of branches on the tree.
+#' @param tree a phylo object with an edge.part member denoting parts. The
+#' function assumes that each part covers a linked set of branches on the tree.
 #' @param preorder an integer vector of row-indices in tree$edge as returned by
 #' \code{\link{PCMTreePreorder}}. Defaults to \code{PCMTreePreorder(tree)}.
 #' Specifying this argument may improve performance if PCMTreePreorder had to be
 #' called earlier.
-#' @return an integer with elements equal to the starting nodes for each regime in
-#' \code{regimes}.
-#' @seealso \code{\link{PCMTreeSetRegimes}}
+#' @return an integer with elements equal to the starting nodes for each part in
+#' \code{parts}.
+#' @seealso \code{\link{PCMTreeSetPartition}}
 #' @export
-PCMTreeGetStartingNodesRegimes <- function(tree, preorder = PCMTreePreorder(tree)) {
+PCMTreeGetPartition <- function(tree, preorder = PCMTreePreorder(tree)) {
   if(!inherits(tree, "phylo")) {
-    stop("ERR:026g0:PCMBase:PCMTree.R:PCMTreeGetStartNodesRegimes:: argument tree should be a phylo.")
+    stop("ERR:026g0:PCMBase:PCMTree.R:PCMTreeGetPartition:: argument tree should be a phylo.")
   }
 
-  regimes <-  PCMTreeUniqueRegimes(tree)
+  parts <-  PCMTreeGetPartNames(tree)
 
   N <- PCMTreeNumTips(tree)
-  nodes <- integer(length(regimes))
-  names(nodes) <- as.character(regimes)
+  nodes <- integer(length(parts))
+  names(nodes) <- as.character(parts)
 
-  # start with all regimes being descending from the root; we will update them
+  # start with all parts being descending from the root; we will update them
   # as we encounter them in a preorder traversal.
   nodes[] <- 0L
 
   eFromRoot <- which(tree$edge[, 1] == N + 1L)
-  rootRegime <- sort(tree$edge.regime[eFromRoot])[1L]
-  nodes[as.character(rootRegime)] <- N + 1L
+  rootPart <- sort(tree$edge.part[eFromRoot])[1L]
+  nodes[as.character(rootPart)] <- N + 1L
 
   for(ei in preorder) {
-    if(as.character(tree$edge.regime[ei]) %in% regimes &&
-       nodes[as.character(tree$edge.regime[ei])] == 0L) {
+    if(as.character(tree$edge.part[ei]) %in% parts &&
+       nodes[as.character(tree$edge.part[ei])] == 0L) {
+
       i <- tree$edge[ei, 2L]
       j <- tree$edge[ei, 1L]
 
-      nodes[as.character(tree$edge.regime[ei])] <- i
+      nodes[as.character(tree$edge.part[ei])] <- i
     }
   }
 
   nodes
 }
 
-#' Get the regimes of the branches leading to a set of nodes or tips
-#' @param tree a phylo object with an edge.regime member denoting regimes.
+#' Get the parts of the branches leading to a set of nodes or tips
+#' @param tree a phylo object with an edge.part member denoting parts.
 #' @param nodes an integer vector denoting the nodes
-#' @return a character or an integer vector denoting the regimes of the branches
-#' leading to the nodes, according to tree$edge.regime.
+#' @return a character or an integer vector denoting the parts of the branches
+#' leading to the nodes, according to tree$edge.part.
 #' @export
-PCMTreeGetRegimesForNodes <- function(tree, nodes) {
+PCMTreeGetPartsForNodes <- function(tree, nodes) {
   if(!inherits(tree, "phylo")) {
-    stop("ERR:026h0:PCMBase:PCMTree.R:PCMTreeGetRegimesForNodes:: argument tree should be a phylo.")
+    stop("ERR:026h0:PCMBase:PCMTree.R:PCMTreeGetPartsForNodes:: argument tree should be a phylo.")
   }
 
-  tree$edge.regime[match(nodes, tree$edge[, 2])]
+  tree$edge.part[match(nodes, tree$edge[, 2])]
 }
 
-#' Get the tips belonging to a regime tree
-#' @param tree a phylo object with an edge.regime member
-#' @param regime a character or integer belonging to tree$edge.regime
-#' @return an integer vector with the ids of the tips belonging to regime
+#' Get the tips belonging to a part in a tree
+#' @param tree a phylo object with an edge.part member
+#' @param part a character or integer belonging to tree$edge.part
+#' @return an integer vector with the ids of the tips belonging to part
 #' @export
-PCMTreeGetTipsInRegime <- function(tree, regime) {
+PCMTreeGetTipsInPart <- function(tree, part) {
   N <- PCMTreeNumTips(tree)
-  tipEdges <- tree$edge[, 2] <= N & tree$edge.regime == regime
+  tipEdges <- tree$edge[, 2] <= N & tree$edge.part == part
   tree$edge[tipEdges, 2]
 }
 
-#' Unique regimes on a tree in the order of occurrence from the root to the tips (preorder)
+#' Unique parts on a tree in the order of occurrence from the root to the tips (preorder)
 #'
-#' @param tree a phylo object with an additional member edge.regime which should
+#' @param tree a phylo object with an additional member edge.part which should
 #' be a character or an integer vector of length equal to the number of branches.
-#' @param preorder an integer vector of row-indices in tree$edge matrix as returned
-#' by PCMTreePreorder. This can be given for performance speed-up when several
-#' operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.
-#' @return a character or an integer vector depending on tree$edge.regime.
+#' @param preorder an integer vector of row-indices in tree$edge matrix as
+#' returned by PCMTreePreorder. This can be given for performance speed-up when
+#' several operations needing preorder are executed on the tree. Default :
+#' \code{PCMTreePreorder(tree)}.
+#' @return a character or an integer vector depending on tree$edge.part.
 #' @export
-PCMTreeUniqueRegimes <- function(tree, preorder = PCMTreePreorder(tree)) {
-  if(is.null(tree$edge.regime)) {
-    stop("ERR:02610:PCMBase:PCMTree.R:PCMTreeUniqueRegimes:: tree$edge.regime is NULL,
-         but should be a character or an integer vector denoting regime names.")
-  }
-  uniqueRegimesPos <- integer(PCMTreeNumUniqueRegimes(tree))
+PCMTreeGetPartNames <- function(tree, preorder = PCMTreePreorder(tree)) {
 
-  uniqueRegimes <- sort(unique(tree$edge.regime))
+  if(is.null(tree$edge.part)) {
+    stop("ERR:02610:PCMBase:PCMTree.R:PCMTreeGetPartNames:: tree$edge.part is NULL,
+         but should be a character or an integer vector denoting part names.")
+  }
+
+  uniquePartsPos <- integer(PCMTreeNumParts(tree))
+
+  uniqueParts <- sort(unique(tree$edge.part))
 
 
   N <- PCMTreeNumTips(tree)
   eFromRoot <- which(tree$edge[, 1] == N+1)
-  rootRegime <- sort(tree$edge.regime[eFromRoot])[1]
+  rootPart <- sort(tree$edge.part[eFromRoot])[1]
 
-  names(uniqueRegimesPos) <- as.character(uniqueRegimes)
+  names(uniquePartsPos) <- as.character(uniqueParts)
 
-  uniqueRegimesPos[] <- 0L
-  uniqueRegimesPos[as.character(rootRegime)] <- 1
+  uniquePartsPos[] <- 0L
+  uniquePartsPos[as.character(rootPart)] <- 1
 
   currentPos <- 2
   for(ei in preorder) {
-    if(uniqueRegimesPos[as.character(tree$edge.regime[ei])] == 0L) {
-      uniqueRegimesPos[as.character(tree$edge.regime[ei])] <- currentPos
+    if(uniquePartsPos[as.character(tree$edge.part[ei])] == 0L) {
+      uniquePartsPos[as.character(tree$edge.part[ei])] <- currentPos
       currentPos <- currentPos + 1
     }
   }
 
-  uniqueRegimes[order(uniqueRegimesPos)]
+  uniqueParts[order(uniquePartsPos)]
 }
 
-#' Number of unique regimes on a tree
+#' Number of unique parts on a tree
 #' @param tree a phylo object
-#' @return the number of different regimes encountered on the tree branches
+#' @return the number of different parts encountered on the tree branches
 #' @export
-PCMTreeNumUniqueRegimes <- function(tree) {
-  length(unique(tree$edge.regime))
+PCMTreeNumParts <- function(tree) {
+  length(unique(tree$edge.part))
 }
 
 #' Jumps in modeled traits associated with branches in a tree
@@ -315,7 +321,7 @@ PCMTreeJumps <- function(tree) {
     }
   }
 
-#' Regimes associated with branches in a tree
+#' Model regimes (i.e. colors) associated with the branches in a tree
 #' @param tree a phylo object
 #' @param model a PCM object
 #' @param preorder an integer vector of row-indices in tree$edge matrix as
@@ -323,26 +329,37 @@ PCMTreeJumps <- function(tree) {
 #' several operations needing preorder are executed on the tree. Default :
 #'  \code{PCMTreePreorder(tree)}.
 #' @return an integer vector with entries corresponding to the rows in tree$edge
-#'   denoting the regime on each branch in the tree as an index in
-#'   PCMRegimes(model).
-PCMTreeMatchRegimesWithModel <- function(
+#'   denoting the model regime associated with each branch in the tree as an
+#'   index in PCMRegimes(model).
+PCMTreeGetRegimesForEdges <- function(
   tree, model, preorder = PCMTreePreorder(tree)) {
 
-  if(is.null(tree$edge.regime)) {
-    PCMTreeSetDefaultRegime(tree, model)
+  if(is.null(tree$edge.part)) {
+    PCMTreeSetDefaultPartition(tree, model)
   }
 
-  regimes <- match(tree$edge.regime, PCMRegimes(model))
-
-  if(any(is.na(regimes))) {
-    stop(paste0("ERR:02671:PCMBase:PCMTree.R:PCMTreeMatchRegimesWithModel:: ",
-                " Some of the regimes in tree$edge.regime not found in",
-                "attr(model, 'regimes').\n",
-                "unique regimes on the tree:",
-                toString(PCMTreeUniqueRegimes(tree, preorder)), "\n",
-                "PCMRegimes(model):", toString(PCMRegimes(model))))
+  if( is.null(tree$part.regime) ) {
+    # "old" regime assignment convention:
+    # assumes that the part names in the tree have their matches in the regimes
+    # attributes, i.e. there is 1 to 1 mapping between parts and regimes.
+    regimeInd <- match( tree$edge.part, PCMRegimes(model) )
+  } else {
+    # "new" regime assignment convention:
+    # one regime can be associated with several parts.
+    regimeInd <- match( tree$part.regime[tree$edge.part], PCMRegimes(model) )
   }
-  regimes
+
+  if(any(is.na(regimesInd))) {
+    stop(paste0(
+      "ERR:02671:PCMBase:PCMTree.R:PCMTreeMatchPartsWithModelRegimes:: ",
+      " Some of the parts in tree$edge.part not found in",
+      "attr(model, 'regimes').\n",
+      "part-names on the tree:",
+      toString(PCMTreeGetPartNames(tree, preorder)), "\n",
+      "tree$part.regime: ", toString(tree$part.regime), "\n",
+      "PCMRegimes(model):", toString(PCMRegimes(model))))
+  }
+  regimesInd
 }
 
 #' Pre-order tree traversal
@@ -792,10 +809,10 @@ PCMTreeListAllPartitionsInternal <- function(
 #' \item{rest }{The tree resulting after dropping all tips in the clade.}
 #' \item{Xrest }{The portion of X attributable to the tips in rest; NULL if X is NULL.}
 #' }
-#' @details In the current implementation, the edge.jump and edge.regime members
+#' @details In the current implementation, the edge.jump and edge.part members
 #' of the tree will be discarded and not present in the clade.
 #'
-#' TODO: preserveRegimes and preserve regimes
+#' TODO: preserve parts
 #'
 #' @importFrom ape drop.tip
 #' @export
@@ -819,9 +836,9 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
     }
   }
 
-  # remove edge.regime and edge.jump from the tree - we currently do not update them.
-  if( !is.null(tree$edge.regime) ) {
-    tree <- tree[- which(names(tree) == "edge.regime")]
+  # remove edge.part and edge.jump from the tree - we currently do not update them.
+  if( !is.null(tree$edge.part) ) {
+    tree <- tree[- which(names(tree) == "edge.part")]
     class(tree) <- "phylo"
   }
   if(!is.null(tree$edge.jump)) {
@@ -1104,7 +1121,7 @@ PCMTreeInsertSingletons <- function(tree, nodes, positions) {
   N <- PCMTreeNumTips(tree)
   tip.label <- tree$tip.label
   node.label <- tree$node.label
-  edge.regime <- tree$edge.regime
+  edge.part <- tree$edge.part
   edge.length <- tree$edge.length
 
   PCMTreeSetLabels(tree, paste0("x_", 1:PCMTreeNumNodes(tree)))
@@ -1114,8 +1131,8 @@ PCMTreeInsertSingletons <- function(tree, nodes, positions) {
   }
 
   edgeNames <- paste0("x_", tree$edge[, 2])
-  if( !is.null(edge.regime) ) {
-    names(edge.regime) <- edgeNames
+  if( !is.null(edge.part) ) {
+    names(edge.part) <- edgeNames
   }
   if( !is.null(edge.length) ) {
     names(edge.length) <- edgeNames
@@ -1129,13 +1146,13 @@ PCMTreeInsertSingletons <- function(tree, nodes, positions) {
   edgesToCut <- tree$edge[, 2] %in% nodes
   edgesToCutNames <- edgeNames[edgesToCut]
 
-  edge.regime.new <- rep("", length(edgesToCutNames))
-  names(edge.regime.new) <- paste0(
+  edge.part.new <- rep("", length(edgesToCutNames))
+  names(edge.part.new) <- paste0(
     "i_", round(edgeTimes[edgesToCutNames, 2] - positions[edgesToCutNames], 2),
     "_", edgesToCutNames)
 
-  node.label.new <- names(edge.regime.new)
-  names(node.label.new) <- names(edge.regime.new)
+  node.label.new <- names(edge.part.new)
+  names(node.label.new) <- names(edge.part.new)
 
   tipTree <- list(edge = matrix(c(2, 1), nrow = 1, ncol = 2),
                   tip.label = "y_1",
@@ -1166,17 +1183,17 @@ PCMTreeInsertSingletons <- function(tree, nodes, positions) {
 
     tree$node.label[is.na(tree$node.label)] <- edgeNameNew
 
-    if(!is.null(edge.regime)) {
-      edge.regime.new[edgeNameNew] <- edge.regime[edgeName]
+    if(!is.null(edge.part)) {
+      edge.part.new[edgeNameNew] <- edge.part[edgeName]
     }
   }
 
-  # The edge leading to the new internal node take the same regime as ITS
+  # The edge leading to the new internal node take the same part as ITS
   # DAUGHTER edge
-  if(!is.null(edge.regime)) {
-    edge.regime.new <- c(edge.regime, edge.regime.new)
+  if(!is.null(edge.part)) {
+    edge.part.new <- c(edge.part, edge.part.new)
     nodeNamesNew <- PCMTreeGetLabels(tree)
-    tree$edge.regime <- edge.regime.new[nodeNamesNew[tree$edge[, 2]]]
+    tree$edge.part <- edge.part.new[nodeNamesNew[tree$edge[, 2]]]
   }
 
   # restore original node labels
@@ -1246,11 +1263,11 @@ PCMTreeNearestNodesToEpoch <- function(tree, epoch) {
   })
 }
 
-#' A data.table of the tips with their assigned regime
-#' @param tree a phylo object with node-labels and regimes
+#' A data.table of the tips with their assigned part
+#' @param tree a phylo object with node-labels and parts
 #' @importFrom data.table data.table
 #' @export
-PCMTreeDtNodeRegimes <- function(tree) {
+PCMTreeDtNodeParts <- function(tree) {
   N <- PCMTreeNumTips(tree)
   nodeTimes <- PCMTreeNodeTimes(tree)
   nodeLabels <- PCMTreeGetLabels(tree)
@@ -1259,43 +1276,43 @@ PCMTreeDtNodeRegimes <- function(tree) {
     startNode = tree$edge[, 1], endNode = tree$edge[, 2],
     startNodeLab = nodeLabels[tree$edge[, 1]], endNodeLab = nodeLabels[tree$edge[, 2]],
     startTime = nodeTimes[tree$edge[, 1]], endTime = nodeTimes[tree$edge[, 2]],
-    regime = tree$edge.regime)
+    part = tree$edge.part)
 }
 
-#' Prune the tree leaving one tip for each regime
-#' @param tree a phylo with set node-labels and regimes
+#' Prune the tree leaving one tip for each part
+#' @param tree a phylo with set node-labels and parts
 #' @return a pruned version of tree
 #'
-#' @seealso PCMTreeSetLabels PCMTreeSetRegimes
+#' @seealso PCMTreeSetLabels PCMTreeSetPartition
 #'
 #' @importFrom data.table data.table
 #' @importFrom ape drop.tip
 #'
 #' @export
-PCMTreeExtractBackboneRegimes <- function(tree) {
+PCMTreeBackbonePartition <- function(tree) {
 
   # Needed to pass the check.
-  regime <- endNode <- endTime <- NULL
+  part <- endNode <- endTime <- NULL
 
   N <- PCMTreeNumTips(tree)
   nodeTimes <- PCMTreeNodeTimes(tree)
   nodeLabels <- PCMTreeGetLabels(tree)
 
-  regimeNodesTree <- PCMTreeGetStartingNodesRegimes(tree)
+  partNodesTree <- PCMTreeGetPartition(tree)
 
-  dtBranchRegimes <- data.table(
+  dtBranchParts <- data.table(
     startNode = tree$edge[, 1], endNode = tree$edge[, 2],
     startTime = nodeTimes[tree$edge[, 1]], endTime = nodeTimes[tree$edge[, 2]],
-    regime = tree$edge.regime)
+    part = tree$edge.part)
 
-  dtTipRegimes <- dtBranchRegimes[endNode <= N]
-  dtTipRegimes <- dtTipRegimes[, list(endNode=endNode[which.max(endTime)]), keyby = regime]
+  dtTipParts <- dtBranchParts[endNode <= N]
+  dtTipParts <- dtTipParts[, list(endNode=endNode[which.max(endTime)]), keyby = part]
 
-  tipsToDrop <- setdiff(1:N, dtTipRegimes[, endNode])
+  tipsToDrop <- setdiff(seq_len(N), dtTipParts[, endNode])
 
   tree2 <- drop.tip(tree, tipsToDrop, collapse.singles = FALSE)
 
-  PCMTreeSetRegimes(tree2, nodeLabels[regimeNodesTree][-1], names(regimeNodesTree))
+  PCMTreeSetPartition(tree2, nodeLabels[partNodesTree][-1], names(partNodesTree))
   tree2
 }
 
@@ -1303,10 +1320,10 @@ PCMTreeExtractBackboneRegimes <- function(tree) {
 #'
 #' @param tree a phylo object.
 #' @param includeLengths logical. Default: FALSE.
-#' @param includeStartingNodesRegimes logical. Default: FALSE.
+#' @param includePartition logical. Default: FALSE.
 #' @return a character string.
 #' @export
-PCMTreeToString <- function(tree, includeLengths = FALSE, includeStartingNodesRegimes = FALSE) {
+PCMTreeToString <- function(tree, includeLengths = FALSE, includePartition = FALSE) {
 
   orderEdge <- order(tree$edge[, 2])
   nodeLabs <- PCMTreeGetLabels(tree)
@@ -1323,23 +1340,23 @@ PCMTreeToString <- function(tree, includeLengths = FALSE, includeStartingNodesRe
   } else {
     edgeLengthsOrdered <- ""
   }
-  if(includeStartingNodesRegimes) {
-    startingNodesRegimes <- PCMTreeGetStartingNodesRegimes(tree)
-    startingNodesRegimesLabels <- nodeLabs[startingNodesRegimes]
-    attributes(startingNodesRegimesLabels) <- NULL
-    unname(startingNodesRegimesLabels)
+  if(includePartition) {
+    startingNodesParts <- PCMTreeGetPartition(tree)
+    startingNodesPartsLabels <- nodeLabs[startingNodesParts]
+    attributes(startingNodesPartsLabels) <- NULL
+    unname(startingNodesPartsLabels)
   } else {
-    startingNodesRegimesLabels <- ""
+    startingNodesPartsLabels <- ""
   }
 
   paste0(toString(edgeLabelsOrdered), "; ",
                          toString(edgeLengthsOrdered), "; ",
-                         toString(startingNodesRegimesLabels))
+                         toString(startingNodesPartsLabels))
 }
 
 
-#' Which tips in a tree belong to the same regime?
-#' @param tree a phylo object with an existing edge.regime
+#' Which tips in a tree belong to the same part?
+#' @param tree a phylo object with an existing edge.part
 #' @param upperTriangle logical indicating if all duplicated entries and diagonal
 #' entries sould be set to NA (by default TRUE).
 #' @param returnVector logical indicating if a vector instead of a matrix should be
@@ -1349,7 +1366,9 @@ PCMTreeToString <- function(tree, includeLengths = FALSE, includeStartingNodesRe
 #' tips that belong to the same dagonal. if returnVector is TRUE (default) only a
 #' vector of the non-NA entries will be returned.
 #' @export
-PCMTreeMatrixTipsInSameRegime <- function(tree, upperTriangle = TRUE, returnVector = TRUE) {
+PCMTreeMatrixTipsInSamePart <- function(
+  tree, upperTriangle = TRUE, returnVector = TRUE) {
+
   nMax <- PCMTreeNumTips(tree)
   mat <- matrix(FALSE, nMax, nMax)
   diag(mat) <- TRUE
@@ -1358,7 +1377,7 @@ PCMTreeMatrixTipsInSameRegime <- function(tree, upperTriangle = TRUE, returnVect
     for(j in 1:nMax) {
       ei <- which(tree$edge[, 2] == i)
       ej <- which(tree$edge[, 2] == j)
-      mat[i,j] <- mat[j,i] <- (tree$edge.regime[ei] == tree$edge.regime[ej])
+      mat[i,j] <- mat[j,i] <- (tree$edge.part[ei] == tree$edge.part[ej])
     }
   }
   if(upperTriangle) {
@@ -1371,8 +1390,8 @@ PCMTreeMatrixTipsInSameRegime <- function(tree, upperTriangle = TRUE, returnVect
   mat
 }
 
-#' Which nodes in a tree belong to the same regime?
-#' @param tree a phylo object with an existing edge.regime
+#' Which nodes in a tree belong to the same part?
+#' @param tree a phylo object with an existing edge.part
 #' @param upperTriangle logical indicating if all duplicated entries and diagonal
 #' entries sould be set to NA (by default TRUE).
 #' @param returnVector logical indicating if a vector instead of a matrix should be
@@ -1382,7 +1401,8 @@ PCMTreeMatrixTipsInSameRegime <- function(tree, upperTriangle = TRUE, returnVect
 #' tips that belong to the same dagonal. if returnVector is TRUE (default) only a
 #' vector of the non-NA entries will be returned.
 #' @export
-PCMTreeMatrixNodesInSameRegime <- function(tree, upperTriangle = TRUE, returnVector = TRUE) {
+PCMTreeMatrixNodesInSamePart <- function(
+  tree, upperTriangle = TRUE, returnVector = TRUE) {
   N <- PCMTreeNumTips(tree)
   nMax <- PCMTreeNumNodes(tree)
   mat <- matrix(FALSE, nMax, nMax)
@@ -1395,7 +1415,7 @@ PCMTreeMatrixNodesInSameRegime <- function(tree, upperTriangle = TRUE, returnVec
       } else {
         ei <- which(tree$edge[, 2] == i)
         ej <- which(tree$edge[, 2] == j)
-        mat[i,j] <- mat[j,i] <- (tree$edge.regime[ei] == tree$edge.regime[ej])
+        mat[i,j] <- mat[j,i] <- (tree$edge.part[ei] == tree$edge.part[ej])
       }
     }
   }
@@ -1414,9 +1434,9 @@ PCMTreeMatrixNodesInSameRegime <- function(tree, upperTriangle = TRUE, returnVec
 }
 
 
-#' Plot a tree with regimes
-#' @param tree a phylo with set labels and regimes
-#' @param palette a named vector of colors corresponding to the regimes in tree
+#' Plot a tree with parts
+#' @param tree a phylo with set labels and parts
+#' @param palette a named vector of colors corresponding to the parts in tree
 #' @param ... Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.
 #' @note Currently, the ggtree package is not on CRAN and therefore it is not explicitly
 #' imported by PCMBase.
@@ -1424,22 +1444,22 @@ PCMTreeMatrixNodesInSameRegime <- function(tree, upperTriangle = TRUE, returnVec
 #' @importFrom grDevices hcl
 #' @importFrom ggplot2 aes scale_color_manual
 #' @export
-PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree)), ...) {
+PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumParts(tree), PCMTreeGetPartNames(tree)), ...) {
   # Needed to pass the check
-  regime <- NULL
+  part <- NULL
 
   if(requireNamespace("ggtree")) {
     N <- PCMTreeNumTips(tree)
-    R <- PCMTreeNumUniqueRegimes(tree)
+    R <- PCMTreeNumParts(tree)
 
     data <- rbind(data.table(node = tree$edge[, 2],
-                             regime = as.factor(tree$edge.regime)),
-                  data.table(node = N+1, regime = as.factor(tree$edge.regime[1])))
+                             part = as.factor(tree$edge.part)),
+                  data.table(node = N+1, part = as.factor(tree$edge.part[1])))
 
     plotTree <- ggtree::`%<+%`(ggtree::ggtree(tree, ...), data)
 
-    plotTree + aes(color = regime) +
-      scale_color_manual(name = "regime", values = palette)
+    plotTree + aes(color = part) +
+      scale_color_manual(name = "part", values = palette)
   } else {
     stop("ERR:026i0:PCMBase:PCMTree.R:PCMTreePlot:: Calling PCMTreePlot needs ggtree package to be installed from Bioconductor. Check the instructions at https://bioconductor.org/packages/release/bioc/html/ggtree.html. Ggtree was not on CRAN at the time of releasing PCMBase and is not declared as dependency in the PCMBase-description.")
   }
