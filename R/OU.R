@@ -78,52 +78,52 @@ PCMDescribeParameters.OU <- function(model, ...) {
 #' @export
 PCMListParameterizations.OU <- function(model, ...) {
   list(
-    X0 =
-      list(c("VectorParameter", "_Global"),
-           c("VectorParameter", "_Fixed", "_Global"),
-           c("VectorParameter", "_AllEqual", "_Global"),
-           c("VectorParameter", "_Omitted")),
-    H =
-      list(c("MatrixParameter"),
-           c("MatrixParameter", "_Fixed"),
-           c("MatrixParameter", "_Symmetric"),
-           c("MatrixParameter", "_Diagonal"),
-           c("MatrixParameter", "_ScalarDiagonal"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable"),
-           c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable"),
-           c("MatrixParameter", "_Schur", "_Diagonal", "_WithNonNegativeDiagonal", "_Transformable"),
-           c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable"),
-           c("MatrixParameter", "_Global"),
-           c("MatrixParameter", "_Fixed", "_Global"),
-           c("MatrixParameter", "_Symmetric", "_Global"),
-           c("MatrixParameter", "_Diagonal", "_Global"),
-           c("MatrixParameter", "_ScalarDiagonal", "_Global"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
-           c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
-           c("MatrixParameter", "_Schur", "_Diagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
-           c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global")),
-    Theta =
-      list(c("VectorParameter"),
-           c("VectorParameter", "_Fixed"),
-           c("VectorParameter", "_AllEqual")),
+    X0 = list(
+      c("VectorParameter", "_Global"),
+      c("VectorParameter", "_Fixed", "_Global"),
+      c("VectorParameter", "_AllEqual", "_Global"),
+      c("VectorParameter", "_Omitted")),
+    H = list(
+      c("MatrixParameter"),
+      c("MatrixParameter", "_Fixed"),
+      c("MatrixParameter", "_Symmetric"),
+      c("MatrixParameter", "_Diagonal"),
+      c("MatrixParameter", "_ScalarDiagonal"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable"),
+      c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable"),
+      c("MatrixParameter", "_Schur", "_Diagonal", "_WithNonNegativeDiagonal", "_Transformable"),
+      c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable"),
+      c("MatrixParameter", "_Global"),
+      c("MatrixParameter", "_Fixed", "_Global"),
+      c("MatrixParameter", "_Symmetric", "_Global"),
+      c("MatrixParameter", "_Diagonal", "_Global"),
+      c("MatrixParameter", "_ScalarDiagonal", "_Global"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
+      c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
+      c("MatrixParameter", "_Schur", "_Diagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
+      c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global")),
+    Theta = list(
+      c("VectorParameter"),
+      c("VectorParameter", "_Fixed"),
+      c("VectorParameter", "_AllEqual")),
 
-    Sigma_x =
-      list(c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")),
+    Sigma_x = list(
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")),
 
-    Sigmae_x =
-      list(c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_Omitted"))
+    Sigmae_x = list(
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Omitted"))
   )
 }
 

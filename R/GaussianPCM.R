@@ -28,8 +28,11 @@ PCMParentClasses.GaussianPCM <- function(model) {
 #' @export
 PCMCond.GaussianPCM <- function(
   tree, model, r=1,
-  metaI=PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
-  stop(paste('ERR:02111:PCMBase:GaussianPCM.R:PCMCond.GaussianPCM:: This is an abstract function which only defines an interface but should not be called explicitly. Possibly you forgot implementing PCMCond for a daughter class.'))
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose), verbose = FALSE) {
+  stop(paste(
+    'ERR:02111:PCMBase:GaussianPCM.R:PCMCond.GaussianPCM:: This is an abstract',      'function which only defines an interface but should not be called ',
+    'explicitly. Possibly you forgot implementing PCMCond for a daughter class.'
+    ))
 }
 
 #' @export
@@ -56,8 +59,9 @@ PCMMean.GaussianPCM <- function(
   preord <- metaI$preorder
 
   # create a list of random generator functions for each regime
-  PCMCondObjects <- lapply(1:metaI$RModel, function(r) {
-    PCMCond(tree, model = model, r = r, metaI = metaI, verbose = verbose)
+  PCMCondObjects <- lapply(seq_len(metaI$RModel), function(r) {
+
+      PCMCond(tree, model = model, r = r, metaI = metaI, verbose = verbose)
   })
 
   Mu <- matrix(as.double(NA), k, M)

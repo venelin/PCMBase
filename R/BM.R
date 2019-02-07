@@ -27,7 +27,7 @@ PCMDescribe.BM <- function(model, ...) {
 
 #' @export
 PCMCond.BM <- function(
-  tree, model, r=1, metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, verbose = verbose),
   verbose=FALSE) {
 
   Sigma_x <- if(is.Global(model$Sigma_x)) as.matrix(model$Sigma_x) else as.matrix(model$Sigma_x[,, r])
@@ -60,23 +60,24 @@ PCMDescribeParameters.BM <- function(model, ...) {
 #' @export
 PCMListParameterizations.BM <- function(model, ...) {
   list(
-    X0 = list(c("VectorParameter", "_Global"),
-              c("VectorParameter", "_Fixed", "_Global"),
-              c("VectorParameter", "_AllEqual", "_Global"),
-              c("VectorParameter", "_Omitted")),
-    Sigma_x =
-      list(c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")),
+    X0 = list(
+      c("VectorParameter", "_Global"),
+      c("VectorParameter", "_Fixed", "_Global"),
+      c("VectorParameter", "_AllEqual", "_Global"),
+      c("VectorParameter", "_Omitted")),
+    Sigma_x = list(
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")),
 
-    Sigmae_x =
-      list(c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
-           c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-           c("MatrixParameter", "_Omitted"))
+    Sigmae_x = list(
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Omitted"))
   )
 }
 
@@ -87,8 +88,7 @@ PCMListDefaultParameterizations.BM <- function(model, ...) {
       c("VectorParameter", "_Global"),
       c("VectorParameter", "_Omitted")
     ),
-    Sigma_x =
-      list(
+    Sigma_x = list(
         c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
         c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
         c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")
