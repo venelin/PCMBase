@@ -688,6 +688,19 @@ PCMRegimes.PCM <- function(model) {
   attr(model, "regimes", exact = TRUE)
 }
 
+#' Number of regimes in a model
+#' @param model a PCM object
+#' @return an integer
+#' @export
+PCMNumRegimes <- function(model) {
+  UseMethod("PCMNumRegimes", model)
+}
+
+#' @export
+PCMNumRegimes.PCM <- function(model) {
+  length(PCMRegimes(model))
+}
+
 #' Integer vector giving the model type index for each regime
 #' @param model a PCM model
 #' @param tree a phylo object with an edge.regime member
@@ -712,18 +725,6 @@ PCMMapModelTypesToRegimes.PCM <- function(model, tree, ...) {
   res
 }
 
-#' Number of regimes in a model
-#' @param model a PCM object
-#' @return an integer
-#' @export
-PCMNumRegimes <- function(model) {
-  UseMethod("PCMNumRegimes", model)
-}
-
-#' @export
-PCMNumRegimes.PCM <- function(model) {
-  length(PCMRegimes(model))
-}
 
 #' Get a vector of all parameters (real and discrete) describing a model on a
 #' tree including the numerical parameters of each model regime, the integer ids
