@@ -12,9 +12,9 @@ PCMParamSetByName(model, params, inplace = TRUE,
 
 \item{params}{a named list with elements among the names found in model}
 
-\item{inplace}{logical indicating if the parameters should be set "inplace" for the
-model object in the calling environment or a new model object with the parameters set
-as specified should be returned. Defaults to TRUE.}
+\item{inplace}{logical indicating if the parameters should be set "inplace"
+for the model object in the calling environment or a new model object with
+the parameters set as specified should be returned. Defaults to TRUE.}
 
 \item{replaceWholeParameters}{logical, by default set to FALSE. If TRUE, the
 parameters will be completely replaced, meaning that their attributes (e.g.
@@ -23,9 +23,9 @@ S3 class) will be replaced as well (dangerous).}
 \item{...}{other arguments that can be used by implementing methods.}
 }
 \value{
-If inplace is TRUE, the function only has a side effect of setting the
-parameters of the model object in the calling environment; otherwise the function
-returns a modified copy of the model object.
+If inplace is TRUE, the function only has a side effect of setting
+the parameters of the model object in the calling environment; otherwise the
+function returns a modified copy of the model object.
 }
 \description{
 Set model parameters from a named list

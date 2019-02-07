@@ -688,27 +688,6 @@ PCMRegimes.PCM <- function(model) {
   attr(model, "regimes", exact = TRUE)
 }
 
-#' #' Regimes in a model
-#' #' @param model a PCM object
-#' #' @param tree a phylo object or NULL. If the regimes in the model are integers and tree is not NULL,
-#' #' then these integers are used as indexes in PCMTreeUniqueRegimes(tree). Default NULL.
-#' #' @return a character or an integer vector giving the regime names of the models
-#' #' @export
-#' PCMRegimes <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
-#'   UseMethod("PCMRegimes", model)
-#' }
-#'
-#' #' @export
-#' PCMRegimes.PCM <- function(model, tree = NULL, preorder = if(is.null(tree)) NULL else PCMTreePreorder(tree)) {
-#'   r <- attr(model, "regimes")
-#'   if(is.integer(r) && !is.null(tree)) {
-#'     PCMTreeUniqueRegimes(tree, preorder)[r]
-#'   } else {
-#'     r
-#'   }
-#' }
-
-
 #' Integer vector giving the model type index for each regime
 #' @param model a PCM model
 #' @param tree a phylo object with an edge.regime member

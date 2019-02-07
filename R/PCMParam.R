@@ -511,8 +511,8 @@ PCMParamLoadOrStore.MatrixParameter <- function(o, vecParams, offset, k, R, load
 
 #' @export
 PCMParamLoadOrStore.PCM <- function(o, vecParams, offset, k, R, load, parentModel = NULL) {
-  k <- attr(o, "k", exact = TRUE)
-  R <- length(attr(o, "regimes", exact = TRUE))
+  k <- PCMNumTraits(o)
+  R <- length(PCMRegimes(o))
 
   p <- 0
 
@@ -525,11 +525,12 @@ PCMParamLoadOrStore.PCM <- function(o, vecParams, offset, k, R, load, parentMode
         # o[[name]] must have been loaded by the parentModel, because all global
         # parameters by convention should precede the other entries.
         if(load) {
-          eval(substitute( o[[name]][] <- parentModel[[name]][] ), parent.frame() )
+          eval(substitute( o[[name]][] <- parentModel[[name]][] ),
+               parent.frame() )
           # no need to update p
         } else {
-          # nothing to do because the parentModel should already have taken care
-          # to store the parameter into vecParams.
+          # nothing to do because the parentModel should already have taken
+          # care to store the parameter into vecParams.
         }
       } else {
         # naming the first parameter (o) seems to fail:
@@ -561,15 +562,16 @@ PCMParamLoadOrStore.PCM <- function(o, vecParams, offset, k, R, load, parentMode
 
 #' Count the number of free parameters associated with a PCM or a PCM-parameter
 #' @param o a PCM model object or a parameter of a PCM object
-#' @param countRegimeChanges logical indicating if regime changes should be counted.
-#' If TRUE, the default implementation would add \code{PCMNumRegimes(model) - 1}.
-#' Default FALSE.
+#' @param countRegimeChanges logical indicating if regime changes should be
+#' counted. If TRUE, the default implementation would add
+#' \code{PCMNumRegimes(model) - 1}. Default FALSE.
 #' @param countModelTypes logical indicating whether the model type should be
-#'  counted. If TRUE the default implementation will add +1 only if there are more than
-#'  one modelTypes (\code{length(attr(model, "modelTypes", exact = TRUE)) > 1}),
+#'  counted. If TRUE the default implementation will add +1 only if there are
+#'  more than one modelTypes
+#'  (\code{length(attr(model, "modelTypes", exact = TRUE)) > 1}),
 #'  assuming that all regimes are regimes of the same model type (e.g. OU). The
-#'  implementation for MRG models will add +1 for every regime if there are more than
-#'  one modelTypes. Default FALSE.
+#'  implementation for MRG models will add +1 for every regime if there are more
+#'  than one modelTypes. Default FALSE.
 #' @param offset an integer denoting an offset count from which to start counting
 #' (internally used). Default: 0.
 #' @param k an integer denoting the number of modeled traits. Default: 1.
@@ -721,9 +723,12 @@ PCMParamCount.MatrixParameter <- function(o, countRegimeChanges = FALSE, countMo
 }
 
 #' @export
-PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0L, k = 1L, R = 1L, parentModel = NULL) {
-  k <- attr(o, "k")
-  R <- length(attr(o, "regimes"))
+PCMParamCount.PCM <- function(
+  o, countRegimeChanges = FALSE, countModelTypes = FALSE, offset = 0L, k = 1L,
+  R = 1L, parentModel = NULL) {
+
+  k <- PCMNumTraits(o)
+  R <- length(PCMRegimes(o))
 
   p0 <- as.integer(offset)
   if(is.Fixed(o) || is.Omitted(o)) {
@@ -731,9 +736,11 @@ PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = F
   } else {
     for(name in names(o)) {
       if(is.Global(o[[name]]) && !is.null(parentModel)) {
-        # Global parameters are already counted in the parentModel, so don't recount them
+        # Global parameters are already counted in the parentModel, so don't
+        # recount them
       } else {
-        offset <- offset + PCMParamCount(o[[name]], offset = offset, k = k, R = R, parentModel = o)
+        offset <- offset + PCMParamCount(
+          o[[name]], offset = offset, k = k, R = R, parentModel = o)
       }
     }
     if(countRegimeChanges) {
@@ -754,10 +761,11 @@ PCMParamCount.PCM <- function(o, countRegimeChanges = FALSE, countModelTypes = F
 #' Get a vector of the variable numeric parameters in a model
 #' @inheritParams PCMParamCount
 #' @param ... other arguments that could be used by implementing methods.
-#' @return a numeric vector of length equal to `PCMParamCount(o, FALSE, FALSE, 0L, k, R)`.
+#' @return a numeric vector of length equal to
+#' `PCMParamCount(o, FALSE, FALSE, 0L, k, R)`.
 #' @description The short vector of the model parameters does not include the
-#' nodes in the tree where a regime change occurs, nor the the model types associated
-#' with each regime.
+#' nodes in the tree where a regime change occurs, nor the the model types
+#' associated with each regime.
 #' @export
 PCMParamGetShortVector <- function(o, k = 1L, R = 1L, ...) {
   UseMethod("PCMParamGetShortVector", o)
@@ -765,42 +773,48 @@ PCMParamGetShortVector <- function(o, k = 1L, R = 1L, ...) {
 
 #' @export
 PCMParamGetShortVector.PCM <- function(o, k, R, ...) {
-  k <- attr(o, "k", exact = TRUE)
-  R <- length(attr(o, "regimes", exact = TRUE))
+  k <- PCMNumTraits(o)
+  R <- length(PCMRegimes(o))
 
   vec <- double(PCMParamCount(o, FALSE, FALSE, 0L, k, R))
-  PCMParamLoadOrStore(o, vecParams = vec, offset = 0L, k = k, R = R, load = FALSE)
+  PCMParamLoadOrStore(
+    o, vecParams = vec, offset = 0L, k = k, R = R, load = FALSE)
   vec
 }
 
 #' @export
 PCMParamGetShortVector.default <- function(o, k, R, ...) {
   vec <- double(PCMParamCount(o, FALSE, FALSE, 0L, k, R))
-  PCMParamLoadOrStore(o, vecParams = vec, offset = 0L, k = k, R = R, load = FALSE)
+  PCMParamLoadOrStore(
+    o, vecParams = vec, offset = 0L, k = k, R = R, load = FALSE)
   vec
 }
 
 #' Set model parameters from a named list
 #' @param model a PCM model object
 #' @param params a named list with elements among the names found in model
-#' @param inplace logical indicating if the parameters should be set "inplace" for the
-#' model object in the calling environment or a new model object with the parameters set
-#' as specified should be returned. Defaults to TRUE.
+#' @param inplace logical indicating if the parameters should be set "inplace"
+#' for the model object in the calling environment or a new model object with
+#' the parameters set as specified should be returned. Defaults to TRUE.
 #' @param replaceWholeParameters logical, by default set to FALSE. If TRUE, the
 #' parameters will be completely replaced, meaning that their attributes (e.g.
 #' S3 class) will be replaced as well (dangerous).
 #' @param ... other arguments that can be used by implementing methods.
-#' @return If inplace is TRUE, the function only has a side effect of setting the
-#' parameters of the model object in the calling environment; otherwise the function
-#' returns a modified copy of the model object.
+#' @return If inplace is TRUE, the function only has a side effect of setting
+#' the parameters of the model object in the calling environment; otherwise the
+#' function returns a modified copy of the model object.
 #' @importFrom utils str
 #' @export
-PCMParamSetByName <- function(model, params, inplace = TRUE, replaceWholeParameters = FALSE, ...) {
+PCMParamSetByName <- function(
+  model, params, inplace = TRUE, replaceWholeParameters = FALSE, ...) {
+
   UseMethod("PCMParamSetByName", model)
 }
 
 #' @export
-PCMParamSetByName.PCM <- function(model, params, inplace = TRUE, replaceWholeParameters = FALSE, ...) {
+PCMParamSetByName.PCM <- function(
+  model, params, inplace = TRUE, replaceWholeParameters = FALSE, ...) {
+
   for(name in names(params)) {
     if(! (name %in% names(model)) ) {
       stop(paste0("ERR:02751:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: ", name,
@@ -810,7 +824,7 @@ PCMParamSetByName.PCM <- function(model, params, inplace = TRUE, replaceWholePar
     if(is.PCM(model[[name]])) {
       if(! is.PCM(params[[name]]) ) {
         stop(paste0("ERR:02752:PCMBase:PCMParam.R:PCMParamSetByName.PCM::model[['", name, "']] is a nested PCM object but params[['", name, "']] is not."))
-      } else if( !identical(attr(model, "k", exact = TRUE), attr(params[[name]], "k", exact = TRUE)) ) {
+      } else if(!identical(PCMNumTraits(model), PCMNumTraits(params[[name]])) ) {
         stop(paste0("ERR:02753:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: model[['", name, "']] has a different number of traits (k) from params[['", name, "']]."))
       } else {
         if(inplace) {
@@ -875,15 +889,19 @@ PCMParamLowerLimit <- function(o, k, R, ...) {
 
 #' @export
 PCMParamLowerLimit.PCM <- function(o, k, R,  ...) {
-  k <- attr(o, "k", exact = TRUE)
-  R <- length(attr(o, "regimes", exact = TRUE))
+  k <- PCMNumTraits(o)
+  R <- length(PCMRegimes(o))
 
   vecParamsLowerLimit <- attr(o, "vecParamsLowerLimit", exact = TRUE)
 
   if( !is.null(vecParamsLowerLimit) ) {
-    PCMParamLoadOrStore(o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R, load = TRUE)
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R,
+      load = TRUE)
   } else {
-    PCMParamSetByName(o, params = lapply(o, PCMParamLowerLimit, k = k, R = R, ...), inplace = TRUE)
+    PCMParamSetByName(
+      o, params = lapply(o, PCMParamLowerLimit, k = k, R = R, ...),
+      inplace = TRUE)
   }
   o
 }
@@ -892,12 +910,18 @@ PCMParamLowerLimit.PCM <- function(o, k, R,  ...) {
 PCMParamLowerLimit.default <- function(o, k, R,  ...) {
   vecParamsLowerLimit <- attr(o, "vecParamsLowerLimit", exact = TRUE)
   if( !is.null(vecParamsLowerLimit) ) {
-    PCMParamLoadOrStore(o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R, load = TRUE)
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R,
+      load = TRUE)
   } else {
-    nParams <- PCMParamCount(o, countRegimeChanges = FALSE, countModelTypes = FALSE,
+    nParams <- PCMParamCount(
+      o, countRegimeChanges = FALSE, countModelTypes = FALSE,
                              offset = 0, k = k, R = R)
-    vecParamsLowerLimit <- rep(getOption("PCMBase.ParamValue.LowerLimit", -10.0), nParams)
-    PCMParamLoadOrStore(o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R, load = TRUE)
+    vecParamsLowerLimit <-
+      rep(getOption("PCMBase.ParamValue.LowerLimit", -10.0), nParams)
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R,
+      load = TRUE)
   }
   o
 }
@@ -906,7 +930,9 @@ PCMParamLowerLimit.default <- function(o, k, R,  ...) {
 PCMParamLowerLimit._WithNonNegativeDiagonal <- function(o, k, R, ...) {
   vecParamsLowerLimit <- attr(o, "vecParamsLowerLimit", exact = TRUE)
   if( !is.null(vecParamsLowerLimit) ) {
-    PCMParamLoadOrStore(o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R, load = TRUE)
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R,
+      load = TRUE)
   } else {
     o2 <- PCMParamLowerLimit.default(o, k, R, ...)
 
@@ -945,15 +971,19 @@ PCMParamUpperLimit <- function(o, k, R,  ...) {
 
 #' @export
 PCMParamUpperLimit.PCM <- function(o, k, R,  ...) {
-  k <- attr(o, "k", exact = TRUE)
-  R <- length(attr(o, "regimes", exact = TRUE))
+  k <- PCMNumTraits(o)
+  R <- length(PCMRegimes(o))
 
   vecParamsUpperLimit <- attr(o, "vecParamsUpperLimit", exact = TRUE)
 
   if( !is.null(vecParamsUpperLimit) ) {
-    PCMParamLoadOrStore(o, vecParams = vecParamsUpperLimit, offset = 0, k = k, R = R, load = TRUE)
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsUpperLimit, offset = 0, k = k, R = R,
+      load = TRUE)
   } else {
-    PCMParamSetByName(o, params = lapply(o, PCMParamUpperLimit, k = k, R = R, ...), inplace = TRUE)
+    PCMParamSetByName(
+      o, params = lapply(o, PCMParamUpperLimit, k = k, R = R, ...),
+      inplace = TRUE)
   }
   o
 }
@@ -962,25 +992,33 @@ PCMParamUpperLimit.PCM <- function(o, k, R,  ...) {
 PCMParamUpperLimit.default <- function(o, k, R,  ...) {
   vecParamsUpperLimit <- attr(o, "vecParamsUpperLimit", exact = TRUE)
   if( !is.null(vecParamsUpperLimit) ) {
-    PCMParamLoadOrStore(o, vecParams = vecParamsUpperLimit, offset = 0, k = k, R = R, load = TRUE)
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsUpperLimit, offset = 0, k = k, R = R,
+      load = TRUE)
   } else {
-    nParams <- PCMParamCount(o, countRegimeChanges = FALSE, countModelTypes = FALSE,
+    nParams <- PCMParamCount(
+      o, countRegimeChanges = FALSE, countModelTypes = FALSE,
                              offset = 0, k = k, R = R)
-    vecParamsUpperLimit <- rep(getOption("PCMBase.ParamValue.UpperLimit", 10.0), nParams)
-    PCMParamLoadOrStore(o, vecParams = vecParamsUpperLimit, offset = 0, k = k, R = R, load = TRUE)
+    vecParamsUpperLimit <-
+      rep(getOption("PCMBase.ParamValue.UpperLimit", 10.0), nParams)
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsUpperLimit, offset = 0, k = k, R = R,
+      load = TRUE)
   }
   o
 }
 
-#' Generate a random parameter vector for a model using uniform distribution between its lower and upper bounds.
+#' Generate a random parameter vector for a model using uniform distribution
+#' between its lower and upper bounds.
 #' @param o a PCM model object or a parameter
 #' @param k integer denoting the number of traits.
 #' @param R integer denoting the number of regimes.
 #' @param n an integer specifying the number of random vectors to generate
-#' @param argsPCMParamLowerLimit,argsPCMParamUpperLimit named lists of arguments passed to
+#' @param argsPCMParamLowerLimit,argsPCMParamUpperLimit named lists of
+#' arguments passed to
 #' \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}.
-#' @return if n = 1, a numeric vector of length \code{PCMParamCount(o)}; if n > 1,
-#' a numeric matrix of dimension n x \code{PCMParamCount(o)}.
+#' @return if n = 1, a numeric vector of length \code{PCMParamCount(o)};
+#' if n > 1, a numeric matrix of dimension n x \code{PCMParamCount(o)}.
 #' @seealso PCMParamLimits PCMParamGetShortVector
 #' @export
 PCMParamRandomVecParams <- function(o, k, R, n = 1L,
@@ -1018,7 +1056,7 @@ PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
 
 #' @export
 PCMDefaultObject.ScalarParameter <- function(spec, model, ...) {
-  regimes <- attr(model, "regimes", exact = TRUE)
+  regimes <- PCMRegimes(model)
   R <- length(regimes)
 
   if(is.Omitted(spec)) {
@@ -1044,8 +1082,8 @@ PCMDefaultObject.ScalarParameter <- function(spec, model, ...) {
 
 #' @export
 PCMDefaultObject.VectorParameter <- function(spec, model, ...) {
-  k <- attr(model, "k", exact = TRUE)
-  regimes <- attr(model, "regimes", exact = TRUE)
+  k <- PCMNumTraits(model)
+  regimes <- PCMRegimes(model)
   R <- length(regimes)
 
   if(is.Omitted(spec)) {
@@ -1073,8 +1111,8 @@ PCMDefaultObject.VectorParameter <- function(spec, model, ...) {
 
 #' @export
 PCMDefaultObject.MatrixParameter <- function(spec, model, ...) {
-  k <- attr(model, "k", exact = TRUE)
-  regimes <- attr(model, "regimes", exact = TRUE)
+  k <- PCMNumTraits(model)
+  regimes <- PCMRegimes(model)
   R <- length(regimes)
 
   if(is.Omitted(spec)) {

@@ -12,13 +12,15 @@ PCMTreeMatchRegimesWithModel(tree, model,
 
 \item{model}{a PCM object}
 
-\item{preorder}{an integer vector of row-indices in tree$edge matrix as returned
-by PCMTreePreorder. This can be given for performance speed-up when several
-operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.}
+\item{preorder}{an integer vector of row-indices in tree$edge matrix as
+returned by PCMTreePreorder. This can be given for performance speed-up when
+several operations needing preorder are executed on the tree. Default :
+ \code{PCMTreePreorder(tree)}.}
 }
 \value{
 an integer vector with entries corresponding to the rows in tree$edge
-  denoting the regime on each branch in the tree as an index in PCMRegimes(model).
+  denoting the regime on each branch in the tree as an index in
+  PCMRegimes(model).
 }
 \description{
 Regimes associated with branches in a tree

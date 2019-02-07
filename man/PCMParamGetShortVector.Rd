@@ -16,10 +16,11 @@ PCMParamGetShortVector(o, k = 1L, R = 1L, ...)
 \item{...}{other arguments that could be used by implementing methods.}
 }
 \value{
-a numeric vector of length equal to `PCMParamCount(o, FALSE, FALSE, 0L, k, R)`.
+a numeric vector of length equal to
+`PCMParamCount(o, FALSE, FALSE, 0L, k, R)`.
 }
 \description{
 The short vector of the model parameters does not include the
-nodes in the tree where a regime change occurs, nor the the model types associated
-with each regime.
+nodes in the tree where a regime change occurs, nor the the model types
+associated with each regime.
 }

@@ -43,14 +43,15 @@ PCMTreeNumNodes <- function(tree) {
 #' \item{rep(regime[1], length(tree$edge.length))}{if regime is a character or an integer}
 #' \item{rep(PCMRegimes(regime)[1], length(tree$edge.length))}{if regime is a PCM model}
 #' } Note that the function modifies the passed tree object inplace.
-#' @return This function does not return a value but has a side effect on the passed
-#' tree object.
+#' @return This function does not return a value but has a side effect on the
+#'  passed tree object.
 #' @export
 PCMTreeSetDefaultRegime <- function(tree, regime) {
   if(is.PCM(regime)) {
     regime <- PCMRegimes(regime)
   }
-  eval(substitute(tree$edge.regime <- rep(regime[1], length(tree$edge.length))), parent.frame())
+  eval(substitute(tree$edge.regime <- rep(regime[1], length(tree$edge.length))),
+       parent.frame())
 }
 
 #' Assign regimes on a tree given a set of starting branches
@@ -317,30 +318,36 @@ PCMTreeJumps <- function(tree) {
 #' Regimes associated with branches in a tree
 #' @param tree a phylo object
 #' @param model a PCM object
-#' @param preorder an integer vector of row-indices in tree$edge matrix as returned
-#' by PCMTreePreorder. This can be given for performance speed-up when several
-#' operations needing preorder are executed on the tree. Default : \code{PCMTreePreorder(tree)}.
+#' @param preorder an integer vector of row-indices in tree$edge matrix as
+#' returned by PCMTreePreorder. This can be given for performance speed-up when
+#' several operations needing preorder are executed on the tree. Default :
+#'  \code{PCMTreePreorder(tree)}.
 #' @return an integer vector with entries corresponding to the rows in tree$edge
-#'   denoting the regime on each branch in the tree as an index in PCMRegimes(model).
-PCMTreeMatchRegimesWithModel <- function(tree, model, preorder = PCMTreePreorder(tree)) {
+#'   denoting the regime on each branch in the tree as an index in
+#'   PCMRegimes(model).
+PCMTreeMatchRegimesWithModel <- function(
+  tree, model, preorder = PCMTreePreorder(tree)) {
+
   if(is.null(tree$edge.regime)) {
     PCMTreeSetDefaultRegime(tree, model)
   }
-  #regimes <- match(tree$edge.regime, PCMRegimes(model, tree, preorder))
+
   regimes <- match(tree$edge.regime, PCMRegimes(model))
+
   if(any(is.na(regimes))) {
     stop(paste0("ERR:02671:PCMBase:PCMTree.R:PCMTreeMatchRegimesWithModel:: ",
                 " Some of the regimes in tree$edge.regime not found in",
                 "attr(model, 'regimes').\n",
-                "unique regimes on the tree:", toString(PCMTreeUniqueRegimes(tree, preorder)), "\n",
-                "attr(model, 'regimes')", toString(PCMRegimes(model))))
+                "unique regimes on the tree:",
+                toString(PCMTreeUniqueRegimes(tree, preorder)), "\n",
+                "PCMRegimes(model):", toString(PCMRegimes(model))))
   }
   regimes
 }
 
 #' Pre-order tree traversal
-#' @param tree a phylo object with possible singleton nodes (i.e. internal nodes with
-#' one daughter node)
+#' @param tree a phylo object with possible singleton nodes (i.e. internal nodes
+#' with one daughter node)
 #' @return a vector of indices of edges in tree$edge in pre-order.
 #' @export
 PCMTreePreorder <- function(tree) {
@@ -354,7 +361,7 @@ PCMTreePreorder <- function(tree) {
 
   # we need the ordered edges in order to easily traverse all edges starting from
   # a given node
-  iFrom <- match(1:M, tree$edge[ordFrom, 1])
+  iFrom <- match(seq_len(M), tree$edge[ordFrom, 1])
 
   # the result is a vector of edge indices in the breadth-first search order
   res <- vector(mode='integer', length=M-1)

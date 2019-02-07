@@ -12,8 +12,8 @@ PCMTreeSetDefaultRegime(tree, regime)
 \item{regime}{a character, an integer or PCM model object}
 }
 \value{
-This function does not return a value but has a side effect on the passed
-tree object.
+This function does not return a value but has a side effect on the
+ passed tree object.
 }
 \description{
 This function sets or overwrites the current member edge.regime

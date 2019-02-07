@@ -2,7 +2,8 @@
 % Please edit documentation in R/PCMParam.R
 \name{PCMParamRandomVecParams}
 \alias{PCMParamRandomVecParams}
-\title{Generate a random parameter vector for a model using uniform distribution between its lower and upper bounds.}
+\title{Generate a random parameter vector for a model using uniform distribution
+between its lower and upper bounds.}
 \usage{
 PCMParamRandomVecParams(o, k, R, n = 1L, argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL)
@@ -16,15 +17,17 @@ PCMParamRandomVecParams(o, k, R, n = 1L, argsPCMParamLowerLimit = NULL,
 
 \item{n}{an integer specifying the number of random vectors to generate}
 
-\item{argsPCMParamLowerLimit, argsPCMParamUpperLimit}{named lists of arguments passed to
+\item{argsPCMParamLowerLimit, argsPCMParamUpperLimit}{named lists of
+arguments passed to
 \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}.}
 }
 \value{
-if n = 1, a numeric vector of length \code{PCMParamCount(o)}; if n > 1,
-a numeric matrix of dimension n x \code{PCMParamCount(o)}.
+if n = 1, a numeric vector of length \code{PCMParamCount(o)};
+if n > 1, a numeric matrix of dimension n x \code{PCMParamCount(o)}.
 }
 \description{
-Generate a random parameter vector for a model using uniform distribution between its lower and upper bounds.
+Generate a random parameter vector for a model using uniform distribution
+between its lower and upper bounds.
 }
 \seealso{
 PCMParamLimits PCMParamGetShortVector
