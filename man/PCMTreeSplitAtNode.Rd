@@ -29,8 +29,8 @@ A list containing two named phylo objects:
 Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade
 }
 \details{
-In the current implementation, the edge.jump and edge.regime members
+In the current implementation, the edge.jump and edge.part members
 of the tree will be discarded and not present in the clade.
 
-TODO: preserveRegimes and preserve regimes
+TODO: preserve parts
 }

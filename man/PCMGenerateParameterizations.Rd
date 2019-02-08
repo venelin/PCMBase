@@ -8,7 +8,7 @@ PCMGenerateParameterizations(model,
   listParameterizations = PCMListParameterizations(model),
   tableParameterizations = PCMTableParameterizations(model,
   listParameterizations), env = .GlobalEnv,
-  useModelClassNameForFirstRow = FALSE)
+  useModelClassNameForFirstRow = FALSE, sourceFile = NULL)
 }
 \arguments{
 \item{model}{a PCM object.}
@@ -28,6 +28,11 @@ Default: `env = .GlobalEnv`.}
 \item{useModelClassNameForFirstRow}{A logical specifying if the S3 class name of
 `model` should be used as a S3 class for the model defined in the first row of
 `tableParameterizations`. Default: FALSE.}
+
+\item{sourceFile}{NULL or a character string indicating a .R filename, to
+which the automatically generated code will be saved. If NULL (the default),
+the generated source code is evaluated and the S3 methods are defined in the
+global environment. Default: NULL.}
 }
 \value{
 This function does not return a value. It only has a side effect by

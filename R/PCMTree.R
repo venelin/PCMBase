@@ -199,6 +199,11 @@ PCMTreeGetPartition <- function(tree, preorder = PCMTreePreorder(tree)) {
     stop("ERR:026g0:PCMBase:PCMTree.R:PCMTreeGetPartition:: argument tree should be a phylo.")
   }
 
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   parts <-  PCMTreeGetPartNames(tree)
 
   N <- PCMTreeNumTips(tree)
@@ -238,6 +243,11 @@ PCMTreeGetPartsForNodes <- function(tree, nodes) {
     stop("ERR:026h0:PCMBase:PCMTree.R:PCMTreeGetPartsForNodes:: argument tree should be a phylo.")
   }
 
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   tree$edge.part[match(nodes, tree$edge[, 2])]
 }
 
@@ -247,6 +257,13 @@ PCMTreeGetPartsForNodes <- function(tree, nodes) {
 #' @return an integer vector with the ids of the tips belonging to part
 #' @export
 PCMTreeGetTipsInPart <- function(tree, part) {
+
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
+
   N <- PCMTreeNumTips(tree)
   tipEdges <- tree$edge[, 2] <= N & tree$edge.part == part
   tree$edge[tipEdges, 2]
@@ -264,8 +281,13 @@ PCMTreeGetTipsInPart <- function(tree, part) {
 #' @export
 PCMTreeGetPartNames <- function(tree, preorder = PCMTreePreorder(tree)) {
 
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   if(is.null(tree$edge.part)) {
-    stop("ERR:02610:PCMBase:PCMTree.R:PCMTreeGetPartNames:: tree$edge.part is NULL,
+    stop("ERR:02610:PCMBase:PCMTree.R:PCMTreeGetPartNames:: tree$edge.part or tree$edge.regime is NULL,
          but should be a character or an integer vector denoting part names.")
   }
 
@@ -299,6 +321,11 @@ PCMTreeGetPartNames <- function(tree, preorder = PCMTreePreorder(tree)) {
 #' @return the number of different parts encountered on the tree branches
 #' @export
 PCMTreeNumParts <- function(tree) {
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   length(unique(tree$edge.part))
 }
 
@@ -334,6 +361,11 @@ PCMTreeJumps <- function(tree) {
 PCMTreeGetRegimesForEdges <- function(
   tree, model, preorder = PCMTreePreorder(tree)) {
 
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   if(is.null(tree$edge.part)) {
     PCMTreeSetDefaultPartition(tree, model)
   }
@@ -349,7 +381,7 @@ PCMTreeGetRegimesForEdges <- function(
     regimeInd <- match( tree$part.regime[tree$edge.part], PCMRegimes(model) )
   }
 
-  if(any(is.na(regimesInd))) {
+  if(any(is.na(regimeInd))) {
     stop(paste0(
       "ERR:02671:PCMBase:PCMTree.R:PCMTreeMatchPartsWithModelRegimes:: ",
       " Some of the parts in tree$edge.part not found in",
@@ -359,7 +391,7 @@ PCMTreeGetRegimesForEdges <- function(
       "tree$part.regime: ", toString(tree$part.regime), "\n",
       "PCMRegimes(model):", toString(PCMRegimes(model))))
   }
-  regimesInd
+  regimeInd
 }
 
 #' Pre-order tree traversal
@@ -836,7 +868,12 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
     }
   }
 
-  # remove edge.part and edge.jump from the tree - we currently do not update them.
+  # remove edge.part (or in old tree objects, edge.regime), and edge.jump from
+  # the tree - we currently do not update them.
+  if( !is.null(tree$edge.regime) ) {
+    tree <- tree[- which(names(tree) == "edge.regime")]
+    class(tree) <- "phylo"
+  }
   if( !is.null(tree$edge.part) ) {
     tree <- tree[- which(names(tree) == "edge.part")]
     class(tree) <- "phylo"
@@ -1117,6 +1154,12 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #' @seealso \code{\link{PCMTreeEdgeTimes}} \code{\link{PCMTreeLocateEpochOnBranches}} \code{\link{PCMTreeLocateMidpointsOnBranches}}
 #' @export
 PCMTreeInsertSingletons <- function(tree, nodes, positions) {
+
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   M <- PCMTreeNumNodes(tree)
   N <- PCMTreeNumTips(tree)
   tip.label <- tree$tip.label
@@ -1215,6 +1258,12 @@ PCMTreeInsertSingletons <- function(tree, nodes, positions) {
 #'
 #' @export
 PCMTreeInsertSingletonsAtEpoch <- function(tree, epoch, minLength = 0.1) {
+
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   nodeTimes <- PCMTreeNodeTimes(tree)
 
   points <- PCMTreeLocateEpochOnBranches(tree, epoch)
@@ -1268,6 +1317,13 @@ PCMTreeNearestNodesToEpoch <- function(tree, epoch) {
 #' @importFrom data.table data.table
 #' @export
 PCMTreeDtNodeParts <- function(tree) {
+
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
+
   N <- PCMTreeNumTips(tree)
   nodeTimes <- PCMTreeNodeTimes(tree)
   nodeLabels <- PCMTreeGetLabels(tree)
@@ -1290,6 +1346,11 @@ PCMTreeDtNodeParts <- function(tree) {
 #'
 #' @export
 PCMTreeBackbonePartition <- function(tree) {
+
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
 
   # Needed to pass the check.
   part <- endNode <- endTime <- NULL
@@ -1369,6 +1430,12 @@ PCMTreeToString <- function(tree, includeLengths = FALSE, includePartition = FAL
 PCMTreeMatrixTipsInSamePart <- function(
   tree, upperTriangle = TRUE, returnVector = TRUE) {
 
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
+
   nMax <- PCMTreeNumTips(tree)
   mat <- matrix(FALSE, nMax, nMax)
   diag(mat) <- TRUE
@@ -1403,6 +1470,12 @@ PCMTreeMatrixTipsInSamePart <- function(
 #' @export
 PCMTreeMatrixNodesInSamePart <- function(
   tree, upperTriangle = TRUE, returnVector = TRUE) {
+
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   N <- PCMTreeNumTips(tree)
   nMax <- PCMTreeNumNodes(tree)
   mat <- matrix(FALSE, nMax, nMax)
@@ -1445,6 +1518,12 @@ PCMTreeMatrixNodesInSamePart <- function(
 #' @importFrom ggplot2 aes scale_color_manual
 #' @export
 PCMTreePlot <- function(tree, palette = PCMColorPalette(PCMTreeNumParts(tree), PCMTreeGetPartNames(tree)), ...) {
+
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
   # Needed to pass the check
   part <- NULL
 

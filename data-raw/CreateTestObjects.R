@@ -233,13 +233,13 @@ N <- 40
 # tree with one regime
 tree.a <- rtree(N)
 
-PCMTreeSetDefaultRegime(tree.a, model.a.1)
+PCMTreeSetDefaultPartition(tree.a, model.a.1)
 PCMTreeSetLabels(tree.a)
 
 #PCMTreePlot(tree.a)
 
 tree.ab <- tree.a
-PCMTreeSetRegimes(tree.ab, nodes = N + 31, regimes = c("a", "b"))
+PCMTreeSetPartition(tree.ab, nodes = N + 31, parts = c("a", "b"))
 #PCMTreePlot(tree.ab)
 
 
@@ -258,49 +258,50 @@ traits.a.123 <- PCMSim(tree.a, model.a.123, c(0,0,0), verbose=TRUE)
 traits.ab.123 <- PCMSim(tree.ab, model.ab.123, c(0,0,0), verbose=TRUE)
 
 
-# save testobjects:
-#
-
 if(TRUE) {
-  save(
-    a.H,
-    a.Sigma_x,
-    a.Sigmae_x,
-    b.H,
-    b.Sigma_x,
-    b.Sigmae_x,
-    model_MixedGaussian_ab,
-    model_MixedGaussian_ab_globalSigmae_x,
-    model.a.1,
-    model.a.1.Omitted_X0,
-    model.a.123,
-    model.a.123.Omitted_X0,
-    model.a.123.Omitted_X0__bSigmae_x,
-    model.a.123.Omitted_X0__Omitted_Sigmae_x,
-    model.a.2,
-    model.a.3,
-    model.ab.123,
-    model.ab.123.bSigmae_x,
-    model.b.123,
-    model.b.123.Omitted_X0,
-    model.b.123.Omitted_X0__Omitted_Sigmae_x,
-    tree.a,
-    tree.ab,
-    Theta,
-    a.Theta,
-    a.X0,
-    b.Theta,
-    b.X0,
-    H,
-    N,
-    Sigma_x,
-    Sigmae_x,
-    traits.a.1,
-    traits.a.123,
-    traits.a.2,
-    traits.a.3,
-    traits.ab.123,
-    model.a.1,
+  PCMBaseTestObjects <- list(
+    a.H = a.H,
+    a.Sigma_x = a.Sigma_x,
+    a.Sigmae_x = a.Sigmae_x,
+    b.H = b.H,
+    b.Sigma_x = b.Sigma_x,
+    b.Sigmae_x = b.Sigmae_x,
+    model_MixedGaussian_ab = model_MixedGaussian_ab,
+    model_MixedGaussian_ab_globalSigmae_x = model_MixedGaussian_ab_globalSigmae_x,
+    model.a.1 = model.a.1,
+    model.a.1.Omitted_X0 = model.a.1.Omitted_X0,
+    model.a.123 = model.a.123,
+    model.a.123.Omitted_X0 = model.a.123.Omitted_X0,
+    model.a.123.Omitted_X0__bSigmae_x = model.a.123.Omitted_X0__bSigmae_x,
+    model.a.123.Omitted_X0__Omitted_Sigmae_x = model.a.123.Omitted_X0__Omitted_Sigmae_x,
+    model.a.2 = model.a.2,
+    model.a.3 = model.a.3,
+    model.ab.123 = model.ab.123,
+    model.ab.123.bSigmae_x = model.ab.123.bSigmae_x,
+    model.b.123 = model.b.123,
+    model.b.123.Omitted_X0 = model.b.123.Omitted_X0,
+    model.b.123.Omitted_X0__Omitted_Sigmae_x = model.b.123.Omitted_X0__Omitted_Sigmae_x,
+    tree.a = tree.a,
+    tree.ab = tree.ab,
+    Theta = Theta,
+    a.Theta = a.Theta,
+    a.X0 = a.X0,
+    b.Theta = b.Theta,
+    b.X0 = b.X0,
+    H = H,
+    N = N,
+    Sigma_x = Sigma_x,
+    Sigmae_x = Sigmae_x,
+    traits.a.1 = traits.a.1,
+    traits.a.123 = traits.a.123,
+    traits.a.2 = traits.a.2,
+    traits.a.3 = traits.a.3,
+    traits.ab.123 = traits.ab.123,
+    model.a.1 = model.a.1)
 
-    file = "../tests/testthat/testobjects.RData")
+  usethis::use_data(PCMBaseTestObjects, overwrite = TRUE)
+  # use list2env(PCMBaseTestObjects, globalenv()) to load the test objects in
+  # the global environment
+
+
 }

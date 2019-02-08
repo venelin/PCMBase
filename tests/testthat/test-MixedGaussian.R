@@ -5,7 +5,7 @@ library(PCMBase)
 
 if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
-  load("testobjects.RData")
+  list2env(PCMBaseTestObjects, globalenv())
 
   # generate some  models
   test_that("Calling PCMGenerateParameterizations()", {

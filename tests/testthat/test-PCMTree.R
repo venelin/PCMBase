@@ -5,7 +5,7 @@ library(PCMBase)
 
 if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
-  load("testobjects.RData")
+  list2env(PCMBaseTestObjects, globalenv())
 
   library(ape)
 
@@ -16,7 +16,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   # tree with one regime
   tree.a <- rtree(N)
-  PCMTreeSetDefaultRegime(tree.a, model.a.1)
+  PCMTreeSetDefaultPartition(tree.a, model.a.1)
   PCMTreeSetLabels(tree.a)
   #PCMTreePlot(tree.a)
 
@@ -24,28 +24,28 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     "Tree with 40 tips and one regime", {
       expect_identical(PCMTreeGetParent(tree.a, 71L), 52L)
       expect_identical(PCMTreeGetLabels(tree.a)[52L], "52")
-      expect_identical(PCMTreeGetRegimesForNodes(tree.a, "71"), "a")
-      expect_identical(PCMTreeNumUniqueRegimes(tree.a), 1L)
-      expect_identical(PCMTreeGetStartingNodesRegimes(tree.a), c(a = 41L))
+      expect_identical(PCMTreeGetPartsForNodes(tree.a, "71"), "a")
+      expect_identical(PCMTreeNumParts(tree.a), 1L)
+      expect_identical(PCMTreeGetPartition(tree.a), c(a = 41L))
     })
 
   tree.ab <- tree.a
-  PCMTreeSetRegimes(tree.ab, nodes = N + 31, regimes = c("a", "b"))
+  PCMTreeSetPartition(tree.ab, nodes = N + 31, parts = c("a", "b"))
   #PCMTreePlot(tree.ab)
 
   test_that(
     "Tree with 40 tips and two regimes", {
       expect_identical(PCMTreeGetParent(tree.ab, 71L), 52L)
       expect_identical(PCMTreeGetLabels(tree.ab)[52L], "52")
-      expect_identical(PCMTreeGetRegimesForNodes(tree.ab, "71"), "b")
-      expect_identical(PCMTreeGetStartingNodesRegimes(tree.ab), c(a = 41L, b = 71L))
+      expect_identical(PCMTreeGetPartsForNodes(tree.ab, "71"), "b")
+      expect_identical(PCMTreeGetPartition(tree.ab), c(a = 41L, b = 71L))
     })
 
 
   set.seed(1)
 
   tree <- rtree(15)
-  PCMTreeSetDefaultRegime(tree, 1)
+  PCMTreeSetDefaultPartition(tree, 1)
 
   test_that("PCMTreeNodeTimes", {
     expect_equivalent(
@@ -96,7 +96,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     set.seed(1)
 
     tree <- rtree(200)
-    PCMTreeSetDefaultRegime(tree, 1)
+    PCMTreeSetDefaultPartition(tree, 1)
     PCMTreeSetLabels(tree)
 
     PCMTreePlot(tree)
@@ -131,7 +131,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
     # 3. Choose best clade-partition
     bestPartition <- listCladePartitions[[746]]
 
-    PCMTreeSetRegimes(tree, bestPartition)
+    PCMTreeSetPartition(tree, bestPartition)
 
     # 4. For each part in the best clade-partition, find its best sub-partition
     # with respect to the whole tree and the cut points and mapped regimes in the remaining
@@ -157,12 +157,12 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
     PCMTreePlot(tree)
 
-    PCMTreeGetStartingNodesRegimes(tree)
-    PCMTreeGetStartingNodesRegimes(PCMTreeSetRegimes(tree, c(PCMTreeGetStartingNodesRegimes(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[15]]])), inplace = FALSE))
+    PCMTreeGetPartition(tree)
+    PCMTreeGetPartition(PCMTreeSetPartition(tree, c(PCMTreeGetPartition(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[15]]])), inplace = FALSE))
 
-    c(PCMTreeGetStartingNodesRegimes(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[2]]]))
+    c(PCMTreeGetPartition(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[2]]]))
 
-    PCMTreePlot(PCMTreeSetRegimes(tree, c(PCMTreeGetStartingNodesRegimes(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[15]]])), inplace = FALSE))
+    PCMTreePlot(PCMTreeSetPartition(tree, c(PCMTreeGetPartition(tree), PCMTreeMatchLabels(tree, PCMTreeGetLabels(treePartRoot)[listCladePartitionsPart[[15]]])), inplace = FALSE))
 
   }
 

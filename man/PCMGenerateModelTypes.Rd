@@ -5,7 +5,7 @@
 \title{Generate default model types for given PCM base-classes}
 \usage{
 PCMGenerateModelTypes(baseTypes = c("BM", "OU"),
-  parametrizations = c("default", "all"))
+  parametrizations = c("default", "all"), sourceFile = NULL)
 }
 \arguments{
 \item{baseTypes}{a character vector specifying base S3-class names for which
@@ -19,6 +19,11 @@ This argument should be one of:
 \item{"all"}{for calling `PCMListParameterizations`}
 \item{"default"}{for calling `PCMListDefaultParameterizations`}
 }}
+
+\item{sourceFile}{NULL or a character string indicating a .R filename, to
+which the automatically generated code will be saved. If NULL (the default),
+the generated source code is evaluated and the S3 methods are defined in the
+global environment. Default: NULL.}
 }
 \value{
 This function has side effects only and does not return a value.

@@ -227,7 +227,7 @@ PCMColorPalette <- function(n, names) {
 #' @export
 PCMPlotTraitData2D <- function(
   X, tree, labeledTips = NULL, sizeLabeledTips = 8,
-  palette = PCMColorPalette(PCMTreeNumUniqueRegimes(tree), PCMTreeUniqueRegimes(tree)),
+  palette = PCMColorPalette(PCMTreeNumParts(tree), PCMTreeGetPartNames(tree)),
   scaleSizeWithTime = !is.ultrametric(tree)) {
 
   # Needed to pass the check
@@ -236,7 +236,7 @@ PCMPlotTraitData2D <- function(
 
 
   N <- PCMTreeNumTips(tree)
-  R <- PCMTreeNumUniqueRegimes(tree)
+  R <- PCMTreeNumParts(tree)
 
   times <- PCMTreeNodeTimes(tree, tipsOnly = TRUE)
   Xt <- t(X)
@@ -245,7 +245,7 @@ PCMPlotTraitData2D <- function(
   data[, id:=1:(.N)]
   data[, time:=times]
 
-  data[, regime:=as.factor(sapply(id, function(i) PCMTreeGetRegimesForNodes(tree, i)))]
+  data[, regime:=as.factor(sapply(id, function(i) PCMTreeGetPartsForNodes(tree, i)))]
   setkey(data, id)
 
   if(!is.null(labeledTips)) {

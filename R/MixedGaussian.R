@@ -107,10 +107,10 @@ PCMParamCount.MixedGaussian <- function(
 #' four different regimes with model-types BM3, BM3, OU3 and BM3, corresponding
 #' to each regime. \code{mapping} does not have to be a named vector. If it is a
 #' named vector, then all the names must correspond to valid regime names in a
-#' tree to which the model will be fit or simulated (member tree$edge.regime
+#' tree to which the model will be fit or simulated (member tree$edge.part
 #' should be a character vector). If it is not a named vector then the positions
 #' of the elements correspond to the regimes in their order given by the
-#' function \code{\link{PCMTreeUniqueRegimes}} called on a tree object.
+#' function \code{\link{PCMTreeGetPartNames}} called on a tree object.
 #' @param className a character string definingn a valid S3 class name for the
 #' resulting MixedGaussian object. If not specified, a className is generated
 #' using the expression
@@ -131,7 +131,7 @@ PCMParamCount.MixedGaussian <- function(
 #' a parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae_x
 #' is not NULL there is no meaning in using model-types including Sigmae_x as a
 #' parameter, (e.g. use OU2 or OU3 instead of OU or OU1).
-#' @seealso \code{\link{PCMTreeUniqueRegimes}}
+#' @seealso \code{\link{PCMTreeGetPartNames}}
 #' @seealso \code{\link{PCMModels}()}
 #'
 #' @export
@@ -196,7 +196,7 @@ MixedGaussian <- function(
 
 #' @export
 PCMMapModelTypesToRegimes.MixedGaussian <- function(model, tree, ...) {
-  uniqueRegimes <- PCMTreeUniqueRegimes(tree)
+  uniqueRegimes <- PCMTreeGetPartNames(tree)
   res <- attr(model, "mapping", exact=TRUE)
   if(!is.null(names(res))) {
     res <- res[as.character(uniqueRegimes)]

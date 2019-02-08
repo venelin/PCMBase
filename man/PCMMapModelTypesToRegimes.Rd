@@ -9,13 +9,13 @@ PCMMapModelTypesToRegimes(model, tree, ...)
 \arguments{
 \item{model}{a PCM model}
 
-\item{tree}{a phylo object with an edge.regime member}
+\item{tree}{a phylo object with an edge.part member}
 
 \item{...}{additional parameters passed to methods}
 }
 \value{
 an integer vector with elements corresponding to the elements in
-\code{PCMTreeUniqueRegimes(tree)}
+\code{PCMTreeGetPartNames(tree)}
 }
 \description{
 Integer vector giving the model type index for each regime
@@ -25,5 +25,5 @@ This is a generic S3 method. The default implementation for the basic
 class PCM returns a vector of 1's, because it assumes that a single model type
 is associated with each regime. The implementation for mixed Gaussian models
 returns the mapping attribute of the MixedGaussian object reordered to
-correspond to \code{PCMTreeUniqueRegimes(tree)}.
+correspond to \code{PCMTreeGetPartNames(tree)}.
 }

@@ -12,7 +12,7 @@ PCMGetVecParamsRegimesAndModels(model, tree, ...)
 \arguments{
 \item{model}{a PCM model}
 
-\item{tree}{a phylo object with an edge.regime member.}
+\item{tree}{a phylo object with an edge.part member.}
 
 \item{...}{additional parameters passed to methods.}
 }

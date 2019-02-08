@@ -4,15 +4,14 @@
 \alias{PCMTreeToString}
 \title{A character representation of a phylo object.}
 \usage{
-PCMTreeToString(tree, includeLengths = FALSE,
-  includeStartingNodesRegimes = FALSE)
+PCMTreeToString(tree, includeLengths = FALSE, includePartition = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object.}
 
 \item{includeLengths}{logical. Default: FALSE.}
 
-\item{includeStartingNodesRegimes}{logical. Default: FALSE.}
+\item{includePartition}{logical. Default: FALSE.}
 }
 \value{
 a character string.

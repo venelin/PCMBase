@@ -6,7 +6,7 @@ library(PCMBase)
 if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
 
-  load("testobjects.RData")
+  list2env(PCMBaseTestObjects, globalenv())
 
   set.seed(1)
 

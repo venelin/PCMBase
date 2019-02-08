@@ -53,7 +53,7 @@ modelBM
 One may wonder why in the above description, p = 8 instead of 10 (see also `?PCMParamCount`). The reason is that both, the matrix Sigma and the matrix Sigmae, are symmetric matrices and their matching off-diagonal elements are counted only one time.
 
 ## Model regimes
-Model *regimes* are different models associated with different branches of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a 2-trait BM model with two regimes called a and b:
+Model *regimes* are different models associated with different parts of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a 2-trait BM model with two regimes called a and b:
 
 ```{r}
 modelBM.ab <- PCM("BM", k = 2, regimes = c("a", "b"))
@@ -113,7 +113,7 @@ print(modelBM.ab)
 # Simulating data on a phylogenetic tree
 The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM. 
 
-For this example, first we simulate a birth death tree with two regimes "a" and "b" using the `phytools` R-package:
+For this example, first we simulate a birth death tree with two parts "a" and "b" using the `phytools` R-package:
 
 ```{r}
 # make results reproducible
@@ -127,21 +127,21 @@ N <- 100
 
 tree.a <- rtree(n=N)
 PCMTreeSetLabels(tree.a)
-PCMTreeSetDefaultRegime(tree.a, regime = "a")
+PCMTreeSetDefaultPartition(tree.a, part = "a")
 
 lstDesc <- PCMTreeListDescendants(tree.a)
 splitNode <- names(lstDesc)[which(sapply(lstDesc, length) > N/2 & sapply(lstDesc, length) < 2*N/3)][1]
 
 tree.ab <- PCMTreeInsertSingletons(tree.a, nodes = as.integer(splitNode), 
                                    positions = PCMTreeGetBranchLength(tree.a, as.integer(splitNode))/2)
-PCMTreeSetRegimes(tree.ab, nodes = splitNode, regimes = c("a", "b"), inplace = TRUE)
+PCMTreeSetPartition(tree.ab, nodes = splitNode, parts = c("a", "b"), inplace = TRUE)
 
 # Currently this is causing a failure of the pkgdown::build_site(), so we use the 
 # ape's tree-plotting function
 # PCMTreePlot(tree.ab)
 
 palette <- PCMColorPalette(2, c("a", "b"))
-plot(tree.ab, show.tip.label=FALSE, edge.color = palette[tree.ab$edge.regime])
+plot(tree.ab, show.tip.label=FALSE, edge.color = palette[tree.ab$edge.part])
 ```
 
 Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:

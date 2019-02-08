@@ -7,7 +7,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   library(mvtnorm)
 
-  load("testobjects.RData")
+  list2env(PCMBaseTestObjects, globalenv())
 
   test_that("Calling PCMGenerateParameterizations()", {
     expect_silent(tableParametrizationsDOU <- PCMTableParameterizations(structure(0.0, class="DOU")))

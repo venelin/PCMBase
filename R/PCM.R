@@ -515,6 +515,10 @@ PCMTableParameterizations <- function(
 #' @param useModelClassNameForFirstRow A logical specifying if the S3 class name of
 #' `model` should be used as a S3 class for the model defined in the first row of
 #' `tableParameterizations`. Default: FALSE.
+#' @param sourceFile NULL or a character string indicating a .R filename, to
+#' which the automatically generated code will be saved. If NULL (the default),
+#' the generated source code is evaluated and the S3 methods are defined in the
+#' global environment. Default: NULL.
 #' @return This function does not return a value. It only has a side effect by
 #' defining S3 methods in `env`.
 #'
@@ -524,7 +528,8 @@ PCMGenerateParameterizations <- function(
   listParameterizations = PCMListParameterizations(model),
   tableParameterizations = PCMTableParameterizations(model, listParameterizations),
   env = .GlobalEnv,
-  useModelClassNameForFirstRow = FALSE) {
+  useModelClassNameForFirstRow = FALSE,
+  sourceFile = NULL) {
 
   if(!is.PCM(model)) {
     # We assume that the passed model's class is a single character not including the
@@ -536,7 +541,15 @@ PCMGenerateParameterizations <- function(
   paramNames <- names(tableParameterizations)
   paramDescriptions <- PCMDescribeParameters(model)
 
-  for(i in 1:nrow(tableParameterizations)) {
+  if(!is.null(sourceFile)) {
+    write(paste0(
+      "# This file was auto-generated through a call to ",
+      "PCMGenerateParametrizations().\n" ,
+      "# Do not edit by hand.\n\n"),
+      file = sourceFile)
+  }
+
+  for(i in seq_len(nrow(tableParameterizations))) {
     nameFunPCMParentClasses <- paste0("PCMParentClasses.", classesModel[1])
     nameFunPCMSpecify <- paste0("PCMSpecify.", classesModel[1])
     if(i != 1 || !useModelClassNameForFirstRow) {
@@ -586,13 +599,21 @@ PCMGenerateParameterizations <- function(
     sourcePCMSpecify <- paste0(
       sourcePCMSpecify,
       "attributes(spec) <- attributes(model)\n",
-      "if(is.null(names(spec))) names(spec) <- ", PCMCharacterVectorToRExpression(paramNames), "\n",
+      "if(is.null(names(spec))) names(spec) <- ",
+      PCMCharacterVectorToRExpression(paramNames), "\n",
       "if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')\n",
       "spec\n",
       "}")
 
-    eval(parse(text = sourcePCMParentClasses), env)
-    eval(parse(text = sourcePCMSpecify), env)
+    if(!is.null(sourceFile)) {
+      write(paste0(
+        "#' @export\n", sourcePCMParentClasses, "\n\n",
+        "#' @export\n", sourcePCMSpecify, "\n\n"),
+        file = sourceFile, append = TRUE)
+    } else {
+      eval(parse(text = sourcePCMParentClasses), env)
+      eval(parse(text = sourcePCMSpecify), env)
+    }
   }
 }
 
@@ -611,12 +632,17 @@ PCMGenerateParameterizations <- function(
 #' \item{"all"}{for calling `PCMListParameterizations`}
 #' \item{"default"}{for calling `PCMListDefaultParameterizations`}
 #' }
+#' @param sourceFile NULL or a character string indicating a .R filename, to
+#' which the automatically generated code will be saved. If NULL (the default),
+#' the generated source code is evaluated and the S3 methods are defined in the
+#' global environment. Default: NULL.
 #' @return This function has side effects only and does not return a value.
 #' @seealso PCMListDefaultParameterizations
 #' @export
 PCMGenerateModelTypes <- function(
   baseTypes = c("BM", "OU"),
-  parametrizations = c("default", "all")) {
+  parametrizations = c("default", "all"),
+  sourceFile = NULL) {
   for(bt in baseTypes) {
     o <- structure(0.0, class=bt)
     PCMGenerateParameterizations(
@@ -625,7 +651,8 @@ PCMGenerateModelTypes <- function(
         PCMListParameterizations(o)
       } else {
         PCMListDefaultParameterizations(o)
-      })
+      },
+      sourceFile = sourceFile)
   }
 }
 
@@ -703,15 +730,15 @@ PCMNumRegimes.PCM <- function(model) {
 
 #' Integer vector giving the model type index for each regime
 #' @param model a PCM model
-#' @param tree a phylo object with an edge.regime member
+#' @param tree a phylo object with an edge.part member
 #' @param ... additional parameters passed to methods
 #' @return an integer vector with elements corresponding to the elements in
-#' \code{PCMTreeUniqueRegimes(tree)}
+#' \code{PCMTreeGetPartNames(tree)}
 #' @details This is a generic S3 method. The default implementation for the basic
 #' class PCM returns a vector of 1's, because it assumes that a single model type
 #' is associated with each regime. The implementation for mixed Gaussian models
 #' returns the mapping attribute of the MixedGaussian object reordered to
-#' correspond to \code{PCMTreeUniqueRegimes(tree)}.
+#' correspond to \code{PCMTreeGetPartNames(tree)}.
 #' @export
 PCMMapModelTypesToRegimes <- function(model, tree, ...) {
   UseMethod("PCMMapModelTypesToRegimes", model)
@@ -719,7 +746,7 @@ PCMMapModelTypesToRegimes <- function(model, tree, ...) {
 
 #' @export
 PCMMapModelTypesToRegimes.PCM <- function(model, tree, ...) {
-  uniqueRegimes <- PCMTreeUniqueRegimes(tree)
+  uniqueRegimes <- PCMTreeGetPartNames(tree)
   res <- rep(1, length(uniqueRegimes))
   names(res) <- as.character(uniqueRegimes)
   res
@@ -737,7 +764,7 @@ PCMMapModelTypesToRegimes.PCM <- function(model, tree, ...) {
 #' in the vector of the first splitting node.
 #'
 #' @param model a PCM model
-#' @param tree a phylo object with an edge.regime member.
+#' @param tree a phylo object with an edge.part member.
 #' @param ... additional parameters passed to methods.
 #' @return a numeric vector concatenating the result
 #' @export
@@ -748,7 +775,7 @@ PCMGetVecParamsRegimesAndModels <- function(model, tree, ...) {
 #' @export
 PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
   numericParams <- PCMParamGetShortVector(model)
-  startingNodesRegimes <- PCMTreeGetStartingNodesRegimes(tree)
+  startingNodesRegimes <- PCMTreeGetPartition(tree)
   models <- PCMMapModelTypesToRegimes(model, tree, ...)
   c(numericParams, startingNodesRegimes, models)
 }
@@ -881,7 +908,7 @@ PCMMeanAtTime <- function(t, model, X0 = model$X0, regime = 1L, verbose = FALSE)
                  edge=rbind(c(3L, 1L), c(3L, 2L)),
                  edge.length=rep(t, 2),
                  Nnode = 1L,
-                 edge.regime = rep(regime, 2))
+                 edge.part = rep(regime, 2))
   class(cherry) <- "phylo"
 
   metaI <- PCMInfo(NULL, cherry, model, verbose = verbose)
@@ -976,7 +1003,7 @@ PCMVarAtTime <- function(
                  edge=rbind(c(3L, 1L), c(3L, 2L)),
                  edge.length=rep(t, 2),
                  Nnode = 1L,
-                 edge.regime = rep(regime, 2))
+                 edge.part = rep(regime, 2))
   class(cherry) <- "phylo"
 
 
@@ -1249,8 +1276,8 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 #' \item{M}{total number of nodes in the tree;}
 #' \item{N}{number of tips;}
 #' \item{k}{number of traits;}
-#' \item{RTree}{number of regimes on the tree (distinct elements of tree$edge.regime);}
-#' \item{RModel}{number of regimes in the model (distinct elements of attr(model, regimes));}
+#' \item{RTree}{number of parts on the tree (distinct elements of tree$edge.part);}
+#' \item{RModel}{number of regimes in the model (elements of attr(model, regimes));}
 #' \item{p}{number of free parameters describing the model;}
 #' \item{r}{an integer vector corresponding to tree$edge with the regime for each
 #' branch in tree;}
@@ -1278,8 +1305,13 @@ PCMInfo.PCM <- function(
     model <- PCMApplyTransformation(model)
   }
 
-  if(is.null(tree$edge.regime)) {
-    PCMTreeSetDefaultRegime(tree, model)
+  if(is.null(tree$edge.part) && !is.null(tree$edge.regime)) {
+    # compatibility with previous versions
+    tree$edge.part <- tree$edge.regime
+  }
+
+  if(is.null(tree$edge.part)) {
+    PCMTreeSetDefaultPartition(tree, model)
   }
 
   if(is.null(preorder)) {
@@ -1308,7 +1340,7 @@ PCMInfo.PCM <- function(
     M = M,
     N = N,
     k = k,
-    RTree = PCMTreeNumUniqueRegimes(tree),
+    RTree = PCMTreeNumParts(tree),
     RModel = PCMNumRegimes(model),
     r = PCMTreeGetRegimesForEdges(tree, model, preorder),
     p = PCMParamCount(model),

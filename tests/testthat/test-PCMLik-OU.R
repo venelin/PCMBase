@@ -7,9 +7,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
 
   library(mvtnorm)
 
-  load("testobjects.RData")
-
-
+  list2env(PCMBaseTestObjects, globalenv())
 
   # test likelihood
   test_that(

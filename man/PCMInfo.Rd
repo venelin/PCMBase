@@ -43,8 +43,8 @@ matrix for each for each tip i = 1,...,N. See the parameter \code{SE} in
 \item{M}{total number of nodes in the tree;}
 \item{N}{number of tips;}
 \item{k}{number of traits;}
-\item{RTree}{number of regimes on the tree (distinct elements of tree$edge.regime);}
-\item{RModel}{number of regimes in the model (distinct elements of attr(model, regimes));}
+\item{RTree}{number of parts on the tree (distinct elements of tree$edge.part);}
+\item{RModel}{number of regimes in the model (elements of attr(model, regimes));}
 \item{p}{number of free parameters describing the model;}
 \item{r}{an integer vector corresponding to tree$edge with the regime for each
 branch in tree;}
