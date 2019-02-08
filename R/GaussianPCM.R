@@ -122,7 +122,7 @@ PCMVar.GaussianPCM <- function(
   })
 
   BlockI <- function(i) {
-    (i-1)*k + (1:k)
+    (i-1)*k + seq_len(k)
   }
 
   # Variance-covariance matrix at the tips
@@ -132,8 +132,8 @@ PCMVar.GaussianPCM <- function(
   Wii <- matrix(as.double(NA), k, k*M)
   Wii[, BlockI(N+1)] <- W0
 
-  # need to set the names of the nodes and tips to their integer indices converted to character strings
-  # this affects the local tree
+  # need to set the names of the nodes and tips to their integer indices
+  # converted to character strings this affects the local tree
   PCMTreeSetLabels(tree)
   listPathsToRoot <- PCMTreeListRootPaths(tree)
 
@@ -197,13 +197,17 @@ PCMVar.GaussianPCM <- function(
     if(is.na(min(svdV)/max(svdV)) ||
        min(svdV)/max(svdV) < threshold_SV ||
        eigval[k] < threshold_eigval) {
-      if(!skip_singular || t > threshold_skip_singular ) {
+      if( !skip_singular || t > threshold_skip_singular ) {
         err <- paste0(
           "ERR:02121:PCMBase:GaussianPCM.R:PCMVar.GaussianPCM:",i,":",
           " The matrix V for node ", i,
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-          ". eigval[k] = ", eigval[k], "; Check PCMOptions()$PCMBase.Threshold.EV, PCMOptions()$PCMBase.Threshold.SV PCMOptions()$PCMBase.Threshold.Skip.Singular and the model parameters and the length of the branch",
-          " leading to the node. For details on this error, read the User Guide.")
+          ". eigval[k] = ", eigval[k],
+          "; Check PCMOptions()$PCMBase.Threshold.EV, ", "
+          PCMOptions()$PCMBase.Threshold.SV, ",
+          "PCMOptions()$PCMBase.Threshold.Skip.Singular ",
+          "and the model parameters and the length of the branch ",
+          "leading to the node. For details on this error, read the User Guide.")
         stop(err)
       } else {
         # skip the singular branch by taking the values from j unchanged
@@ -234,8 +238,8 @@ PCMVar.GaussianPCM <- function(
   }
 
   if(N > 1) {
-    for(i in 1:N) {
-      for(j in i:N) {
+    for(i in seq_len(N)) {
+      for(j in seq_len(N)) {
         mrca_ij <- MRCA(i, j)
 
         if(mrca_ij == i) {
