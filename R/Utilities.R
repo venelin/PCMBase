@@ -28,6 +28,113 @@ PCMBaseIsADevRelease <- function(numVersionComponents = 4L) {
     length(strsplit(packageDescription("PCMBase")$Version, "\\.")[[1]]) >= numVersionComponents
 }
 
+#' Plot the trajectory of the mean for a bivariate PCM over time starting from a value X0
+#' @importFrom ggplot2 ggplot scale_color_continuous geom_path aes stat_ellipse arrow
+#' @importFrom data.table data.table
+#' @importFrom mvtnorm rmvnorm
+#' @export
+#' @examples
+#' # a Brownian motion model with one regime
+#' modelOU <- PCM(model = PCMDefaultModelTypes()['F'], k = 2)
+#'
+#' # assign the model parameters at random: this will use uniform distribution
+#' # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
+#' # We do this in two steps:
+#' # 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
+#' randomParams <- PCMParamRandomVecParams(modelOU, PCMNumTraits(modelOU), PCMNumRegimes(modelOU))
+#' # 2. Then we load this random vector into the model.
+#' PCMParamLoadOrStore(modelOU, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), load = TRUE)
+#' # let's plot the trajectory of the model starting from X0 = c(0,0)
+#' PCMPlotTrajectory2D(c(0, 0), modelOU)
+PCMPlotTrajectory2D <- function(
+  X0s,
+  model,
+  regime = 1L,
+  dims = c(1, 2),
+  tX = seq(0, 100, by = 1),
+  tVar = tX[seq(1, length(tX), length.out = 4)],
+  sizeSamp = 100,
+  doPlot = TRUE,
+  plot = NULL) {
+
+  dt <- data.table(
+    t = tX,
+    X = list(NULL),
+    V = list(NULL),
+    samp = list(NULL))
+
+  dt[1, X:=list(list(X0s))]
+
+  for(i in seq_len(nrow(dt)-1)) {
+    dt[i + 1, c("X", "V", "samp"):={
+      X <- lapply(X0s, function(X0) {
+        PCMMeanAtTime(
+          t = t,
+          model = model,
+          X0 = X0,
+          regime = regime)
+      })
+      V = PCMVarAtTime(
+        t = t,
+        model = model,
+        regime = regime)
+      if(t %in% tVar) {
+        samp <- rmvnorm(sizeSamp, sigma = V)
+      } else {
+        samp <- NULL
+      }
+      list(X = list(X), V = list(V), samp = list(samp))
+    }]
+  }
+
+  setkey(dt, t)
+
+  if(doPlot) {
+    if(is.null(plot)) {
+      pl <- ggplot(NULL)
+    } else {
+      pl <- plot
+    }
+    for(i in seq_along(X0s)) {
+      dtPath <- dt[, list(
+        x = sapply(X, function(Xt) Xt[[i]][dims[1]]),
+        y = sapply(X, function(Xt) Xt[[i]][dims[2]])
+      )]
+      pl <- pl +
+        geom_path(
+          data = dtPath,
+          mapping = aes(x = x, y = y),
+          arrow = arrow(angle = 30, ends = "last", type = "open"),
+          size = 1)
+    }
+
+    for(tV in tVar) {
+      if(tV != 0) {
+        for(i in seq_along(X0s)) {
+          Xt <- dt[list(tV)]$X[[1]][[i]]
+          samp <- dt[list(tV)]$samp[[1]]
+          samp <- do.call(
+            data.table,
+            list(
+              x1 = samp[, dims[1]] + Xt[dims[1]],
+              x2 = samp[, dims[2]] + Xt[dims[2]]))
+          samp[, t:=tV]
+
+          pl <- pl +
+            stat_ellipse(
+              data = samp,
+              aes(x = x1, y = x2),
+              type="norm")
+        }
+      }
+    }
+    pl
+  } else {
+    dt
+  }
+}
+
+
 #' Beautiful model description based on plotmath
 #' @description This is an S3 generic that produces a plotmath expression for
 #' its argument.
@@ -179,7 +286,10 @@ PCMPlotMath.PCM <- function(o, roundDigits = 2, transformChol = FALSE) {
       name <- "Sigma"
       transformChol <- TRUE
     }
-    res <- paste0(res, name, "==", PCMPlotMath(o[[i]], roundDigits = roundDigits, transformChol = transformChol))
+    res <- paste0(
+      res, name, "==", PCMPlotMath(
+        o[[i]], roundDigits = roundDigits,
+        transformChol = transformChol))
     if(i < length(o)) {
       res <- paste0(res, ", ")
     }

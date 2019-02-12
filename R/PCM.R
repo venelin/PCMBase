@@ -541,14 +541,6 @@ PCMGenerateParameterizations <- function(
   paramNames <- names(tableParameterizations)
   paramDescriptions <- PCMDescribeParameters(model)
 
-  if(!is.null(sourceFile)) {
-    write(paste0(
-      "# This file was auto-generated through a call to ",
-      "PCMGenerateParametrizations().\n" ,
-      "# Do not edit by hand.\n\n"),
-      file = sourceFile)
-  }
-
   for(i in seq_len(nrow(tableParameterizations))) {
     nameFunPCMParentClasses <- paste0("PCMParentClasses.", classesModel[1])
     nameFunPCMSpecify <- paste0("PCMSpecify.", classesModel[1])
@@ -643,6 +635,15 @@ PCMGenerateModelTypes <- function(
   baseTypes = c("BM", "OU"),
   parametrizations = c("default", "all"),
   sourceFile = NULL) {
+
+  if( !is.null(sourceFile) ) {
+    write(paste0(
+      "# This file was auto-generated through a call to ",
+      "PCMGenerateModelTypes()\n" ,
+      "# Do not edit by hand.\n\n"),
+      file = sourceFile)
+  }
+
   for(bt in baseTypes) {
     o <- structure(0.0, class=bt)
     PCMGenerateParameterizations(
@@ -908,15 +909,21 @@ PCMMeanAtTime <- function(t, model, X0 = model$X0, regime = 1L, verbose = FALSE)
                  edge=rbind(c(3L, 1L), c(3L, 2L)),
                  edge.length=rep(t, 2),
                  Nnode = 1L,
-                 edge.part = rep(regime, 2))
+                 edge.part = rep(regime, 2),
+                 part.regime = structure(
+                   PCMRegimes(model)[regime], names = as.character(regime)))
   class(cherry) <- "phylo"
 
-  metaI <- PCMInfo(NULL, cherry, model, verbose = verbose)
+  metaI <- PCMInfo(X = NULL, tree = cherry, model = model, verbose = verbose)
 
-  metaI$r <- rep(regime, 2)
+  MeanCherry <- PCMMean(
+    tree = cherry,
+    model = model,
+    X0 = X0,
+    metaI = metaI,
+    verbose = verbose)
 
-  MeanCherry <- PCMMean(cherry, model, X0, metaI = metaI, verbose = verbose)
-  MeanCherry[, 1]
+  MeanCherry[, 1L]
 }
 
 
@@ -1003,7 +1010,9 @@ PCMVarAtTime <- function(
                  edge=rbind(c(3L, 1L), c(3L, 2L)),
                  edge.length=rep(t, 2),
                  Nnode = 1L,
-                 edge.part = rep(regime, 2))
+                 edge.part = rep(regime, 2),
+                 part.regime = structure(
+                   PCMRegimes(model)[regime], names = as.character(regime)))
   class(cherry) <- "phylo"
 
 

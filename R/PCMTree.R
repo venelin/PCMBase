@@ -378,7 +378,8 @@ PCMTreeGetRegimesForEdges <- function(
   } else {
     # "new" regime assignment convention:
     # one regime can be associated with several parts.
-    regimeInd <- match( tree$part.regime[tree$edge.part], PCMRegimes(model) )
+    regimeInd <- match(
+      tree$part.regime[as.character(tree$edge.part)], PCMRegimes(model) )
   }
 
   if(any(is.na(regimeInd))) {
@@ -1352,7 +1353,7 @@ PCMTreeBackbonePartition <- function(tree) {
     tree$edge.part <- tree$edge.regime
   }
 
-  # Needed to pass the check.
+  # Needed to pass the R CMD CHECK.
   part <- endNode <- endTime <- NULL
 
   N <- PCMTreeNumTips(tree)
