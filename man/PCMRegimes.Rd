@@ -2,16 +2,16 @@
 % Please edit documentation in R/PCM.R
 \name{PCMRegimes}
 \alias{PCMRegimes}
-\title{Regimes in a model}
+\title{Get the regimes (aka colors) of a PCM or of a PCMTree object}
 \usage{
-PCMRegimes(model)
+PCMRegimes(obj)
 }
 \arguments{
-\item{model}{a PCM object}
+\item{obj}{a PCM or a PCMTree object}
 }
 \value{
-a character or an integer vector giving the regime names in the model
+a character or an integer vector giving the regime names in the obj
 }
 \description{
-Regimes in a model
+Get the regimes (aka colors) of a PCM or of a PCMTree object
 }

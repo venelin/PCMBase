@@ -9,7 +9,8 @@ PCMTreeTableAncestors(tree, preorder = PCMTreePreorder(tree))
 \arguments{
 \item{tree}{a phylo object}
 
-\item{preorder}{an integer vector returned by a previous call to \code{PCMTreePreorder(tree)}. Default \code{PCMTreePreorder(tree)}.}
+\item{preorder}{an integer vector returned by a previous call to
+\code{PCMTreePreorder(tree)}. Default \code{PCMTreePreorder(tree)}.}
 }
 \value{
 an integer square matrix of size M x M where M is the number of nodes

@@ -6,7 +6,8 @@
 \usage{
 PCMVarAtTime(t, model, W0 = matrix(0, PCMNumTraits(model),
   PCMNumTraits(model)), SE = matrix(0, PCMNumTraits(model),
-  PCMNumTraits(model)), regime = 1L, verbose = FALSE)
+  PCMNumTraits(model)), regime = PCMRegimes(model)[1L],
+  verbose = FALSE)
 }
 \arguments{
 \item{t}{positive numeric denoting time}
@@ -20,8 +21,9 @@ root (default is the k x k zero matrix).}
 SE %*% t(SE) is added to the variance calculated from the model.
 Default: SE = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)).}
 
-\item{regime}{an integer or a character denoting the regime in model for which to do the calculation;
-(Defaults to 1L meaning the first regime in the model)}
+\item{regime}{an integer or a character denoting the regime in model for
+which to do the calculation; Defaults to PCMRegimes(model)[1L], meaning the
+first regime in the model.}
 
 \item{verbose}{a logical indicating if (debug) messages should be written on the console (Defaults to FALSE).}
 }

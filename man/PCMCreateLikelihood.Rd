@@ -30,17 +30,21 @@ Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k.}
 
-\item{positiveValueGuard}{positive numerical value (default Inf), which serves as a guard for numerical error. Values exceeding
-this positiveGuard are most likely due to numerical error and PCMOptions()$PCMBase.Value.NA is returned instead.}
+\item{positiveValueGuard}{positive numerical value (default Inf), which
+serves as a guard for numerical error. Values exceeding
+this positiveGuard are most likely due to numerical error and
+PCMOptions()$PCMBase.Value.NA is returned instead.}
 }
 \value{
-a function of a numerical vector parameter called p returning the likelihood
-of X given the tree and the model with parameter values specified by p.
+a function of a numerical vector parameter called p returning the
+likelihood of X given the tree and the model with parameter values specified
+by p.
 }
 \description{
 Create a likelhood function of a numerical vector parameter
 }
 \details{
-It is possible to specify a function for the argument metaI. This function should
-have three parameters (X, tree, model) and should return a metaInfo object. (see \code{\link{PCMInfo}}).
+It is possible to specify a function for the argument metaI. This
+function should have three parameters (X, tree, model) and should return a
+metaInfo object. (see \code{\link{PCMInfo}}).
 }

@@ -15,37 +15,36 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
   N <- 40
 
   # tree with one regime
-  tree.a <- rtree(N)
-  PCMTreeSetDefaultPartition(tree.a, model.a.1)
-  PCMTreeSetLabels(tree.a)
+  tree.a <- PCMTree(rtree(N))
+  PCMTreeSetPartRegimes(tree.a, part.regime = c(`41` = "a"))
   #PCMTreePlot(tree.a)
 
   test_that(
     "Tree with 40 tips and one regime", {
       expect_identical(PCMTreeGetParent(tree.a, 71L), 52L)
       expect_identical(PCMTreeGetLabels(tree.a)[52L], "52")
-      expect_identical(PCMTreeGetPartsForNodes(tree.a, "71"), "a")
+      expect_identical(PCMTreeGetPartsForNodes(tree.a, "71"), c("41"))
       expect_identical(PCMTreeNumParts(tree.a), 1L)
-      expect_identical(PCMTreeGetPartition(tree.a), c(a = 41L))
+      expect_identical(PCMTreeGetPartition(tree.a), c(`41` = 41L))
     })
 
   tree.ab <- tree.a
-  PCMTreeSetPartition(tree.ab, nodes = N + 31, parts = c("a", "b"))
+  PCMTreeSetPartRegimes(
+    tree.ab, part.regime = c(`41` = "a", `71` = "b"), setPartition = TRUE)
   #PCMTreePlot(tree.ab)
 
   test_that(
     "Tree with 40 tips and two regimes", {
       expect_identical(PCMTreeGetParent(tree.ab, 71L), 52L)
       expect_identical(PCMTreeGetLabels(tree.ab)[52L], "52")
-      expect_identical(PCMTreeGetPartsForNodes(tree.ab, "71"), "b")
-      expect_identical(PCMTreeGetPartition(tree.ab), c(a = 41L, b = 71L))
+      expect_identical(PCMTreeGetPartsForNodes(tree.ab, "71"), "71")
+      expect_identical(PCMTreeGetPartition(tree.ab), c(`41` = 41L, `71` = 71L))
     })
 
 
   set.seed(1)
 
-  tree <- rtree(15)
-  PCMTreeSetDefaultPartition(tree, 1)
+  tree <- PCMTree(rtree(15))
 
   test_that("PCMTreeNodeTimes", {
     expect_equivalent(
@@ -95,8 +94,7 @@ if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
   if(FALSE) {
     set.seed(1)
 
-    tree <- rtree(200)
-    PCMTreeSetDefaultPartition(tree, 1)
+    tree <- PCMTree(rtree(200))
     PCMTreeSetLabels(tree)
 
     PCMTreePlot(tree)

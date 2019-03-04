@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
+#' @export
+PCMModelTypes.MixedGaussian <- function(obj) {
+  attr(obj, "modelTypes", exact = TRUE)
+}
+
 #' Check if an object is a `MixedGaussian` PCM
 #' @param x any object
 #' @return TRUE if x inherits from the S3 class `MixedGaussian`, FALSE otherwise.
@@ -85,7 +90,7 @@ PCMParamCount.MixedGaussian <- function(
 
   p <- NextMethod()
   if(countModelTypes) {
-    if(length(attr(o, "modelTypes", exact = TRUE)) > 1) {
+    if(length(PCMModelTypes(o)) > 1) {
       # + 1 has already been counted by the default PCM implementatioin (call
       # to NextMethod() above)
       p <- p + PCMNumRegimes(o) - 1

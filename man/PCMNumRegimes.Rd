@@ -2,16 +2,16 @@
 % Please edit documentation in R/PCM.R
 \name{PCMNumRegimes}
 \alias{PCMNumRegimes}
-\title{Number of regimes in a model}
+\title{Number of regimes in a obj}
 \usage{
-PCMNumRegimes(model)
+PCMNumRegimes(obj)
 }
 \arguments{
-\item{model}{a PCM object}
+\item{obj}{a PCM object}
 }
 \value{
 an integer
 }
 \description{
-Number of regimes in a model
+Number of regimes in a obj
 }

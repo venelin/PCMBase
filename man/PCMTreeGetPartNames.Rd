@@ -4,19 +4,14 @@
 \alias{PCMTreeGetPartNames}
 \title{Unique parts on a tree in the order of occurrence from the root to the tips (preorder)}
 \usage{
-PCMTreeGetPartNames(tree, preorder = PCMTreePreorder(tree))
+PCMTreeGetPartNames(tree)
 }
 \arguments{
 \item{tree}{a phylo object with an additional member edge.part which should
 be a character or an integer vector of length equal to the number of branches.}
-
-\item{preorder}{an integer vector of row-indices in tree$edge matrix as
-returned by PCMTreePreorder. This can be given for performance speed-up when
-several operations needing preorder are executed on the tree. Default :
-\code{PCMTreePreorder(tree)}.}
 }
 \value{
-a character or an integer vector depending on tree$edge.part.
+a character vector.
 }
 \description{
 Unique parts on a tree in the order of occurrence from the root to the tips (preorder)

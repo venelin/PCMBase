@@ -5,8 +5,8 @@
 \title{Scatter plot of 2-dimensional data}
 \usage{
 PCMPlotTraitData2D(X, tree, labeledTips = NULL, sizeLabeledTips = 8,
-  palette = PCMColorPalette(PCMTreeNumParts(tree),
-  PCMTreeGetPartNames(tree)), scaleSizeWithTime = !is.ultrametric(tree))
+  palette = PCMColorPalette(PCMNumRegimes(tree), PCMRegimes(tree)),
+  scaleSizeWithTime = !is.ultrametric(tree))
 }
 \arguments{
 \item{X}{a k x N matrix}

@@ -12,7 +12,8 @@ PCMTreeMatchLabels(tree, labels)
 \item{labels}{a character vector with valid tip or node labels from tree}
 }
 \value{
-an integer vector giving the tip- or node- integer indices corresponding to labels.
+an integer vector giving the tip- or node- integer indices
+ corresponding to labels.
 }
 \description{
 Get the node numbers associated with tip- or node-labels in a tree

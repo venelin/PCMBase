@@ -2,26 +2,66 @@
 % Please edit documentation in R/PCMTree.R
 \name{PCMTreeMatrixNodesInSamePart}
 \alias{PCMTreeMatrixNodesInSamePart}
-\title{Which nodes in a tree belong to the same part?}
+\alias{PCMTreeMatrixNodesInSameRegime}
+\title{Which couples from a given set of nodes in a tree belong to the same part?}
 \usage{
-PCMTreeMatrixNodesInSamePart(tree, upperTriangle = TRUE,
+PCMTreeMatrixNodesInSamePart(tree,
+  nodes = seq_len(PCMTreeNumNodes(tree)), upperTriangle = TRUE,
+  returnVector = TRUE)
+
+PCMTreeMatrixNodesInSameRegime(tree,
+  nodes = seq_len(PCMTreeNumNodes(tree)), upperTriangle = TRUE,
   returnVector = TRUE)
 }
 \arguments{
-\item{tree}{a phylo object with an existing edge.part}
+\item{tree}{a PCMTree object or a phylo object.}
 
-\item{upperTriangle}{logical indicating if all duplicated entries and diagonal
-entries sould be set to NA (by default TRUE).}
+\item{nodes}{an integer vector of length L >= 2 denoting a set of nodes in
+the tree.}
 
-\item{returnVector}{logical indicating if a vector instead of a matrix should be
-returned (corresponding to calling as.vector on the resulting matrix and removing
+\item{upperTriangle}{logical indicating if all duplicated entries and
+diagonal entries sould be set to NA (by default TRUE).}
+
+\item{returnVector}{logical indicating if a vector instead of a matrix
+ should be returned (corresponding to calling as.vector on the resulting
+ matrix and removing
 NAs). Default: TRUE}
 }
 \value{
-a M x M logical matrix with TRUE on the diagonal and for each couple of
-tips that belong to the same dagonal. if returnVector is TRUE (default) only a
-vector of the non-NA entries will be returned.
+a L x L logical matrix with TRUE on the diagonal and for each couple
+of tips that belong to the same part or regime. If returnVector is TRUE
+(default) only a vector of the non-NA entries will be returned.
+
+a L x L logical matrix with TRUE on the diagonal and for each couple
+of tips that belong to the same part or regime. If returnVector is TRUE (default)
+only a vector of the non-NA entries will be returned.
 }
 \description{
-Which nodes in a tree belong to the same part?
+Which couples from a given set of nodes in a tree belong to the same part?
+
+Which couples from a given set of nodes in a tree belong to the same regime?
+}
+\examples{
+set.seed(1)
+tree <- PCMTree(rtree(8))
+PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
+
+PCMTreeSetPartition(tree, c(10, 12))
+PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
+
+PCMTreeMatrixNodesInSamePart(tree)
+PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)))
+PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)), returnVector = FALSE)
+
+set.seed(1)
+tree <- PCMTree(rtree(8))
+PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
+
+PCMTreeSetPartition(tree, c(10, 12))
+PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
+
+PCMTreeMatrixNodesInSamePart(tree)
+PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)))
+PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)), returnVector = FALSE)
+
 }

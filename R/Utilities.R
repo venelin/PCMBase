@@ -15,6 +15,61 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
+#' True positive rate of a set of binary predictions against their trues
+#'
+#' @description Let the set of predictions be described by a logical vector
+#' `pred`, and let the corresponding trues by described in a logical vector
+#' `true` of the same length. Then, the true positive rate is given by the
+#' expression:
+#' \code{sum(pred & true)/sum(true)}. The false positive rate is given by the
+#' expression:
+#' \code{sum(pred & !true)/sum(!true)}. If these expressions do not give a
+#' finite number, \code{NA_real_} is returned.
+#'
+#' @param pred,true vectors of the same positive length that can be converted to
+#' logical.
+#'
+#' @return a double between 0 and 1 or \code{NA_real_} if the result is not a
+#' finite number.
+#' @examples
+#' TruePositiveRate(c(1,0,1,1), c(1,1,0,1))
+#' TruePositiveRate(c(0,0,0,0), c(1,1,0,1))
+#' TruePositiveRate(c(1,1,1,1), c(1,1,0,1))
+#' FalsePositiveRate(c(1,0,1,1), c(1,1,0,1))
+#' FalsePositiveRate(c(0,0,0,0), c(1,1,0,1))
+#' FalsePositiveRate(c(1,1,1,1), c(1,1,0,1))
+#' TruePositiveRate(c(1,0,1,1), c(0,0,0,0))
+#' FalsePositiveRate(c(1,0,1,1), c(1,1,1,1))
+#' @export
+TruePositiveRate <- function(pred, true) {
+  if(! (length(pred) == length(true)) ) {
+    stop("TruePositiveRate:: arguments pred and true must be the same length.")
+  }
+  pred <- as.logical(pred)
+  true <- as.logical(true)
+  res <- sum(pred & true)/sum(true)
+  if(is.finite(res)) {
+    res
+  } else {
+    NA_real_
+  }
+}
+
+#' @title True positive rate of a set of binary predictions against their trues
+#' @rdname TruePositiveRate
+#' @export
+FalsePositiveRate <- function(pred, true) {
+  pred <- as.logical(pred)
+  true <- as.logical(true)
+  res <- sum(pred & !true)/sum(!true)
+  if(is.finite(res)) {
+    res
+  } else {
+    as.double(NA)
+  }
+}
+
+
 #' Check if the PCMBase version correpsonds to a dev release
 #' @param numVersionComponents an integer, default 4.
 #' @importFrom utils packageDescription
@@ -27,113 +82,6 @@ PCMBaseIsADevRelease <- function(numVersionComponents = 4L) {
   !is.na( packageDescription("PCMBase") ) &&
     length(strsplit(packageDescription("PCMBase")$Version, "\\.")[[1]]) >= numVersionComponents
 }
-
-#' Plot the trajectory of the mean for a bivariate PCM over time starting from a value X0
-#' @importFrom ggplot2 ggplot scale_color_continuous geom_path aes stat_ellipse arrow
-#' @importFrom data.table data.table
-#' @importFrom mvtnorm rmvnorm
-#' @export
-#' @examples
-#' # a Brownian motion model with one regime
-#' modelOU <- PCM(model = PCMDefaultModelTypes()['F'], k = 2)
-#'
-#' # assign the model parameters at random: this will use uniform distribution
-#' # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
-#' # We do this in two steps:
-#' # 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
-#' randomParams <- PCMParamRandomVecParams(modelOU, PCMNumTraits(modelOU), PCMNumRegimes(modelOU))
-#' # 2. Then we load this random vector into the model.
-#' PCMParamLoadOrStore(modelOU, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), load = TRUE)
-#' # let's plot the trajectory of the model starting from X0 = c(0,0)
-#' PCMPlotTrajectory2D(c(0, 0), modelOU)
-PCMPlotTrajectory2D <- function(
-  X0s,
-  model,
-  regime = 1L,
-  dims = c(1, 2),
-  tX = seq(0, 100, by = 1),
-  tVar = tX[seq(1, length(tX), length.out = 4)],
-  sizeSamp = 100,
-  doPlot = TRUE,
-  plot = NULL) {
-
-  dt <- data.table(
-    t = tX,
-    X = list(NULL),
-    V = list(NULL),
-    samp = list(NULL))
-
-  dt[1, X:=list(list(X0s))]
-
-  for(i in seq_len(nrow(dt)-1)) {
-    dt[i + 1, c("X", "V", "samp"):={
-      X <- lapply(X0s, function(X0) {
-        PCMMeanAtTime(
-          t = t,
-          model = model,
-          X0 = X0,
-          regime = regime)
-      })
-      V = PCMVarAtTime(
-        t = t,
-        model = model,
-        regime = regime)
-      if(t %in% tVar) {
-        samp <- rmvnorm(sizeSamp, sigma = V)
-      } else {
-        samp <- NULL
-      }
-      list(X = list(X), V = list(V), samp = list(samp))
-    }]
-  }
-
-  setkey(dt, t)
-
-  if(doPlot) {
-    if(is.null(plot)) {
-      pl <- ggplot(NULL)
-    } else {
-      pl <- plot
-    }
-    for(i in seq_along(X0s)) {
-      dtPath <- dt[, list(
-        x = sapply(X, function(Xt) Xt[[i]][dims[1]]),
-        y = sapply(X, function(Xt) Xt[[i]][dims[2]])
-      )]
-      pl <- pl +
-        geom_path(
-          data = dtPath,
-          mapping = aes(x = x, y = y),
-          arrow = arrow(angle = 30, ends = "last", type = "open"),
-          size = 1)
-    }
-
-    for(tV in tVar) {
-      if(tV != 0) {
-        for(i in seq_along(X0s)) {
-          Xt <- dt[list(tV)]$X[[1]][[i]]
-          samp <- dt[list(tV)]$samp[[1]]
-          samp <- do.call(
-            data.table,
-            list(
-              x1 = samp[, dims[1]] + Xt[dims[1]],
-              x2 = samp[, dims[2]] + Xt[dims[2]]))
-          samp[, t:=tV]
-
-          pl <- pl +
-            stat_ellipse(
-              data = samp,
-              aes(x = x1, y = x2),
-              type="norm")
-        }
-      }
-    }
-    pl
-  } else {
-    dt
-  }
-}
-
 
 #' Beautiful model description based on plotmath
 #' @description This is an S3 generic that produces a plotmath expression for
@@ -337,25 +285,25 @@ PCMColorPalette <- function(n, names) {
 #' @export
 PCMPlotTraitData2D <- function(
   X, tree, labeledTips = NULL, sizeLabeledTips = 8,
-  palette = PCMColorPalette(PCMTreeNumParts(tree), PCMTreeGetPartNames(tree)),
+  palette = PCMColorPalette(PCMNumRegimes(tree), PCMRegimes(tree)),
   scaleSizeWithTime = !is.ultrametric(tree)) {
+
+  tree <- PCMTree(tree)
 
   # Needed to pass the check
   id <- .N <- time <- regime <- label <- x <- y <- NULL
 
-
-
   N <- PCMTreeNumTips(tree)
-  R <- PCMTreeNumParts(tree)
+  R <- PCMNumRegimes(tree)
 
   times <- PCMTreeNodeTimes(tree, tipsOnly = TRUE)
   Xt <- t(X)
   data <- as.data.table(Xt)
   setnames(data, c("x", "y"))
-  data[, id:=1:(.N)]
+  data[, id:=seq_len(.N)]
   data[, time:=times]
 
-  data[, regime:=as.factor(sapply(id, function(i) PCMTreeGetPartsForNodes(tree, i)))]
+  data[, regime := factor(PCMTreeGetPartRegimes(tree)[PCMTreeGetPartsForNodes(tree, id)])]
   setkey(data, id)
 
   if(!is.null(labeledTips)) {

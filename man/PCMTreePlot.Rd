@@ -4,13 +4,13 @@
 \alias{PCMTreePlot}
 \title{Plot a tree with parts}
 \usage{
-PCMTreePlot(tree, palette = PCMColorPalette(PCMTreeNumParts(tree),
-  PCMTreeGetPartNames(tree)), ...)
+PCMTreePlot(tree, palette = PCMColorPalette(PCMNumRegimes(tree),
+  PCMRegimes(tree)), ...)
 }
 \arguments{
-\item{tree}{a phylo with set labels and parts}
+\item{tree}{a PCMTree object.}
 
-\item{palette}{a named vector of colors corresponding to the parts in tree}
+\item{palette}{a named vector of colors corresponding to the regimes in tree}
 
 \item{...}{Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.}
 }

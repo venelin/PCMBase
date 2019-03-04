@@ -5,10 +5,10 @@
 \title{Extract a clade from phylogenetic tree}
 \usage{
 PCMTreeExtractClade(tree, cladeRootNode, tableAncestors = NULL,
-  X = NULL, returnPhylo = is.null(X))
+  X = NULL, returnList = !is.null(X))
 }
 \arguments{
-\item{tree}{a phylo object}
+\item{tree}{a PCMTree object.}
 
 \item{cladeRootNode}{a character string denoting the label or an integer denoting a node in the tree.}
 
@@ -16,11 +16,12 @@ PCMTreeExtractClade(tree, cladeRootNode, tableAncestors = NULL,
 
 \item{X}{an optional k x N matrix with trait value vectors for each tip in tree.}
 
-\item{returnPhylo}{logical indicating if only the phylo object associated with the clade should be returned.
-Defaults to \code{is.null(X)}}
+\item{returnList}{logical indicating if only the phylo object associated
+with the clade should be returned. Defaults to \code{!is.null(X)}}
 }
 \value{
-If returnPhylo is TRUE, a phylo object associated with the clade, otherise, a list with two named members :
+If returnList is FALSE, a phylo object associated with the clade,
+ otherise, a list with two named members :
 \itemize{
 \item{tree}{the phylo object associated with the clade}
 \item{X}{the submatrix of X with columns corresponding to the tips in the clade}
@@ -28,6 +29,26 @@ If returnPhylo is TRUE, a phylo object associated with the clade, otherise, a li
 }
 \description{
 Extract a clade from phylogenetic tree
+}
+\examples{
+set.seed(1)
+tree <- PCMTree(rtree(25))
+PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+blueTree <- PCMTreeExtractClade(tree, 45)
+PCMTreeGetPartRegimes(blueTree)
+\donttest{
+PCMTreePlot(blueTree, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+# we need to use the label here, because the node 29 in tree is not the same
+# id in redGreenTree:
+blueTree2 <- PCMTreeDropClade(blueTree, "46")
+\donttest{
+PCMTreePlot(blue2, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
 }
 \seealso{
 PCMTreeSpliAtNode PCMTreeDropClade

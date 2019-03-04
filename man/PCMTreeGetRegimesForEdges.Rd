@@ -4,22 +4,15 @@
 \alias{PCMTreeGetRegimesForEdges}
 \title{Model regimes (i.e. colors) associated with the branches in a tree}
 \usage{
-PCMTreeGetRegimesForEdges(tree, model, preorder = PCMTreePreorder(tree))
+PCMTreeGetRegimesForEdges(tree)
 }
 \arguments{
 \item{tree}{a phylo object}
-
-\item{model}{a PCM object}
-
-\item{preorder}{an integer vector of row-indices in tree$edge matrix as
-returned by PCMTreePreorder. This can be given for performance speed-up when
-several operations needing preorder are executed on the tree. Default :
- \code{PCMTreePreorder(tree)}.}
 }
 \value{
-an integer vector with entries corresponding to the rows in tree$edge
-  denoting the model regime associated with each branch in the tree as an
-  index in PCMRegimes(model).
+an vector with entries corresponding to the rows in tree$edge
+  denoting the regime associated with each branch in the tree. The type
+  of the vector element is defined the type of tree$part.regime.
 }
 \description{
 Model regimes (i.e. colors) associated with the branches in a tree

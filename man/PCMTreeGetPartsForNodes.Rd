@@ -12,7 +12,7 @@ PCMTreeGetPartsForNodes(tree, nodes)
 \item{nodes}{an integer vector denoting the nodes}
 }
 \value{
-a character or an integer vector denoting the parts of the branches
+a character vector denoting the parts of the branches
 leading to the nodes, according to tree$edge.part.
 }
 \description{

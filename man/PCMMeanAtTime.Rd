@@ -4,7 +4,8 @@
 \alias{PCMMeanAtTime}
 \title{Calculate the mean at time t, given X0, under a PCM model}
 \usage{
-PCMMeanAtTime(t, model, X0 = model$X0, regime = 1L, verbose = FALSE)
+PCMMeanAtTime(t, model, X0 = model$X0, regime = PCMRegimes(model)[1L],
+  verbose = FALSE)
 }
 \arguments{
 \item{t}{positive numeric denoting time}
@@ -13,8 +14,9 @@ PCMMeanAtTime(t, model, X0 = model$X0, regime = 1L, verbose = FALSE)
 
 \item{X0}{a numeric vector of length k, where k is the number of traits in the model (Defaults to model$X0).}
 
-\item{regime}{an integer or a character denoting the regime in model for which to do the calculation;
-(Defaults to 1L meaning the first regime in the model)}
+\item{regime}{an integer or a character denoting the regime in model for
+which to do the calculation; Defaults to PCMRegimes(model)[1L], meaning the
+first regime in the model.}
 
 \item{verbose}{a logical indicating if (debug) messages should be written on the console (Defaults to FALSE).}
 }

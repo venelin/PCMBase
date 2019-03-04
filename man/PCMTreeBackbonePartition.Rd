@@ -2,19 +2,82 @@
 % Please edit documentation in R/PCMTree.R
 \name{PCMTreeBackbonePartition}
 \alias{PCMTreeBackbonePartition}
-\title{Prune the tree leaving one tip for each part}
+\title{Prune the tree leaving one tip for each or some of its parts}
 \usage{
-PCMTreeBackbonePartition(tree)
+PCMTreeBackbonePartition(tree, partsToKeep = PCMTreeGetPartNames(tree))
 }
 \arguments{
-\item{tree}{a phylo with set node-labels and parts}
+\item{tree}{a PCMTree or a phylo object.}
+
+\item{partsToKeep}{a character vector denoting part names in the tree to be
+kept. Defaults to `PCMTreeGetPartNames(tree)`.}
 }
 \value{
-a pruned version of tree
+a PCMTree object representing a pruned version of tree.
 }
 \description{
-Prune the tree leaving one tip for each part
+Prune the tree leaving one tip for each or some of its parts
+}
+\examples{
+set.seed(1)
+tree <- PCMTree(rtree(25))
+\donttest{
+PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+backb <-  PCMTreeBackbonePartition(tree)
+\donttest{
+PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
+tree2 <- PCMTreeSetPartRegimes(
+  tree, c(`26` = "a", `28` = "b"), setPartition = TRUE,
+  inplace = FALSE)
+\donttest{
+PCMTreePlot(tree2) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
+backb <-  PCMTreeBackbonePartition(tree2)
+\donttest{
+PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
+tree3 <- PCMTreeSetPartRegimes(
+  tree, c(`26` = "a", `28` = "b", `41` = "c"), setPartition = TRUE,
+  inplace = FALSE)
+\donttest{
+PCMTreePlot(tree3) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+backb <-  PCMTreeBackbonePartition(tree3)
+\donttest{
+PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+backb41 <-  PCMTreeBackbonePartition(tree3, partsToKeep = "41")
+\donttest{
+PCMTreePlot(backb41) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
+backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
+   backb, epoch = 3.7, minLength = 0.001)
+PCMTreeGetPartRegimes(backbMoreNodes)
+\donttest{
+PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) + ggtree::geom_tiplab(angle=45)
+}
+backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
+   backbMoreNodes, epoch = 0.2, minLength = 0.001)
+PCMTreeGetPartRegimes(backbMoreNodes)
+\donttest{
+PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) + ggtree::geom_tiplab(angle=45)
+}
+backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
+   backbMoreNodes, epoch = 1.2, minLength = 0.001)
+PCMTreeGetPartRegimes(backbMoreNodes)
+
+\donttest{
+PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) + ggtree::geom_tiplab(angle=45)
+}
 }
 \seealso{
-PCMTreeSetLabels PCMTreeSetPartition
+PCMTreeSetPartition
+
+PCMTree
 }

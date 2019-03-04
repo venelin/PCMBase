@@ -4,20 +4,15 @@
 \alias{PCMTreeGetPartition}
 \title{Get the starting branch' nodes for each part on a tree}
 \usage{
-PCMTreeGetPartition(tree, preorder = PCMTreePreorder(tree))
+PCMTreeGetPartition(tree)
 }
 \arguments{
 \item{tree}{a phylo object with an edge.part member denoting parts. The
 function assumes that each part covers a linked set of branches on the tree.}
-
-\item{preorder}{an integer vector of row-indices in tree$edge as returned by
-\code{\link{PCMTreePreorder}}. Defaults to \code{PCMTreePreorder(tree)}.
-Specifying this argument may improve performance if PCMTreePreorder had to be
-called earlier.}
 }
 \value{
-an integer with elements equal to the starting nodes for each part in
-\code{parts}.
+a named integer vector with elements equal to the starting nodes for
+each part in tree and names equal to the labels of these nodes.
 }
 \description{
 Get the starting branch' nodes for each part on a tree
@@ -26,6 +21,10 @@ Get the starting branch' nodes for each part on a tree
 We call a starting branch the first branch from the root to the tips
 of a given part. A starting node is the node at which a starting branch
 ends.
+}
+\examples{
+set.seed(1)
+PCMTreeGetPartition(PCMTree(ape::rtree(20)))
 }
 \seealso{
 \code{\link{PCMTreeSetPartition}}

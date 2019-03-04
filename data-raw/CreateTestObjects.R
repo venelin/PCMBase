@@ -233,14 +233,24 @@ N <- 40
 # tree with one regime
 tree.a <- rtree(N)
 
-PCMTreeSetDefaultPartition(tree.a, model.a.1)
-PCMTreeSetLabels(tree.a)
+tree.a <- PCMTree(tree.a)
 
-#PCMTreePlot(tree.a)
+PCMTreeSetPartRegimes(
+  tree.a,
+  part.regime = structure(PCMRegimes(model.a.1)[1L], names = as.character(N+1L)),
+  setPartition = TRUE,
+  inplace = TRUE)
+
+
+PCMTreePlot(tree.a)
 
 tree.ab <- tree.a
-PCMTreeSetPartition(tree.ab, nodes = N + 31, parts = c("a", "b"))
-#PCMTreePlot(tree.ab)
+PCMTreeSetPartRegimes(
+  tree.ab,
+  part.regime = structure(c("a", "b"), names = as.character(c(N+1L, N+31L))),
+  setPartition = TRUE,
+  inplace = TRUE)
+PCMTreePlot(tree.ab)
 
 
 # generate trait values

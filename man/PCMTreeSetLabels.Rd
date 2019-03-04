@@ -8,18 +8,50 @@ PCMTreeSetLabels(tree, labels = as.character(1:PCMTreeNumNodes(tree)),
   inplace = TRUE)
 }
 \arguments{
-\item{tree}{a phylo object}
+\item{tree}{a phylo object or a PCMTree object. If this is a PCMTree object,
+the internal edge.part and part.regime members will be updated accordingly.}
 
-\item{labels}{a character vector in the order 1:PCMTreeNumNodes(tree) as denoted in the
-tree$edge matrix.}
+\item{labels}{a character vector in the order 1:PCMTreeNumNodes(tree) as
+denoted in the tree$edge matrix.}
 
-\item{inplace}{a logical indicating if the change should be done in place on the object
-in the calling environment (in this case tree must not be a temporary object, e.g.
-returned by another function call). Default is TRUE.}
+\item{inplace}{a logical indicating if the change should be done in place on
+the object in the calling environment (in this case tree must not be a
+temporary object, e.g. returned by another function call). Default is TRUE.}
 }
 \value{
-if inplace = FALSE, a copy of tree with set or modified tree$tip.label and tree$node.label, otherwise nothing.
+if inplace is FALSE, a copy of tree with set or modified
+tree$tip.label and tree$node.label. If the original tree has a member
+edge.part, the returned tree has tree$edge.part and tree$part.regime updated.
+If inplace is TRUE (the default), nothing is returned and the above changes
+are made directly on the input tree.
 }
 \description{
 Set tip and internal node labels in a tree
+}
+\examples{
+tree <- rtree(5)
+tree$tip.label
+# the following three are NULLs
+tree$node.label
+tree$edge.part
+tree$part.regime
+
+
+tree <- PCMTree(tree)
+PCMTreeSetPartition(tree, c(6, 8))
+tree$tip.label
+tree$node.label
+tree$edge.part
+tree$part.regime
+
+PCMTreeSetLabels(tree, labels = paste0(c(rep("t", 5), rep("n", 4)), PCMTreeGetLabels(tree)))
+PCMTreeGetLabels(tree)
+tree$tip.label
+tree$node.label
+tree$edge.part
+tree$part.regime
+
+}
+\seealso{
+\code{\link{PCMTree}}
 }

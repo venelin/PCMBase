@@ -2,21 +2,18 @@
 % Please edit documentation in R/PCMTree.R
 \name{PCMTreeSetPartition}
 \alias{PCMTreeSetPartition}
-\title{Assign parts on a tree given a set of starting branches}
+\title{Set a partition of a tree by specifying the partition nodes}
 \usage{
-PCMTreeSetPartition(tree, nodes, parts = as.integer(1:(length(nodes) +
-  1)), inplace = TRUE)
+PCMTreeSetPartition(tree, nodes = c(PCMTreeNumTips(tree) + 1L),
+  inplace = TRUE)
 }
 \arguments{
-\item{tree}{a phylo object}
+\item{tree}{a PCMTree object.}
 
 \item{nodes}{a character vector containing tip or node labels or an integer
 vector denoting tip or internal nodes in tree - the parts change at the
-start of the branches leading to these nodes.}
-
-\item{parts}{an integer or character vector of length equal to
-length(nodes) + 1 containing the part-names to be assigned for each part.
-If NULL the part names will be the integers 1:(length(nodes) + 1).}
+start of the branches leading to these nodes. Default:
+c(PCMTreeNumTips(tree) + 1L).}
 
 \item{inplace}{a logical indicating if the change should be done to the tree
 in the calling environment (TRUE) or a copy of the tree with set edge.part
@@ -27,14 +24,46 @@ If inplace is TRUE nothing, otherwise a copy of the tree with set
 edge.part member.
 }
 \description{
-Assign parts on a tree given a set of starting branches
+Set a partition of a tree by specifying the partition nodes
 }
-\details{
-It is assumed that each part represents a linked subset of branches
-on a tree. Thus, each part is identifiable by its starting branch. The
-descendant branches belong to this part until reaching a tip or a node that
-is present in the \code{nodes} parameter.
+\examples{
+set.seed(1)
+tree <- PCMTree(rtree(8))
+PCMTreeSetLabels(tree, paste0("x", PCMTreeGetLabels(tree)))
+PCMTreeGetPartition(tree)
+PCMTreeGetPartNames(tree)
+PCMTreeGetPartRegimes(tree)
+\donttest{
+PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
+}
+tree <- PCMTreeSetPartition(tree, c(12, 14), inplace = FALSE)
+PCMTreeGetPartition(tree)
+PCMTreeGetPartNames(tree)
+PCMTreeGetPartRegimes(tree)
+\donttest{
+PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
+}
+
+# reset the partition to a default one, where there is only one part:
+PCMTreeSetPartition(tree)
+
+PCMTreeGetPartition(tree)
+PCMTreeGetPartNames(tree)
+PCMTreeGetPartRegimes(tree)
+\donttest{
+PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
+}
+
+# reset the labels to the default labels which are character representations
+# of the node ids
+PCMTreeSetLabels(tree)
+PCMTreeGetPartition(tree)
+PCMTreeGetPartNames(tree)
+PCMTreeGetPartRegimes(tree)
+
 }
 \seealso{
 \code{\link{PCMTreeGetPartition}}
+
+\code{\link{PCMTree}}
 }

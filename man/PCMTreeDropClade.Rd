@@ -5,7 +5,7 @@
 \title{Drop a clade from a phylogenetic tree}
 \usage{
 PCMTreeDropClade(tree, cladeRootNode, tableAncestors = NULL, X = NULL,
-  returnPhylo = is.null(X), errorOnMissing = FALSE)
+  returnList = !is.null(X), errorOnMissing = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object}
@@ -16,14 +16,18 @@ PCMTreeDropClade(tree, cladeRootNode, tableAncestors = NULL, X = NULL,
 
 \item{X}{an optional k x N matrix with trait value vectors for each tip in tree.}
 
-\item{returnPhylo}{logical indicating if only the phylo object associated with the tree after dropping the clade should be returned. Defaults to \code{is.null(X)}}
+\item{returnList}{logical indicating if a list of the phylo object
+associated with the tree after dropping the clade and the corresponding
+entries in X should be returned. Defaults to \code{!is.null(X)}}
 
-\item{errorOnMissing}{logical indicating if an error should be rased if cladeRootNode is not among the
-nodes in tree. Default FALSE, meaning that if cladeRootNode is not a node in tree the tree (and X if
-returnPhylo is FALSE) is/are returned unchanged.}
+\item{errorOnMissing}{logical indicating if an error should be rased if
+cladeRootNode is not among the nodes in tree. Default FALSE, meaning that if
+cladeRootNode is not a node in tree the tree (and X if
+returnList is TRUE) is/are returned unchanged.}
 }
 \value{
-If returnPhylo is TRUE, a phylo object associated with the remaining tree after dropping the clade, otherise, a list with two named members :
+If returnList is FALSE, a phylo object associated with the remaining
+tree after dropping the clade, otherise, a list with two named members :
 \itemize{
 \item{tree}{the phylo object associated with the remaining tree after dropping the clade}
 \item{X}{the submatrix of X with columns corresponding to the tips in the remaining tree}
@@ -32,6 +36,26 @@ If returnPhylo is TRUE, a phylo object associated with the remaining tree after 
 \description{
 Drop a clade from a phylogenetic tree
 }
+\examples{
+set.seed(1)
+tree <- PCMTree(rtree(25))
+PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+redGreenTree <- PCMTreeDropClade(tree, 45)
+PCMTreeGetPartRegimes(redGreenTree)
+\donttest{
+PCMTreePlot(redGreenTree, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+# we need to use the label here, because the node 29 in tree is not the same
+# id in redGreenTree:
+redGreenTree2 <- PCMTreeDropClade(redGreenTree, "29")
+\donttest{
+PCMTreePlot(redGreenTree2, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
+}
 \seealso{
-PCMTreeSpliAtNode PCMTreeDropClade
+PCMTreeSpliAtNode PCMTreeExtractClade
 }

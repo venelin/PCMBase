@@ -7,11 +7,13 @@
 PCMTreeEvalNestedEDxOnTree(expr, tree)
 }
 \arguments{
-\item{expr}{a character string representing an R expression of nested calls of functions
-\code{E(x,node)} denoting extracting the clade rooted at node from the tree x, or \code{D(x,node)},
-denoting dropping the clade rooted at node from the tree x. These calls can be nested, i.e. x can
-be either the symbol x (corresponding to the original tree passed as argument) or a nested call to
-d or e.}
+\item{expr}{a character string representing an R expression of nested calls
+ of functions
+\code{E(x,node)} denoting extracting the clade rooted at node from the tree
+ x, or \code{D(x,node)}, denoting dropping the clade rooted at node from the
+ tree x. These calls can be nested, i.e. x can be either the symbol x
+ (corresponding to the original tree passed as argument) or a nested call to
+ d or e.}
 
 \item{tree}{a phylo object with named tips and internal nodes}
 }
@@ -20,4 +22,24 @@ the resulting phylo object from evaluating expr on tree.
 }
 \description{
 Perfrorm nested extractions or drops of clades from a tree
+}
+\examples{
+set.seed(1)
+tree <- PCMTree(rtree(25))
+PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+bluePart <- PCMTreeEvalNestedEDxOnTree("D(E(tree,45),47)", tree)
+PCMTreeGetPartRegimes(bluePart)
+\donttest{
+PCMTreePlot(bluePart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
+# Swapping the D and E calls has the same result:
+bluePart2 <- PCMTreeEvalNestedEDxOnTree("E(D(tree,47),45)", tree)
+PCMTreeGetPartRegimes(bluePart2)
+\donttest{
+PCMTreePlot(bluePart2, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
 }

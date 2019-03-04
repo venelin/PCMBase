@@ -9,12 +9,13 @@ PCMTreeLocateMidpointsOnBranches(tree, threshold = 0)
 \arguments{
 \item{tree}{a phylo}
 
-\item{threshold}{a positive numeric; only branches longer than threshold will be returned; Default 0.}
+\item{threshold}{a positive numeric; only branches longer than threshold
+will be returned; Default 0.}
 }
 \value{
-a named list with an integer vector element "nodes" denoting the ending nodes for each
-branch crossing epoch and numeric vector element "positions" denoting the root-ward offset
-from each node in nodes.
+a named list with an integer vector element "nodes" denoting the
+ending nodes for each branch crossing epoch and numeric vector element
+"positions" denoting the root-ward offset from each node in nodes.
 }
 \description{
 Find the middle point of each branch longer than a threshold

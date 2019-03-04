@@ -125,23 +125,28 @@ R <- 2
 # number of extant tips
 N <- 100
 
-tree.a <- rtree(n=N)
+tree.a <- PCMTree(rtree(n=N))
 PCMTreeSetLabels(tree.a)
-PCMTreeSetDefaultPartition(tree.a, part = "a")
+PCMTreeSetPartRegimes(tree.a, part.regime = c(`101` = "a"), setPartition = TRUE)
 
 lstDesc <- PCMTreeListDescendants(tree.a)
 splitNode <- names(lstDesc)[which(sapply(lstDesc, length) > N/2 & sapply(lstDesc, length) < 2*N/3)][1]
 
-tree.ab <- PCMTreeInsertSingletons(tree.a, nodes = as.integer(splitNode), 
-                                   positions = PCMTreeGetBranchLength(tree.a, as.integer(splitNode))/2)
-PCMTreeSetPartition(tree.ab, nodes = splitNode, parts = c("a", "b"), inplace = TRUE)
+tree.ab <- PCMTreeInsertSingletons(
+  tree.a, nodes = as.integer(splitNode), 
+  positions = PCMTreeGetBranchLength(tree.a, as.integer(splitNode))/2)
+PCMTreeSetPartRegimes(
+  tree.ab,
+  part.regime = structure(c("a", "b"), names = as.character(c(N+1, splitNode))), 
+  setPartition = TRUE)
 
 # Currently this is causing a failure of the pkgdown::build_site(), so we use the 
 # ape's tree-plotting function
 # PCMTreePlot(tree.ab)
 
 palette <- PCMColorPalette(2, c("a", "b"))
-plot(tree.ab, show.tip.label=FALSE, edge.color = palette[tree.ab$edge.part])
+plot(tree.ab, show.tip.label=FALSE, 
+     edge.color = palette[PCMTreeGetRegimesForEdges(tree.ab)])
 ```
 
 Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:

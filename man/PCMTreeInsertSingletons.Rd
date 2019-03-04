@@ -12,23 +12,28 @@ PCMTreeInsertSingletonsAtEpoch(tree, epoch, minLength = 0.1)
 \arguments{
 \item{tree}{a phylo object}
 
-\item{nodes}{an integer vector denoting the terminating nodes of the edges on which
-a singleton node is to be inserted}
+\item{nodes}{an integer vector denoting the terminating nodes of the edges
+on which a singleton node is to be inserted. This vector should not have
+duplicated nodes - if there is a need to insert two or more singleton nodes
+at distinct positions of the same edge, this should be done by calling the
+function several times with the longest position first and so on .}
 
-\item{positions}{a positive numeric vector of the same length as nodes denoting
-the root-ward distances from nodes at which the singleton nodes should be
-inserted.}
+\item{positions}{a positive numeric vector of the same length as nodes
+denoting the root-ward distances from nodes at which the singleton nodes
+should be inserted.}
 
-\item{epoch}{a numeric indicating a distance from the root at which a singleton
-node should be inserted in all lineages that are alive at that time.}
+\item{epoch}{a numeric indicating a distance from the root at which a
+singleton node should be inserted in all lineages that are alive at that
+time.}
 
-\item{minLength}{a numeric indicating the minimum allowed branch-length after
-dividing a branch by insertion of a singleton nodes. No singleton node is inserted
-if this would result in a branch shorter than `minLength`. Note that this condition
-is checked only in `PCMTreeInsertSingletonsAtEpoch`.}
+\item{minLength}{a numeric indicating the minimum allowed branch-length
+after dividing a branch by insertion of a singleton nodes. No singleton node
+is inserted if this would result in a branch shorter than `minLength`. Note
+that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.}
 }
 \value{
-a modified version of tree with inserted singleton nodes at the specified locations
+a modified version of tree with inserted singleton nodes at the
+ specified locations
 }
 \description{
 Insert singleton nodes on chosen edges
@@ -38,6 +43,44 @@ Insert singleton nodes on chosen edges
 \item \code{PCMTreeInsertSingletonsAtEpoch}: 
 }}
 
+\examples{
+set.seed(1)
+tree <- PCMTree(rtree(25))
+PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+cbind(tree$edge, PCMTreeEdgeTimes(tree))
+# insert a singleton at 0.55 (root-ward) from node 47
+tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions=0.55)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+# this fails, because the branch leading to node "47" is shorter now (0.55).
+ggplot2::should_stop(tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions=0.75))
+# the tree is the same
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+# we can insert at a position within the edge:
+tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions=0.25)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+
+# Insert singletons at all branches crossing a given epoch. This will skip
+# inserting singleton nodes where the resulting branches would be shorter
+# than 0.1.
+tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+# Insert singletons at all branches crossing a given epoch
+tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3, minLength = 0.001)
+\donttest{
+PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
+}
 \seealso{
 \code{\link{PCMTreeEdgeTimes}} \code{\link{PCMTreeLocateEpochOnBranches}} \code{\link{PCMTreeLocateMidpointsOnBranches}}
 }

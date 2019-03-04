@@ -7,8 +7,8 @@
 PCMTreePreorder(tree)
 }
 \arguments{
-\item{tree}{a phylo object with possible singleton nodes (i.e. internal nodes
-with one daughter node)}
+\item{tree}{a phylo object with possible singleton nodes (i.e. internal
+nodes with one daughter node)}
 }
 \value{
 a vector of indices of edges in tree$edge in pre-order.
