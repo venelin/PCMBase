@@ -31,6 +31,7 @@
 #'   \item{model_MixedGaussian_ab }{ a two-regime MGPM model with a local Sigmae_x for each regime. }
 #'   \item{model_MixedGaussian_ab_globalSigmae_x }{  a two-regime MGPM model with a global Sigmae_x. }
 #'   \item{N }{ number of tips in simulated trees }
+#'   \item{tree_15_tips }{ a tree of 15 tips used for testing clade extraction. }
 #'   \item{tree.a }{ a tree with one part only (one regime) }
 #'   \item{tree.ab }{ a tree partitioned in two parts (two regimes) }
 #'   \item{traits.a.1 }{ trait values simulated with model.a.1. }

@@ -67,10 +67,17 @@ modelOU <- PCM(model = PCMDefaultModelTypes()['F'], k = 2)
 # assign the model parameters at random: this will use uniform distribution
 # with boundaries specified by PCMParamLowerLimit and PCMParamUpperLimit
 # We do this in two steps:
-# 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)
-randomParams <- PCMParamRandomVecParams(modelOU, PCMNumTraits(modelOU), PCMNumRegimes(modelOU))
+# 1. First we generate a random vector. Note the length of the vector equals
+# PCMParamCount(modelBM).
+
+randomParams <- PCMParamRandomVecParams(
+  modelOU, PCMNumTraits(modelOU), PCMNumRegimes(modelOU))
 # 2. Then we load this random vector into the model.
-PCMParamLoadOrStore(modelOU, randomParams, 0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), load = TRUE)
+PCMParamLoadOrStore(
+  modelOU,
+  randomParams,
+  0, PCMNumTraits(modelBM), PCMNumRegimes(modelBM), load = TRUE)
+
 # let's plot the trajectory of the model starting from X0 = c(0,0)
 PCMTrajectory(
   model = modelOU,
