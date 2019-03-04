@@ -30,7 +30,7 @@ edge.part and part.regime members.
 Set regimes for the parts in a tree
 }
 \examples{
-tree <- PCMTree(rtree(25))
+tree <- PCMTree(ape::rtree(25))
 PCMTreeGetPartition(tree)
 PCMTreeGetPartRegimes(tree)
 PCMTreeGetPartNames(tree)
@@ -60,7 +60,7 @@ set.seed(1)
 N <- 40
 
 # tree with one regime
-tree.a <- rtree(N)
+tree.a <- ape::rtree(N)
 
 tree.a <- PCMTree(tree.a)
 

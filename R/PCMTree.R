@@ -188,6 +188,9 @@ as.phylo.PCMTree <- function(x, ...) {
 }
 
 #' Check that a tree is a PCMTree
+#' @param tree a tree object.
+#' @return a logical TRUE if `inherits(tree, "PCMTree")` is TRUE.
+#'
 #' @export
 is.PCMTree <- function(tree) {
   inherits(tree, "PCMTree")

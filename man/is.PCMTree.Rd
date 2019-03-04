@@ -6,6 +6,12 @@
 \usage{
 is.PCMTree(tree)
 }
+\arguments{
+\item{tree}{a tree object.}
+}
+\value{
+a logical TRUE if `inherits(tree, "PCMTree")` is TRUE.
+}
 \description{
 Check that a tree is a PCMTree
 }

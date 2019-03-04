@@ -36,7 +36,7 @@ of the tree will be discarded and not present in the clade.
 }
 \examples{
 set.seed(1)
-tree <- PCMTree(rtree(25))
+tree <- PCMTree(ape::rtree(25))
 \donttest{
 PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }

@@ -25,7 +25,7 @@ Perfrorm nested extractions or drops of clades from a tree
 }
 \examples{
 set.seed(1)
-tree <- PCMTree(rtree(25))
+tree <- PCMTree(ape::rtree(25))
 PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
 \donttest{
 PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)

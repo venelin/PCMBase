@@ -29,7 +29,7 @@ are made directly on the input tree.
 Set tip and internal node labels in a tree
 }
 \examples{
-tree <- rtree(5)
+tree <- ape::rtree(5)
 tree$tip.label
 # the following three are NULLs
 tree$node.label

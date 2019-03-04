@@ -1132,6 +1132,7 @@ PCMTrajectory <- function(
   regime = PCMRegimes(model)[1],
   X0 = rep(0, PCMNumTraits(model)),
   W0 = matrix(0.0, nrow = PCMNumTraits(model), ncol = PCMNumTraits(model)),
+
   tX = seq(0, 100, by = 1),
   tVar = tX[seq(0, length(tX), length.out = 4)],
   dims = seq_len(PCMNumTraits(model)),
@@ -1182,6 +1183,9 @@ PCMTrajectory <- function(
          }))]
   }))
   names(dtPlot) <- c("t", "regime", paste0("x", dims), paste0("xs", dims))
+
+  # avoid warning from r check
+  x1 <- x2 <- xs1 <- xs2 <- NULL
 
   if(doPlot2D) {
     if(is.null(plot)) {

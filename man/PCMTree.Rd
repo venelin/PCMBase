@@ -47,7 +47,7 @@ character names of regimes in a PCM object.}
 The constructor PCMTree() returns an object of call
 }
 \examples{
-tree <- rtree(8)
+tree <- ape::rtree(8)
 
 # the following four are NULLs
 tree$node.label

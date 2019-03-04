@@ -28,7 +28,7 @@ Set a partition of a tree by specifying the partition nodes
 }
 \examples{
 set.seed(1)
-tree <- PCMTree(rtree(8))
+tree <- PCMTree(ape::rtree(8))
 PCMTreeSetLabels(tree, paste0("x", PCMTreeGetLabels(tree)))
 PCMTreeGetPartition(tree)
 PCMTreeGetPartNames(tree)
