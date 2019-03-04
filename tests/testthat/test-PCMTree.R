@@ -15,7 +15,6 @@ if(PCMBaseIsADevRelease()) {
   N <- 40
 
   # tree with one regime
-  tree.a <- PCMTree(rtree(N))
   PCMTreeSetPartRegimes(tree.a, part.regime = c(`41` = "a"))
   #PCMTreePlot(tree.a)
 
