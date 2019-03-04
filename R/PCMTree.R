@@ -181,6 +181,7 @@ PCMTree <- function(tree) {
   }
 }
 
+#' @importFrom ape as.phylo
 #' @export
 as.phylo.PCMTree <- function(x, ...) {
   x
