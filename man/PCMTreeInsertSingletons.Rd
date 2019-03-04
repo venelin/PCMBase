@@ -79,7 +79,7 @@ PCMTreePlot(
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 # we can insert at a position within the edge:
-tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions=0.25)
+tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions = length47/3)
 \donttest{
 PCMTreePlot(
   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
