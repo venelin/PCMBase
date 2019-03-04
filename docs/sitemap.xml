@@ -4,6 +4,21 @@
     <loc>http://venelin.github.io/PCMBase/index.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/Args_MixedGaussian_MGPMDefaultModelTypes.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/Args_MixedGaussian_MGPMScalarOUType.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/Args_MixedGaussian_MGPMSurfaceOUType.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MGPMScalarOUType.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MGPMSurfaceOUType.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/MixedGaussian.html</loc>
   </url>
   <url>
@@ -17,6 +32,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMBaseIsADevRelease.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMBaseTestObjects.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMColorPalette.html</loc>
@@ -34,6 +52,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMCreateLikelihood.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMDefaultObject.html</loc>
   </url>
   <url>
@@ -44,6 +65,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMFixParameter.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMGenerateModelTypes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMGenerateParameterizations.html</loc>
@@ -74,6 +98,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMMeanAtTime.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMModelTypes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMModels.html</loc>
@@ -157,19 +184,25 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTableParameterizations.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTrajectory.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTree.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeBackbonePartition.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeDropClade.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeDtNodeRegimes.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeDtNodeParts.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeEdgeTimes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeEvalNestedEDxOnTree.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeExtractBackboneRegimes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeExtractClade.html</loc>
@@ -187,13 +220,22 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetParent.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetRegimesForNodes.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartNames.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetStartingNodesRegimes.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartRegimes.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetTipsInRegime.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartition.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartsForNodes.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetRegimesForEdges.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetTipsInPart.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeInsertSingletons.html</loc>
@@ -223,13 +265,7 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeMatchLabels.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeMatchRegimesWithModel.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeMatrixNodesInSameRegime.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeMatrixTipsInSameRegime.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeMatrixNodesInSamePart.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeNearestNodesToEpoch.html</loc>
@@ -241,10 +277,10 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeNumNodes.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeNumParts.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeNumUniqueRegimes.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreePlot.html</loc>
@@ -256,13 +292,13 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreePreorder.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetDefaultRegime.html</loc>
-  </url>
-  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetLabels.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetRegimes.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetPartition.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSplitAtNode.html</loc>
@@ -274,9 +310,6 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeToString.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeUniqueRegimes.html</loc>
-  </url>
-  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMUnfixParameter.html</loc>
   </url>
   <url>
@@ -286,6 +319,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMVarAtTime.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/TruePositiveRate.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/White.html</loc>
   </url>
   <url>
@@ -293,6 +329,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/is.PCM.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/is.PCMTree.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/articles/PCMBase.html</loc>

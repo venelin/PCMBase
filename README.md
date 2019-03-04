@@ -10,13 +10,27 @@ Phylogenetic comparative methods represent models of continuous trait data assoc
 Installation
 ------------
 
-### CRAN
+### An optional but highly recommended dependency
+
+The function `PCMTreePlot` in the package is implemented based on the R-package ggtree, which is not on CRAN. It is highly recommended to install this package in order to be able to visualize trees with colored parts corresponding to defferent evolutionary regimes. If ggtree is not installed, the package will fail to run examples and generate the vignettes. At the time of writing this documentation, ggtree can be installed from bioconductor through the following code (if that does not work, check the [ggtree home page](https://guangchuangyu.github.io/software/ggtree/)):
+
+``` r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ggtree", version = "3.8")
+```
+
+### Installing PCMBase from CRAN
+
+A stable but possibly old version of PCMBase is available on CRAN and can be installed with this command:
 
 ``` r
 install.packages("PCMBase")
 ```
 
 ### Github
+
+The newest but possibly less stable and tested version of the package can be installed using:
 
 ``` r
 devtools::install_github("venelin/PCMBase")
@@ -48,16 +62,16 @@ Used R-packages
 
 The PCMBase R-package uses the following 3rd party R-packages:
 
--   For tree processing in R: ape v5.2 (Paradis et al. 2018), data.table v1.11.8 (Dowle and Srinivasan 2018);
+-   For tree processing in R: ape v5.2 (Paradis et al. 2018), data.table v1.12.0 (Dowle and Srinivasan 2019);
 -   For algebraic manipulation: expm v0.999.3 (Goulet et al. 2018), mvtnorm v1.0.8 (Genz et al. 2018);
--   For plotting: ggtree v1.14.1 (Yu and Lam 2018), ggplot2 v3.1.0 (Wickham et al. 2018);
+-   For plotting: ggtree v1.14.6 (Yu and Lam 2019), ggplot2 v3.1.0 (Wickham et al. 2018);
 -   For unit-testing: testthat v2.0.1 (Wickham 2018), covr v3.2.1 (Hester 2018);
--   For documentation and web-site generation: roxygen2 v6.1.1 (Wickham, Danenberg, and Eugster 2018), pkgdown v1.1.0.9000 (Wickham and Hesselberth 2018);
+-   For documentation and web-site generation: roxygen2 v6.1.1 (Wickham, Danenberg, and Eugster 2018), pkgdown v1.3.0 (Wickham and Hesselberth 2018);
 
 References
 ==========
 
-Dowle, Matt, and Arun Srinivasan. 2018. *Data.table: Extension of ‘Data.frame‘*. <https://CRAN.R-project.org/package=data.table>.
+Dowle, Matt, and Arun Srinivasan. 2019. *Data.table: Extension of ‘Data.frame‘*. <https://CRAN.R-project.org/package=data.table>.
 
 Genz, Alan, Frank Bretz, Tetsuhisa Miwa, Xuefei Mi, and Torsten Hothorn. 2018. *Mvtnorm: Multivariate Normal and T Distributions*. <https://CRAN.R-project.org/package=mvtnorm>.
 
@@ -69,10 +83,10 @@ Paradis, Emmanuel, Simon Blomberg, Ben Bolker, Joseph Brown, Julien Claude, Hoa 
 
 Wickham, Hadley. 2018. *Testthat: Unit Testing for R*. <https://CRAN.R-project.org/package=testthat>.
 
-Wickham, Hadley, and Jay Hesselberth. 2018. *Pkgdown: Make Static Html Documentation for a Package*.
+Wickham, Hadley, and Jay Hesselberth. 2018. *Pkgdown: Make Static Html Documentation for a Package*. <https://CRAN.R-project.org/package=pkgdown>.
 
 Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, and Kara Woo. 2018. *Ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics*. <https://CRAN.R-project.org/package=ggplot2>.
 
 Wickham, Hadley, Peter Danenberg, and Manuel Eugster. 2018. *Roxygen2: In-Line Documentation for R*. <https://CRAN.R-project.org/package=roxygen2>.
 
-Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2018. *Ggtree: An R Package for Visualization and Annotation of Phylogenetic Trees with Their Covariates and Other Associated Data*. <https://guangchuangyu.github.io/software/ggtree>.
+Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. *Ggtree: An R Package for Visualization and Annotation of Phylogenetic Trees with Their Covariates and Other Associated Data*. <https://guangchuangyu.github.io/software/ggtree>.

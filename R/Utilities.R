@@ -75,7 +75,7 @@ FalsePositiveRate <- function(pred, true) {
 #' @return a logical
 #' @export
 PCMBaseIsADevRelease <- function() {
-  FALSE
+  TRUE
 }
 
 #' Beautiful model description based on plotmath

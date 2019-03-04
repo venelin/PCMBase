@@ -6,14 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Getting Started with the PCMBase R-package • PCMBase</title>
-<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.1/clipboard.min.js" integrity="sha256-hIvIxeqhGZF+VVeM55k0mJvWpQ6gTkWk3Emc+NmowYA=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Getting Started with the PCMBase R-package">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
+<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-129563006-3"></script><script>
@@ -37,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.9</span>
       </span>
     </div>
 
@@ -86,9 +85,9 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-01-11</h4>
+            <h4 class="date">2019-03-04</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/tests/testthat/vignettes/PCMBase.Rmd"><code>tests/testthat/vignettes/PCMBase.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
 
     </div>
@@ -148,8 +147,8 @@
 <div id="model-regimes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#model-regimes" class="anchor"></a>Model regimes</h2>
-<p>Model <em>regimes</em> are different models associated with different branches of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a 2-trait BM model with two regimes called a and b:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM"</span>, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> <span class="kw">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>))
+<p>Model <em>regimes</em> are different models associated with different parts of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a 2-trait BM model with two regimes called a and b:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM"</span>, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))
 modelBM.ab</code></pre></div>
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
@@ -183,71 +182,71 @@ modelBM.ab</code></pre></div>
 ## 
 ## </code></pre>
 <p>Now, we can set some different values for the parameters of the model we’ve just created. First, let us specify an initial value vector different from the default 0-vector:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM.ab<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">2</span>)</code></pre></div>
-<p>X0 is defined as a parameter with S3 class <code>class(modelBM.ab$X0)</code>. This specifies that <code>X0</code> is global vector parameter shared by all model regimes. This is also the reason, why the number of parameters is not the double of the number of parameters in the first model:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM.ab<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">5</span>, <span class="dv">2</span>)</code></pre></div>
+<p>X0 is defined as a parameter with S3 class <code><a href="https://www.rdocumentation.org/packages/base/topics/class">class(modelBM.ab$X0)</a></code>. This specifies that <code>X0</code> is global vector parameter shared by all model regimes. This is also the reason, why the number of parameters is not the double of the number of parameters in the first model:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM)</code></pre></div>
 <pre><code>## [1] 8</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
 <p>The other parameters, Sigma and Sigmae are local for each regime:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># in regime 'a' the traits evolve according to two independent BM processes (starting from the global vecto X0).</span>
-modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="fl">1.6</span>, <span class="dv">0</span>),
-                                  <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">2.4</span>))
-modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(.<span class="dv">1</span>, <span class="dv">0</span>),
-                                   <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">4</span>))
+modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="dv">0</span>),
+                                  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">2.4</span>))
+modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">0</span>),
+                                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, .<span class="dv">4</span>))
 <span class="co"># in regime 'b' there is a correlation between the traits</span>
-modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="fl">1.6</span>, .<span class="dv">8</span>),
-                                  <span class="kw">c</span>(.<span class="dv">8</span>, <span class="fl">2.4</span>))
-modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(.<span class="dv">1</span>, <span class="dv">0</span>),
-                                   <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">4</span>))</code></pre></div>
+modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, .<span class="dv">8</span>),
+                                  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">8</span>, <span class="fl">2.4</span>))
+modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">0</span>),
+                                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, .<span class="dv">4</span>))</code></pre></div>
 <p>The above way of setting values for model parameters, while human readable, is not handy during model fitting procedures, such as likelihood maximization. Thus, there is another way to set (or get) the model parameter values from a numerical vector:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw">double</span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">double</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab))
 
 <span class="co"># load the current model parameters into param</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param, <span class="dt">offset=</span><span class="dv">0</span>, <span class="dt">load=</span><span class="ot">FALSE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(param)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param)</code></pre></div>
 <pre><code>##  [1] 5.0 2.0 1.6 0.0 2.4 1.6 0.8 2.4 0.1 0.0 0.4 0.1 0.0 0.4</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># modify slightly the model parameters</span>
-param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
+param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)
 
-<span class="kw">print</span>(param2)</code></pre></div>
-<pre><code>##  [1]  4.988633172  1.995091383  1.602207553  0.016402997  2.393957182
-##  [6]  1.612174856  0.805608801  2.408048110  0.105414556  0.018940244
-## [11]  0.412299750  0.097013161 -0.008274762  0.397328896</code></pre>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</code></pre></div>
+<pre><code>##  [1]  5.001290208  1.992936926  1.593833423  0.009939615  2.401019038
+##  [6]  1.586197478  0.811360258  2.403782189  0.085479111  0.006630823
+## [11]  0.410961773  0.112328706 -0.005359377  0.409822610</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(modelBM.ab)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(modelBM.ab)</code></pre></div>
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 4.988633 1.995091
+## [1] 5.001290 1.992937
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]     [,2]
-## [1,] 1.602208 0.016403
-## [2,] 0.000000 2.393957
+##          [,1]        [,2]
+## [1,] 1.593833 0.009939615
+## [2,] 0.000000 2.401019038
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.612175 0.8056088
-## [2,] 0.800000 2.4080481
+## [1,] 1.586197 0.8113603
+## [2,] 0.800000 2.4037822
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]       [,2]
-## [1,] 0.1054146 0.01894024
-## [2,] 0.0000000 0.41229975
+##            [,1]        [,2]
+## [1,] 0.08547911 0.006630823
+## [2,] 0.00000000 0.410961773
 ## 
 ## , , b
 ## 
-##            [,1]         [,2]
-## [1,] 0.09701316 -0.008274762
-## [2,] 0.00000000  0.397328896
+##           [,1]         [,2]
+## [1,] 0.1123287 -0.005359377
+## [2,] 0.0000000  0.409822610
 ## 
 ## </code></pre>
 </div>
@@ -256,9 +255,9 @@ param2 &lt;-<span class="st"> </span><span class="kw">jitter</span>(param)
 <h1 class="hasAnchor">
 <a href="#simulating-data-on-a-phylogenetic-tree" class="anchor"></a>Simulating data on a phylogenetic tree</h1>
 <p>The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM.</p>
-<p>For this example, first we simulate a birth death tree with two regimes “a” and “b” using the <code>phytools</code> R-package:</p>
+<p>For this example, first we simulate a birth death tree with two parts “a” and “b” using the <code>phytools</code> R-package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># make results reproducible</span>
-<span class="kw">set.seed</span>(<span class="dv">2</span>)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">2</span>)
 
 <span class="co"># number of regimes</span>
 R &lt;-<span class="st"> </span><span class="dv">2</span>
@@ -266,23 +265,28 @@ R &lt;-<span class="st"> </span><span class="dv">2</span>
 <span class="co"># number of extant tips</span>
 N &lt;-<span class="st"> </span><span class="dv">100</span>
 
-tree.a &lt;-<span class="st"> </span><span class="kw">rtree</span>(<span class="dt">n=</span>N)
+tree.a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTree.html">PCMTree</a></span>(<span class="kw">rtree</span>(<span class="dt">n=</span>N))
 <span class="kw"><a href="../reference/PCMTreeSetLabels.html">PCMTreeSetLabels</a></span>(tree.a)
-<span class="kw"><a href="../reference/PCMTreeSetDefaultRegime.html">PCMTreeSetDefaultRegime</a></span>(tree.a, <span class="dt">regime =</span> <span class="st">"a"</span>)
+<span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(tree.a, <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">101</span><span class="st">`</span> =<span class="st"> "a"</span>), <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)
 
 lstDesc &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeListDescendants.html">PCMTreeListDescendants</a></span>(tree.a)
-splitNode &lt;-<span class="st"> </span><span class="kw">names</span>(lstDesc)[<span class="kw">which</span>(<span class="kw">sapply</span>(lstDesc, length) <span class="op">&gt;</span><span class="st"> </span>N<span class="op">/</span><span class="dv">2</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw">sapply</span>(lstDesc, length) <span class="op">&lt;</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span>N<span class="op">/</span><span class="dv">3</span>)][<span class="dv">1</span>]
+splitNode &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(lstDesc)[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(lstDesc, length) <span class="op">&gt;</span><span class="st"> </span>N<span class="op">/</span><span class="dv">2</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(lstDesc, length) <span class="op">&lt;</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span>N<span class="op">/</span><span class="dv">3</span>)][<span class="dv">1</span>]
 
-tree.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeInsertSingletons.html">PCMTreeInsertSingletons</a></span>(tree.a, <span class="dt">nodes =</span> <span class="kw">as.integer</span>(splitNode), 
-                                   <span class="dt">positions =</span> <span class="kw"><a href="../reference/PCMTreeGetBranchLength.html">PCMTreeGetBranchLength</a></span>(tree.a, <span class="kw">as.integer</span>(splitNode))<span class="op">/</span><span class="dv">2</span>)
-<span class="kw"><a href="../reference/PCMTreeSetRegimes.html">PCMTreeSetRegimes</a></span>(tree.ab, <span class="dt">nodes =</span> splitNode, <span class="dt">regimes =</span> <span class="kw">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>), <span class="dt">inplace =</span> <span class="ot">TRUE</span>)
+tree.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeInsertSingletons.html">PCMTreeInsertSingletons</a></span>(
+  tree.a, <span class="dt">nodes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(splitNode), 
+  <span class="dt">positions =</span> <span class="kw"><a href="../reference/PCMTreeGetBranchLength.html">PCMTreeGetBranchLength</a></span>(tree.a, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(splitNode))<span class="op">/</span><span class="dv">2</span>)
+<span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(
+  tree.ab,
+  <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>), <span class="dt">names =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(N<span class="op">+</span><span class="dv">1</span>, splitNode))), 
+  <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)
 
 <span class="co"># Currently this is causing a failure of the pkgdown::build_site(), so we use the </span>
 <span class="co"># ape's tree-plotting function</span>
 <span class="co"># PCMTreePlot(tree.ab)</span>
 
-palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMColorPalette.html">PCMColorPalette</a></span>(<span class="dv">2</span>, <span class="kw">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>))
-<span class="kw">plot</span>(tree.ab, <span class="dt">show.tip.label=</span><span class="ot">FALSE</span>, <span class="dt">edge.color =</span> palette[tree.ab<span class="op">$</span>edge.regime])</code></pre></div>
+palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMColorPalette.html">PCMColorPalette</a></span>(<span class="dv">2</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))
+<span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(tree.ab, <span class="dt">show.tip.label=</span><span class="ot">FALSE</span>, 
+     <span class="dt">edge.color =</span> palette[<span class="kw"><a href="../reference/PCMTreeGetRegimesForEdges.html">PCMTreeGetRegimesForEdges</a></span>(tree.ab)])</code></pre></div>
 <p><img src="PCMBase_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <p>Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">traits &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMSim.html">PCMSim</a></span>(tree.ab, modelBM.ab, modelBM.ab<span class="op">$</span>X0)</code></pre></div>
@@ -292,9 +296,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -409.492
+<pre><code>## [1] -408.5818
 ## attr(,"X0")
-## [1] 4.988633 1.995091
+## [1] 5.001290 1.992937
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -304,9 +308,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -409.492
+<pre><code>## [1] -408.5818
 ## attr(,"X0")
-## [1] 4.988633 1.995091
+## [1] 5.001290 1.992937
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -339,9 +343,8 @@ likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMC
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
 </div>
-
       </footer>
 </div>
 

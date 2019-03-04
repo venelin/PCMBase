@@ -6,10 +6,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulation and Likelihood Calculation of Phylogenetic Comparative Models • PCMBase</title>
-<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.1/clipboard.min.js" integrity="sha256-hIvIxeqhGZF+VVeM55k0mJvWpQ6gTkWk3Emc+NmowYA=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Simulation and Likelihood Calculation of Phylogenetic Comparative Models">
 <meta property="og:description" content="Phylogenetic comparative methods represent models of continuous trait 
   data associated with the tips of a phylogenetic tree. Examples of such models 
@@ -31,7 +30,7 @@
   &lt;https://venelin.github.io/PCMBase/&gt;
   provides access to the documentation and other resources. ">
 <meta name="twitter:card" content="summary">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
+<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-129563006-3"></script><script>
@@ -55,7 +54,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">PCMBase</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.9</span>
       </span>
     </div>
 
@@ -113,15 +112,25 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<div id="cran" class="section level3">
+<div id="an-optional-but-highly-recommended-dependency" class="section level3">
 <h3 class="hasAnchor">
-<a href="#cran" class="anchor"></a>CRAN</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"PCMBase"</span>)</code></pre></div>
+<a href="#an-optional-but-highly-recommended-dependency" class="anchor"></a>An optional but highly recommended dependency</h3>
+<p>The function <code>PCMTreePlot</code> in the package is implemented based on the R-package ggtree, which is not on CRAN. It is highly recommended to install this package in order to be able to visualize trees with colored parts corresponding to defferent evolutionary regimes. If ggtree is not installed, the package will fail to run examples and generate the vignettes. At the time of writing this documentation, ggtree can be installed from bioconductor through the following code (if that does not work, check the <a href="https://guangchuangyu.github.io/software/ggtree/">ggtree home page</a>):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ns-load">requireNamespace</a></span>(<span class="st">"BiocManager"</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>))
+    <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"BiocManager"</span>)
+BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(<span class="st">"ggtree"</span>, <span class="dt">version =</span> <span class="st">"3.8"</span>)</code></pre></div>
+</div>
+<div id="installing-pcmbase-from-cran" class="section level3">
+<h3 class="hasAnchor">
+<a href="#installing-pcmbase-from-cran" class="anchor"></a>Installing PCMBase from CRAN</h3>
+<p>A stable but possibly old version of PCMBase is available on CRAN and can be installed with this command:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"PCMBase"</span>)</code></pre></div>
 </div>
 <div id="github" class="section level3">
 <h3 class="hasAnchor">
 <a href="#github" class="anchor"></a>Github</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"venelin/PCMBase"</span>)</code></pre></div>
+<p>The newest but possibly less stable and tested version of the package can be installed using:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"venelin/PCMBase"</span>)</code></pre></div>
 </div>
 </div>
 <div id="resources" class="section level2">
@@ -149,11 +158,11 @@
 <a href="#used-r-packages" class="anchor"></a>Used R-packages</h1>
 <p>The PCMBase R-package uses the following 3rd party R-packages:</p>
 <ul>
-<li>For tree processing in R: ape v5.2 <span class="citation">(Paradis et al. 2018)</span>, data.table v1.11.8 <span class="citation">(Dowle and Srinivasan 2018)</span>;</li>
+<li>For tree processing in R: ape v5.2 <span class="citation">(Paradis et al. 2018)</span>, data.table v1.12.0 <span class="citation">(Dowle and Srinivasan 2019)</span>;</li>
 <li>For algebraic manipulation: expm v0.999.3 <span class="citation">(Goulet et al. 2018)</span>, mvtnorm v1.0.8 <span class="citation">(Genz et al. 2018)</span>;</li>
-<li>For plotting: ggtree v1.14.1 <span class="citation">(Yu and Lam 2018)</span>, ggplot2 v3.1.0 <span class="citation">(Wickham et al. 2018)</span>;</li>
+<li>For plotting: ggtree v1.14.6 <span class="citation">(Yu and Lam 2019)</span>, ggplot2 v3.1.0 <span class="citation">(Wickham et al. 2018)</span>;</li>
 <li>For unit-testing: testthat v2.0.1 <span class="citation">(Wickham 2018)</span>, covr v3.2.1 <span class="citation">(Hester 2018)</span>;</li>
-<li>For documentation and web-site generation: roxygen2 v6.1.1 <span class="citation">(Wickham, Danenberg, and Eugster 2018)</span>, pkgdown v1.1.0.9000 <span class="citation">(Wickham and Hesselberth 2018)</span>;</li>
+<li>For documentation and web-site generation: roxygen2 v6.1.1 <span class="citation">(Wickham, Danenberg, and Eugster 2018)</span>, pkgdown v1.3.0 <span class="citation">(Wickham and Hesselberth 2018)</span>;</li>
 </ul>
 </div>
 <div id="references" class="section level1 unnumbered">
@@ -161,7 +170,7 @@
 <a href="#references" class="anchor"></a>References</h1>
 <div id="refs" class="references">
 <div id="ref-R-data-table">
-<p>Dowle, Matt, and Arun Srinivasan. 2018. <em>Data.table: Extension of ‘Data.frame‘</em>. <a href="https://CRAN.R-project.org/package=data.table" class="uri">https://CRAN.R-project.org/package=data.table</a>.</p>
+<p>Dowle, Matt, and Arun Srinivasan. 2019. <em>Data.table: Extension of ‘Data.frame‘</em>. <a href="https://CRAN.R-project.org/package=data.table" class="uri">https://CRAN.R-project.org/package=data.table</a>.</p>
 </div>
 <div id="ref-R-mvtnorm">
 <p>Genz, Alan, Frank Bretz, Tetsuhisa Miwa, Xuefei Mi, and Torsten Hothorn. 2018. <em>Mvtnorm: Multivariate Normal and T Distributions</em>. <a href="https://CRAN.R-project.org/package=mvtnorm" class="uri">https://CRAN.R-project.org/package=mvtnorm</a>.</p>
@@ -179,7 +188,7 @@
 <p>Wickham, Hadley. 2018. <em>Testthat: Unit Testing for R</em>. <a href="https://CRAN.R-project.org/package=testthat" class="uri">https://CRAN.R-project.org/package=testthat</a>.</p>
 </div>
 <div id="ref-R-pkgdown">
-<p>Wickham, Hadley, and Jay Hesselberth. 2018. <em>Pkgdown: Make Static Html Documentation for a Package</em>.</p>
+<p>Wickham, Hadley, and Jay Hesselberth. 2018. <em>Pkgdown: Make Static Html Documentation for a Package</em>. <a href="https://CRAN.R-project.org/package=pkgdown" class="uri">https://CRAN.R-project.org/package=pkgdown</a>.</p>
 </div>
 <div id="ref-R-ggplot2">
 <p>Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, and Kara Woo. 2018. <em>Ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics</em>. <a href="https://CRAN.R-project.org/package=ggplot2" class="uri">https://CRAN.R-project.org/package=ggplot2</a>.</p>
@@ -188,7 +197,7 @@
 <p>Wickham, Hadley, Peter Danenberg, and Manuel Eugster. 2018. <em>Roxygen2: In-Line Documentation for R</em>. <a href="https://CRAN.R-project.org/package=roxygen2" class="uri">https://CRAN.R-project.org/package=roxygen2</a>.</p>
 </div>
 <div id="ref-R-ggtree">
-<p>Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2018. <em>Ggtree: An R Package for Visualization and Annotation of Phylogenetic Trees with Their Covariates and Other Associated Data</em>. <a href="https://guangchuangyu.github.io/software/ggtree" class="uri">https://guangchuangyu.github.io/software/ggtree</a>.</p>
+<p>Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. <em>Ggtree: An R Package for Visualization and Annotation of Phylogenetic Trees with Their Covariates and Other Associated Data</em>. <a href="https://guangchuangyu.github.io/software/ggtree" class="uri">https://guangchuangyu.github.io/software/ggtree</a>.</p>
 </div>
 </div>
 </div>
@@ -246,9 +255,8 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
 </div>
-
       </footer>
 </div>
 

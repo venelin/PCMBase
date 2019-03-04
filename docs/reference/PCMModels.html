@@ -8,20 +8,18 @@
 
 <title>Get a list of PCM models currently implemented — PCMModels • PCMBase</title>
 
-<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
-
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.1/clipboard.min.js" integrity="sha256-hIvIxeqhGZF+VVeM55k0mJvWpQ6gTkWk3Emc+NmowYA=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
 <!-- sticky kit -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
@@ -40,7 +38,8 @@
 
 
 <!-- mathjax -->
-<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
 
 <!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -74,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.9</span>
       </span>
     </div>
 
@@ -159,12 +158,262 @@
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The function is using the S3 api function <code>methods</code> looking
+    <p>The function is using the S3 api function <code><a href='https://www.rdocumentation.org/packages/utils/topics/methods'>methods</a></code> looking
 for all registered implementations of the function <code><a href='PCMSpecify.html'>PCMSpecify</a></code>.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>PCMModels</span>()</div><div class='output co'>#&gt; [1] "BM"    "DOU"   "JOU"   "OU"    "White"</div><div class='input'><span class='fu'>PCMModels</span>(<span class='st'>"^OU"</span>)</div><div class='output co'>#&gt; [1] "OU"</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>PCMModels</span>()</div><div class='output co'>#&gt;   [1] "BM"                                                                                                                                                                                           
+#&gt;   [2] "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                                                                    
+#&gt;   [3] "BM__Global_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                                                              
+#&gt;   [4] "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                                                 
+#&gt;   [5] "BM__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                                                                   
+#&gt;   [6] "BM__Omitted_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                                                             
+#&gt;   [7] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                                                
+#&gt;   [8] "DOU"                                                                                                                                                                                          
+#&gt;   [9] "JOU"                                                                                                                                                                                          
+#&gt;  [10] "OU"                                                                                                                                                                                           
+#&gt;  [11] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                           
+#&gt;  [12] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                  
+#&gt;  [13] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                     
+#&gt;  [14] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                            
+#&gt;  [15] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [16] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;  [17] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                                  
+#&gt;  [18] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                         
+#&gt;  [19] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                            
+#&gt;  [20] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                   
+#&gt;  [21] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;  [22] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                      
+#&gt;  [23] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [24] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [25] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [26] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [27] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt;  [28] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [29] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [30] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                     
+#&gt;  [31] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [32] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;  [33] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [34] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [35] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [36] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [37] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [38] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [39] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"              
+#&gt;  [40] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [41] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [42] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;  [43] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [44] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                         
+#&gt;  [45] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [46] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                            
+#&gt;  [47] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt;  [48] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [49] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"              
+#&gt;  [50] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [51] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x" 
+#&gt;  [52] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"        
+#&gt;  [53] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [54] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [55] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [56] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                            
+#&gt;  [57] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"        
+#&gt;  [58] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"               
+#&gt;  [59] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                
+#&gt;  [60] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                       
+#&gt;  [61] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                          
+#&gt;  [62] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                 
+#&gt;  [63] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                             
+#&gt;  [64] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                    
+#&gt;  [65] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                       
+#&gt;  [66] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                              
+#&gt;  [67] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                 
+#&gt;  [68] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                        
+#&gt;  [69] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                    
+#&gt;  [70] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                           
+#&gt;  [71] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                          
+#&gt;  [72] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                 
+#&gt;  [73] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                    
+#&gt;  [74] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                           
+#&gt;  [75] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [76] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [77] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                                 
+#&gt;  [78] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                        
+#&gt;  [79] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                           
+#&gt;  [80] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                  
+#&gt;  [81] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [82] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                     
+#&gt;  [83] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                      
+#&gt;  [84] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                             
+#&gt;  [85] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                
+#&gt;  [86] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [87] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                   
+#&gt;  [88] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                          
+#&gt;  [89] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                             
+#&gt;  [90] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                    
+#&gt;  [91] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [92] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [93] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                          
+#&gt;  [94] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [95] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                
+#&gt;  [96] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [97] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                          
+#&gt;  [98] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [99] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"             
+#&gt; [100] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                    
+#&gt; [101] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt; [102] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt; [103] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt; [104] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt; [105] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt; [106] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt; [107] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                   
+#&gt; [108] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                          
+#&gt; [109] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"             
+#&gt; [110] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                    
+#&gt; [111] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"
+#&gt; [112] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"       
+#&gt; [113] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                          
+#&gt; [114] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt; [115] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt; [116] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt; [117] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"       
+#&gt; [118] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"              
+#&gt; [119] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt; [120] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                      
+#&gt; [121] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                         
+#&gt; [122] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                
+#&gt; [123] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                            
+#&gt; [124] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                   
+#&gt; [125] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                      
+#&gt; [126] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                             
+#&gt; [127] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                
+#&gt; [128] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                       
+#&gt; [129] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                   
+#&gt; [130] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                          
+#&gt; [131] "White"                                                                                                                                                                                        </div><div class='input'><span class='fu'>PCMModels</span>(<span class='st'>"^OU"</span>)</div><div class='output co'>#&gt;   [1] "OU"                                                                                                                                                                                           
+#&gt;   [2] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                           
+#&gt;   [3] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                  
+#&gt;   [4] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                     
+#&gt;   [5] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                            
+#&gt;   [6] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;   [7] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;   [8] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                                  
+#&gt;   [9] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                         
+#&gt;  [10] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                            
+#&gt;  [11] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                   
+#&gt;  [12] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;  [13] "OU__Global_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                      
+#&gt;  [14] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [15] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [16] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [17] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [18] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt;  [19] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [20] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [21] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                     
+#&gt;  [22] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [23] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;  [24] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [25] "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [26] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [27] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [28] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [29] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [30] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"              
+#&gt;  [31] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [32] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [33] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt;  [34] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [35] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                         
+#&gt;  [36] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [37] "OU__Global_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                            
+#&gt;  [38] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt;  [39] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [40] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"              
+#&gt;  [41] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [42] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x" 
+#&gt;  [43] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"        
+#&gt;  [44] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [45] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                  
+#&gt;  [46] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                     
+#&gt;  [47] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                            
+#&gt;  [48] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"        
+#&gt;  [49] "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"               
+#&gt;  [50] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                
+#&gt;  [51] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                       
+#&gt;  [52] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                          
+#&gt;  [53] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                 
+#&gt;  [54] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                             
+#&gt;  [55] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                    
+#&gt;  [56] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                       
+#&gt;  [57] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                              
+#&gt;  [58] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                 
+#&gt;  [59] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                        
+#&gt;  [60] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                    
+#&gt;  [61] "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                           
+#&gt;  [62] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                          
+#&gt;  [63] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                 
+#&gt;  [64] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                    
+#&gt;  [65] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                           
+#&gt;  [66] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [67] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [68] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                                 
+#&gt;  [69] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                        
+#&gt;  [70] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                           
+#&gt;  [71] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                  
+#&gt;  [72] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [73] "OU__Omitted_X0__Diagonal_WithNonNegativeDiagonal_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                     
+#&gt;  [74] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                      
+#&gt;  [75] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                             
+#&gt;  [76] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                
+#&gt;  [77] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [78] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                   
+#&gt;  [79] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                          
+#&gt;  [80] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                             
+#&gt;  [81] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                    
+#&gt;  [82] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [83] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [84] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                          
+#&gt;  [85] "OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [86] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                
+#&gt;  [87] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [88] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                          
+#&gt;  [89] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [90] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"             
+#&gt;  [91] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                    
+#&gt;  [92] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                       
+#&gt;  [93] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                              
+#&gt;  [94] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt;  [95] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                        
+#&gt;  [96] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt;  [97] "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt;  [98] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                   
+#&gt;  [99] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                          
+#&gt; [100] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"             
+#&gt; [101] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                    
+#&gt; [102] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"
+#&gt; [103] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"       
+#&gt; [104] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                          
+#&gt; [105] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                 
+#&gt; [106] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                    
+#&gt; [107] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                           
+#&gt; [108] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"       
+#&gt; [109] "OU__Omitted_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"              
+#&gt; [110] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                               
+#&gt; [111] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                      
+#&gt; [112] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                         
+#&gt; [113] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                
+#&gt; [114] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                            
+#&gt; [115] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                   
+#&gt; [116] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                      
+#&gt; [117] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                             
+#&gt; [118] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                                
+#&gt; [119] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                       
+#&gt; [120] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"                                   
+#&gt; [121] "OU__Omitted_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                          </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -187,9 +436,8 @@ for all registered implementations of the function <code><a href='PCMSpecify.htm
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
 </div>
-
       </footer>
    </div>
 
