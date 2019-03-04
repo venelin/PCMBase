@@ -55,7 +55,7 @@
 #' entries set.
 #'
 #' @examples
-#' tree <- rtree(8)
+#' tree <- ape::rtree(8)
 #'
 #' # the following four are NULLs
 #' tree$node.label
@@ -232,7 +232,7 @@ PCMTreeNumNodes <- function(tree) {
 #' @seealso \code{\link{PCMTree}}
 #'
 #' @examples
-#' tree <- rtree(5)
+#' tree <- ape::rtree(5)
 #' tree$tip.label
 #' # the following three are NULLs
 #' tree$node.label
@@ -392,7 +392,7 @@ PCMTreeGetPartition <- function(tree) {
 #'
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(8))
+#' tree <- PCMTree(ape::rtree(8))
 #' PCMTreeSetLabels(tree, paste0("x", PCMTreeGetLabels(tree)))
 #' PCMTreeGetPartition(tree)
 #' PCMTreeGetPartNames(tree)
@@ -526,7 +526,7 @@ PCMTreeGetPartRegimes <- function(tree) {
 #' @seealso \code{\link{PCMTree}}
 #'
 #' @examples
-#' tree <- PCMTree(rtree(25))
+#' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeGetPartition(tree)
 #' PCMTreeGetPartRegimes(tree)
 #' PCMTreeGetPartNames(tree)
@@ -556,7 +556,7 @@ PCMTreeGetPartRegimes <- function(tree) {
 #' N <- 40
 #'
 #' # tree with one regime
-#' tree.a <- rtree(N)
+#' tree.a <- ape::rtree(N)
 #'
 #' tree.a <- PCMTree(tree.a)
 #'
@@ -955,7 +955,7 @@ PCMTreeDtNodeParts <- function(tree) {
 #' @seealso PCMTree
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(25))
+#' tree <- PCMTree(ape::rtree(25))
 #' \donttest{
 #' PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 #' }
@@ -1087,7 +1087,7 @@ PCMTreeBackbonePartition <- function(tree, partsToKeep = PCMTreeGetPartNames(tre
 #' (default) only a vector of the non-NA entries will be returned.
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(8))
+#' tree <- PCMTree(ape::rtree(8))
 #' PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 #'
 #' PCMTreeSetPartition(tree, c(10, 12))
@@ -1139,7 +1139,7 @@ PCMTreeMatrixNodesInSamePart <- function(
 #' only a vector of the non-NA entries will be returned.
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(8))
+#' tree <- PCMTree(ape::rtree(8))
 #' PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 #'
 #' PCMTreeSetPartition(tree, c(10, 12))
@@ -1401,7 +1401,7 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
 #' @importFrom ape drop.tip
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(25))
+#' tree <- PCMTree(ape::rtree(25))
 #' \donttest{
 #' PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 #' }
@@ -1568,7 +1568,7 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
 #' @seealso PCMTreeSpliAtNode PCMTreeDropClade
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(25))
+#' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
 #' \donttest{
 #' PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
@@ -1651,7 +1651,7 @@ PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NU
 #' @seealso PCMTreeSpliAtNode PCMTreeExtractClade
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(25))
+#' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
 #' \donttest{
 #' PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
@@ -1740,7 +1740,7 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
 #'
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(25))
+#' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
 #' \donttest{
 #' PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
@@ -1842,7 +1842,7 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #' @seealso \code{\link{PCMTreeEdgeTimes}} \code{\link{PCMTreeLocateEpochOnBranches}} \code{\link{PCMTreeLocateMidpointsOnBranches}}
 #' @examples
 #' set.seed(1)
-#' tree <- PCMTree(rtree(25))
+#' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
 #' \donttest{
 #' PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
