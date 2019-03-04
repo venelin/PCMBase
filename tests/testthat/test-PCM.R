@@ -1,6 +1,6 @@
 library(PCMBase)
 
-if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
+if(PCMBaseIsADevRelease()) {
 
   library(abind)
 

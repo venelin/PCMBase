@@ -3,7 +3,7 @@ library(testthat)
 
 context("Test parameter transformaitons")
 
-if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
+if(PCMBaseIsADevRelease()) {
 
   # number of traits
   k <- 3

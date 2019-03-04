@@ -3,7 +3,7 @@ context("PCMTree")
 
 library(PCMBase)
 
-if(PCMBaseIsADevRelease(numVersionComponents = 3)) {
+if(PCMBaseIsADevRelease()) {
 
   list2env(PCMBaseTestObjects, globalenv())
 
