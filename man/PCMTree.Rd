@@ -58,7 +58,8 @@ tree$edge.regime
 # In previous version regimes were assigned directly to the edges via
 # tree$edge.regime. This is supported but not recommended anymore:
 
-tree$edge.regime <- sample(letters[1:3], size = PCMTreeNumNodes(tree) - 1, replace = TRUE)
+tree$edge.regime <- sample(
+  letters[1:3], size = PCMTreeNumNodes(tree) - 1, replace = TRUE)
 
 tree.a <- PCMTree(tree)
 PCMTreeGetLabels(tree.a)

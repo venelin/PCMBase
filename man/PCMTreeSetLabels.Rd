@@ -44,7 +44,8 @@ tree$node.label
 tree$edge.part
 tree$part.regime
 
-PCMTreeSetLabels(tree, labels = paste0(c(rep("t", 5), rep("n", 4)), PCMTreeGetLabels(tree)))
+PCMTreeSetLabels(
+  tree, labels = paste0(c(rep("t", 5), rep("n", 4)), PCMTreeGetLabels(tree)))
 PCMTreeGetLabels(tree)
 tree$tip.label
 tree$node.label

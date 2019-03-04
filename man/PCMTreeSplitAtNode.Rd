@@ -38,13 +38,16 @@ of the tree will be discarded and not present in the clade.
 set.seed(1)
 tree <- PCMTree(ape::rtree(25))
 \donttest{
-PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +
+  ggtree::geom_tiplab(angle = 45)
 }
 spl <- PCMTreeSplitAtNode(tree, 28)
 \donttest{
-PCMTreePlot(PCMTree(spl$clade)) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(PCMTree(spl$clade)) + ggtree::geom_nodelab(angle = 45) +
+  ggtree::geom_tiplab(angle = 45)
 }
 \donttest{
-PCMTreePlot(PCMTree(spl$rest)) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(PCMTree(spl$rest)) + ggtree::geom_nodelab(angle = 45) +
+  ggtree::geom_tiplab(angle = 45)
 }
 }

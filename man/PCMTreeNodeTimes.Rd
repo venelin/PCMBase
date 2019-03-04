@@ -12,7 +12,9 @@ PCMTreeNodeTimes(tree, tipsOnly = FALSE)
 \item{tipsOnly}{Logical indicating whether the returned results should be truncated only to the tips of the tree.}
 }
 \value{
-A vector of size the number of nodes in the tree (tips, root, internal) containing the time from the root to the corresponding node in the tree.
+A vector of size the number of nodes in the tree (tips, root,
+  internal) containing the time from the root to the corresponding node in
+  the tree.
 }
 \description{
 Calculate the time from the root to each node of the tree

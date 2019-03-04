@@ -51,7 +51,8 @@ PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 
 PCMTreeMatrixNodesInSamePart(tree)
 PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)))
-PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)), returnVector = FALSE)
+PCMTreeMatrixNodesInSamePart(
+  tree, seq_len(PCMTreeNumTips(tree)), returnVector = FALSE)
 
 set.seed(1)
 tree <- PCMTree(ape::rtree(8))
@@ -62,6 +63,7 @@ PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 
 PCMTreeMatrixNodesInSamePart(tree)
 PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)))
-PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)), returnVector = FALSE)
+PCMTreeMatrixNodesInSamePart(
+  tree, seq_len(PCMTreeNumTips(tree)), returnVector = FALSE)
 
 }

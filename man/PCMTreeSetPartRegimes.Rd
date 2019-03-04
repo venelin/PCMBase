@@ -45,10 +45,13 @@ PCMTreeGetPartition(tree)
 PCMTreeGetPartRegimes(tree)
 PCMTreeGetPartNames(tree)
 
-# This should fail because no partition with nodes 26, 28 and 41 has been done.
-ggplot2::should_stop(PCMTreeSetPartRegimes(tree, c(`26` = "a", `28` = "b", `41` = "c")))
+# This should fail because no partition with nodes 26, 28 and 41 has been
+# done.
+ggplot2::should_stop(
+  PCMTreeSetPartRegimes(tree, c(`26` = "a", `28` = "b", `41` = "c")))
 # This should succeed and change the partition as well as regime assignment
-PCMTreeSetPartRegimes(tree, c(`26` = "a", `28` = "b", `41` = "c"), setPartition = TRUE)
+PCMTreeSetPartRegimes(
+  tree, c(`26` = "a", `28` = "b", `41` = "c"), setPartition = TRUE)
 PCMTreeGetPartition(tree)
 PCMTreeGetPartRegimes(tree)
 PCMTreeGetPartNames(tree)

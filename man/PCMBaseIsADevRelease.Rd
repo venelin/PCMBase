@@ -4,16 +4,11 @@
 \alias{PCMBaseIsADevRelease}
 \title{Check if the PCMBase version correpsonds to a dev release}
 \usage{
-PCMBaseIsADevRelease(numVersionComponents = 4L)
-}
-\arguments{
-\item{numVersionComponents}{an integer, default 4.}
+PCMBaseIsADevRelease()
 }
 \value{
 a logical
 }
 \description{
-We define a dev release as having a sub-release, eg 0.9.15.5 is
-one whereas 0.9.16 is not. The number of components in the version can be
-changed through the argument numVersionComponents.
+Check if the PCMBase version correpsonds to a dev release
 }
