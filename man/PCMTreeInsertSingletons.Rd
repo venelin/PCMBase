@@ -46,26 +46,44 @@ Insert singleton nodes on chosen edges
 \examples{
 set.seed(1)
 tree <- PCMTree(ape::rtree(25))
-PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
+PCMTreeSetPartRegimes(
+  tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
 \donttest{
-PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  tree,
+  palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 cbind(tree$edge, PCMTreeEdgeTimes(tree))
+
+id47 <- PCMTreeMatchLabels(tree, "47")
+length47 <- PCMTreeGetBranchLength(tree, id47)
+
 # insert a singleton at 0.55 (root-ward) from node 47
-tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions=0.55)
+tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions = (length47/2))
 \donttest{
-PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  tree,
+  palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 # this fails, because the branch leading to node "47" is shorter now (0.55).
-ggplot2::should_stop(tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions=0.75))
+ggplot2::should_stop(
+  tree <- PCMTreeInsertSingletons(
+    tree, nodes = "47", positions= 2* length47 / 3))
+
 # the tree is the same
 \donttest{
-PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 # we can insert at a position within the edge:
 tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions=0.25)
 \donttest{
-PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 
 # Insert singletons at all branches crossing a given epoch. This will skip
@@ -73,12 +91,17 @@ PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) 
 # than 0.1.
 tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3)
 \donttest{
-PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 # Insert singletons at all branches crossing a given epoch
 tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3, minLength = 0.001)
 \donttest{
-PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  tree,
+  palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 }
 \seealso{

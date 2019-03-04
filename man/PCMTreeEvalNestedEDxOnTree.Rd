@@ -26,20 +26,27 @@ Perfrorm nested extractions or drops of clades from a tree
 \examples{
 set.seed(1)
 tree <- PCMTree(ape::rtree(25))
-PCMTreeSetPartRegimes(tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
+PCMTreeSetPartRegimes(
+  tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
 \donttest{
-PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 bluePart <- PCMTreeEvalNestedEDxOnTree("D(E(tree,45),47)", tree)
 PCMTreeGetPartRegimes(bluePart)
 \donttest{
-PCMTreePlot(bluePart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  bluePart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 
 # Swapping the D and E calls has the same result:
 bluePart2 <- PCMTreeEvalNestedEDxOnTree("E(D(tree,47),45)", tree)
 PCMTreeGetPartRegimes(bluePart2)
 \donttest{
-PCMTreePlot(bluePart2, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) + ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  bluePart2, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 }
