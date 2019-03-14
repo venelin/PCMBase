@@ -661,14 +661,22 @@ PCMTreeGetTipsInPart <- function(tree, part) {
 }
 
 #' Model regimes (i.e. colors) associated with the branches in a tree
-#' @param tree a phylo object
-#' @return an vector with entries corresponding to the rows in tree$edge
+#' @param tree a PCMTree or a phylo object.
+#' @return a vector with entries corresponding to the rows in tree$edge
 #'   denoting the regime associated with each branch in the tree. The type
-#'   of the vector element is defined the type of tree$part.regime.
+#'   of the vector element is defined by the type of tree$part.regime.
 #' @export
 PCMTreeGetRegimesForEdges <- function(tree) {
   tree <- PCMTree(tree)
   tree$part.regime[as.character(tree$edge.part)]
+}
+
+PCMTreeGetRegimesForNodes <- function(tree, nodes) {
+  tree <- PCMTree(tree)
+  if(is.character(nodes)) {
+    nodes <- PCMTreeMatchLabels(tree, nodes)
+  }
+
 }
 
 
@@ -929,11 +937,27 @@ PCMTreeListAllPartitionsInternal <- function(
   }
 }
 
-#' A data.table of the tips with their assigned part
+#' A data.table with time, part and regime information for the nodes in a tree
 #' @param tree a phylo object with node-labels and parts
-#' @importFrom data.table data.table
+#' @return a data.table with a row for each node in tree and columns as follows:
+#' \itemize{
+#' \item{startNode }{the starting node of each edge or NA_integer_ for the root}
+#' \item{endNode }{the end node of each edge or the root id for the root}
+#' \item{startNodeLab }{the character label for the startNode}
+#' \item{endNodeLab }{the character label for endNode}
+#' \item{startTime }{the time (distance from the root node) for the startNode or
+#'  NA_real_ for the root node}
+#' \item{endTime }{the time (distance from the root node) for the endNode or
+#'  NA_real_ for the root node}
+#' \item{part }{the part to which the edge belongs, i.e. the part of the
+#'  endNode}
+#' \item{regime }{the regime to which the edge belongs, i.e. the regime of the
+#'  part of the endNode}}
+#' @importFrom data.table data.table rbindlist
+#' @examples
+#' PCMTreeDtNodes(PCMBaseTestObjects$tree.ab)
 #' @export
-PCMTreeDtNodeParts <- function(tree) {
+PCMTreeDtNodes <- function(tree) {
 
   tree <- PCMTree(tree)
 
@@ -941,11 +965,26 @@ PCMTreeDtNodeParts <- function(tree) {
   nodeTimes <- PCMTreeNodeTimes(tree)
   nodeLabels <- PCMTreeGetLabels(tree)
 
-  data.table(
-    startNode = tree$edge[, 1], endNode = tree$edge[, 2],
-    startNodeLab = nodeLabels[tree$edge[, 1]], endNodeLab = nodeLabels[tree$edge[, 2]],
-    startTime = nodeTimes[tree$edge[, 1]], endTime = nodeTimes[tree$edge[, 2]],
-    part = tree$edge.part)
+  dtForBranches <- data.table(
+    startNode = tree$edge[, 1],
+    endNode = tree$edge[, 2],
+    startNodeLab = nodeLabels[tree$edge[, 1]],
+    endNodeLab = nodeLabels[tree$edge[, 2]],
+    startTime = nodeTimes[tree$edge[, 1]],
+    endTime = nodeTimes[tree$edge[, 2]],
+    part = tree$edge.part,
+    regime = tree$part.regime[tree$edge.part])
+  dtForRoot <- data.table(
+    startNode = NA_integer_,
+    endNode = PCMTreeNumTips(tree) + 1L,
+    startNodeLab = NA_character_,
+    endNodeLab = nodeLabels[PCMTreeNumTips(tree) + 1L],
+    startTime = NA_real_,
+    endTime = 0.0,
+    part = PCMTreeGetPartsForNodes(tree, PCMTreeNumTips(tree) + 1L),
+    regime = tree$part.regime[
+      PCMTreeGetPartsForNodes(tree, PCMTreeNumTips(tree) + 1L)])
+  rbindlist(list(dtForRoot, dtForBranches))
 }
 
 #' Prune the tree leaving one tip for each or some of its parts
@@ -2064,22 +2103,30 @@ PCMTreeInsertSingletonsAtEpoch <- function(tree, epoch, minLength = 0.1) {
 
 #' Find the nearest node to a given time from the root (epoch) on each lineage crossing this epoch
 #' @param tree a phylo
-#' @param epoch a positive numeric
+#' @param epoch a non-negative numeric
 #' @return an integer vector
 #' @export
 PCMTreeNearestNodesToEpoch <- function(tree, epoch) {
-  nodeTimes <- PCMTreeNodeTimes(tree)
-  points <- PCMTreeLocateEpochOnBranches(tree, epoch)
-  ans <- sapply(seq_along(points$nodes), function(i) {
-    node <- points$nodes[i]
-    parentNode <- tree$edge[tree$edge[, 2] == points$nodes[i], 1]
 
-    if(points$positions[i] > (nodeTimes[points$nodes[i]] - points$positions[i] - nodeTimes[parentNode])) {
-      parentNode
-    } else {
-      node
+  if(epoch == 0) {
+    ans <- PCMTreeNumTips(tree) + 1L
+  } else {
+    nodeTimes <- PCMTreeNodeTimes(tree)
+    if(epoch > max(nodeTimes)) {
+      epoch <- max(nodeTimes)
     }
-  })
+    points <- PCMTreeLocateEpochOnBranches(tree, epoch)
+    ans <- sapply(seq_along(points$nodes), function(i) {
+      node <- points$nodes[i]
+      parentNode <- tree$edge[tree$edge[, 2] == points$nodes[i], 1]
+
+      if(points$positions[i] > (nodeTimes[points$nodes[i]] - points$positions[i] - nodeTimes[parentNode])) {
+        parentNode
+      } else {
+        node
+      }
+    })
+  }
   unique(ans)
 }
 

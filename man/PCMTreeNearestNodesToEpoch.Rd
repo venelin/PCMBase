@@ -9,7 +9,7 @@ PCMTreeNearestNodesToEpoch(tree, epoch)
 \arguments{
 \item{tree}{a phylo}
 
-\item{epoch}{a positive numeric}
+\item{epoch}{a non-negative numeric}
 }
 \value{
 an integer vector

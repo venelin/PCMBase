@@ -7,12 +7,12 @@
 PCMTreeGetRegimesForEdges(tree)
 }
 \arguments{
-\item{tree}{a phylo object}
+\item{tree}{a PCMTree or a phylo object.}
 }
 \value{
-an vector with entries corresponding to the rows in tree$edge
+a vector with entries corresponding to the rows in tree$edge
   denoting the regime associated with each branch in the tree. The type
-  of the vector element is defined the type of tree$part.regime.
+  of the vector element is defined by the type of tree$part.regime.
 }
 \description{
 Model regimes (i.e. colors) associated with the branches in a tree
