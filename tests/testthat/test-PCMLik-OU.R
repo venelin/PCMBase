@@ -37,7 +37,7 @@ if(PCMBaseIsADevRelease()) {
     }
   )
 
-  set.seed(1)
+  set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   test_that("Generate a random model, single regime (a)", {
     expect_silent(model.a.123.OU <- PCM("OU", k = 3, regimes = "a"))

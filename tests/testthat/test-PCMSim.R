@@ -8,7 +8,7 @@ if(PCMBaseIsADevRelease()) {
 
   list2env(PCMBaseTestObjects, globalenv())
 
-  set.seed(1)
+  set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   # generate traits
   traits.a.1 <- PCMSim(tree.a, model.a.1, 0, verbose=TRUE)

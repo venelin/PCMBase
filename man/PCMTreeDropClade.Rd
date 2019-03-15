@@ -37,7 +37,7 @@ tree after dropping the clade, otherise, a list with two named members :
 Drop a clade from a phylogenetic tree
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 PCMTreeSetPartRegimes(
   tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)

@@ -19,7 +19,7 @@ a PCMTree object representing a pruned version of tree.
 Prune the tree leaving one tip for each or some of its parts
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 \donttest{
 PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +

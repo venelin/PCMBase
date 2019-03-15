@@ -85,7 +85,7 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-03-04</h4>
+            <h4 class="date">2019-03-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
@@ -211,9 +211,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.001290208  1.992936926  1.593833423  0.009939615  2.401019038
-##  [6]  1.586197478  0.811360258  2.403782189  0.085479111  0.006630823
-## [11]  0.410961773  0.112328706 -0.005359377  0.409822610</code></pre>
+<pre><code>##  [1]  5.01954595  1.98046445  1.60844864  0.01432935  2.40648911
+##  [6]  1.59924670  0.78089854  2.41581441  0.10176019 -0.01171865
+## [11]  0.38166840  0.09548911 -0.01842396  0.40393639</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -221,32 +221,32 @@ param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.001290 1.992937
+## [1] 5.019546 1.980464
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]        [,2]
-## [1,] 1.593833 0.009939615
-## [2,] 0.000000 2.401019038
+##          [,1]       [,2]
+## [1,] 1.608449 0.01432935
+## [2,] 0.000000 2.40648911
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.586197 0.8113603
-## [2,] 0.800000 2.4037822
+## [1,] 1.599247 0.7808985
+## [2,] 0.800000 2.4158144
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##            [,1]        [,2]
-## [1,] 0.08547911 0.006630823
-## [2,] 0.00000000 0.410961773
+##           [,1]        [,2]
+## [1,] 0.1017602 -0.01171865
+## [2,] 0.0000000  0.38166840
 ## 
 ## , , b
 ## 
-##           [,1]         [,2]
-## [1,] 0.1123287 -0.005359377
-## [2,] 0.0000000  0.409822610
+##            [,1]        [,2]
+## [1,] 0.09548911 -0.01842396
+## [2,] 0.00000000  0.40393639
 ## 
 ## </code></pre>
 </div>
@@ -296,9 +296,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -408.5818
+<pre><code>## [1] -409.9381
 ## attr(,"X0")
-## [1] 5.001290 1.992937
+## [1] 5.019546 1.980464
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -308,9 +308,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -408.5818
+<pre><code>## [1] -409.9381
 ## attr(,"X0")
-## [1] 5.001290 1.992937
+## [1] 5.019546 1.980464
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")

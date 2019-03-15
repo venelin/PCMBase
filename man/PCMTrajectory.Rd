@@ -59,7 +59,7 @@ This is suitable for plotting with ggplot.}}
 Generate a trajectory for the mean in one regime of a PCM
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
 # a Brownian motion model with one regime
 modelOU <- PCM(model = PCMDefaultModelTypes()['F'], k = 2)

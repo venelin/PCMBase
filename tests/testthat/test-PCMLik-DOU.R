@@ -31,7 +31,7 @@ if(PCMBaseIsADevRelease()) {
               identical(type, "VectorParameter") ), ])
     )
   })
-  set.seed(1)
+  set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   test_that("Equal likelihood with dmvnorm on a random model, single regime (a)", {
     expect_silent(model.a.123.DOU <- PCM("DOU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H1__Schur_WithNonNegativeDiagonal_Transformable_H2__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigmae_x", k = 3, regimes = "a"))

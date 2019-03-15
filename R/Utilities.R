@@ -338,7 +338,8 @@ PCMPlotTraitData2D <- function(
 #' @importFrom ggplot2 ggplot geom_contour coord_fixed
 #'
 #' @export
-PCMPlotGaussianDensityGrid2D <- function(mu, Sigma, xlim, ylim, xNumPoints = 100, yNumPoints = 100, ...) {
+PCMPlotGaussianDensityGrid2D <- function(
+  mu, Sigma, xlim, ylim, xNumPoints = 100, yNumPoints = 100, ...) {
   # needed to pass the check
   x <- y <- prob <- NULL
 

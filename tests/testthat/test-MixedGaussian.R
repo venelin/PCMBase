@@ -143,7 +143,7 @@ if(PCMBaseIsADevRelease()) {
     PCMLik(traits.ab.123, tree.ab, model.ab.123.bSigmae_x)
   ))
 
-  set.seed(1)
+  set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   test_that("Generate a random MixedGaussian model", {
     expect_silent(model.ab.123.MG <- MixedGaussian(

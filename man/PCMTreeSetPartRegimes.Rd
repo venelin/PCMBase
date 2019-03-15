@@ -58,7 +58,7 @@ PCMTreeGetPartNames(tree)
 
 
 
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 # number of tips
 N <- 40
 

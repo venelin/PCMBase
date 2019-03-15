@@ -23,7 +23,7 @@ of a given part. A starting node is the node at which a starting branch
 ends.
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 PCMTreeGetPartition(PCMTree(ape::rtree(20)))
 }
 \seealso{

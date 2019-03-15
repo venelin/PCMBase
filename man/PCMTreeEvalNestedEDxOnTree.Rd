@@ -24,7 +24,7 @@ the resulting phylo object from evaluating expr on tree.
 Perfrorm nested extractions or drops of clades from a tree
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 PCMTreeSetPartRegimes(
   tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)

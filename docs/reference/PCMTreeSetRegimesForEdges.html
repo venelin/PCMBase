@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade — PCMTreeSplitAtNode • PCMBase</title>
+<title>Set the regime for each individual edge in a tree explicitly — PCMTreeSetRegimesForEdges • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade — PCMTreeSplitAtNode" />
+<meta property="og:title" content="Set the regime for each individual edge in a tree explicitly — PCMTreeSetRegimesForEdges" />
 
-<meta property="og:description" content="Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade" />
+<meta property="og:description" content="Set the regime for each individual edge in a tree explicitly" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -122,65 +122,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade</h1>
+    <h1>Set the regime for each individual edge in a tree explicitly</h1>
     <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTree.R'><code>R/PCMTree.R</code></a></small>
-    <div class="hidden name"><code>PCMTreeSplitAtNode.Rd</code></div>
+    <div class="hidden name"><code>PCMTreeSetRegimesForEdges.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Slit a tree at a given internal node into a clade rooted at this node and the remaining tree after dropping this clade</p>
+    <p>Set the regime for each individual edge in a tree explicitly</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMTreeSplitAtNode</span>(<span class='no'>tree</span>, <span class='no'>node</span>,
-  <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='fu'><a href='PCMTreeTableAncestors.html'>PCMTreeTableAncestors</a></span>(<span class='no'>tree</span>), <span class='kw'>X</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMTreeSetRegimesForEdges</span>(<span class='no'>tree</span>, <span class='no'>regimes</span>, <span class='kw'>inplace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>tree</th>
-      <td><p>a PCMTree object.</p></td>
+      <td><p>a PCMTree or a phylo object.</p></td>
     </tr>
     <tr>
-      <th>node</th>
-      <td><p>an integer or character indicating a root, internal or tip node</p></td>
+      <th>regimes</th>
+      <td><p>a vector of the length equal to `nrow(tree$edge)`.</p></td>
     </tr>
     <tr>
-      <th>tableAncestors</th>
-      <td><p>an integer matrix returned by a previous call to
-PCMTreeTableAncestors(tree) or NULL.</p></td>
-    </tr>
-    <tr>
-      <th>X</th>
-      <td><p>an optional k x N matrix with trait value vectors for each tip in
-tree.</p></td>
+      <th>inplace</th>
+      <td><p>a logical indicating if the change should be done within the
+tree in the calling environment or a copy of the tree with modified regime
+assignment should be retrned.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list containing two named phylo objects:</p><ul>
-<li><p>clade The subtree (clade) starting at <code>node</code>.</p></li>
-<li><p>Xclade The portion of X attributable to the tips in clade; NULL if X is NULL.</p></li>
-<li><p>rest The tree resulting after dropping all tips in the clade.</p></li>
-<li><p>Xrest The portion of X attributable to the tips in rest; NULL if X is NULL.</p></li>
-</ul>
-
+    <p>if inplace is TRUE, nothing, otherwise a modified copy of tree.</p>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
-    <p>In the current implementation, the edge.jump and edge.part members
-of the tree will be discarded and not present in the clade.</p>
+    <p>Calling this function overwrites the current partitioning of the tree.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>25</span>))</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>tree</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeSplitAtNode-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='no'>spl</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeSplitAtNode</span>(<span class='no'>tree</span>, <span class='fl'>28</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='no'>spl</span>$<span class='no'>clade</span>)) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeSplitAtNode-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='no'>spl</span>$<span class='no'>rest</span>)) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeSplitAtNode-3.png' alt='' width='700' height='433' /></div></pre>
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>10</span>)
+<span class='no'>regimes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sample'>sample</a></span>(<span class='no'>letters</span>[<span class='fl'>1</span>:<span class='fl'>3</span>], <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>tree</span>$<span class='no'>edge</span>), <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>PCMTreeSetRegimesForEdges</span>(<span class='no'>tree</span>, <span class='no'>regimes</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>tree</span>)</div><div class='img'><img src='PCMTreeSetRegimesForEdges-1.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -189,7 +177,7 @@ of the tree will be discarded and not present in the clade.</p>
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#details">Details</a></li>
+      <li><a href="#note">Note</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

@@ -349,8 +349,18 @@ PCMTreeNumParts <- function(tree) {
 }
 
 #' @export
+PCMRegimes.phylo <- function(obj) {
+  PCMRegimes(PCMTree(obj))
+}
+
+#' @export
 PCMRegimes.PCMTree <- function(obj) {
   unname(unique(obj$part.regime))
+}
+
+#' @export
+PCMNumRegimes.phylo <- function(obj) {
+  PCMNumRegimes(PCMTree(obj))
 }
 
 #' @export
@@ -369,7 +379,7 @@ PCMNumRegimes.PCMTree <- function(obj) {
 #' each part in tree and names equal to the labels of these nodes.
 #' @seealso \code{\link{PCMTreeSetPartition}}
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' PCMTreeGetPartition(PCMTree(ape::rtree(20)))
 #' @export
 PCMTreeGetPartition <- function(tree) {
@@ -396,7 +406,7 @@ PCMTreeGetPartition <- function(tree) {
 #' @seealso \code{\link{PCMTree}}
 #'
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(8))
 #' PCMTreeSetLabels(tree, paste0("x", PCMTreeGetLabels(tree)))
 #' PCMTreeGetPartition(tree)
@@ -559,7 +569,7 @@ PCMTreeGetPartRegimes <- function(tree) {
 #'
 #'
 #'
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' # number of tips
 #' N <- 40
 #'
@@ -634,11 +644,14 @@ PCMTreeSetPartRegimes <- function(
 
 #' Get the parts of the branches leading to a set of nodes or tips
 #' @param tree a phylo object with an edge.part member denoting parts.
-#' @param nodes an integer vector denoting the nodes
+#' @param nodes an integer vector denoting the nodes.
+#' Default is seq_len(PCMTreeNumNodes(tree).
 #' @return a character vector denoting the parts of the branches
 #' leading to the nodes, according to tree$edge.part.
 #' @export
-PCMTreeGetPartsForNodes <- function(tree, nodes) {
+PCMTreeGetPartsForNodes <- function(
+  tree, nodes = seq_len(PCMTreeNumNodes(tree))) {
+
   tree <- PCMTree(tree)
   parts <- tree$edge.part[match(nodes, tree$edge[, 2])]
   N <- PCMTreeNumTips(tree)
@@ -671,12 +684,85 @@ PCMTreeGetRegimesForEdges <- function(tree) {
   tree$part.regime[as.character(tree$edge.part)]
 }
 
-PCMTreeGetRegimesForNodes <- function(tree, nodes) {
-  tree <- PCMTree(tree)
-  if(is.character(nodes)) {
-    nodes <- PCMTreeMatchLabels(tree, nodes)
+#' Set the regime for each individual edge in a tree explicitly
+#' @note Calling this function overwrites the current partitioning of the tree.
+#' @param tree a PCMTree or a phylo object.
+#' @param regimes a vector of the length equal to `nrow(tree$edge)`.
+#' @param inplace a logical indicating if the change should be done within the
+#' tree in the calling environment or a copy of the tree with modified regime
+#' assignment should be retrned.
+#' @return if inplace is TRUE, nothing, otherwise a modified copy of tree.
+#' @examples
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#' tree <- ape::rtree(10)
+#' regimes <- sample(letters[1:3], nrow(tree$edge), replace = TRUE)
+#' PCMTreeSetRegimesForEdges(tree, regimes)
+#' \donttest{
+#' PCMTreePlot(tree)
+#' }
+#'
+#' @export
+PCMTreeSetRegimesForEdges <- function(tree, regimes, inplace = TRUE) {
+  if( !inherits(tree, "phylo") ) {
+    stop(
+      "PCMTreeSetRegimesForEdges: tree should be a PCMTree or a phylo object.")
   }
 
+  if(!is.vector(regimes) || length(regimes) != nrow(tree$edge)) {
+    stop(
+      paste0(
+        "PCMTreeSetRegimesForEdges: regimes should be a vector of length that ",
+        "equal the number of rows in tree$edge."))
+  }
+
+  if(is.PCMTree(tree)) {
+    # tree has edge.part and part.regime members which have to be overwritten.
+    tree2 <- tree
+    tree2$edge.part <- NULL
+    tree2$part.regime <- NULL
+    tree2 <- tree2[!sapply(tree2, is.null)]
+    class(tree2) <- "phylo"
+    tree2$edge.regime <- regimes
+
+    tree2 <- PCMTree(tree2)
+
+    if(inplace) {
+      eval(substitute({
+        tree$edge.part <- tree2$edge.part
+          tree$part.regime <- tree2$part.regime
+      }), parent.frame())
+    } else {
+      tree2
+    }
+  } else {
+    if(inplace) {
+      eval(substitute({
+        tree$edge.regime <- regimes
+      }), parent.frame())
+    } else {
+      tree$edge.regime <- regimes
+      tree
+    }
+  }
+}
+
+#' Get the regimes of the branches leading to a set of nodes or tips
+#' @param tree a phylo object with an edge.part member denoting parts.
+#' @param nodes an integer vector denoting the nodes.
+#' Default is seq_len(PCMTreeNumNodes(tree).
+#' @return a character vector denoting the parts of the branches
+#' leading to the nodes, according to tree$edge.part.
+#' @importFrom data.table setkey
+#' @export
+PCMTreeGetRegimesForNodes <- function(
+  tree, nodes = seq_len(PCMTreeNumNodes(tree) ) ) {
+
+  # avoid nodes during check
+  regime <- endNode <- NULL
+
+  dtNodes <- PCMTreeDtNodes(tree)
+  setkey(dtNodes, endNode)
+  as.vector(dtNodes[list(nodes), regime])
 }
 
 
@@ -1001,7 +1087,7 @@ PCMTreeDtNodes <- function(tree) {
 #'
 #' @seealso PCMTree
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
 #' \donttest{
 #' PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +
@@ -1143,7 +1229,7 @@ PCMTreeBackbonePartition <- function(tree, partsToKeep = PCMTreeGetPartNames(tre
 #' of tips that belong to the same part or regime. If returnVector is TRUE
 #' (default) only a vector of the non-NA entries will be returned.
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(8))
 #' PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 #'
@@ -1196,7 +1282,7 @@ PCMTreeMatrixNodesInSamePart <- function(
 #' of tips that belong to the same part or regime. If returnVector is TRUE (default)
 #' only a vector of the non-NA entries will be returned.
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(8))
 #' PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 #'
@@ -1461,7 +1547,7 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
 #'
 #' @importFrom ape drop.tip
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
 #' \donttest{
 #' PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +
@@ -1631,7 +1717,7 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
 #' }
 #' @seealso PCMTreeSpliAtNode PCMTreeDropClade
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
@@ -1647,9 +1733,9 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
 #' }
 #' # we need to use the label here, because the node 29 in tree is not the same
 #' # id in redGreenTree:
-#' blueTree2 <- PCMTreeDropClade(blueTree, "46")
+#' blueTree2 <- PCMTreeDropClade(blueTree, "48")
 #' \donttest{
-#' PCMTreePlot(blue2, palette=c(a = "red", b = "green", c = "blue")) +
+#' PCMTreePlot(blueTree2, palette=c(a = "red", b = "green", c = "blue")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 #' }
 #'
@@ -1718,7 +1804,7 @@ PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NU
 #' }
 #' @seealso PCMTreeSpliAtNode PCMTreeExtractClade
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
@@ -1811,7 +1897,7 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
 #' @return the resulting phylo object from evaluating expr on tree.
 #'
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
@@ -1920,7 +2006,7 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #'  specified locations
 #' @seealso \code{\link{PCMTreeEdgeTimes}} \code{\link{PCMTreeLocateEpochOnBranches}} \code{\link{PCMTreeLocateMidpointsOnBranches}}
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
@@ -2171,15 +2257,22 @@ PCMTreeToString <- function(
 
 
 
-#' Plot a tree with parts
-#' @param tree a PCMTree object.
+#' Plot a tree with parts and regimes assigned to these parts
+#'
+#' @param tree a PCMTree or a phylo object.
 #' @param palette a named vector of colors corresponding to the regimes in tree
-#' @param ... Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.
-#' @note Currently, the ggtree package is not on CRAN and therefore it is not explicitly
-#' imported by PCMBase.
+#' @param ... Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8,
+#' size=.25.
+#' @note This function requires that the ggtree package is installed.
+#' At the time of releasing this version the ggtree package is not available on
+#' CRAN. Check the
+#' \href{https://guangchuangyu.github.io/software/ggtree/}{ggtree homepage} for
+#' instruction on how to install this package:
+#' .
 #' @importFrom data.table data.table
 #' @importFrom grDevices hcl
 #' @importFrom ggplot2 aes scale_color_manual
+#'
 #' @export
 PCMTreePlot <- function(
   tree,
@@ -2187,7 +2280,7 @@ PCMTreePlot <- function(
                             PCMRegimes(tree)), ...) {
 
   if(!is.PCMTree(tree)) {
-    stop("PCMTreePlot:: tree should be a PCMTree object.")
+    tree <- PCMTree(tree)
   }
 
   # Needed to pass the check

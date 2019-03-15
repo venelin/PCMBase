@@ -31,7 +31,7 @@ If returnList is FALSE, a phylo object associated with the clade,
 Extract a clade from phylogenetic tree
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 PCMTreeSetPartRegimes(
   tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
@@ -47,9 +47,9 @@ PCMTreePlot(blueTree, palette=c(a = "red", b = "green", c = "blue")) +
 }
 # we need to use the label here, because the node 29 in tree is not the same
 # id in redGreenTree:
-blueTree2 <- PCMTreeDropClade(blueTree, "46")
+blueTree2 <- PCMTreeDropClade(blueTree, "48")
 \donttest{
-PCMTreePlot(blue2, palette=c(a = "red", b = "green", c = "blue")) +
+PCMTreePlot(blueTree2, palette=c(a = "red", b = "green", c = "blue")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 

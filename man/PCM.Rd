@@ -34,7 +34,8 @@ representation of the variable parameters in the model. See details.}
 
 \item{offset}{integer offset in vecParams; see Details.}
 
-\item{spec}{NULL or a list specifying the model parameters (see \code{\link{PCMSpecify}}). If NULL (default), the generic PCMSpecify
+\item{spec}{NULL or a list specifying the model parameters (see
+\code{\link{PCMSpecify}}). If NULL (default), the generic PCMSpecify
 is called on the created object of class \code{model}.}
 
 \item{...}{additional parameters intended for use by sub-classes of the PCM
@@ -44,11 +45,11 @@ class.}
 an object of S3 class as defined by the argument model.
 }
 \description{
-This is the entry-point function for creating model objects within
-the PCMBase framework representing a single model-type with one or several
-model-regimes of this type associated with the branches of a tree. For mixed
-Gaussian phylogenetic models, which enable multiple model-types, use the
-\code{\link{MixedGaussian}} function.
+This is the entry-point function for creating model objects
+within the PCMBase framework representing a single model-type with one or
+several model-regimes of this type associated with the branches of a tree.
+For mixed Gaussian phylogenetic models, which enable multiple model-types,
+use the \code{\link{MixedGaussian}} function.
 }
 \details{
 This is an S3 generic. The PCMBase package defines three methods for

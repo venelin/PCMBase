@@ -102,11 +102,11 @@ PCMOptions <- function() {
 #' @name PCM
 #' @title Create a phylogenetic comparative model object
 #'
-#' @description This is the entry-point function for creating model objects within
-#' the PCMBase framework representing a single model-type with one or several
-#' model-regimes of this type associated with the branches of a tree. For mixed
-#' Gaussian phylogenetic models, which enable multiple model-types, use the
-#' \code{\link{MixedGaussian}} function.
+#' @description This is the entry-point function for creating model objects
+#' within the PCMBase framework representing a single model-type with one or
+#' several model-regimes of this type associated with the branches of a tree.
+#' For mixed Gaussian phylogenetic models, which enable multiple model-types,
+#' use the \code{\link{MixedGaussian}} function.
 #' @param model This argument can take one of the following forms:
 #' \itemize{
 #' \item a character vector of the S3-classes of the model object to be
@@ -126,7 +126,8 @@ PCMOptions <- function() {
 #' @param vecParams NULL (default) or a numeric vector the vector
 #' representation of the variable parameters in the model. See details.
 #' @param offset integer offset in vecParams; see Details.
-#' @param spec NULL or a list specifying the model parameters (see \code{\link{PCMSpecify}}). If NULL (default), the generic PCMSpecify
+#' @param spec NULL or a list specifying the model parameters (see
+#' \code{\link{PCMSpecify}}). If NULL (default), the generic PCMSpecify
 #' is called on the created object of class \code{model}.
 #' @param ... additional parameters intended for use by sub-classes of the PCM
 #' class.
@@ -1089,7 +1090,7 @@ PCMVarAtTime <- function(
 #' @importFrom mvtnorm rmvnorm
 #' @export
 #' @examples
-#' set.seed(1)
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #'
 #' # a Brownian motion model with one regime
 #' modelOU <- PCM(model = PCMDefaultModelTypes()['F'], k = 2)

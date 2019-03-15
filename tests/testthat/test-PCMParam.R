@@ -7,7 +7,7 @@ if(PCMBaseIsADevRelease()) {
 
   list2env(PCMBaseTestObjects, globalenv())
 
-  set.seed(1)
+  set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   k <- PCMNumTraits(model.ab.123)
   R <- PCMNumRegimes(model.ab.123)

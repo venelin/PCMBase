@@ -42,7 +42,7 @@ Which couples from a given set of nodes in a tree belong to the same part?
 Which couples from a given set of nodes in a tree belong to the same regime?
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(8))
 PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 
@@ -54,7 +54,7 @@ PCMTreeMatrixNodesInSamePart(tree, seq_len(PCMTreeNumTips(tree)))
 PCMTreeMatrixNodesInSamePart(
   tree, seq_len(PCMTreeNumTips(tree)), returnVector = FALSE)
 
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(8))
 PCMTreeMatrixNodesInSamePart(tree, returnVector = FALSE)
 

@@ -10,7 +10,7 @@ if(PCMBaseIsADevRelease()) {
   library(ape)
 
 
-  set.seed(1)
+  set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
   # number of tips
   N <- 40
 
@@ -41,7 +41,7 @@ if(PCMBaseIsADevRelease()) {
     })
 
 
-  set.seed(1)
+  set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   test_that("PCMTreeNodeTimes", {
     expect_equivalent(

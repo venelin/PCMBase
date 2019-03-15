@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot a tree with parts — PCMTreePlot • PCMBase</title>
+<title>Plot a tree with parts and regimes assigned to these parts — PCMTreePlot • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Plot a tree with parts — PCMTreePlot" />
+<meta property="og:title" content="Plot a tree with parts and regimes assigned to these parts — PCMTreePlot" />
 
-<meta property="og:description" content="Plot a tree with parts" />
+<meta property="og:description" content="Plot a tree with parts and regimes assigned to these parts" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -122,14 +122,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot a tree with parts</h1>
+    <h1>Plot a tree with parts and regimes assigned to these parts</h1>
     <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTree.R'><code>R/PCMTree.R</code></a></small>
     <div class="hidden name"><code>PCMTreePlot.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Plot a tree with parts</p>
+    <p>Plot a tree with parts and regimes assigned to these parts</p>
     
     </div>
 
@@ -141,7 +141,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>tree</th>
-      <td><p>a PCMTree object.</p></td>
+      <td><p>a PCMTree or a phylo object.</p></td>
     </tr>
     <tr>
       <th>palette</th>
@@ -149,14 +149,19 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.</p></td>
+      <td><p>Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8,
+size=.25.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
-    <p>Currently, the ggtree package is not on CRAN and therefore it is not explicitly
-imported by PCMBase.</p>
+    <p>This function requires that the ggtree package is installed.
+At the time of releasing this version the ggtree package is not available on
+CRAN. Check the
+<a href='https://guangchuangyu.github.io/software/ggtree/'>ggtree homepage</a> for
+instruction on how to install this package:
+.</p>
     
 
   </div>

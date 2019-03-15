@@ -35,7 +35,7 @@ In the current implementation, the edge.jump and edge.part members
 of the tree will be discarded and not present in the clade.
 }
 \examples{
-set.seed(1)
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 \donttest{
 PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +

@@ -2,22 +2,27 @@
 % Please edit documentation in R/PCMTree.R
 \name{PCMTreePlot}
 \alias{PCMTreePlot}
-\title{Plot a tree with parts}
+\title{Plot a tree with parts and regimes assigned to these parts}
 \usage{
 PCMTreePlot(tree, palette = PCMColorPalette(PCMNumRegimes(tree),
   PCMRegimes(tree)), ...)
 }
 \arguments{
-\item{tree}{a PCMTree object.}
+\item{tree}{a PCMTree or a phylo object.}
 
 \item{palette}{a named vector of colors corresponding to the regimes in tree}
 
-\item{...}{Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8, size=.25.}
+\item{...}{Arguments passed to ggtree, e.g. layout = 'fan', open.angle = 8,
+size=.25.}
 }
 \description{
-Plot a tree with parts
+Plot a tree with parts and regimes assigned to these parts
 }
 \note{
-Currently, the ggtree package is not on CRAN and therefore it is not explicitly
-imported by PCMBase.
+This function requires that the ggtree package is installed.
+At the time of releasing this version the ggtree package is not available on
+CRAN. Check the
+\href{https://guangchuangyu.github.io/software/ggtree/}{ggtree homepage} for
+instruction on how to install this package:
+.
 }

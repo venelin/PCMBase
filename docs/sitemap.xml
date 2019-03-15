@@ -196,7 +196,7 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeDropClade.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeDtNodeParts.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeDtNodes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeEdgeTimes.html</loc>
@@ -233,6 +233,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetRegimesForEdges.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetRegimesForNodes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetTipsInPart.html</loc>
@@ -299,6 +302,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetPartition.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetRegimesForEdges.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSplitAtNode.html</loc>
