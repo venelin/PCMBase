@@ -124,6 +124,13 @@ PCMTree <- function(tree) {
 
     if(is.null(tree$node.label)) {
       PCMTreeSetLabels(tree)
+    } else if(length(unique(tree$node.label)) != length(tree$node.label)) {
+      stop(
+        paste(
+          "PCMTree:: found duplicated labels in tree$node.label. This can cause",
+          "likelihood calculation errors. ",
+          "Please, ensure that all labels in node.label are unique or set ",
+          "tree$node.label to NULL."))
     }
 
     N <- PCMTreeNumTips(tree)
