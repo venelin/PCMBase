@@ -1,0 +1,40 @@
+Sender: LSF System <lsfadmin@eu-c7-018-03>
+Subject: Job 57137962: <LR_asim_rep> in cluster <euler> Done
+
+Job <LR_asim_rep> was submitted from host <eu-login-05> by user <vmitov> in cluster <euler> at Mon Feb  5 18:02:56 2018.
+Job was executed on host(s) <24*eu-c7-018-03>, in queue <bigmem.24h>, as user <vmitov> in cluster <euler> at Mon Feb  5 19:24:51 2018.
+</cluster/home/vmitov> was used as the home directory.
+</cluster/home/vmitov/PCMBase/tests/PosteriorQuantileTests/TwoSpeedOU> was used as the working directory.
+Started at Mon Feb  5 19:24:51 2018.
+Terminated at Tue Feb  6 06:03:26 2018.
+Results reported at Tue Feb  6 06:03:26 2018.
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+R --vanilla --slave -f BayesValidateTwoSpeedOU.R
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   721065.12 sec.
+    Max Memory :                                 26586 MB
+    Average Memory :                             19995.12 MB
+    Total Requested Memory :                     120000.00 MB
+    Delta Memory :                               93414.00 MB
+    Max Swap :                                   -
+    Max Processes :                              51
+    Max Threads :                                52
+    Run time :                                   38316 sec.
+    Turnaround time :                            43230 sec.
+
+The output (if any) follows:
+
+Loading required package: parallel
+Loading required package: coda
+Loading required package: Matrix
+Loading required package: Rcpp
+[1] "Smallest Bonferonni-adjusted p-value:  0.001"

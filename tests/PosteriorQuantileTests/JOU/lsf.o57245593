@@ -1,0 +1,44 @@
+Sender: LSF System <lsfadmin@eu-c7-064-07>
+Subject: Job 57245593: <LR_asim_rep> in cluster <euler> Done
+
+Job <LR_asim_rep> was submitted from host <eu-login-06> by user <vmitov> in cluster <euler> at Wed Feb  7 21:13:10 2018.
+Job was executed on host(s) <24*eu-c7-064-07>, in queue <bigmem.24h>, as user <vmitov> in cluster <euler> at Wed Feb  7 21:14:37 2018.
+</cluster/home/vmitov> was used as the home directory.
+</cluster/home/vmitov/PCMBase/tests/PosteriorQuantileTests/JOU5> was used as the working directory.
+Started at Wed Feb  7 21:14:37 2018.
+Terminated at Thu Feb  8 03:28:09 2018.
+Results reported at Thu Feb  8 03:28:09 2018.
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+R --vanilla --slave -f BayesValidateJOU.R
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   597463.31 sec.
+    Max Memory :                                 20208 MB
+    Average Memory :                             15452.61 MB
+    Total Requested Memory :                     120000.00 MB
+    Delta Memory :                               99792.00 MB
+    Max Swap :                                   -
+    Max Processes :                              51
+    Max Threads :                                52
+    Run time :                                   22425 sec.
+    Turnaround time :                            22499 sec.
+
+The output (if any) follows:
+
+Loading required package: parallel
+Loading required package: coda
+Loading required package: Matrix
+Loading required package: Rcpp
+Loading required package: phytools
+Warning message:
+In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘phytools’
+[1] "Smallest Bonferonni-adjusted p-value:  0.236"
