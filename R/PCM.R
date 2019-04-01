@@ -1592,3 +1592,34 @@ PCMCreateLikelihood <- function(
   }
 }
 
+#' Find the S3 method for a given PCM object or class-name and an S3 generic
+#' @param x a character string denoting a PCM S3 class name (e.g. "OU"), or a
+#' PCM object.
+#' @param method a character string denoting the name of an S3 generic function.
+#' Default: "PCMCond".
+#' @return a function object corresponding to the S3 method found or an error is
+#' raised if no such function is found for the specified object and method.
+#' @export
+PCMFindMethod <- function(x, method = "PCMCond") {
+  if(is.character(x)) {
+    o <- try(PCM(x), silent = TRUE)
+    if(inherits(o, "try-error")) {
+      stop(
+        paste0(
+          "PCMFindMethod:: ", toString(o), " PCM constructor called on x",
+          "='", x, "'")
+      )
+    }
+  } else if(is.PCM(x)) {
+    o <- x
+  } else {
+    stop(
+      paste0(
+        "PCMFindMethod:: x should be a character string denoting a",
+        "PCM class name or a PCM object."))
+  }
+
+  cls <- c(class(o), 'default')
+  results <- lapply(cls, function(y) try(getS3method(method, y), silent = TRUE))
+  Find(function (x) class(x) != 'try-error', results)
+}

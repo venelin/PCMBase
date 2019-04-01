@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-03-15</h4>
+            <h4 class="date">2019-04-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
@@ -102,25 +102,125 @@
 <div id="models" class="section level1">
 <h1 class="hasAnchor">
 <a href="#models" class="anchor"></a>Models</h1>
-<p>A <em>model</em> is defined by a set of parameters and a rule stating how these parameters should be fit to the data. For example, a multivariate phylogenetic Ornstein-Uhlenbeck mixed model has the following parameters:</p>
+<p>Given a number of traits <span class="math inline">\(k\)</span>, a <em>model</em> is defined as a set of parameters with dimiensionality possibly depending on <span class="math inline">\(k\)</span> and a rule stating how these parameters are used to calculate the model likelihood for an observed tree and data and/or to simulate data along a tree. Often, we use the term <em>model type</em> to denote a family of models sharing the same rule.</p>
+<div id="the-mathcalg_linv-family-of-models" class="section level2">
+<h2 class="hasAnchor">
+<a href="#the-mathcalg_linv-family-of-models" class="anchor"></a>The <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family of models</h2>
+<p>Currently, PCMBase supports Gaussian model types from the so called <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family <span class="citation">(Mitov et al. 2018)</span>. Specifically, these are models representing branching stochastic processes and satisfying the following two conditions <span class="citation">(Mitov et al. 2018)</span>:</p>
+<ol style="list-style-type: decimal">
+<li>after a branching point on the tree the traits evolve independently in the two descending lineages,</li>
+<li>
+<p>the distribution of the trait <span class="math inline">\(\vec{X}\)</span>, at time <span class="math inline">\(t\)</span> conditional on the value at time <span class="math inline">\(s &lt; t\)</span> is Gaussian with the mean and variance satisfying</p>
+<p>2.a The expectation depends linearly on the ancestral trait value, i.e. <span class="math inline">\(\text{E}\big[{\vec{X}(t) \vert \vec{X}(s)}\big] = \vec{\omega}_{s,t} + \mathbf{\Phi}_{s,t} \vec{X}(s)\)</span>;</p>
+<p>2.b The variance is invariant (does not depend on) with respect to the ancestral trait, i.e. <span class="math inline">\(\text{V}\big[{\vec{X}(t) \vert \vec{X}(s)}\big] = \mathbf{V}_{s,t}\)</span>,</p>
+</li>
+</ol>
+<p>where <span class="math inline">\(\vec{\omega}\)</span> and the matrices <span class="math inline">\(\mathbf{\Phi}\)</span>, <span class="math inline">\(\mathbf{V}\)</span> may depend on <span class="math inline">\(s\)</span> and <span class="math inline">\(t\)</span> but do not depend on the previous trajectory of the trait <span class="math inline">\(\vec{X}(\cdot)\)</span>.</p>
+</div>
+<div id="example-ornstein-uhlenbeck-model-types" class="section level2">
+<h2 class="hasAnchor">
+<a href="#example-ornstein-uhlenbeck-model-types" class="anchor"></a>Example: Ornstein-Uhlenbeck model types</h2>
+As an example, let’s consider a model representing a <span class="math inline">\(k\)</span>-variate Ornstein-Uhlenbec branching stochastic process. This is defined by the following stochastic differential equation:
+<span class="math display">\[\begin{equation}\label{eq:mammals:OUprocess}
+d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma}}_{\chi} dW(t). 
+\end{equation}\]</span>
+<p>In the above equation, <span class="math inline">\(\vec{X}(t)\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{H}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional eigen-decomposable real matrix, <span class="math inline">\(\vec{\theta}\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional real positive definite matrix and <span class="math inline">\(W(t)\)</span> denotes the <span class="math inline">\(k\)</span>-dimensional standard Wiener process.</p>
+<p>Biologically, <span class="math inline">\(\vec{X}(t)\)</span> denotes the mean values of <span class="math inline">\(k\)</span> continuous traits in a species at a time <span class="math inline">\(t\)</span> from the root, the parameter <span class="math inline">\(\mathbf{\Sigma}=\mathbf{\Sigma}_{\chi}\mathbf{\Sigma}_{\chi}^T\)</span> defines the magnitude and shape of the momentary fluctuations in the mean vector due to genetic drift, the matrix <span class="math inline">\(\mathbf{H}\)</span> and the vector <span class="math inline">\(\vec{\theta}\)</span> specify the trajectory of the population mean through time. When <span class="math inline">\(\mathbf{H}\)</span> is the zero matrix, the process is equivalent to a Brownian motion process and the parameter <span class="math inline">\(\vec{\theta}\)</span> is irrelevant. When <span class="math inline">\(\mathbf{H}\)</span> has strictly positive eigenvalues, the population mean converges in the long term towards <span class="math inline">\(\vec{\theta}\)</span>, although the trajectory of this convergence can be complex.</p>
+<p>So, the OU-model defines the following set of parameters:</p>
 <ul>
 <li>
-<code>X0</code> : a <span class="math inline">\(k\)</span>-vector of initial values;</li>
+<span class="math inline">\(\vec{X}_{0}\)</span> (coded <code>X0</code>) : a <span class="math inline">\(k\)</span>-vector of initial values;</li>
 <li>
-<code>H</code> : a <span class="math inline">\(k\times k\)</span> matrix denoting the selection strength of the process;</li>
+<span class="math inline">\(\mathbf{H}\)</span> (coded <code>H</code>) : a <span class="math inline">\(k\times k\)</span> matrix denoting the selection strength of the process;</li>
 <li>
-<code>Theta</code> : a <span class="math inline">\(k\)</span>-vector of long-term optimal trait values;</li>
+<span class="math inline">\(\vec{\theta}\)</span> (coded <code>Theta</code>) : a <span class="math inline">\(k\)</span>-vector of long-term optimal trait values;</li>
 <li>
-<code>Sigma</code> : a <span class="math inline">\(k\times k\)</span> matrix denoting the stochastic drift variance-covariances;</li>
-<li>
-<code>Sigmae</code> : a <span class="math inline">\(k\times k\)</span> matrix denoting the non-genetic (non-heritable) variance covariance;</li>
+<span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> : (coded <code>Sigma_x</code>) : a <span class="math inline">\(k\times k\)</span> matrix denoting the Choleski factor or the stochastic drift variance-covariances; <!-- - $\mathbf{\Sigma}_{e,\chi}$ (coded `Sigmae_x`) : a $k\times k$ matrix denoting the Choleski factor of the non-genetic (non-heritable) variance covariance; -->
+</li>
 </ul>
-<p>The rule defining how the above OU-parameters should be fit to the data is defined by the multivariate OU Gaussian distribution, as described in (insert reference); Currently, PCMBase supports multivariate Gaussian models satisfying the following two conditions:</p>
-<ol style="list-style-type: lower-alpha">
-<li>the mean of the underlying stochastic process at the end of a time interval on a branch of the tree depends linearly on the ancestral value at the beginning of the branch;</li>
-<li>the variance-covariance matrix of the stochastic process after a time interval does not depend on the ancestral value.</li>
-</ol>
-<p>In PCMBase, models are specified as S3 objects, i.e. ordinary R-lists with a class attribute. The base S3 class of all models is called <code>"PCM"</code>, which is inherited by more specific model-classes. Let us create a BM PCM for two traits:</p>
+The rule defining how the parameters of the OU-model are used to calculate the model likelihood and to simulate data consists in the definition of the functions <span class="math inline">\(\vec{\omega}\)</span> and matrices <span class="math inline">\(\mathbf{\Phi}\)</span>, <span class="math inline">\(\mathbf{V}\)</span> <span class="citation">(Mitov et al. 2018)</span>:
+<span class="math display">\[\begin{equation}\label{eq:mammals:omegaPhiVOU}
+\begin{array}{l}
+\vec{\omega}_{s,t}=\bigg(\mathbf{I}-\text{Exp}\big(-(t-s)\mathbf{H}\big)\bigg)\vec{\theta} \\
+\mathbf{\Phi}_{s,t}=\text{Exp}(-(t-s)\mathbf{H}) \\
+\mathbf{V}_{s,t}=\int_{0}^{t-s}\text{Exp}(-v\mathbf{H})(\mathbf{\Sigma}_{\chi}\mathbf{\Sigma}_{\chi}^T)\text{Exp}(-v\mathbf{H}^T)dv
+\end{array}
+\end{equation}\]</span>
+<p>Together, <span class="math inline">\(\vec{X}_{0}\)</span>, <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span>, <span class="math inline">\(\mathbf{V}\)</span> and the tree define a <span class="math inline">\(kN\)</span>-variate Gaussian distribution for the vector of trait values at the tips. This is the defining property of all Gaussian phylogenetic models. Hence, calculating the model likelihood is equivalent to calculating the density of this Gaussian distribution at observed trait values, and simulating data under the model is equivalent to drawing a random sample from this distribution. The functions <code><a href="../reference/PCMMean.html">PCMMean()</a></code> and <code><a href="../reference/PCMVar.html">PCMVar()</a></code> allow to calculate the mean <span class="math inline">\(kN\)</span>-vector and the <span class="math inline">\(kN\times kN\)</span> variance covariance matrix of this distribution. This can be useful, in particular, to compare two models by calculating a distance metric such as the Mahalanobis distance, or the Bhattacharyya distance. However, for big <span class="math inline">\(k\)</span> and/or <span class="math inline">\(N\)</span>, it is inefficient to use these functions in combination with a general purpose multivariate normal implementation (e.g. the <code><a href="https://www.rdocumentation.org/packages/mvtnorm/topics/Mvnorm">mvtnorm::dmvnorm</a></code> and <code><a href="https://www.rdocumentation.org/packages/mvtnorm/topics/Mvnorm">mvtnorm::rmvnorm</a></code>), to calculate the likelihood or simulate data assuming an OU model. The main purpose of PCMBase package is to provide a generic and computationally efficient way to perform these two operations.</p>
+</div>
+<div id="groups-of-model-types" class="section level2">
+<h2 class="hasAnchor">
+<a href="#groups-of-model-types" class="anchor"></a>Groups of model types</h2>
+<p>It is convenient to group model types into smaller subsets with named elements. This allows to use simple names, such as letters, as aliases for otherwise very long model type names. For example, the PCMBase package defines a subset of six so called “default model types”, which are commonly used in macroevolutionary studies. These are model types based on parameterizations of the <span class="math inline">\(k\)</span>-variate Ornstein-Uhlenbeck (OU) process. All of these six models restrict <span class="math inline">\(\mathbf{H}\)</span> to have non-negative eigenvalues - a negative eigenvalue of <span class="math inline">\(\mathbf{H}\)</span> transforms the process into repulsion with respect to <span class="math inline">\(\vec{\theta}\)</span>, which, while biologically plausible, is not identifiable in a ultrametric tree. The six default models are defined as follows:</p>
+<ul>
+<li>
+<span class="math inline">\(BM_{A}\)</span> (<span class="math inline">\(\mathbf{H}=0\)</span>, diagonal <span class="math inline">\(\mathbf{\Sigma}\)</span>): BM, uncorrelated traits;</li>
+<li>
+<span class="math inline">\(BM_{B}\)</span> (<span class="math inline">\(\mathbf{H}=0\)</span>, symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>): BM, correlated traits;</li>
+<li>
+<span class="math inline">\(OU_{C}\)</span> (diagonal <span class="math inline">\(\mathbf{H}\)</span>, diagonal <span class="math inline">\(\mathbf{\Sigma}\)</span>): OU, uncorrelated traits;</li>
+<li>
+<span class="math inline">\(OU_{D}\)</span> (diagonal <span class="math inline">\(\mathbf{H}\)</span>, symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>): OU, correlated traits, but simple (diagonal) selection strength matrix;</li>
+<li>
+<span class="math inline">\(OU_{E}\)</span> (symmetric <span class="math inline">\(\mathbf{H}\)</span>, symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>): An OU with non-diagonal symmetric <span class="math inline">\(\mathbf{H}\)</span> and non-diagonal symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>;</li>
+<li>
+<span class="math inline">\(OU_{F}\)</span> (asymmetric <span class="math inline">\(\mathbf{H}\)</span>, symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>): An OU with non-diagonal asymmetric <span class="math inline">\(\mathbf{H}\)</span> and non-diagonal symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>;</li>
+</ul>
+<p>Calling the function <code><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes()</a></code> returns a named vector of the technical class-names for these six models:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># scroll to the right in the following listing to see the full model type names </span>
+<span class="co"># and their corresponding alias:</span>
+<span class="kw"><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()</code></pre></div>
+<pre><code>##                                                                                                                                                                                A 
+##                                                                                                      "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+##                                                                                                                                                                                B 
+##                                                                                   "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+##                                                                                                                                                                                C 
+##                                       "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+##                                                                                                                                                                                D 
+##                    "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+##                                                                                                                                                                                E 
+## "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+##                                                                                                                                                                                F 
+##                             "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</code></pre>
+<p>The PCMBase package comes with numerous other predefined model types. At present, all these are members of the <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family. A list of these model types is returned from calling the function <code><a href="../reference/PCMModels.html">PCMModels()</a></code>.</p>
+<p>For each model type, it is possible to check how the conditional distribution of <span class="math inline">\(\vec{X}\)</span> at the end of a time interval of length <span class="math inline">\(t\)</span> is defined from an ancestral value <span class="math inline">\(X_{0}\)</span>. In particular, for <span class="math inline">\(\mathcal{G}_{LInv}\)</span> models, this is the definition of the functions <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span>. For example,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMFindMethod.html">PCMFindMethod</a></span>(<span class="kw"><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"A"</span>], <span class="st">"PCMCond"</span>)</code></pre></div>
+<pre><code>## function (tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, 
+##     verbose = verbose), verbose = FALSE) 
+## {
+##     Sigma_x &lt;- if (is.Global(model$Sigma_x)) 
+##         as.matrix(model$Sigma_x)
+##     else as.matrix(model$Sigma_x[, , r])
+##     Sigma &lt;- Sigma_x %*% t(Sigma_x)
+##     if (!is.null(model$Sigmae_x)) {
+##         Sigmae_x &lt;- if (is.Global(model$Sigmae_x)) 
+##             as.matrix(model$Sigmae_x)
+##         else as.matrix(model$Sigmae_x[, , r])
+##         Sigmae &lt;- Sigmae_x %*% t(Sigmae_x)
+##     }
+##     else {
+##         Sigmae &lt;- NULL
+##     }
+##     V &lt;- PCMCondVOU(matrix(0, nrow(Sigma), ncol(Sigma)), Sigma, 
+##         Sigmae)
+##     omega &lt;- function(t, edgeIndex, metaI) {
+##         rep(0, nrow(Sigma))
+##     }
+##     Phi &lt;- function(t, edgeIndex, metaI, e_Ht = NULL) {
+##         diag(nrow(Sigma))
+##     }
+##     list(omega = omega, Phi = Phi, V = V)
+## }
+## &lt;bytecode: 0x7ff28f7d89f0&gt;
+## &lt;environment: namespace:PCMBase&gt;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span>
+<span class="co"># R-code by typing :</span>
+<span class="co"># PCMBase::PCMCondVOU</span></code></pre></div>
+</div>
+<div id="creating-pcm-objects" class="section level2">
+<h2 class="hasAnchor">
+<a href="#creating-pcm-objects" class="anchor"></a>Creating PCM objects</h2>
+<p>In the computer memory, models are represented by S3 objects, i.e. ordinary R-lists with a class attribute. The base S3 class of all models is called <code>"PCM"</code>, which is inherited by more specific model-classes. Let us create a BM PCM for two traits:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="dt">model =</span> <span class="st">"BM"</span>, <span class="dt">k =</span> <span class="dv">2</span>)</code></pre></div>
 <p>Printing the model object shows a short verbal description, the S3-class, the number of traits, k, the number of numerical parameters of the model, p, the model regimes and the current values of the parameters for each regime (more on regimes in the next sub-section):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM</code></pre></div>
@@ -144,6 +244,7 @@
 ## 
 ## </code></pre>
 <p>One may wonder why in the above description, p = 8 instead of 10 (see also <code><a href="../reference/PCMParamCount.html">?PCMParamCount</a></code>). The reason is that both, the matrix Sigma and the matrix Sigmae, are symmetric matrices and their matching off-diagonal elements are counted only one time.</p>
+</div>
 <div id="model-regimes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#model-regimes" class="anchor"></a>Model regimes</h2>
@@ -188,7 +289,7 @@ modelBM.ab</code></pre></div>
 <pre><code>## [1] 8</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
-<p>The other parameters, Sigma and Sigmae are local for each regime:</p>
+<p>The other parameters, Sigma_x and Sigmae_x are local for each regime:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># in regime 'a' the traits evolve according to two independent BM processes (starting from the global vecto X0).</span>
 modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="dv">0</span>),
                                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">2.4</span>))
@@ -211,9 +312,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.01954595  1.98046445  1.60844864  0.01432935  2.40648911
-##  [6]  1.59924670  0.78089854  2.41581441  0.10176019 -0.01171865
-## [11]  0.38166840  0.09548911 -0.01842396  0.40393639</code></pre>
+<pre><code>##  [1]  5.017771197  1.997433711  1.606722790  0.001824848  2.382031979
+##  [6]  1.612208376  0.798440644  2.380191144  0.118955414 -0.004667845
+## [11]  0.385647066  0.087825796 -0.011925578  0.390284579</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -221,32 +322,32 @@ param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.019546 1.980464
+## [1] 5.017771 1.997434
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]       [,2]
-## [1,] 1.608449 0.01432935
-## [2,] 0.000000 2.40648911
+##          [,1]        [,2]
+## [1,] 1.606723 0.001824848
+## [2,] 0.000000 2.382031979
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.599247 0.7808985
-## [2,] 0.800000 2.4158144
+## [1,] 1.612208 0.7984406
+## [2,] 0.800000 2.3801911
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]        [,2]
-## [1,] 0.1017602 -0.01171865
-## [2,] 0.0000000  0.38166840
+##           [,1]         [,2]
+## [1,] 0.1189554 -0.004667845
+## [2,] 0.0000000  0.385647066
 ## 
 ## , , b
 ## 
-##            [,1]        [,2]
-## [1,] 0.09548911 -0.01842396
-## [2,] 0.00000000  0.40393639
+##           [,1]        [,2]
+## [1,] 0.0878258 -0.01192558
+## [2,] 0.0000000  0.39028458
 ## 
 ## </code></pre>
 </div>
@@ -257,7 +358,7 @@ param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <p>The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM.</p>
 <p>For this example, first we simulate a birth death tree with two parts “a” and “b” using the <code>phytools</code> R-package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># make results reproducible</span>
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">2</span>)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">2</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)
 
 <span class="co"># number of regimes</span>
 R &lt;-<span class="st"> </span><span class="dv">2</span>
@@ -280,14 +381,11 @@ tree.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
   <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>), <span class="dt">names =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(N<span class="op">+</span><span class="dv">1</span>, splitNode))), 
   <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)
 
-<span class="co"># Currently this is causing a failure of the pkgdown::build_site(), so we use the </span>
-<span class="co"># ape's tree-plotting function</span>
-<span class="co"># PCMTreePlot(tree.ab)</span>
-
 palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMColorPalette.html">PCMColorPalette</a></span>(<span class="dv">2</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))
-<span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(tree.ab, <span class="dt">show.tip.label=</span><span class="ot">FALSE</span>, 
-     <span class="dt">edge.color =</span> palette[<span class="kw"><a href="../reference/PCMTreeGetRegimesForEdges.html">PCMTreeGetRegimesForEdges</a></span>(tree.ab)])</code></pre></div>
-<p><img src="PCMBase_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<span class="kw"><a href="../reference/PCMTreePlot.html">PCMTreePlot</a></span>(tree.ab) <span class="op">+</span><span class="st"> </span>ggtree<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>)</code></pre></div>
+<p><img src="PCMBase_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot(tree.ab, show.tip.label=FALSE, </span>
+<span class="co">#      edge.color = palette[PCMTreeGetRegimesForEdges(tree.ab)])</span></code></pre></div>
 <p>Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">traits &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMSim.html">PCMSim</a></span>(tree.ab, modelBM.ab, modelBM.ab<span class="op">$</span>X0)</code></pre></div>
 </div>
@@ -296,9 +394,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -409.9381
+<pre><code>## [1] -408.8356
 ## attr(,"X0")
-## [1] 5.019546 1.980464
+## [1] 5.017771 1.997434
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -308,13 +406,22 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -409.9381
+<pre><code>## [1] -408.8356
 ## attr(,"X0")
-## [1] 5.019546 1.980464
+## [1] 5.017771 1.997434
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
 ## [1] "trait values at the root"</code></pre>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="hasAnchor">
+<a href="#references" class="anchor"></a>References</h1>
+<div id="refs" class="references">
+<div id="ref-Mitov:2018fl">
+<p>Mitov, Venelin, Krzysztof Bartoszek, Georgios Asimomitis, and Tanja Stadler. 2018. “Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package.” <em>arXiv.org</em>, September, arXiv:1809.09014. <a href="http://arxiv.org/abs/1809.09014" class="uri">http://arxiv.org/abs/1809.09014</a>.</p>
+</div>
+</div>
 </div>
   </div>
 
@@ -326,11 +433,16 @@ likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMC
 <li><a href="#data">Data</a></li>
       <li>
 <a href="#models">Models</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#model-regimes">Model regimes</a></li>
+<li><a href="#the-mathcalg_linv-family-of-models">The <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family of models</a></li>
+      <li><a href="#example-ornstein-uhlenbeck-model-types">Example: Ornstein-Uhlenbeck model types</a></li>
+      <li><a href="#groups-of-model-types">Groups of model types</a></li>
+      <li><a href="#creating-pcm-objects">Creating PCM objects</a></li>
+      <li><a href="#model-regimes">Model regimes</a></li>
       </ul>
 </li>
       <li><a href="#simulating-data-on-a-phylogenetic-tree">Simulating data on a phylogenetic tree</a></li>
       <li><a href="#calculating-likelihoods">Calculating likelihoods</a></li>
+      <li><a href="#references">References</a></li>
       </ul>
 </div>
       </div>

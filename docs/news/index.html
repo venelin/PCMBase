@@ -70,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
       </span>
     </div>
 
@@ -125,15 +125,13 @@
 
     <div id="pcmbase-1-2-9" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-9" class="anchor"></a>PCMBase 1.2.9<small> Unreleased </small>
+<a href="#pcmbase-1-2-9" class="anchor"></a>PCMBase 1.2.9<small> 2019-03-15 </small>
 </h1>
 <ul>
 <li>Important changes in the PCMTree module:</li>
-<li>Renamed member ‘edge.regime’ in the phylo object to ‘edge.part’. The word ‘regime’ is reserved uniquely to identify a regime of an evolutionary model. An intuitive synonyme for ‘regime’ is ‘color’. The word ‘part’ stays for a monophyletic or a paraphyletic group of nodes (and the branches ending at these nodes) in a tree. It is possible to have several parts that evolve under the same model regime and, terefore, should be shown with with the same color.</li>
-</ul>
-<p>sed -i “” ‘s/PCMTreeSetDefaultRegime/PCMTreeSetDefaultPartition/g’ <em> sed -i “” ‘s/PCMTreeGetStartingNodesRegimes/PCMTreeGetPartition/g’ </em> sed -i “” ‘s/PCMTreeSetRegimes/PCMTreeSetPartition/g’ <em> sed -i “” ‘s/PCMTreeUniqueRegimes/PCMTreeGetPartNames/g’ </em> sed -i “” ‘s/PCMTreeNumUniqueRegimes/PCMTreeNumParts/g’ <em> sed -i “” ‘s/PCMTreeGetRegimesForNodes/PCMTreeGetPartsForNodes/g’ </em> sed -i “” ‘s/PCMTreeGetTipsInRegime/PCMTreeGetTipsInPart/g’ <em> sed -i “” ‘s/PCMTreeMatchRegimesWithModel/PCMTreeGetRegimesForEdges/g’ </em> sed -i “” ‘s/PCMTreeDtNodeRegimes/PCMTreeDtNodeParts/g’ <em> sed -i “” ‘s/PCMTreeExtractBackboneRegimes/PCMTreeBackbonePartition/g’ </em> sed -i “” ‘s/PCMTreeMatrixNodesInSameRegime/PCMTreeMatrixNodesInSamePart/g’ *</p>
-<ul>
-<li>125 model types are made available within the package namespace. Hence, there is no need to call PCMGenerateModelTypes() after loading the package. Call PCMModels() after loading the package to see which are these model types.</li>
+<li><p>Renamed member ‘edge.regime’ in the phylo object to ‘edge.part’. The word ‘regime’ is reserved uniquely to identify a regime of an evolutionary model. An intuitive synonyme for ‘regime’ is ‘color’. The word ‘part’ stays for a monophyletic or a paraphyletic group of nodes (and the branches ending at these nodes) in a tree. It is possible to have several parts that evolve under the same model regime and, terefore, should be shown with with the same color.</p></li>
+<li><p>new model types are made available within the package namespace. Hence, there is no need to call PCMGenerateModelTypes() after loading the package. Call PCMModels() after loading the package to see which are these model types.</p></li>
+<li><p>Updated tests and examples due to a change in the default random generator type (see <a href="https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2019/02/28#n2019-02-28" class="uri">https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2019/02/28#n2019-02-28</a>).</p></li>
 </ul>
 </div>
     <div id="pcmbase-1-2-8" class="section level1">

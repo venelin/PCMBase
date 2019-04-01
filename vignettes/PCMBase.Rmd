@@ -11,12 +11,26 @@ vignette: >
   %\VignetteIndexEntry{Getting started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: REFERENCES.bib
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ape)
 library(PCMBase)
+
+if(!requireNamespace("ggtree")) {
+  message("Building the vignette requires ggtree R-package. Trying to install.")
+  status.ggtree <- try({
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+      install.packages("BiocManager")
+    BiocManager::install("ggtree", version = "3.8")
+  }, silent = TRUE)
+  if(class(status.ggtree == "try-error")) {
+    stop(
+      "The ggtree installation did not succeed. The vignette cannot be built.")
+  }
+}
 ```
 
 
@@ -25,25 +39,84 @@ library(PCMBase)
 The input data for the phylogenetic comparative methods covered in the PCMBase package consists of a phylogenetic tree of $N$ tips and a $k\times N$ matrix, $X$ of observed trait-values, where $k$ is the number of traits. The matrix $X$ can contain `NA`s corresponding to missing measurements and `NaN`'s corresponding to non-existing traits for some of the tips.
 
 # Models
-A *model* is defined by a set of parameters and a rule stating how these parameters should be fit to the data. For example, a multivariate phylogenetic Ornstein-Uhlenbeck mixed model has the following parameters:
 
-- `X0` : a $k$-vector of initial values;
-- `H` : a $k\times k$ matrix denoting the selection strength of the process;
-- `Theta` : a $k$-vector of long-term optimal trait values;
-- `Sigma` : a $k\times k$ matrix denoting the stochastic drift variance-covariances;
-- `Sigmae` : a $k\times k$ matrix denoting the non-genetic (non-heritable) variance covariance;
+Given a number of traits $k$, a *model* is defined as a set of parameters with dimiensionality possibly depending on $k$ and a rule stating how these parameters are used to calculate the model likelihood for an observed tree and data and/or to simulate data along a tree. Often, we use the term *model type* to denote a family of models sharing the same rule. 
 
-The rule defining how the above OU-parameters should be fit to the data is defined by the multivariate OU Gaussian distribution, as described in (insert reference); Currently, PCMBase supports multivariate Gaussian models satisfying the following two conditions:
+## The $\mathcal{G}_{LInv}$-family of models
+Currently, PCMBase supports Gaussian model types from the so called $\mathcal{G}_{LInv}$-family [@Mitov:2018fl]. Specifically, these are models representing branching stochastic processes and satisfying the following two conditions [@Mitov:2018fl]:
 
-a. the mean of the underlying stochastic process at the end of a time interval on a branch of the tree depends linearly on the ancestral value at the beginning of the branch;
-b. the variance-covariance matrix of the stochastic process after a time interval does not depend on the ancestral value.
+1. after a branching point on the tree the traits evolve independently in the two descending lineages,
+2. the distribution of the trait $\vec{X}$, at time $t$ conditional on the value at time $s < t$ is Gaussian with the mean and variance satisfying
 
-In PCMBase, models are specified as S3 objects, i.e. ordinary R-lists with a class attribute. The base S3 class of all models is called `"PCM"`, which is inherited by more specific model-classes. Let us create a BM PCM for two traits:
+    2.a The expectation depends linearly on the ancestral trait value, i.e. $\text{E}\big[{\vec{X}(t) \vert \vec{X}(s)}\big] = \vec{\omega}_{s,t} + \mathbf{\Phi}_{s,t} \vec{X}(s)$;
+    
+    2.b The variance is invariant (does not depend on) with respect to the ancestral trait, i.e. $\text{V}\big[{\vec{X}(t) \vert \vec{X}(s)}\big] = \mathbf{V}_{s,t}$,
+
+  where $\vec{\omega}$ and the matrices $\mathbf{\Phi}$, $\mathbf{V}$ may depend on $s$ and $t$ but do not depend on the previous trajectory of the trait $\vec{X}(\cdot)$. 
+
+## Example: Ornstein-Uhlenbeck model types
+
+As an example, let's consider a model representing a $k$-variate Ornstein-Uhlenbec branching stochastic process. This is defined by the following stochastic differential equation:
+\begin{equation}\label{eq:mammals:OUprocess}
+d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma}}_{\chi} dW(t). 
+\end{equation}
+\noindent In the above equation, $\vec{X}(t)$ is a $k$-dimensional real vector, $\mathbf{H}$ is a $k\times k$-dimensional eigen-decomposable real matrix, $\vec{\theta}$ is a $k$-dimensional real vector, $\mathbf{\Sigma}_{\chi}$ is a $k\times k$-dimensional real positive definite matrix and $W(t)$ denotes the $k$-dimensional standard Wiener process. 
+
+Biologically, $\vec{X}(t)$ denotes the mean values of $k$ continuous traits in a species at a time $t$ from the root, the parameter $\mathbf{\Sigma}=\mathbf{\Sigma}_{\chi}\mathbf{\Sigma}_{\chi}^T$ defines the magnitude and shape of the momentary fluctuations in the mean vector due to genetic drift, the matrix $\mathbf{H}$ and the vector $\vec{\theta}$ specify the trajectory of the population mean through time. When $\mathbf{H}$ is the zero matrix, the process is equivalent to a Brownian motion process and the parameter $\vec{\theta}$ is irrelevant. When $\mathbf{H}$ has strictly positive eigenvalues, the population mean converges in the long term towards $\vec{\theta}$, although the trajectory of this convergence can be complex. 
+
+So, the OU-model defines the following set of parameters:
+
+- $\vec{X}_{0}$ (coded `X0`) : a $k$-vector of initial values;
+- $\mathbf{H}$ (coded `H`) : a $k\times k$ matrix denoting the selection strength of the process;
+- $\vec{\theta}$ (coded `Theta`) : a $k$-vector of long-term optimal trait values;
+- $\mathbf{\Sigma}_{\chi}$ : (coded `Sigma_x`) : a $k\times k$ matrix denoting the Choleski factor or the stochastic drift variance-covariances;
+<!-- - $\mathbf{\Sigma}_{e,\chi}$ (coded `Sigmae_x`) : a $k\times k$ matrix denoting the Choleski factor of the non-genetic (non-heritable) variance covariance; -->
+
+The rule defining how the parameters of the OU-model are used to calculate the model likelihood and to simulate data consists in the definition of the functions $\vec{\omega}$ and matrices $\mathbf{\Phi}$, $\mathbf{V}$ [@Mitov:2018fl]:
+\begin{equation}\label{eq:mammals:omegaPhiVOU}
+\begin{array}{l}
+\vec{\omega}_{s,t}=\bigg(\mathbf{I}-\text{Exp}\big(-(t-s)\mathbf{H}\big)\bigg)\vec{\theta} \\
+\mathbf{\Phi}_{s,t}=\text{Exp}(-(t-s)\mathbf{H}) \\
+\mathbf{V}_{s,t}=\int_{0}^{t-s}\text{Exp}(-v\mathbf{H})(\mathbf{\Sigma}_{\chi}\mathbf{\Sigma}_{\chi}^T)\text{Exp}(-v\mathbf{H}^T)dv
+\end{array}
+\end{equation}
+
+Together, $\vec{X}_{0}$, $\vec{\omega}$, $\mathbf{\Phi}$, $\mathbf{V}$ and the tree define a $kN$-variate Gaussian distribution for the vector of trait values at the tips. This is the defining property of all Gaussian phylogenetic models. Hence, calculating the model likelihood is equivalent to calculating the density of this Gaussian distribution at observed trait values, and simulating data under the model is equivalent to drawing a random sample from this distribution. The functions `PCMMean()` and `PCMVar()` allow to calculate the mean $kN$-vector and the $kN\times kN$ variance covariance matrix of this distribution. This can be useful, in particular, to compare two models by calculating a distance metric such as the Mahalanobis distance, or the Bhattacharyya distance. However, for big $k$ and/or $N$, it is inefficient to use these functions in combination with a general purpose multivariate normal implementation (e.g. the `mvtnorm::dmvnorm` and `mvtnorm::rmvnorm`), to calculate the likelihood or simulate data assuming an OU model. The main purpose of PCMBase package is to provide a generic and computationally efficient way to perform these two operations.
+
+## Groups of model types
+It is convenient to group model types into smaller subsets with named elements. This allows to use simple names, such as letters, as aliases for otherwise very long model type names. For example, the PCMBase package defines a subset of six so called "default model types", which are commonly used in macroevolutionary studies. These are model types based on parameterizations of the $k$-variate Ornstein-Uhlenbeck (OU) process.  All of these six models restrict $\mathbf{H}$ to have non-negative eigenvalues - a negative eigenvalue of $\mathbf{H}$ transforms the process into repulsion with respect to $\vec{\theta}$, which, while biologically plausible, is not identifiable in a ultrametric tree. The six default models are defined as follows:
+
+- $BM_{A}$ ($\mathbf{H}=0$, diagonal $\mathbf{\Sigma}$): BM, uncorrelated traits;
+- $BM_{B}$ ($\mathbf{H}=0$, symmetric $\mathbf{\Sigma}$): BM, correlated traits;
+- $OU_{C}$ (diagonal $\mathbf{H}$, diagonal $\mathbf{\Sigma}$): OU, uncorrelated traits; 
+- $OU_{D}$ (diagonal $\mathbf{H}$, symmetric $\mathbf{\Sigma}$): OU, correlated traits, but simple (diagonal) selection strength matrix;
+- $OU_{E}$ (symmetric $\mathbf{H}$, symmetric $\mathbf{\Sigma}$): An OU with non-diagonal symmetric $\mathbf{H}$ and non-diagonal symmetric $\mathbf{\Sigma}$;
+- $OU_{F}$ (asymmetric $\mathbf{H}$, symmetric $\mathbf{\Sigma}$): An OU with non-diagonal asymmetric $\mathbf{H}$ and non-diagonal symmetric $\mathbf{\Sigma}$;
+ 
+Calling the function `PCMDefaultModelTypes()` returns a named vector of the technical class-names for these six models:
+```{r}
+# scroll to the right in the following listing to see the full model type names 
+# and their corresponding alias:
+PCMDefaultModelTypes()
+```
+
+The PCMBase package comes with numerous other predefined model types. At present, all these are members of the $\mathcal{G}_{LInv}$-family. A list of these model types is returned from calling the function `PCMModels()`. 
+
+For each model type, it is possible to check how the conditional distribution of $\vec{X}$ at the end of a time interval of length $t$ is defined from an ancestral value $X_{0}$. In particular, for $\mathcal{G}_{LInv}$ models, this is the definition of the functions $\vec{\omega}$, $\mathbf{\Phi}$ and $\mathbf{V}$. For example, 
+
+```{r}
+PCMFindMethod(PCMDefaultModelTypes()["A"], "PCMCond")
+# The complex maths is implemented in the function PCMCondVOU. You can see its 
+# R-code by typing :
+# PCMBase::PCMCondVOU
+```
+
+## Creating PCM objects
+In the computer memory, models are represented by S3 objects, i.e. ordinary R-lists with a class attribute. The base S3 class of all models is called `"PCM"`, which is inherited by more specific model-classes. Let us create a BM PCM for two traits:
 
 ```{r}
 modelBM <- PCM(model = "BM", k = 2)
 ```
-
 Printing the model object shows a short verbal description, the S3-class, the number of traits, k, the number of numerical parameters of the model, p, the model regimes and the current values of the parameters for each regime (more on regimes in the next sub-section):
 
 ```{r}
@@ -51,6 +124,7 @@ modelBM
 ```
 
 One may wonder why in the above description, p = 8 instead of 10 (see also `?PCMParamCount`). The reason is that both, the matrix Sigma and the matrix Sigmae, are symmetric matrices and their matching off-diagonal elements are counted only one time.
+
 
 ## Model regimes
 Model *regimes* are different models associated with different parts of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a 2-trait BM model with two regimes called a and b:
@@ -73,7 +147,7 @@ PCMParamCount(modelBM)
 PCMParamCount(modelBM.ab)
 ```
 
-The other parameters, Sigma and Sigmae are local for each regime:
+The other parameters, Sigma_x and Sigmae_x are local for each regime:
 
 ```{r}
 # in regime 'a' the traits evolve according to two independent BM processes (starting from the global vecto X0).
@@ -117,7 +191,7 @@ For this example, first we simulate a birth death tree with two parts "a" and "b
 
 ```{r}
 # make results reproducible
-set.seed(2)
+set.seed(2, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
 # number of regimes
 R <- 2
@@ -140,13 +214,11 @@ PCMTreeSetPartRegimes(
   part.regime = structure(c("a", "b"), names = as.character(c(N+1, splitNode))), 
   setPartition = TRUE)
 
-# Currently this is causing a failure of the pkgdown::build_site(), so we use the 
-# ape's tree-plotting function
-# PCMTreePlot(tree.ab)
-
 palette <- PCMColorPalette(2, c("a", "b"))
-plot(tree.ab, show.tip.label=FALSE, 
-     edge.color = palette[PCMTreeGetRegimesForEdges(tree.ab)])
+PCMTreePlot(tree.ab) + ggtree::geom_nodelab(size = 2)
+
+# plot(tree.ab, show.tip.label=FALSE, 
+#      edge.color = palette[PCMTreeGetRegimesForEdges(tree.ab)])
 ```
 
 Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:
@@ -174,4 +246,4 @@ likFun(param2)
 ```
 
 
-
+# References

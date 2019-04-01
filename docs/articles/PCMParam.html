@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@
       <h1>The PCMBase Parametrization API</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-03-15</h4>
+            <h4 class="date">2019-04-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMParam.Rmd"><code>vignettes/PCMParam.Rmd</code></a></small>
       <div class="hidden name"><code>PCMParam.Rmd</code></div>
@@ -142,9 +142,8 @@ matParamsSigma &lt;-<span class="st"> </span><span class="kw"><a href="../refere
 <div id="specifying-a-model-type" class="section level2">
 <h2 class="hasAnchor">
 <a href="#specifying-a-model-type" class="anchor"></a>Specifying a model type</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)</code></pre></div>
-<pre><code>## Warning: package 'data.table' was built under R version 3.5.2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">OUModelDummy &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
+OUModelDummy &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OUModelDummy) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"OU"</span>)
 
 listParameterizationsOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(OUModelDummy)
