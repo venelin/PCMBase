@@ -61,6 +61,9 @@
 <li>
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
+    <li>
+      <a href="../articles/PCMCreateModel.html">Defining a New Model in the PCMBase Framework</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -85,7 +88,7 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-04-01</h4>
+            <h4 class="date">2019-04-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
@@ -181,7 +184,11 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 ##                                                                                                                                                                                E 
 ## "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
 ##                                                                                                                                                                                F 
-##                             "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</code></pre>
+##                             "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+##                                                                                                                                                                                G 
+##                                                                                       "BM_drift__Global_X0__h_drift__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+##                                                                                                                                                                                H 
+##                                                                    "BM_drift__Global_X0__h_drift__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</code></pre>
 <p>The PCMBase package comes with numerous other predefined model types. At present, all these are members of the <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family. A list of these model types is returned from calling the function <code><a href="../reference/PCMModels.html">PCMModels()</a></code>.</p>
 <p>For each model type, it is possible to check how the conditional distribution of <span class="math inline">\(\vec{X}\)</span> at the end of a time interval of length <span class="math inline">\(t\)</span> is defined from an ancestral value <span class="math inline">\(X_{0}\)</span>. In particular, for <span class="math inline">\(\mathcal{G}_{LInv}\)</span> models, this is the definition of the functions <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span>. For example,</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMFindMethod.html">PCMFindMethod</a></span>(<span class="kw"><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"A"</span>], <span class="st">"PCMCond"</span>)</code></pre></div>
@@ -211,7 +218,7 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 ##     }
 ##     list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x7ff28f7d89f0&gt;
+## &lt;bytecode: 0x7fc1a23c8560&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span>
 <span class="co"># R-code by typing :</span>
@@ -312,9 +319,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.017771197  1.997433711  1.606722790  0.001824848  2.382031979
-##  [6]  1.612208376  0.798440644  2.380191144  0.118955414 -0.004667845
-## [11]  0.385647066  0.087825796 -0.011925578  0.390284579</code></pre>
+<pre><code>##  [1]  4.984402282  1.992651044  1.618906926 -0.009241985  2.386414173
+##  [6]  1.583571380  0.803764246  2.410107630  0.082857763  0.009688693
+## [11]  0.419981785  0.112986828 -0.005950268  0.387270594</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -322,32 +329,32 @@ param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.017771 1.997434
+## [1] 4.984402 1.992651
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]        [,2]
-## [1,] 1.606723 0.001824848
-## [2,] 0.000000 2.382031979
+##          [,1]         [,2]
+## [1,] 1.618907 -0.009241985
+## [2,] 0.000000  2.386414173
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.612208 0.7984406
-## [2,] 0.800000 2.3801911
+## [1,] 1.583571 0.8037642
+## [2,] 0.800000 2.4101076
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]         [,2]
-## [1,] 0.1189554 -0.004667845
-## [2,] 0.0000000  0.385647066
+##            [,1]        [,2]
+## [1,] 0.08285776 0.009688693
+## [2,] 0.00000000 0.419981785
 ## 
 ## , , b
 ## 
-##           [,1]        [,2]
-## [1,] 0.0878258 -0.01192558
-## [2,] 0.0000000  0.39028458
+##           [,1]         [,2]
+## [1,] 0.1129868 -0.005950268
+## [2,] 0.0000000  0.387270594
 ## 
 ## </code></pre>
 </div>
@@ -394,9 +401,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -408.8356
+<pre><code>## [1] -409.1877
 ## attr(,"X0")
-## [1] 5.017771 1.997434
+## [1] 4.984402 1.992651
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -406,9 +413,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -408.8356
+<pre><code>## [1] -409.1877
 ## attr(,"X0")
-## [1] 5.017771 1.997434
+## [1] 4.984402 1.992651
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")

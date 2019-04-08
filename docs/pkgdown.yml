@@ -3,6 +3,7 @@ pkgdown: 1.3.0
 pkgdown_sha: ~
 articles:
   PCMBase: PCMBase.html
+  PCMCreateModel: PCMCreateModel.html
   PCMParam: PCMParam.html
 urls:
   reference: http://venelin.github.io/PCMBase/reference

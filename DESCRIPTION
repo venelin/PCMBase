@@ -33,24 +33,27 @@ Description: Phylogenetic comparative methods represent models of continuous tra
 Encoding: UTF-8
 License: GPL (>= 3.0)
 LazyData: true
-Depends:
-    R (>= 3.1.0)
-Imports:
-    ape,
-    expm,
-    mvtnorm,
-    data.table,
-    ggplot2
-Suggests:
-    testthat,
-    knitr,
-    rmarkdown,
-    abind,
-    ggtree,
-    cowplot,
-    covr
+Depends: 
+  R (>= 3.1.0)
+Imports: 
+  ape, 
+  expm, 
+  mvtnorm, 
+  data.table, 
+  ggplot2
+Suggests: 
+  testthat, 
+  knitr, 
+  rmarkdown, 
+  abind, 
+  ggtree, 
+  cowplot, 
+  covr,
+  mvSLOUCH
 RoxygenNote: 6.1.1
 ByteCompile: yes
 VignetteBuilder: knitr, rmarkdown
 URL: https://venelin.github.io/PCMBase/, https://github.com/venelin/PCMBase
 BugReports: https://github.com/venelin/PCMBase/issues
+NeedsCompilation: no
+Repository: CRAN

@@ -1,0 +1,388 @@
+---
+title: "Creating a Custom Model in the PCMBase Framework"
+author: "Krzysztof Bartoszek"
+date: '`r Sys.Date()`'
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{The PCMBase Parametrization API}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+library(abind)
+library(PCMBase)
+```
+# Introduction
+The PCMBase package is designed as a computational engine to calculate the likelihood for 
+a user specified model evolving on a phylogenetic tree. The package comes
+with some pre-implemented models, e.g. Brownian Motion or Ornstein-Uhlenbeck, both allowing
+for multivariate correlated evolution.
+However, the mathematical theory behind the method for calculating the likelihood 
+(Mitov et. al. 2018) is not limited to these two models. In fact any 
+stochastic process that belongs to the so-called GLInv family of models
+is implementable in PCMBase. From a mathematical perspective one needs 
+to be able to implement functions that calculate the compound
+parameters $\vec{\omega}$, $\mathbf{\Phi}$ and $\mathbf{V}$. 
+Furthermore, from the implementation side one has to be able to
+handle the model defining parameters (default values, allowable
+parametrizations, etc.). 
+
+PCMBase's interface is based on the S3 object system (an excellent introduction 
+by Hadley Wickham is available at http://adv-r.had.co.nz/S3.html).
+Each implemented model will be an S3 object and below we will describe how a user
+can implement a new model class by themselves.
+
+# Brownian motion with drift
+We will show how to create one's own model class with the example
+of Brownian motion with drift. The model is a simple generalization
+of the Brownian motion model by including a deterministic drift.
+It is defined by the stochastic differential equation (SDE)
+$$d\vec{X}(t) = \vec{h} dt + \Sigma_{x} d W(t),$$
+where $W(t)$ is the standard Wiener process. Setting $\vec{h}=\vec{0}$
+reduces the model to the Brownian motion process. 
+The expectation of the process is $E[\vec{X}(t)] = \vec{X}(0)+t\vec{h}$
+and the variance $Var[\vec{X}(t)] = t\Sigma_{x}\Sigma_{x}^{T}$.
+Based on this we can calculate the the compound
+parameters $\vec{\omega}$, $\mathbf{\Phi}$ and $\mathbf{V}$
+defining the model in the GLInv family (Eq. 30, Mitov et. al. 2018)
+$$
+\vec{\omega} = \vec{h}t,
+$$
+$$
+\mathbf{\Phi} = \mathbf{I},
+$$
+$$
+\mathbf{V} = \Sigma_{x}\Sigma_{x}^{T}t.
+$$ 
+In the context of the PCM class setup we will actually have
+$$
+\mathbf{V} = \Sigma_{x}\Sigma_{x}^{T}t +  \Sigma_{e}\Sigma_{e}^{T}
+$$ 
+as these compound parameters are calculated at the end of branches.
+The package allows for normally distributed $\vec{0}$ mean,
+\Sigma_{e}\Sigma_{e}^{T} variance jumps at the end of a branch.
+
+# A PCMBase class for Brownian motion with drift
+We will now show how to implement the Brownian motion with
+drift model in a class called "BM_drift that inherits
+from the  "GaussianPCM" and "PCM" classes. It is easiest
+if one takes an .R file from the PCMBase package that
+already implements a model class and then modifies it accordingly.
+We will work here with the BM.R file (that implements the BM model).
+We need to redefine the generic functions of the "PCM" and "GaussianPCM"
+classes to suit the Brownian motion with drift model.
+We remind the reader that the function name is composed of two
+parts separated by the dot. The first part is the generic
+function, the second the name of the class in which it is implemented.
+For example `PCMCond.BM_drift` is the `PCMCond` function's 
+instance in the "BM_drift" class.
+
+- `PCMParentClasses.BM_drift` : function returning the parental classes.
+of "BM_drift":
+
+```{r}
+PCMParentClasses.BM_drift <- function(model) {
+  c("GaussianPCM", "PCM")
+}
+```
+
+- `PCMDescribe.BM_drift` : function returning a custom description of the model.
+
+```{r}
+PCMDescribe.BM_drift <- function(model, ...) {
+  "Brownian motion model with drift"
+}
+```
+
+- `PCMCond.BM_drift` : the key function when implementing a new model class.
+This function returns a list with functions for calculating the $\vec{\omega}$,
+$\mathbf{\Phi}$ and $\mathbf{V}$ compound parameters that define the 
+conditional distribution of the daughter node given the value
+of the trait at its parent node ($\vec{x}_{parent}$. Following Mitov et. al. (2018) we know 
+that in the GLInv family a daughter node conditional on its parent is normally
+distributed with expectation $\vec{\omega}+\mathbf{\Phi}\vec{x}_{parent}$ and
+variance-covariance matrix $\mathbf{V}$. In particular the $\vec{\omega}$,
+$\mathbf{\Phi}$ and $\mathbf{V}$ compound parameters can depend on time
+(i.e. the length of the branch from the parental to the daughter node). In the
+case of the BM with drift model the $\vec{\omega}=t\cdot \vec{h}$, 
+$\mathbf{\Phi}$ is the identity matrix and $\mathbf{V}$ is the same as in the Brownian
+motion model (which in itself is a limit of the OU model, hence the reuse of the 
+PCMConcVOU function). 
+
+```{r}
+PCMCond.BM_drift <- function(
+  tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose=FALSE) {
+
+  
+  Sigma_x <- if(is.Global(model$Sigma_x)){as.matrix(model$Sigma_x)}
+	     else{as.matrix(model$Sigma_x[,, r])}
+  Sigma <- Sigma_x %*% t(Sigma_x)
+  if(!is.null(model$Sigmae_x)) {
+    Sigmae_x <- if(is.Global(model$Sigmae_x)){as.matrix(model$Sigmae_x)}
+		else{as.matrix(model$Sigmae_x[,,r])}
+    Sigmae <- Sigmae_x %*% t(Sigmae_x)
+  } else {
+    Sigmae <- NULL
+  }
+
+  if(!is.null(model$h_drift)) { 
+    h_drift <- if(is.Global(model$h_drift)) as.vector(model$h_drift) else model$h_drift[, r]
+  }else{
+    h_drift <- rep(0,nrow(Sigma_x))
+  }
+
+  V <- PCMCondVOU(matrix(0, nrow(Sigma), ncol(Sigma)), Sigma, Sigmae)
+  omega <- function(t, edgeIndex, metaI) {
+    t*h_drift
+  }
+  Phi <- function(t, edgeIndex, metaI, e_Ht = NULL) {
+    diag(nrow(Sigma))
+  }
+  list(omega = omega, Phi = Phi, V = V)
+}
+```
+
+- `PCMDescribeParameters.BM_drift` : a function that returns a list with a custom description
+of each model parameter.
+
+```{r}
+PCMDescribeParameters.BM_drift <- function(model, ...) {
+  list(
+    X0 = "trait values at the root",
+    h_drift = "drift vector modifying the expectation",
+    Sigma_x = "Cholesky factor of the unit-time variance rate",
+    Sigmae_x = "Cholesky factor of the non-heritable variance 
+		or the variance of the measurement error")
+}
+```
+
+- `PCMListParameterizations.BM_drift` : a function that returns all possible 
+parametrizations for the implemented model class. These parametrizations 
+correspond to how each parameter defining the model can be parametrized.
+For a detailed description of how matrices can be parametrized please see
+Bartoszek (2011), Bartoszek et. al. (2012) or the matrixparametrizations.R file
+in the mvSLOUCH or PCMBase R packages. Probably from the perspective of just
+calculating the likelihood given some parameters this function does not seem
+that useful. However, one should not forget that PCMBase is designed
+to be a computational engine providing the likelihood that will be optimized
+over some other code. 
+Here, $\vec{X}(0)$ and $\vec{h}$ are vectors (i.e. "VectorParameter"). 
+The "_AllEqual" parametrization means all the entries of the 
+vector should be equal. "_Global" means that it is the same for all regimes
+(notice that $\vec{X}(0)$ is the value at the root, so it has to be common for all), 
+"_Omitted" means not present (for $\vec{h}$ this means that the model will
+correspond to a Brownian motion with $0$ drift). Finally "_Fixed" means that
+the parameter is "known", i.e. it is not to be optimized over.
+Matrix parametrizations are more involved. For example one will not optimize
+over a covariance matrix but e.g. over its Cholesky decomposition.
+Here we just have the $\Sigma_{x}$ and $\Sigma_{e}$ matrices
+(however see the "OU" class for more involved cases with the $H$ 
+matrix). Here, these two matrices can be either upper triangular,
+diagonal or diagonal with a constant value on the diagonal. Both
+of them enter the likelihood (through $\mathbf{V}$) as a product
+of themselves and their transposition i.e. $SS^{T}$ so decomposition
+into a triangular matrix (with non-negative diagonal) suffices for
+unique identification of the matrix. Notice that if $S$ is of 
+dimension $k\times k$, then $SS^{T}$ has $k^{2}$ potentially non-zero
+elements while its triangular decomposition only $k(k+1)/2$
+A detailed description of the different possible parametrizations is
+given in the help file for PCMParam.
+
+```{r}
+PCMListParameterizations.BM_drift <- function(model, ...) {
+  list(
+    X0 = list(
+      c("VectorParameter", "_Global"),
+      c("VectorParameter", "_Fixed", "_Global"),
+      c("VectorParameter", "_AllEqual", "_Global"),
+      c("VectorParameter", "_Omitted")),
+    h_drift = list(     
+      c("VectorParameter"),
+      c("VectorParameter", "_Fixed"),
+      c("VectorParameter", "_AllEqual"),
+       c("VectorParameter", "_Omitted")),
+       
+    Sigma_x = list(
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")),
+
+    Sigmae_x = list(
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Omitted"))
+  )
+}
+```
+
+- `PCMListDefaultParameterizations.BM_drift` : this function is optional to define but can
+be useful if only a subset of the parametrizations defined in the PCMListParametrizations
+function will actually be used in practise. 
+
+```{r}
+PCMListDefaultParameterizations.BM_drift <- function(model, ...) {
+  list(
+    X0 = list(
+      c("VectorParameter", "_Global"),
+      c("VectorParameter", "_Omitted")
+    ),
+    h_drift = list(     
+      c("VectorParameter")),
+       
+    Sigma_x = list(
+        c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+        c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
+        c("MatrixParameter", "_ScalarDiagonal", "_WithNonNegativeDiagonal")
+      ),
+
+    Sigmae_x = list(
+      c("MatrixParameter", "_Omitted"))
+  )
+}
+```
+
+- `PCMSpecify.BM_drift` : generate default model parameters. Notice that here
+we obtain a singular model with 0 mean and 0 variance.
+
+```{r}
+PCMSpecify.BM_drift <- function(model, ...) {
+  spec <- list(
+    X0 = structure(0.0, class = c('VectorParameter', '_Global'),
+                   description = 'trait values at the root'),
+    h_drift = structure(0.0, class = c('VectorParameter'),
+                   description = 'drift vector modifying the expectation'),
+    Sigma_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', 
+					'_WithNonNegativeDiagonal'),
+                        description = 'Cholesky factor of the unit-time variance rate'),
+    Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal',
+					'_WithNonNegativeDiagonal'),
+                         description = 'Cholesky factor of the non-heritable variance 
+                        		or the variance of the measurement error'))
+  attributes(spec) <- attributes(model)
+  if(is.null(names(spec))) names(spec) <- c('X0', 'h_drift', 'Sigma_x', 'Sigmae_x')
+  if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')
+  spec
+}
+```
+
+# Example run
+Now that we have defined all the code necessary for the class let us demonstrate it.
+After running all the above code defining the "BM_drift" class we create a model instance.
+We do this for a two regimes model. 
+
+```{r}
+X0 <- c(5, 2, 1) ## root state
+  
+## in regime a traits evolve independently
+a.Sigma_x <- rbind(c(1.6, 0.0, 0.0),c(0.0, 2.4, 0.0),c(0.0, 0.0, 2.0))
+## no jumps at the end of a branch
+a.Sigmae_x <- rbind(c(0.0, 0.0, 0.0),c(0.0, 0.0, 0.0),c(0.0, 0.0, 0.0))
+a.h_drift<-c(4, 5, 6)
+
+## in regime b evolution is correlated
+b.Sigma_x <- rbind(c(1.6, 0.3, 0.3), c(0.0, 0.3, 0.4),c(0.0, 0.0, 2.0))
+## no jumps at the end of a branch
+b.Sigmae_x <- rbind(c(0.0, 0.0, 0.0),c(0.0, 0.0, 0.0),c(0.0, 0.0, 0.0))
+b.h_drift<-c(1, 2, 3)
+
+Sigma_x <- abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL,y=NULL,regime=c('a','b')))
+Sigmae_x <- abind(a.Sigmae_x,b.Sigmae_x,along=3,new.names=list(x=NULL,y=NULL,regime=c('a','b')))
+h_drift <- abind(a.h_drift, b.h_drift, along=2, new.names=list(xy=NULL, regime=c('a','b')))
+
+PCMBase_model_BM_drift <- PCM("BM_drift", k = 3, regimes = c("a", "b"),
+params = list(X0 = X0,h_drift = h_drift[,,drop=FALSE],
+Sigma_x = Sigma_x[,,,drop=FALSE],Sigmae_x = Sigmae_x[,,,drop=FALSE]))
+```
+
+
+Now we simulate a random phylogeny (here pure birth tree with unit speciation rate 
+conditioned on $30$ tips). Furthermore, we randomly paint the two regimes, "a" and
+"b" on the tips of the tree. Then, we use mvSLOUCH's (modified from slouch, Hansen et. al. 2008,
+to work with phylo format trees) Fitch algorithm to paint the regimes on the internal 
+branches of the tree. It is worth pointing out that the Fitch algorithm is only
+one option and the user should explore other possibilities depending on the
+problem.
+
+```{r}
+set.seed(12345, kind = "Mersenne-Twister", normal.kind = "Inversion") ## set a random seed
+N<-30 ## number or tip species
+phyltree<-ape::rcoal(n=N)
+
+v_current_regimes<-sample(c("a","b"),30,replace=TRUE)
+v_branch_regimes<-mvSLOUCH::fitch.mvsl(phyltree,v_current_regimes)$branch_regimes
+v_ambiguous<-which(v_branch_regimes=="ambiguous")
+if (length(v_ambiguous)>0){
+    v_branch_regimes[v_ambiguous]<-names(which.max((table(v_branch_regimes[-v_ambiguous]))))
+}
+## some branches may have "ambiguous" assigned to them due to how the implementation of 
+## Fitch's algorithm works. These branches need to have the regimes set manually. 
+## We do this according to the maximum rule but in a real analysis this would have to be 
+## done based on a careful analysis of the biological system under study.
+phyltree<-PCMTreeSetRegimesForEdges(phyltree, v_branch_regimes,FALSE) 
+
+```
+
+We simulate the traits using PCMBase's functionality.
+
+```{r}
+mData<-PCMSim(phyltree, PCMBase_model_BM_drift, X0)[,1:N] ## we only want the tip data
+## NOTE that observations from different species are in the columns NOT in the rows as 
+## in other software
+```
+
+Finally we calculate the likelihood under the BM with drift model.
+
+```{r}
+log_lik<- PCMLik(mData, phyltree, PCMBase_model_BM_drift)
+print(log_lik[1]) ## we just want to print the log-likelihood without the attributes
+```
+
+If PCMBase is used as a computational engine for some inference package, then the 
+above code can be one way of obtaining the likelihood under a "GaussianPCM" model object. 
+However, in such a setup it is more recommended to use the mechanism of creating a likelihood
+function for a particular dataset through PCMCreateLikelihood. This will speed up the calculations
+as it avoids traversing the tree every time the likelihood value is required. One just
+needs to update the parameters to obtain a new likelihood value.
+
+```{r}
+## create an vector of appropriate length to store the vectorized model parameters
+v_param <- double(PCMParamCount(PCMBase_model_BM_drift))
+
+# load the current model parameters into param
+PCMParamLoadOrStore(PCMBase_model_BM_drift, v_param, offset=0, load=FALSE)
+
+print(v_param)
+
+## now create a likelihood function for the particular model and observed data
+likFun <- PCMCreateLikelihood(mData, phyltree, PCMBase_model_BM_drift)
+
+log_lik_from_likFun<-likFun(v_param)
+print(log_lik_from_likFun[1])
+print(log_lik_from_likFun[1]==log_lik[1])
+
+# modify slightly the model parameters
+v_param_2 <- jitter(v_param)
+
+print(v_param_2)
+
+# set the new parameter vector
+PCMBase_model_BM_drift_2<-PCMBase_model_BM_drift
+PCMParamLoadOrStore(PCMBase_model_BM_drift_2, v_param_2, offset = 0, load=TRUE)
+
+print(PCMBase_model_BM_drift_2)
+log_lik_from_likFun_2<-likFun(v_param_2)
+print(log_lik_from_likFun_2[1])
+
+```
+

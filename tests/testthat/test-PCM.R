@@ -21,6 +21,7 @@ if(PCMBaseIsADevRelease()) {
     c(0.0, 0.0, 0.0),
     c(0.0, 0.0, 0.0),
     c(0.0, 0.0, 0.0))
+  a.h_drift<-c(0, 0, 0)
 
   # in regime 'b' there is correlation between the traits
   b.X0 <- c(12, 4, 3)
@@ -37,12 +38,13 @@ if(PCMBaseIsADevRelease()) {
     c(0.2, 0.0, 0.0),
     c(0.0, 0.3, 0.0),
     c(0.0, 0.0, 0.4))
+  b.h_drift<-c(1, 2, 3)
 
   H <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
   Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a','b')))
   Sigma_x <- abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
   Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-
+  h_drift <- abind(a.h_drift, b.h_drift, along=2, new.names=list(xy=NULL, regime=c('a','b')))
 
   # regime 'a', trait 1
   model.a.1 <- PCM("OU", k = 1, regimes = "a",
@@ -52,6 +54,14 @@ if(PCMBaseIsADevRelease()) {
                      Theta = Theta[1,'a',drop=FALSE],
                      Sigma_x = Sigma_x[1,1,'a',drop=FALSE],
                      Sigmae_x = Sigmae_x[1,1,'a',drop=FALSE]))
+
+  model.a.BM_drift.1 <- PCM("BM_drift", k = 1, regimes = "a",
+                   params = list(
+                     X0 = a.X0[1],
+                     h_drift = h_drift[1,'a',drop=FALSE],
+                     Sigma_x = Sigma_x[1,1,'a',drop=FALSE],
+                     Sigmae_x = Sigmae_x[1,1,'a',drop=FALSE]))
+
 
   test_that(
     "Check properties of created model", {
@@ -64,6 +74,18 @@ if(PCMBaseIsADevRelease()) {
       expect_identical(PCMParamGetShortVector(model.a.1), c(5.0,  0.0, 10.0,  1.6,  0.0))
     })
 
+  test_that(
+    "Check properties of created drift model", {
+      expect_identical(PCMParentClasses(model.a.BM_drift.1), c("GaussianPCM", "PCM"))
+      expect_identical(PCMNumRegimes(model.a.BM_drift.1), 1L)
+      expect_identical(PCMNumTraits(model.a.BM_drift.1), 1L)
+      expect_identical(PCMParamCount(model.a.BM_drift.1), 4L)
+      expect_identical(PCMRegimes(model.a.BM_drift.1), "a")
+      expect_false(is.Transformable(model.a.BM_drift.1))
+      expect_identical(PCMParamGetShortVector(model.a.BM_drift.1), c(5.0,  0.0, 1.6,  0.0))
+    })
+
+
 
   # regime 'a', trait 2
   model.a.2 <- PCM("OU", k = 1, regimes = "a",
@@ -74,6 +96,14 @@ if(PCMBaseIsADevRelease()) {
                      Sigma_x = Sigma_x[2,2,'a',drop=FALSE],
                      Sigmae_x = Sigmae_x[2,2,'a',drop=FALSE]))
 
+  model.a.BM_drift.2 <- PCM("BM_drift", k = 1, regimes = "a",
+                   params = list(
+                     X0 = a.X0[2],
+                     h_drift = h_drift[2,'a',drop=FALSE],
+                     Sigma_x = Sigma_x[2,2,'a',drop=FALSE],
+                     Sigmae_x = Sigmae_x[2,2,'a',drop=FALSE]))
+
+
   # regime 'a', trait 3
   model.a.3 <- PCM("OU", k = 1, regimes = "a",
                    params = list(
@@ -83,6 +113,14 @@ if(PCMBaseIsADevRelease()) {
                      Sigma_x = Sigma_x[3,3,'a',drop=FALSE],
                      Sigmae_x = Sigmae_x[3,3,'a',drop=FALSE]))
 
+  model.a.BM_drift.3 <- PCM("BM_drift", k = 1, regimes = "a",
+                   params = list(
+                     X0 = a.X0[3],
+                     h_drift = h_drift[3,'a',drop=FALSE],
+                     Sigma_x = Sigma_x[3,3,'a',drop=FALSE],
+                     Sigmae_x = Sigmae_x[3,3,'a',drop=FALSE]))
+
+
   # regime 'a', traits 1, 2 and 3
   model.a.123 <- PCM("OU", k = 3, regimes = "a",
                      params = list(
@@ -91,6 +129,14 @@ if(PCMBaseIsADevRelease()) {
                        Theta = Theta[,'a',drop=FALSE],
                        Sigma_x = Sigma_x[,,'a',drop=FALSE],
                        Sigmae_x = Sigmae_x[,,'a',drop=FALSE]))
+
+  model.a.BM_drift.123 <- PCM("BM_drift", k = 3, regimes = "a",
+                     params = list(
+                       X0 = a.X0,
+                       h_drift = h_drift[,'a',drop=FALSE],
+                       Sigma_x = Sigma_x[,,'a',drop=FALSE],
+                       Sigmae_x = Sigmae_x[,,'a',drop=FALSE]))
+
 
 
   test_that(
@@ -109,6 +155,22 @@ if(PCMBaseIsADevRelease()) {
                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
     })
 
+  test_that(
+    "Check properties of created model", {
+      expect_identical(PCMParentClasses(model.a.BM_drift.123), c("GaussianPCM", "PCM"))
+      expect_identical(PCMNumRegimes(model.a.BM_drift.123), 1L)
+      expect_identical(PCMNumTraits(model.a.BM_drift.123), 3L)
+      expect_identical(PCMParamCount( model.a.BM_drift.123), 18L)
+      expect_identical(PCMRegimes(model.a.BM_drift.123), "a")
+      expect_false(is.Transformable(model.a.BM_drift.123))
+      expect_identical(PCMParamGetShortVector(model.a.BM_drift.123),
+                       c(5.0, 2.0, 1.0,
+                         0.0, 0.0, 0.0, 
+                         1.6, 0.0, 2.4, 0.0, 0.0, 2.0,
+                         0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+    })
+
+
 
   # regime 'b', traits 1, 2 and 3
   model.b.123 <- PCM("OU", k = 3, regimes = "b",
@@ -119,6 +181,14 @@ if(PCMBaseIsADevRelease()) {
                        Sigma_x = Sigma_x[,,'b',drop=FALSE],
                        Sigmae_x = Sigmae_x[,,'b',drop=FALSE]))
 
+  model.b.BM_drift.123 <- PCM("BM_drift", k = 3, regimes = "b",
+                     params = list(
+                       X0 = b.X0,
+                       h_drift = h_drift[,'b',drop=FALSE],
+                       Sigma_x = Sigma_x[,,'b',drop=FALSE],
+                       Sigmae_x = Sigmae_x[,,'b',drop=FALSE]))
+
+
   # regimes 'a' and 'b', traits 1, 2 and 3
   model.ab.123 <- PCM("OU", k = 3, regimes = c("a", "b"),
                       params = list(
@@ -127,6 +197,14 @@ if(PCMBaseIsADevRelease()) {
                         Theta = Theta[,,drop=FALSE],
                         Sigma_x = Sigma_x[,,,drop=FALSE],
                         Sigmae_x = Sigmae_x[,,,drop=FALSE]))
+
+  model.ab.BM_drift.123 <- PCM("BM_drift", k = 3, regimes = c("a", "b"),
+                      params = list(
+                        X0 = a.X0,
+                        h_drift = h_drift[,,drop=FALSE],
+                        Sigma_x = Sigma_x[,,,drop=FALSE],
+                        Sigmae_x = Sigmae_x[,,,drop=FALSE]))
+
 
   test_that(
     "Check properties of created model", {
@@ -142,6 +220,25 @@ if(PCMBaseIsADevRelease()) {
                          2.0, 0.1, 0.2, 0.1, 0.6, 0.2, 0.2, 0.2, 0.3,
                          10.0, 6.0, 2.0,
                          10.0, 6.0, 2.0,
+                         1.6, 0.0, 2.4, 0.0, 0.0, 2.0,
+                         1.6, 0.3, 0.3, 0.3, 0.4, 2.0,
+                         0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                         0.2, 0.0, 0.3, 0.0, 0.0, 0.4
+                         ))
+    })
+    
+  test_that(
+    "Check properties of created model", {
+      expect_identical(PCMParentClasses(model.ab.BM_drift.123), c("GaussianPCM", "PCM"))
+      expect_identical(PCMNumRegimes(model.ab.BM_drift.123), 2L)
+      expect_identical(PCMNumTraits(model.ab.BM_drift.123), 3L)
+      expect_identical(PCMParamCount(model.ab.BM_drift.123), 33L)
+      expect_identical(PCMRegimes(model.ab.BM_drift.123), c("a", "b"))
+      expect_false(is.Transformable(model.ab.BM_drift.123))
+      expect_identical(PCMParamGetShortVector(model.ab.BM_drift.123),
+                       c(5.0, 2.0, 1.0,
+                         0.0, 0.0, 0.0,
+                         1.0, 2.0, 3.0,
                          1.6, 0.0, 2.4, 0.0, 0.0, 2.0,
                          1.6, 0.3, 0.3, 0.3, 0.4, 2.0,
                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
