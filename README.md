@@ -43,6 +43,7 @@ The user guides and technical reference for the library are available from the [
 
 -   The [Getting started](https://venelin.github.io/PCMBase/articles/PCMBase.html)
 -   The [The PCMBase parameterizations](https://venelin.github.io/PCMBase/articles/PCMParam.html) (in preparation)
+-   The [Creating a Custom Model in the PCMBase Framework](https://venelin.github.io/PCMBase/articles/PCMCreateModel.html)
 
 The research article "Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package" provides a general overview of PCMBase. The article is currently undergoing peer review for a publication and is available as a preprint from [arxiv](https://arxiv.org/abs/1809.09014).
 
@@ -62,8 +63,8 @@ Used R-packages
 
 The PCMBase R-package uses the following 3rd party R-packages:
 
--   For tree processing in R: ape v5.2 (Paradis et al. 2018), data.table v1.12.0 (Dowle and Srinivasan 2019);
--   For algebraic manipulation: expm v0.999.3 (Goulet et al. 2018), mvtnorm v1.0.8 (Genz et al. 2018);
+-   For tree processing in R: ape v5.3 (Paradis et al. 2018), data.table v1.12.0 (Dowle and Srinivasan 2019);
+-   For algebraic manipulation: expm v0.999.4 (Goulet et al. 2018), mvtnorm v1.0.10 (Genz et al. 2018);
 -   For plotting: ggtree v1.14.6 (Yu and Lam 2019), ggplot2 v3.1.0 (Wickham et al. 2018);
 -   For unit-testing: testthat v2.0.1 (Wickham 2018), covr v3.2.1 (Hester 2018);
 -   For documentation and web-site generation: roxygen2 v6.1.1 (Wickham, Danenberg, and Eugster 2018), pkgdown v1.3.0 (Wickham and Hesselberth 2018);
