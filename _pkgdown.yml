@@ -16,7 +16,7 @@ navbar:
     menu:
     - text: The PCMBase Parametrization API
       href: articles/PCMParam.html
-    - text: Defining a Custom Model in the PCMBase Framework
+    - text: Creating a Custom Model in the PCMBase Framework
       href: articles/PCMCreateModel.html
   - text: Reference
     href: reference/index.html
@@ -30,3 +30,4 @@ articles:
   contents:
   - '`PCMBase`'
   - '`PCMParam`'
+  - '`PCMCreateModel`'
