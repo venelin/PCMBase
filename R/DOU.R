@@ -1,4 +1,4 @@
-# Copyright 2018 Venelin Mitov
+# Copyright 2016-2019 Venelin Mitov, Georgios Asimomitis
 #
 # This file is part of PCMBase.
 #

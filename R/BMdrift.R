@@ -1,4 +1,4 @@
-# Copyright 2018 Venelin Mitov, Krzysztof Bartoszek
+# Copyright 2016-2019 Venelin Mitov, Krzysztof Bartoszek
 #
 # This file is part of PCMBase.
 #
@@ -30,7 +30,7 @@ PCMCond.BM_drift <- function(
   tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, verbose = verbose),
   verbose=FALSE) {
 
-  
+
   Sigma_x <- if(is.Global(model$Sigma_x)){as.matrix(model$Sigma_x)} else {as.matrix(model$Sigma_x[,, r])}
   Sigma <- Sigma_x %*% t(Sigma_x)
   if(!is.null(model$Sigmae_x)) {
@@ -40,7 +40,7 @@ PCMCond.BM_drift <- function(
     Sigmae <- NULL
   }
 
-  if(!is.null(model$h_drift)) { 
+  if(!is.null(model$h_drift)) {
     h_drift <- if(is.Global(model$h_drift)) as.vector(model$h_drift) else model$h_drift[, r]
   }else{
     h_drift <- rep(0,nrow(Sigma_x))
@@ -73,12 +73,12 @@ PCMListParameterizations.BM_drift <- function(model, ...) {
       c("VectorParameter", "_Fixed", "_Global"),
       c("VectorParameter", "_AllEqual", "_Global"),
       c("VectorParameter", "_Omitted")),
-    h_drift = list(     
+    h_drift = list(
       c("VectorParameter"),
       c("VectorParameter", "_Fixed"),
       c("VectorParameter", "_AllEqual"),
        c("VectorParameter", "_Omitted")),
-       
+
     Sigma_x = list(
       c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
       c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
@@ -102,9 +102,9 @@ PCMListDefaultParameterizations.BM_drift <- function(model, ...) {
       c("VectorParameter", "_Global"),
       c("VectorParameter", "_Omitted")
     ),
-    h_drift = list(     
+    h_drift = list(
       c("VectorParameter")),
-       
+
     Sigma_x = list(
         c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
         c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),

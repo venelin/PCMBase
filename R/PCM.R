@@ -1,4 +1,4 @@
-# Copyright 2018 Venelin Mitov
+# Copyright 2016-2019 Venelin Mitov
 #
 # This file is part of PCMBase.
 #
@@ -56,10 +56,17 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.Threshold.Lambda_ij }}{a 0-threshold for abs(Lambda_i + Lambda_j),
 #' where Lambda_i and Lambda_j are eigenvalues of the parameter matrix H of an OU or
 #' other model. Default 1e-8. See \code{\link{PCMPExpxMeanExp}}.}
+#' \item{\code{PCMBase.Threshold.EV }}{A 0-threshold for the eigenvalues of the
+#' matrix V for a given branch. The V matrix is considered singular if it has
+#' eigenvalues smaller than \code{PCMBase.Threshold.EV } or when the ratio
+#' min(svdV)/max(svdV) is below \code{PCMBase.Threshold.SV }. Default is 1e-5.
+#' Treatment of branches with singular V matrix is defined by the option
+#' \code{PCMBase.Skip.Singular}.}
 #' \item{\code{PCMBase.Threshold.SV }}{A 0-threshold for min(svdV)/max(svdV), where
-#' svdV is the vector of eigenvalues of the matrix V for a given branch. The V matrix
-#' is considered singular if it has eigenvalues equal to 0 or when the ratio
-#' min(svdV)/max(svdV) is below PCMBase.Threshold.SV. Default is 1e-6. Treatment
+#' svdV is the vector of singular values of the matrix V for a given branch.
+#' The V matrix is considered singular if it has eigenvalues smaller than
+#' \code{PCMBase.Threshold.EV } or when the ratio min(svdV)/max(svdV) is below
+#' PCMBase.Threshold.SV. Default is 1e-6. Treatment
 #' of branches with singular V matrix is defined by the option \code{PCMBase.Skip.Singular}.}
 #' \item{\code{PCMBase.Threshold.Skip.Singular }}{A double indicating if a branch of shorter
 #' length with singular matrix V should be skipped during likelihood calculation. Setting this
@@ -1305,7 +1312,9 @@ PCMSim <- function(
 #' for each node i=1, ..., N.
 #' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
-#'   containing meta-data such as N, M and k.
+#'   containing meta-data such as N, M and k. Alternatively, this can be a
+#'   function object that returns such a list, e.g. the function\code{PCMInfo}
+#'   or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.
 #' @param log logical indicating whether a log-liklehood should be calculated. Default
 #'  is TRUE.
 #' @param verbose logical indicating if some debug-messages should printed.

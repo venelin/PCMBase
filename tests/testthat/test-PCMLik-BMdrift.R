@@ -1,5 +1,23 @@
+# Copyright 2016-2019 Venelin Mitov
+#
+# This file is part of PCMBase.
+#
+# PCMBase is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PCMBase is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
+
+# This file was contributed by Krzysztof Bartoszek
 library(testthat)
-context("PCMLik, OU")
+context("PCMLik, BM_drift")
 
 library(PCMBase)
 
@@ -27,13 +45,13 @@ if(PCMBaseIsADevRelease()) {
   test_that("Equal likelihood with with BM for 0 drift, single regime (a)", {
     expect_silent(model.a.123.BM_drift <- PCM("BM_drift", k = 3, regimes = "a"))
     expect_silent(model.a.123.BM <- PCM("BM", k = 3, regimes = "a"))
-    
+
     expect_silent(PCMParamLoadOrStore(model.a.123.BM,
                                       PCMParamRandomVecParams(model.a.123.BM),
                                       offset = 0, k = 3, load = TRUE))
 
     expect_silent(params_for_BM_drift<-NA)
-    expect_silent(PCMParamLoadOrStore(model.a.123.BM,params_for_BM_drift, offset = 0, k = 3, load = FALSE))    
+    expect_silent(PCMParamLoadOrStore(model.a.123.BM,params_for_BM_drift, offset = 0, k = 3, load = FALSE))
     expect_silent(params_for_BM_drift<-c(params_for_BM_drift[1:3],0.0,0.0,0.0,params_for_BM_drift[4:length(params_for_BM_drift)]))
     expect_silent(PCMParamLoadOrStore(model.a.123.BM_drift, params_for_BM_drift, offset = 0, k = 3, load = TRUE))
 
@@ -71,13 +89,13 @@ if(PCMBaseIsADevRelease()) {
     expect_silent(model.a.123.BM_drift <- PCM("BM_drift", k = 3, regimes = "a"))
     expect_silent(model.a.123.BM <- PCM("BM", k = 3, regimes = "a"))
 
-    
+
     expect_silent(PCMParamLoadOrStore(model.a.123.BM_drift,
                                       PCMParamRandomVecParams(model.a.123.BM_drift),
                                       offset = 0, k = 3, load = TRUE))
-    
+
     expect_silent(params_for_BM_drift<-NA)
-    expect_silent(PCMParamLoadOrStore(model.a.123.BM,params_for_BM_drift, offset = 0, k = 3, load = FALSE))    
+    expect_silent(PCMParamLoadOrStore(model.a.123.BM,params_for_BM_drift, offset = 0, k = 3, load = FALSE))
     expect_silent(params_for_BM_drift<-c(params_for_BM_drift[1:3],0.0,0.0,0.0,params_for_BM_drift[4:length(params_for_BM_drift)]))
     expect_silent(PCMParamLoadOrStore(model.a.123.BM_drift, params_for_BM_drift, offset = 0, k = 3, load = TRUE))
 
@@ -85,7 +103,7 @@ if(PCMBaseIsADevRelease()) {
       PCMLik(traits.a.123, tree.a, model.a.123.BM_drift, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])),
       PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])))
   })
-  
+
 
 
   test_that("Equal likelihood with dmvnorm on a random model, multiple regimes (ab)", {
@@ -100,17 +118,17 @@ if(PCMBaseIsADevRelease()) {
               PCMVar(tree.ab, model.ab.123.BM_drift), log = TRUE))
 
   })
-  
+
   test_that("Equal likelihood with BM for 0 drift, multiple regimes (ab)", {
     expect_silent(model.ab.123.BM_drift <- PCM("BM_drift", k = 3, regimes = c("a", "b")))
     expect_silent(model.ab.123.BM <- PCM("BM", k = 3, regimes = c("a", "b")))
     expect_silent(PCMParamLoadOrStore(model.ab.123.BM,
                                       PCMParamRandomVecParams(model.ab.123.BM),
                                       offset = 0, k = 3, load = TRUE))
-    
-    
+
+
     expect_silent(params_for_BM_drift<-NA)
-    expect_silent(PCMParamLoadOrStore(model.ab.123.BM,params_for_BM_drift, offset = 0, k = 3, load = FALSE))    
+    expect_silent(PCMParamLoadOrStore(model.ab.123.BM,params_for_BM_drift, offset = 0, k = 3, load = FALSE))
     expect_silent(params_for_BM_drift<-c(params_for_BM_drift[1:3],0.0,0.0,0.0,0.0,0.0,0.0,params_for_BM_drift[4:length(params_for_BM_drift)]))
     expect_silent(PCMParamLoadOrStore(model.ab.123.BM_drift, params_for_BM_drift, offset = 0, k = 3, load = TRUE))
 

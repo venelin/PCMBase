@@ -1,3 +1,20 @@
+# Copyright 2016-2019 Venelin Mitov
+#
+# This file is part of PCMBase.
+#
+# PCMBase is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PCMBase is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
+
 library(PCMBase)
 
 if(PCMBaseIsADevRelease()) {
@@ -165,7 +182,7 @@ if(PCMBaseIsADevRelease()) {
       expect_false(is.Transformable(model.a.BM_drift.123))
       expect_identical(PCMParamGetShortVector(model.a.BM_drift.123),
                        c(5.0, 2.0, 1.0,
-                         0.0, 0.0, 0.0, 
+                         0.0, 0.0, 0.0,
                          1.6, 0.0, 2.4, 0.0, 0.0, 2.0,
                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
     })
@@ -226,7 +243,7 @@ if(PCMBaseIsADevRelease()) {
                          0.2, 0.0, 0.3, 0.0, 0.0, 0.4
                          ))
     })
-    
+
   test_that(
     "Check properties of created model", {
       expect_identical(PCMParentClasses(model.ab.BM_drift.123), c("GaussianPCM", "PCM"))

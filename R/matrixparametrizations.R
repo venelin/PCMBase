@@ -1,4 +1,4 @@
-# Copyright 2018 Venelin Mitov
+# Copyright 2016-2019 Venelin Mitov, Krzysztof Bartoszek
 #
 # This file is part of PCMBase.
 #
@@ -16,10 +16,10 @@
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
 ## This code-file has been contributed by Krzysztof Bartoszek
-## It comes from the mvSLOUCH R package 
+## It comes from the mvSLOUCH R package
 ## https://cran.r-project.org/web/packages/mvSLOUCH/
 ## Some of the parametrizations here are described in detail in:
-## K. Bartoszek. Multivariate Aspects of Phylogenetic Comparative Methods. 
+## K. Bartoszek. Multivariate Aspects of Phylogenetic Comparative Methods.
 ## Licentiate Thesis, University of Gothenburg, 2011
 
 ## Added by Venelin Mitov

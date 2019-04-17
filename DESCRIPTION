@@ -9,7 +9,7 @@ Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
              person("Georgios", "Asimomitis",
                     role = c("ctb")),
              person("Tanja", "Stadler",
-                    role = c("ctb")))
+                    role = c("ths")))
 Maintainer: Venelin Mitov <vmitov@gmail.com>
 Description: Phylogenetic comparative methods represent models of continuous trait 
   data associated with the tips of a phylogenetic tree. Examples of such models 

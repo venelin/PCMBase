@@ -69,6 +69,13 @@ The PCMBase R-package uses the following 3rd party R-packages:
 -   For unit-testing: testthat v2.0.1 (Wickham 2018), covr v3.2.1 (Hester 2018);
 -   For documentation and web-site generation: roxygen2 v6.1.1 (Wickham, Danenberg, and Eugster 2018), pkgdown v1.3.0 (Wickham and Hesselberth 2018);
 
+Licence and copyright
+=====================
+
+Copyright 2016-2019 Venelin Mitov
+
+Source code to PCMBase is made available under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. PCMBase is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
 References
 ==========
 
