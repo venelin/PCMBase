@@ -667,9 +667,22 @@ PCMTreeGetPartsForNodes <- function(
 }
 
 #' Get the tips belonging to a part in a tree
-#' @param tree a phylo object with an edge.part member
-#' @param part a character or integer belonging to tree$edge.part
+#' @param tree a phylo object with an edge.regime member or a PCMTree object
+#' @param part a character or integer denoting a part name in the tree.
 #' @return an integer vector with the ids of the tips belonging to part
+#' @examples
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#' tree <- ape::rtree(10)
+#' regimes <- sample(letters[1:3], nrow(tree$edge), replace = TRUE)
+#' PCMTreeSetRegimesForEdges(tree, regimes)
+#' \donttest{
+#' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
+#' }
+#' part <- PCMTreeGetPartNames(tree)[1]
+#' PCMTreeGetTipsInPart(tree, part)
+#' print(part)
+#'
+#' @seealso \link{PCMTreeGetTipsInRegime}, \link{PCMTreeGetPartNames}, \link{PCMRegimes}, \link{PCMTreeGetPartRegimes}, \link{PCMTreeSetPartRegimes}
 #' @export
 PCMTreeGetTipsInPart <- function(tree, part) {
 
@@ -679,6 +692,32 @@ PCMTreeGetTipsInPart <- function(tree, part) {
   tipEdges <- tree$edge[, 2] <= N & tree$edge.part == part
   tree$edge[tipEdges, 2]
 }
+
+
+#' Get the tips belonging to a regime in a tree
+#' @param tree a phylo object with an edge.regime member or a PCMTree object
+#' @param regime a character or integer denoting a regime in the tree.
+#' @return an integer vector with the ids of the tips belonging to part
+#' @examples
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#' tree <- ape::rtree(10)
+#' regimes <- sample(letters[1:3], nrow(tree$edge), replace = TRUE)
+#' PCMTreeSetRegimesForEdges(tree, regimes)
+#' \donttest{
+#' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
+#' }
+#' regime <- PCMRegimes(tree)[1]
+#' PCMTreeGetTipsInRegime(tree, regime)
+#' print(regime)
+#'
+#' @seealso \link{PCMTreeGetTipsInPart}, \link{PCMTreeGetPartNames}, \link{PCMRegimes}, \link{PCMTreeGetPartRegimes}, \link{PCMTreeSetPartRegimes}, \link{PCMTreeGetPartition}
+#'
+#' @export
+PCMTreeGetTipsInRegime <- function(tree, regime) {
+  tipRegimes <- PCMTreeGetRegimesForNodes(tree)[seq_len(PCMTreeNumTips(tree))]
+  which(regime == tipRegimes)
+}
+
 
 #' Model regimes (i.e. colors) associated with the branches in a tree
 #' @param tree a PCMTree or a phylo object.

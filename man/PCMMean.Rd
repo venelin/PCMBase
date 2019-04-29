@@ -17,7 +17,9 @@ calculated (see also Details).}
 \item{X0}{a k-vector denoting the root trait}
 
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
-containing meta-data such as N, M and k.}
+containing meta-data such as N, M and k. Alternatively, this can be a
+function object that returns such a list, e.g. the function\code{PCMInfo}
+or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.}
 
 \item{internal}{a logical indicating ig the per-node mean vectors should be returned (see Value). Default FALSE.}
 

@@ -790,6 +790,41 @@ PCMParamGetShortVector.default <- function(o, k, R, ...) {
   vec
 }
 
+#' Locate a named parameter in the short vector representation of a model
+#'
+#' @param o a PCM model object.
+#' @param accessExpr a character string used to access the parameter, e.g.
+#' \code{"$Theta[,,1]"} or \code{"[['Theta']][,,1]"}.
+#'
+#' @return an integer vector of length \code{PCMParamCount(o)} with NAs
+#' everywhere except at the coordinates corresponding to the parameter in
+#' question.
+#'
+#' @examples
+#'
+#' model <- PCM(PCMDefaultModelTypes()["C"], k = 3, regimes = c("a", "b"))
+#' # The parameter H is a diagonal 3x3 matrix. If this matrix is considered as
+#' # a vector the indices of its diagonal elements are 1, 5 and 9. These indices
+#' # are indicated as the non-NA entries in the returned vector.
+#'
+#' PCMParamLocateInShortVector(model, "$H[,,1]")
+#' PCMParamLocateInShortVector(model, "$H[,,'a']")
+#' PCMParamLocateInShortVector(model, "$H[,,'b']")
+#' @export
+PCMParamLocateInShortVector <- function(o, accessExpr) {
+  v <- PCMParamGetShortVector(o)
+  mask <- seq_len(length(eval(parse(text=paste0("o", accessExpr)))))
+  v[] <- NA
+  oNAs <- o
+
+  PCMParamLoadOrStore(
+    oNAs, vecParams = v, offset = 0, k = PCMNumTraits(o), R = PCMNumRegimes(o),
+    load = TRUE)
+
+  eval(parse(text = paste0("oNAs", accessExpr, "[] <- mask")))
+  as.integer(PCMParamGetShortVector(oNAs))
+}
+
 #' Set model parameters from a named list
 #' @param model a PCM model object
 #' @param params a named list with elements among the names found in model
