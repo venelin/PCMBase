@@ -21,7 +21,12 @@ question.
 Locate a named parameter in the short vector representation of a model
 }
 \examples{
+
 model <- PCM(PCMDefaultModelTypes()["C"], k = 3, regimes = c("a", "b"))
+# The parameter H is a diagonal 3x3 matrix. If this matrix is considered as
+# a vector the indices of its diagonal elements are 1, 5 and 9. These indices
+# are indicated as the non-NA entries in the returned vector.
+
 PCMParamLocateInShortVector(model, "$H[,,1]")
 PCMParamLocateInShortVector(model, "$H[,,'a']")
 PCMParamLocateInShortVector(model, "$H[,,'b']")

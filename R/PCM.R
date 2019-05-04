@@ -1376,8 +1376,14 @@ logLik.PCM <- function(object, ...) {
     stop("ERR:02034:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
   }
 
-  if(is.function(attr(object, "PCMInfoFun", exact = TRUE))) {
-    value <- PCMLik(X, tree, object, SE, metaI = attr(object, "PCMInfoFun", exact = TRUE)(X, tree, object, SE), log = TRUE)
+  if(is.function(attr(object, "PCMInfoFun", exact = TRUE)) ) {
+    value <- PCMLik(
+      X, tree, object, SE, metaI = attr(object, "PCMInfoFun", exact = TRUE)(X, tree, object, SE), log = TRUE)
+  } else if(is.list(attr(object, "PCMInfoFun", exact = TRUE))) {
+    # In this case, it is assumed that attr(object, "PCMInfoFun", exact = TRUE) is
+    # the result from calling the PCMInfoFun on the model (object) X, tree and data.
+    value <- PCMLik(
+      X, tree, object, SE, metaI = attr(object, "PCMInfoFun", exact = TRUE), log = TRUE)
   } else {
     value <- PCMLik(X, tree, object, SE, log = TRUE)
   }

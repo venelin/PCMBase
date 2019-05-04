@@ -834,6 +834,11 @@ PCMParamLocateInShortVector <- function(o, accessExpr) {
 #' @param replaceWholeParameters logical, by default set to FALSE. If TRUE, the
 #' parameters will be completely replaced, meaning that their attributes (e.g.
 #' S3 class) will be replaced as well (dangerous).
+#' @param deepCopySubPCMs a logical indicating whether nested PCMs should be
+#'   'deep'-copied, meaning element by element, eventually preserving the
+#'   attributes as in \code{model}. By default this is set to FALSE, meaning
+#'   that sub-PCMs found in \code{params} will completely overwrite the
+#'   sub-PCMs of with the same name in \code{model}.
 #' @param ... other arguments that can be used by implementing methods.
 #' @return If inplace is TRUE, the function only has a side effect of setting
 #' the parameters of the model object in the calling environment; otherwise the
@@ -841,14 +846,24 @@ PCMParamLocateInShortVector <- function(o, accessExpr) {
 #' @importFrom utils str
 #' @export
 PCMParamSetByName <- function(
-  model, params, inplace = TRUE, replaceWholeParameters = FALSE, ...) {
+  model,
+  params,
+  inplace = TRUE,
+  replaceWholeParameters = FALSE,
+  deepCopySubPCMs = FALSE,
+  ...) {
 
   UseMethod("PCMParamSetByName", model)
 }
 
 #' @export
 PCMParamSetByName.PCM <- function(
-  model, params, inplace = TRUE, replaceWholeParameters = FALSE, ...) {
+  model,
+  params,
+  inplace = TRUE,
+  replaceWholeParameters = FALSE,
+  deepCopySubPCMs = FALSE,
+  ...) {
 
   for(name in names(params)) {
     if(! (name %in% names(model)) ) {
@@ -862,10 +877,32 @@ PCMParamSetByName.PCM <- function(
       } else if(!identical(PCMNumTraits(model), PCMNumTraits(params[[name]])) ) {
         stop(paste0("ERR:02753:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: model[['", name, "']] has a different number of traits (k) from params[['", name, "']]."))
       } else {
-        if(inplace) {
-          eval(substitute(model[[name]] <- params[[name]]), parent.frame())
+        if(deepCopySubPCMs) {
+          for(subName in names(params[[name]])) {
+            if(replaceWholeParameters) {
+              # This will overwrite the current attributes of model[[name]][[subName]]
+              if(inplace) {
+                eval(substitute(model[[name]][[subName]] <-
+                                  params[[name]][[subName]]), parent.frame())
+              } else {
+                model[[name]][[subName]] <- params[[name]][[subName]]
+              }
+            } else {
+              # This will keep the current attributes of model[[name]][[subName]]
+              if(inplace) {
+                eval(substitute(model[[name]][[subName]][] <-
+                                  params[[name]][[subName]]), parent.frame())
+              } else {
+                model[[name]][[subName]][] <- params[[name]][[subName]]
+              }
+            }
+          }
         } else {
-          model[[name]] <- params[[name]]
+          if(inplace) {
+            eval(substitute(model[[name]] <- params[[name]]), parent.frame())
+          } else {
+            model[[name]] <- params[[name]]
+          }
         }
       }
     } else {
@@ -883,7 +920,7 @@ PCMParamSetByName.PCM <- function(
       }
 
       if(replaceWholeParameters) {
-        # This will keep the current attributes of model[[name]]
+        # This will overwrite the current attributes of model[[name]]
         if(inplace) {
           eval(substitute(model[[name]] <- params[[name]]), parent.frame())
         } else {

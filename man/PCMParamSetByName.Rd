@@ -5,7 +5,7 @@
 \title{Set model parameters from a named list}
 \usage{
 PCMParamSetByName(model, params, inplace = TRUE,
-  replaceWholeParameters = FALSE, ...)
+  replaceWholeParameters = FALSE, deepCopySubPCMs = FALSE, ...)
 }
 \arguments{
 \item{model}{a PCM model object}
@@ -19,6 +19,12 @@ the parameters set as specified should be returned. Defaults to TRUE.}
 \item{replaceWholeParameters}{logical, by default set to FALSE. If TRUE, the
 parameters will be completely replaced, meaning that their attributes (e.g.
 S3 class) will be replaced as well (dangerous).}
+
+\item{deepCopySubPCMs}{a logical indicating whether nested PCMs should be
+'deep'-copied, meaning element by element, eventually preserving the
+attributes as in \code{model}. By default this is set to FALSE, meaning
+that sub-PCMs found in \code{params} will completely overwrite the
+sub-PCMs of with the same name in \code{model}.}
 
 \item{...}{other arguments that can be used by implementing methods.}
 }
