@@ -4,7 +4,8 @@
 \alias{PCMTreeListAllPartitions}
 \title{A list of all possible (including recursive) partitions of a tree}
 \usage{
-PCMTreeListAllPartitions(tree, minCladeSize, tableAncestors = NULL,
+PCMTreeListAllPartitions(tree, minCladeSize,
+  skipNodesLabels = character(), tableAncestors = NULL,
   verbose = FALSE)
 }
 \arguments{
@@ -12,6 +13,9 @@ PCMTreeListAllPartitions(tree, minCladeSize, tableAncestors = NULL,
 
 \item{minCladeSize}{integer indicating the minimum number of tips allowed in
 one part.}
+
+\item{skipNodesLabels}{a character vector of node labels in tree that should be
+omitted as candidates for partition nodes.}
 
 \item{tableAncestors}{NULL (default) or an integer matrix returned by a
 previous call to \code{PCMTreeTableAncestors(tree)}.}
@@ -24,4 +28,18 @@ a list of integer vectors.
 }
 \description{
 A list of all possible (including recursive) partitions of a tree
+}
+\examples{
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+tree <- PCMTree(ape::rtree(10))
+#' \donttest{
+PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
+}
+# list of all partitions into parts of at least 4 tips
+PCMTreeListAllPartitions(tree, 4)
+# list of all partitions into parts of at least 3 tips
+PCMTreeListAllPartitions(tree, 3)
+# list all partitions into parts of at least 3 tips, excluding the partitions
+# where node 16 is one of the partition nodes:
+PCMTreeListAllPartitions(tree, 3, "16")
 }

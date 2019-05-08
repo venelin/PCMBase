@@ -924,16 +924,32 @@ PCMTreeListCladePartitions <- function(
 #' @param tree a phylo object with set labels for the internal nodes
 #' @param minCladeSize integer indicating the minimum number of tips allowed in
 #' one part.
+#' @param skipNodesLabels a character vector of node labels in tree that should be
+#' omitted as candidates for partition nodes.
 #' @param tableAncestors NULL (default) or an integer matrix returned by a
 #' previous call to \code{PCMTreeTableAncestors(tree)}.
 #' @param verbose a logical indicating if informative messages should be printed to
 #' the console.
 #'
 #' @return a list of integer vectors.
+#' @examples
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#' tree <- PCMTree(ape::rtree(10))
+#' #' \donttest{
+#' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
+#' }
+#' # list of all partitions into parts of at least 4 tips
+#' PCMTreeListAllPartitions(tree, 4)
+#' # list of all partitions into parts of at least 3 tips
+#' PCMTreeListAllPartitions(tree, 3)
+#' # list all partitions into parts of at least 3 tips, excluding the partitions
+#' # where node 16 is one of the partition nodes:
+#' PCMTreeListAllPartitions(tree, 3, "16")
 #' @export
 PCMTreeListAllPartitions <- function(
   tree,
   minCladeSize,
+  skipNodesLabels = character(),
   tableAncestors = NULL,
   verbose = FALSE) {
 
@@ -949,7 +965,7 @@ PCMTreeListAllPartitions <- function(
   res <- PCMTreeListAllPartitionsInternal(
     tree = tree,
     minCladeSize = minCladeSize,
-    withoutNodesLabels = character(0),
+    withoutNodesLabels = skipNodesLabels,
     tableAncestors = tableAncestors,
     verbose = verbose,
     level = 0L
