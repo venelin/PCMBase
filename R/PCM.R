@@ -1614,6 +1614,8 @@ PCMCreateLikelihood <- function(
 #' Default: "PCMCond".
 #' @return a function object corresponding to the S3 method found or an error is
 #' raised if no such function is found for the specified object and method.
+#'
+#' @importFrom utils getS3method
 #' @export
 PCMFindMethod <- function(x, method = "PCMCond") {
   if(is.character(x)) {

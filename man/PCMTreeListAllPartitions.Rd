@@ -30,16 +30,22 @@ a list of integer vectors.
 A list of all possible (including recursive) partitions of a tree
 }
 \examples{
+
 set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(10))
-#' \donttest{
+
+\donttest{
 PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
+
 # list of all partitions into parts of at least 4 tips
 PCMTreeListAllPartitions(tree, 4)
+
 # list of all partitions into parts of at least 3 tips
 PCMTreeListAllPartitions(tree, 3)
+
 # list all partitions into parts of at least 3 tips, excluding the partitions
 # where node 16 is one of the partition nodes:
 PCMTreeListAllPartitions(tree, 3, "16")
+
 }
