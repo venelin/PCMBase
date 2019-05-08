@@ -925,7 +925,7 @@ PCMTreeListCladePartitions <- function(
 #' @param minCladeSize integer indicating the minimum number of tips allowed in
 #' one part.
 #' @param skipNodesLabels a character vector of node labels in tree that should be
-#' omitted as candidates for partition nodes.
+#' omitted as candidates for partition nodes. Default: character(0).
 #' @param tableAncestors NULL (default) or an integer matrix returned by a
 #' previous call to \code{PCMTreeTableAncestors(tree)}.
 #' @param verbose a logical indicating if informative messages should be printed to

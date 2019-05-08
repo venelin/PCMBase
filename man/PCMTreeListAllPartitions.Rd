@@ -15,7 +15,7 @@ PCMTreeListAllPartitions(tree, minCladeSize,
 one part.}
 
 \item{skipNodesLabels}{a character vector of node labels in tree that should be
-omitted as candidates for partition nodes.}
+omitted as candidates for partition nodes. Default: character(0).}
 
 \item{tableAncestors}{NULL (default) or an integer matrix returned by a
 previous call to \code{PCMTreeTableAncestors(tree)}.}
