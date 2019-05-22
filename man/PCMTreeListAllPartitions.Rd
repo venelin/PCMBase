@@ -4,9 +4,8 @@
 \alias{PCMTreeListAllPartitions}
 \title{A list of all possible (including recursive) partitions of a tree}
 \usage{
-PCMTreeListAllPartitions(tree, minCladeSize,
-  skipNodesLabels = character(), tableAncestors = NULL,
-  verbose = FALSE)
+PCMTreeListAllPartitions(tree, minCladeSize, skipNodes = character(),
+  tableAncestors = NULL, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with set labels for the internal nodes}
@@ -14,8 +13,9 @@ PCMTreeListAllPartitions(tree, minCladeSize,
 \item{minCladeSize}{integer indicating the minimum number of tips allowed in
 one part.}
 
-\item{skipNodesLabels}{a character vector of node labels in tree that should be
-omitted as candidates for partition nodes. Default: character(0).}
+\item{skipNodes}{an integer or character vector indicating the ids or labels
+of nodes that should not be used as partition nodes. By default, this is an
+empty character vector.}
 
 \item{tableAncestors}{NULL (default) or an integer matrix returned by a
 previous call to \code{PCMTreeTableAncestors(tree)}.}
@@ -46,6 +46,6 @@ PCMTreeListAllPartitions(tree, 3)
 
 # list all partitions into parts of at least 3 tips, excluding the partitions
 # where node 16 is one of the partition nodes:
-PCMTreeListAllPartitions(tree, 3, "16")
+PCMTreeListAllPartitions(tree, minCladeSize = 3, skipNodes = "16")
 
 }

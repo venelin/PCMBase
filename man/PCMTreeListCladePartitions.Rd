@@ -5,7 +5,7 @@
 \title{A list of all possible clade partitions of a tree with a number of splitting nodes}
 \usage{
 PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0,
-  skipNodes = integer(0), tableAncestors = NULL, verbose = FALSE)
+  skipNodes = character(0), tableAncestors = NULL, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object}
@@ -15,8 +15,9 @@ PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0,
 
 \item{minCladeSize}{integer indicating the minimum number of tips allowed in a clade.}
 
-\item{skipNodes}{integer vector indicating nodes that should not be used as
-partition nodes. By default, this is an empty vector.}
+\item{skipNodes}{an integer or character vector indicating the ids or labels
+of nodes that should not be used as partition nodes. By default, this is an
+empty character vector.}
 
 \item{tableAncestors}{NULL (default) or an integer matrix returned by a previous call
 to \code{PCMTreeTableAncestors(tree)}.}

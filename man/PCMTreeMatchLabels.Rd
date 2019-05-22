@@ -4,17 +4,28 @@
 \alias{PCMTreeMatchLabels}
 \title{Get the node numbers associated with tip- or node-labels in a tree}
 \usage{
-PCMTreeMatchLabels(tree, labels)
+PCMTreeMatchLabels(tree, labels, stopIfNotFound = TRUE)
 }
 \arguments{
 \item{tree}{a phylo object}
 
 \item{labels}{a character vector with valid tip or node labels from tree}
+
+\item{stopIfNotFound}{logical indicating if an error should be raised in case
+a label has not been found in the tree labels. Default: TRUE}
 }
 \value{
 an integer vector giving the tip- or node- integer indices
- corresponding to labels.
+ corresponding to labels. If stopIfNotFound is set to FALSE, this vector may
+ contain NAs for the labels that were not found.
 }
 \description{
 Get the node numbers associated with tip- or node-labels in a tree
+}
+\examples{
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("1", "15", "21", "39"))
+PCMTreeMatchLabels(
+  PCMTree(ape::rtree(20)), c("1", "15", "21", "39", "45"),
+  stopIfNotFound = FALSE)
 }

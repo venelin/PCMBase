@@ -331,14 +331,22 @@ PCMTreeGetLabels <- function(tree) {
 #' Get the node numbers associated with tip- or node-labels in a tree
 #' @param tree a phylo object
 #' @param labels a character vector with valid tip or node labels from tree
+#' @param stopIfNotFound logical indicating if an error should be raised in case
+#' a label has not been found in the tree labels. Default: TRUE
 #' @return an integer vector giving the tip- or node- integer indices
-#'  corresponding to labels.
+#'  corresponding to labels. If stopIfNotFound is set to FALSE, this vector may
+#'  contain NAs for the labels that were not found.
+#'
+#' @examples
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#' PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("1", "15", "21", "39"))
+#' PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("1", "45"), stopIfNotFound = FALSE)
 #' @export
-PCMTreeMatchLabels <- function(tree, labels) {
+PCMTreeMatchLabels <- function(tree, labels, stopIfNotFound = TRUE) {
   allLabels <- PCMTreeGetLabels(tree)
   m <- match(labels, allLabels)
-  if(any(is.na(m))) {
-    stop("ERR:02660:PCMBase:PCMTree.R:PCMTreeMatchLabels:: some of the labels not found in PCMTreeGetLabels(tree).")
+  if(any(is.na(m)) && stopIfNotFound) {
+    stop("PCMTreeMatchLabels: some of the labels not found in PCMTreeGetLabels(tree).")
   }
   m
 }
@@ -824,18 +832,29 @@ PCMTreeGetRegimesForNodes <- function(
 #' @param nNodes an integer giving the number of partitioning nodes. There would be
 #' \code{nNodes+1} blocks in each partition (see details).
 #' @param minCladeSize integer indicating the minimum number of tips allowed in a clade.
-#' @param skipNodes integer vector indicating nodes that should not be used as
-#' partition nodes. By default, this is an empty vector.
+#' @param skipNodes an integer or character vector indicating the ids or labels
+#' of nodes that should not be used as partition nodes. By default, this is an
+#' empty character vector.
 #' @param tableAncestors NULL (default) or an integer matrix returned by a previous call
 #' to \code{PCMTreeTableAncestors(tree)}.
 #' @param verbose a logical indicating if informative messages should be printed to
 #' the console.
 #'
+#'
 #' @return a list of integer \code{nNodes}-vectors.
+#' @importFrom stats na.omit
 #' @export
 PCMTreeListCladePartitions <- function(
-  tree, nNodes, minCladeSize = 0, skipNodes = integer(0),
+  tree, nNodes, minCladeSize = 0, skipNodes = character(0),
   tableAncestors = NULL, verbose = FALSE) {
+
+  if(is.character(skipNodes)) {
+    skipNodes <- as.integer(na.omit(
+      PCMTreeMatchLabels(tree, skipNodes, stopIfNotFound = FALSE)))
+  } else {
+    skipNodes <- as.integer(skipNodes)
+  }
+
   envir <- new.env()
 
   envir$M <- PCMTreeNumNodes(tree)
@@ -924,8 +943,9 @@ PCMTreeListCladePartitions <- function(
 #' @param tree a phylo object with set labels for the internal nodes
 #' @param minCladeSize integer indicating the minimum number of tips allowed in
 #' one part.
-#' @param skipNodesLabels a character vector of node labels in tree that should be
-#' omitted as candidates for partition nodes. Default: character(0).
+#' @param skipNodes an integer or character vector indicating the ids or labels
+#' of nodes that should not be used as partition nodes. By default, this is an
+#' empty character vector.
 #' @param tableAncestors NULL (default) or an integer matrix returned by a
 #' previous call to \code{PCMTreeTableAncestors(tree)}.
 #' @param verbose a logical indicating if informative messages should be printed to
@@ -949,15 +969,19 @@ PCMTreeListCladePartitions <- function(
 #'
 #' # list all partitions into parts of at least 3 tips, excluding the partitions
 #' # where node 16 is one of the partition nodes:
-#' PCMTreeListAllPartitions(tree, 3, "16")
+#' PCMTreeListAllPartitions(tree, minCladeSize = 3, skipNodes = "16")
 #'
 #' @export
 PCMTreeListAllPartitions <- function(
   tree,
   minCladeSize,
-  skipNodesLabels = character(),
+  skipNodes = character(),
   tableAncestors = NULL,
   verbose = FALSE) {
+
+  if(!is.character(skipNodes)) {
+    skipNodes <- PCMTreeGetLabels(tree)[skipNodes]
+  }
 
   if(is.null(tableAncestors)) {
     if(verbose) {
@@ -971,7 +995,7 @@ PCMTreeListAllPartitions <- function(
   res <- PCMTreeListAllPartitionsInternal(
     tree = tree,
     minCladeSize = minCladeSize,
-    withoutNodesLabels = skipNodesLabels,
+    withoutNodesLabels = skipNodes,
     tableAncestors = tableAncestors,
     verbose = verbose,
     level = 0L
@@ -1008,8 +1032,8 @@ PCMTreeListAllPartitionsInternal <- function(
   partitionNodesLabels <- labels[
     unlist(PCMTreeListCladePartitions(
       tree = tree, nNodes = 1L, minCladeSize = minCladeSize,
-      skipNodes = PCMTreeMatchLabels(
-        tree, intersect(PCMTreeGetLabels(tree), withoutNodesLabels)),
+      skipNodes = as.integer(na.omit(PCMTreeMatchLabels(
+        tree, withoutNodesLabels, stopIfNotFound = FALSE))),
       tableAncestors = tableAncestors, verbose = FALSE))]
 
   if(verbose) {

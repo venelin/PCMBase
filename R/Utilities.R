@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
+
 #' True positive rate of a set of binary predictions against their trues
 #'
 #' @description Let the set of predictions be described by a logical vector
