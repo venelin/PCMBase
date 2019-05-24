@@ -162,6 +162,8 @@ PCMVar.GaussianPCM <- function(
     }
   }
 
+  # Products of the Phi matrix in the direction from the nodes to the root
+  # listProdPhi[[i]] = Phi_i %*% Phi_{parent(i)} %*% ... %*% I(root)
   listProdPhi <- list()
 
   # first we calculate the variance (diagonal) blocks (i,i) following preorder traversal
@@ -199,7 +201,7 @@ PCMVar.GaussianPCM <- function(
        eigval[k] < threshold_eigval) {
       if( !skip_singular || t > threshold_skip_singular ) {
         err <- paste0(
-          "ERR:02121:PCMBase:GaussianPCM.R:PCMVar.GaussianPCM:",i,":",
+          "PCMVar.GaussianPCM:",i,":",
           " The matrix V for node ", i,
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
           ". eigval[k] = ", eigval[k],
@@ -207,7 +209,7 @@ PCMVar.GaussianPCM <- function(
           PCMOptions()$PCMBase.Threshold.SV, ",
           "PCMOptions()$PCMBase.Threshold.Skip.Singular ",
           "and the model parameters and the length of the branch ",
-          "leading to the node. For details on this error, read the User Guide.")
+          "leading to the node.")
         stop(err)
       } else {
         # skip the singular branch by taking the values from j unchanged

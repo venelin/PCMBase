@@ -1360,20 +1360,20 @@ PCMLik <- function(
 #' @export
 logLik.PCM <- function(object, ...) {
   if(!is.PCM(object)) {
-    stop("ERR:02031:PCMBase:PCM.R:logLik.PCM:: object must inherit from class PCM.")
+    stop("logLik.PCM:: object must inherit from class PCM.")
   }
 
   X <- attr(object, "X", exact = TRUE)
   if( !is.matrix(X) ) {
-    stop("ERR:02032:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object, it should have a k x N numeric matrix attribute called 'X'.")
+    stop("logLik.PCM:: When calling logLik.PCM on a model object, it should have a k x N numeric matrix attribute called 'X'.")
   }
   SE <- attr(object, "SE", exact = TRUE)
-  if( !is.matrix(SE) ) {
-    stop("ERR:02033:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object, it should have a k x N numeric matrix attribute called 'SE'.")
+  if( !(is.matrix(SE) || length(dim(SE)) == 3) ) {
+    stop("logLik.PCM:: When calling logLik.PCM on a model object, it should have a (k x N) numeric matrix or a (k x k x N) numeric cube attribute called 'SE'.")
   }
   tree <- attr(object, "tree", exact = TRUE)
   if( !inherits(tree, "phylo") ) {
-    stop("ERR:02034:PCMBase:PCM.R:logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
+    stop("logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
   }
 
   if(is.function(attr(object, "PCMInfoFun", exact = TRUE)) ) {
