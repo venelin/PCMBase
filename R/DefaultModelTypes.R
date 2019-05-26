@@ -61,16 +61,31 @@ MGPMDefaultModelTypes <- function() {
 
 #' Arguments to be passed to the constructor MixedGaussian when constructing
 #' a MGPM model with some of the default MGPM model types.
+#' @param omitGlobalSigmae_x logical, indicating if the returned list should specify
+#' the global Sigmae_x parameter as '_Omitted'. Default: TRUE.
 #' @seealso MGPMDefaultModelTypes
-#' @return a list of named arguments.
+#' @return a list of named arguments. Currently only a named element Sigmae_x
+#' with specification depending on \code{omitGlobalSigmae_x}.
 #' @export
-Args_MixedGaussian_MGPMDefaultModelTypes <- function() {
-  list(
-    Sigmae_x = structure(
-      0.0, class = c("MatrixParameter", "_Omitted"),
-      description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
-  )
+Args_MixedGaussian_MGPMDefaultModelTypes <- function(omitGlobalSigmae_x = TRUE) {
+  if(omitGlobalSigmae_x) {
+    list(
+      Sigmae_x = structure(
+        0.0, class = c("MatrixParameter", "_Omitted"),
+        description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
+    )
+  } else {
+    list(Sigmae_x = structure(
+      0.0,
+      class = c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      description = "Upper triangular Choleski factor of the non-phylogenetic variance-covariance")
+    )
+  }
 }
+
+
+
+
 
 #' Class name for the scalar OU MGPM model type
 #' @return a character vector of one named element (ScalarOU)

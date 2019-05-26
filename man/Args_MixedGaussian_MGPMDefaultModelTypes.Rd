@@ -5,10 +5,15 @@
 \title{Arguments to be passed to the constructor MixedGaussian when constructing
 a MGPM model with some of the default MGPM model types.}
 \usage{
-Args_MixedGaussian_MGPMDefaultModelTypes()
+Args_MixedGaussian_MGPMDefaultModelTypes(omitGlobalSigmae_x = TRUE)
+}
+\arguments{
+\item{omitGlobalSigmae_x}{logical, indicating if the returned list should specify
+the global Sigmae_x parameter as '_Omitted'. Default: TRUE.}
 }
 \value{
-a list of named arguments.
+a list of named arguments. Currently only a named element Sigmae_x
+with specification depending on \code{omitGlobalSigmae_x}.
 }
 \description{
 Arguments to be passed to the constructor MixedGaussian when constructing

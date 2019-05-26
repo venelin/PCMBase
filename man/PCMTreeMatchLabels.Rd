@@ -25,7 +25,5 @@ Get the node numbers associated with tip- or node-labels in a tree
 \examples{
 set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("1", "15", "21", "39"))
-PCMTreeMatchLabels(
-  PCMTree(ape::rtree(20)), c("1", "15", "21", "39", "45"),
-  stopIfNotFound = FALSE)
+PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("1", "45"), stopIfNotFound = FALSE)
 }
