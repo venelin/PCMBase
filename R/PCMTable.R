@@ -109,7 +109,7 @@ PCMTable.MixedGaussian <- function(model) {
   }
   setattr(res, "model", model)
   setattr(res, "class", c("PCMTable", class(res)))
-  res[, .SD, keyby = list(regime, type, )]
+  res[, .SD, keyby = list(regime, type)]
   res
 }
 
