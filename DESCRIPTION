@@ -40,7 +40,8 @@ Imports:
   expm, 
   mvtnorm, 
   data.table, 
-  ggplot2
+  ggplot2,
+  xtable
 Suggests: 
   testthat, 
   knitr, 
