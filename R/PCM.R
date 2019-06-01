@@ -333,7 +333,7 @@ print.PCM <- function(x, ...) cat(format(x, ...), "\n")
 #' @export
 format.PCM <- function(x, ...) {
   if( !is.PCM(x) ) {
-    stop("ERR:02061:PCMBase:PCM.R:format.PCM:: x must inherit from S3 class PCM.")
+    stop("format.PCM:: x must inherit from S3 class PCM.")
   }
   spec <- attr(x, "spec", exact = TRUE)
 
