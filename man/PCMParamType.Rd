@@ -23,7 +23,7 @@
 \alias{is.LowerTriangular}
 \alias{is.LowerTriangularWithDiagonal}
 \alias{is.Omitted}
-\alias{is.CholeskiFactor}
+\alias{is.CholeskyFactor}
 \alias{is.Schur}
 \alias{is.Transformable}
 \alias{is.Transformed}
@@ -72,7 +72,7 @@ is.LowerTriangularWithDiagonal(o)
 
 is.Omitted(o)
 
-is.CholeskiFactor(o)
+is.CholeskyFactor(o)
 
 is.Schur(o)
 
@@ -101,7 +101,7 @@ Sigmae can be omitted from a model. This is done by adding "_Omitted" to its
 class attribute.}
 \item{Constancy (optional)}{These are the "_Fixed", "_Ones", "_Identity" and
 "_Zeros" classes.}
-\item{Transformation (optional)}{These are the "_Transformable", "_CholeskiFactor"
+\item{Transformation (optional)}{These are the "_Transformable", "_CholeskyFactor"
  and "_Schur" classes. }
 \item{Other properties (optional)}{These are the "_NonNegative",
 "_WithNonNegativeDiagonal", "_LowerTriangular", "_AllEqual", "_ScalarDiagonal",
@@ -153,7 +153,7 @@ class attribute.}
 
 \item \code{is.Omitted}: 
 
-\item \code{is.CholeskiFactor}: 
+\item \code{is.CholeskyFactor}: 
 
 \item \code{is.Schur}: 
 

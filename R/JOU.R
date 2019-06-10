@@ -30,16 +30,16 @@ PCMCond.JOU <- function(
 
   Theta <- if(is.Global(model$Theta)) as.vector(model$Theta) else model$Theta[, r]
 
-  Sigma_x <- if(is.Global(model$Sigma_x)) as.matrix(model$Sigma_x) else as.matrix(model$Sigma_x[,, r])
+  Sigma_x <- GetSigma_x(model, "Sigma", r)
   Sigma <- Sigma_x %*% t(Sigma_x)
 
-  Sigmaj_x <- if(is.Global(model$Sigmaj_x)) as.matrix(model$Sigmaj_x) else as.matrix(model$Sigmaj_x[,, r])
+  Sigmaj_x <- GetSigma_x(model, "Sigmaj", r)
   Sigmaj <- Sigmaj_x %*% t(Sigmaj_x)
 
   mj <- if(is.Global(model$mj)) as.vector(model$mj) else model$mj[, r]
 
   if(!is.null(model$Sigmae_x)) {
-    Sigmae_x <- if(is.Global(model$Sigmae_x)) as.matrix(model$Sigmae_x) else as.matrix(model$Sigmae_x[,,r])
+    Sigmae_x <- GetSigma_x(model, "Sigmae", r)
 
     Sigmae <- Sigmae_x %*% t(Sigmae_x)
   } else {

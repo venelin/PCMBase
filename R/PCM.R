@@ -86,6 +86,7 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.ParamValue.LowerLimit}}{Default lower limit value for parameters, default setting is -10.0.}
 #' \item{\code{PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal}}{Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.}
 #' \item{\code{PCMBase.ParamValue.UpperLimit}}{Default upper limit value for parameters, default setting is 10.0.}
+#' \item{\code{PCMBase.Transpose.Sigma_x}}{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}}. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.}
 #' }
 #' @export
 #' @examples
@@ -102,7 +103,8 @@ PCMOptions <- function() {
        PCMBase.Lmr.mode = getOption("PCMBase.Lmr.mode", as.integer(11)),
        PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal = getOption("PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal", 0.0),
        PCMBase.ParamValue.LowerLimit = getOption("PCMBase.ParamValue.LowerLimit", -10.0),
-       PCMBase.ParamValue.UpperLimit = getOption("PCMBase.ParamValue.UpperLimit", 10.0)
+       PCMBase.ParamValue.UpperLimit = getOption("PCMBase.ParamValue.UpperLimit", 10.0),
+       PCMBase.Transpose.Sigma_x = getOption("PCMBase.Transpose.Sigma_x", FALSE)
        )
 }
 
@@ -817,7 +819,7 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
 #'
 #' @return a transformed version of o.
 #'
-#' @description This is an S3 generic. See `PCMApplyTransformation._CholeskiFactor`
+#' @description This is an S3 generic. See `PCMApplyTransformation._CholeskyFactor`
 #' for an example.
 #'
 #' @details This function returns the same object if it is not transformable.
@@ -828,7 +830,7 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
 PCMApplyTransformation <- function(o, ...) {
   if(is.Transformable(o)) {
     # this if-statement prevents a transformation when it is not needed, e.g.
-    # in the case of a parameter, which is a CholeskiFactor but should not be
+    # in the case of a parameter, which is a CholeskyFactor but should not be
     # converted into a positive definite matrix, either, because this is not needed,
     # i.e. the parameter is defined as an upper triangular matrix with a non-negative
     # diagonal, or because the conversion is done at a lower level.
@@ -998,8 +1000,9 @@ PCMVar <- function(
 #' @param model a PCM model object
 #' @param W0 a numeric matrix denoting the initial k x k variance covariance matrix at the
 #'  root (default is the k x k zero matrix).
-#' @param SE a k x k matrix specifying the upper triangular Choleski factor of the measurement error variance-covariance matrix. The product
-#' SE %*% t(SE) is added to the variance calculated from the model.
+#' @param SE a k x k matrix specifying the upper triangular Cholesky factor of
+#' the measurement error variance-covariance matrix. The product
+#' t(SE) %*% SE is added to the variance calculated from the model.
 #' Default: SE = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)).
 #' @param regime an integer or a character denoting the regime in model for
 #' which to do the calculation; Defaults to PCMRegimes(model)[1L], meaning the
@@ -1251,7 +1254,7 @@ PCMLikDmvNorm <- function(
 #' @param model an S3 object specifying the model (see Details).
 #' @param SE a k x N matrix specifying the standard error for each measurement in
 #' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-#' Choleski factor of the variance covariance matrix for the measurement error
+#' Cholesky factor of the variance covariance matrix for the measurement error
 #' for each node i=1, ..., N.
 #' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a named list containg meta-information about the data and the
@@ -1268,7 +1271,7 @@ PCMLikDmvNorm <- function(
 #' corresponding to the root and bigger than N+1 corresponding to internal nodes.
 #' The function will fail in case that the length of the argument vector X0 differs
 #' from the number of traits specified in \code{metaI$k}. Error message:
-#' "ERR:02002:PCMBase:PCM.R:PCMSim:: X0 must be of length ...".
+#' "PCMSim:: X0 must be of length ...".
 #'
 #' @importFrom mvtnorm rmvnorm
 #' @seealso \code{\link{PCMLik}} \code{\link{PCMInfo}} \code{\link{PCMCond}}
@@ -1308,7 +1311,7 @@ PCMSim <- function(
 #'   calculated (see also Details).
 #' @param SE a k x N matrix specifying the standard error for each measurement in
 #' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-#' Choleski factor of the variance covariance matrix for the measurement error
+#' Cholesky factor of the variance covariance matrix for the measurement error
 #' for each node i=1, ..., N.
 #' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
@@ -1369,7 +1372,8 @@ logLik.PCM <- function(object, ...) {
   }
   SE <- attr(object, "SE", exact = TRUE)
   if( !(is.matrix(SE) || length(dim(SE)) == 3) ) {
-    stop("logLik.PCM:: When calling logLik.PCM on a model object, it should have a (k x N) numeric matrix or a (k x k x N) numeric cube attribute called 'SE'.")
+    warning("logLik.PCM:: When calling logLik.PCM on a model object, it should have a (k x N) numeric matrix or a (k x k x N) numeric cube attribute called 'SE'. Setting SE to a (k x N) zero matrix.")
+    SE <- X * 0.0
   }
   tree <- attr(object, "tree", exact = TRUE)
   if( !inherits(tree, "phylo") ) {
@@ -1533,7 +1537,7 @@ PCMInfo.PCM <- function(
   } else if(is.array(SE) && identical(unname(dim(SE)), c(k, k, N)) ) {
     # SE is k x k x N array
     for(i in seq_len(N)) {
-      VE[, , i] <- SE[, , i] %*% t(SE[, , i])
+      VE[, , i] <- t(SE[, , i]) %*% SE[, , i]
     }
   } else {
     stop("SE should be a k x N matrix or a k x k x N array.")

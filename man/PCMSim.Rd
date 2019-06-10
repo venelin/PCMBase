@@ -18,7 +18,7 @@ trait values at the root of the tree.}
 
 \item{SE}{a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-Choleski factor of the variance covariance matrix for the measurement error
+Cholesky factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
@@ -35,7 +35,7 @@ with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
 corresponding to the root and bigger than N+1 corresponding to internal nodes.
 The function will fail in case that the length of the argument vector X0 differs
 from the number of traits specified in \code{metaI$k}. Error message:
-"ERR:02002:PCMBase:PCM.R:PCMSim:: X0 must be of length ...".
+"PCMSim:: X0 must be of length ...".
 }
 \description{
 Generate trait data on a tree according to a multivariate stochastic

@@ -20,12 +20,13 @@
 #' @param skipGlobalRegime logical indicating whether a raw in the returned
 #' table for the global-scope parameters should be omitted (this is mostly for
 #' internal use). Default (FALSE).
-#'
+#' @param addTransformed logical. If TRUE (the default), columns for the
+#' transformed version of the transformable parameters will be added.
 #' @return an object of S3 class PCMTable
 #' @details This is an S3 generic.
 #'
 #' @export
-PCMTable <- function(model, skipGlobalRegime = FALSE) {
+PCMTable <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE) {
   if(is.PCM(model)) {
     UseMethod("PCMTable", model)
   } else {
@@ -33,18 +34,33 @@ PCMTable <- function(model, skipGlobalRegime = FALSE) {
   }
 }
 
-TableForRegime <- function(model, r) {
-  table <- data.table(regime = if(is.na(r)) ':global:' else as.character(r))
+TableForRegime <- function(model, r, addTransformed = TRUE) {
+  table <- data.table(`regime` = if(is.na(r)) ':global:' else as.character(r))
   for(name in names(model)) {
     if(!is.PCM(model[[name]]) && is.Global(model[[name]]) && r == ':global:') {
       value <- model[[name]]
-      if(name %in% c("Sigma_x", "Sigmae_x")) {
-        value <- value %*% t(value)
-        name <- gsub('_x', '', name, fixed = TRUE)
+      nameSuffix <- ""
+      if(is.Transformable(value)) {
+        if(is.Schur(value)) {
+          nameSuffix <- "_S"
+        } else if(is.CholeskyFactor(value)) {
+          nameSuffix <- "_C"
+        }
       }
-      table[[name]] <- list(value)
-    } else if(!is.PCM(model[[name]]) && is.Local(model[[name]]) && r != ':global:') {
-      value <- model[[name]]
+      table[[paste0(name, nameSuffix)]] <- list(value)
+      if(addTransformed) {
+        if(name %in% c("Sigma_x", "Sigmae_x")) {
+          value <- value %*% t(value)
+          name <- gsub('_x', '', name, fixed = TRUE)
+          table[[name]] <- list(value)
+        } else if(is.Transformable(value)) {
+          value <- PCMApplyTransformation(value)
+          table[[name]] <- list(value)
+        }
+      }
+    } else if(
+      !is.PCM(model[[name]]) && is.Local(model[[name]]) && r != ':global:') {
+
       if(is.ScalarParameter(model[[name]])) {
         value <- model[[name]][as.character(r)]
       } else if(is.VectorParameter(model[[name]])) {
@@ -52,11 +68,35 @@ TableForRegime <- function(model, r) {
       } else {
         value <- model[[name]][,,as.character(r)]
       }
-      if(name %in% c("Sigma_x", "Sigmae_x")) {
-        value <- value %*% t(value)
-        name <- gsub('_x', '', name, fixed = TRUE)
+      nameSuffix <- ""
+      if(is.Transformable(model[[name]])) {
+        if(is.Schur(model[[name]])) {
+          nameSuffix <- "_S"
+        } else if(is.CholeskyFactor(model[[name]])) {
+          nameSuffix <- "_C"
+        }
       }
-      table[[name]] <- list(value)
+      table[[paste0(name, nameSuffix)]] <- list(value)
+
+      if(addTransformed) {
+        if(name %in% c("Sigma_x", "Sigmae_x", "Sigmaj_x")) {
+          if(getOption("PCMBase.Transpose.Sigma_x", FALSE)) {
+            value <- t(value)
+          }
+          value <- value %*% t(value)
+          name <- gsub('_x', '', name, fixed = TRUE)
+          table[[name]] <- list(value)
+        } else if(is.Transformable(model[[name]])) {
+          if(is.ScalarParameter(model[[name]])) {
+            value <- PCMApplyTransformation(model[[name]])[as.character(r)]
+          } else if(is.VectorParameter(model[[name]])) {
+            value <- PCMApplyTransformation(model[[name]])[,as.character(r)]
+          } else {
+            value <- PCMApplyTransformation(model[[name]])[,,as.character(r)]
+          }
+          table[[name]] <- list(value)
+        }
+      }
     }
   }
   table
@@ -64,7 +104,7 @@ TableForRegime <- function(model, r) {
 
 #' @importFrom data.table rbindlist data.table setattr
 #' @export
-PCMTable.PCM <- function(model, skipGlobalRegime = FALSE) {
+PCMTable.PCM <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE) {
   regimes <- if(skipGlobalRegime) {
     as.character(PCMRegimes(model))
   } else {
@@ -72,60 +112,53 @@ PCMTable.PCM <- function(model, skipGlobalRegime = FALSE) {
   }
   res <- rbindlist(
     lapply(regimes, function(r) {
-      TableForRegime(model, r)
+      TableForRegime(model, r, addTransformed)
     }), fill=TRUE, use.names = TRUE)
 
   setattr(res, "model", model)
   setattr(res, "class", c("PCMTable", class(res)))
-  res[, .SD, keyby=list(regime)]
   res
 }
 
 #' @importFrom data.table setcolorder
 #' @export
-PCMTable.MixedGaussian <- function(model) {
+PCMTable.MixedGaussian <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE) {
+  # NEEDED to avoid no visible binding notes during check.
+  regime <- type <- typeId <- NULL
   res <- rbindlist(
     lapply(c(':global:', as.character(PCMRegimes(model))), function(r) {
       if(r == ':global:') {
-        TableForRegime(model, r)
+        TableForRegime(model, r, addTransformed)
       } else {
-        table <- PCMTable(model[[as.character(r)]], skipGlobalRegime = TRUE)
-        table[, regime:=as.character(r)]
+        table <- PCMTable(model[[as.character(r)]], skipGlobalRegime = TRUE, addTransformed)
+        table[, `regime`:=as.character(r)]
         subModelType <- match(
           class(model[[as.character(r)]])[1], attr(model, "modelTypes"))
-        table[, typeId:=subModelType]
+        table[,typeId:=subModelType]
       }
     }), fill = TRUE, use.names = TRUE)
 
   if(!is.null(names(attr(model, "modelTypes")))) {
-    res[, type:=names(attr(model, "modelTypes"))[typeId]]
-    res[, typeId:=NULL]
+    res[, `type`:=names(attr(model, "modelTypes"))[typeId]]
+    res[,typeId:=NULL]
   } else if(getOption("PCMBase.UseLettersAsTypeNames", TRUE)) {
-    res[, type:=LETTERS[typeId]]
-    res[, typeId:=NULL]
+    res[, `type`:=LETTERS[typeId]]
+    res[,typeId:=NULL]
   } else {
-    res[, type:=typeId]
-    res[, typeId:=NULL]
+    res[, `type`:=typeId]
+    res[,typeId:=NULL]
   }
   setattr(res, "model", model)
   setattr(res, "class", c("PCMTable", class(res)))
-  res[, .SD, keyby = list(regime, type)]
+  setcolorder(res, neworder = c(1, ncol(res), seq(2, ncol(res) - 1)))
   res
 }
 
-#' Latex represenataion of an object.
+#' Latex represenataion of a model parameter or other found in a PCMTable object
 #' @param x an R object. Currently, objects of S3 classes MatrixParameter,
 #' VectorParameter, ScalarParameter and PCMTable are supported.
-#' @param ... additional arguments passed from calling functions.
-#
-#' @export
-FormatAsLatex <- function(x, ...) {
-  UseMethod("FormatAsLatex", x)
-}
-
-#' @importFrom xtable xtable
-#' @export
-FormatAsLatex.default <- function(x, ...) {
+#' @return a character string
+FormatCellAsLatex <- function(x) {
   if(is.null(x)) {
     ' '
   } else if(is.character(x)) {
@@ -142,33 +175,51 @@ FormatAsLatex.default <- function(x, ...) {
   }
 }
 
-#' @method FormatAsLatex PCMTable
 #' @importFrom data.table set
-#' @export
-FormatAsLatex.PCMTable <- function(x, ...) {
-  for(name in names(x)) {
-    set(x, j = name, value = lapply(x[[name]], FormatAsLatex))
-  }
+#' @importFrom xtable xtable
+FormatPCMTableAsLatex <- function(x, argsXtable = list(), ...) {
+  reGreek <- "(alpha|Alpha|beta|Beta|gamma|Gamma|delta|Delta|epsilon|Epsilon|zeta|Zeta|eta|Eta|theta|Theta|iota|Iota|kappa|Kappa|lambda|Lambda|mu|Mu|nu|Nu|xi|Xi|omicron|Omicron|pi|Pi|rho|Rho|sigma|Sigma|tau|Tau|upsilon|Upsilon|phi|Phi|chi|Chi|psi|Psi|omega|Omega)"
 
+  for(name in names(x)) {
+    set(x, j = name, value = lapply(x[[name]], FormatCellAsLatex))
+  }
+  setnames(x, old = names(x), new = sapply(names(x), function(n) {
+    nLatexGreek <- gsub(
+      '___BACKSLASH___', "\\",
+      gsub(reGreek, "___BACKSLASH___\\1", n), fixed = TRUE)
+    nLatexGreek <- gsub('Sigma_x', 'Sigma_{C}', nLatexGreek, fixed = TRUE)
+    nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,C}', nLatexGreek, fixed = TRUE)
+    nLatexGreek <- gsub('Sigmae', 'Sigma_{e}', nLatexGreek, fixed = TRUE)
+    if(! (n %in% c('regime', 'type')) ) {
+      nLatexGreek <- paste0('$',nLatexGreek,'$')
+    }
+    nLatexGreek
+  }))
+
+  addtorow <- list()
+  addtorow$pos <- as.list(seq(1, nrow(x) - 1L))
+  addtorow$command <- rep('\\vspace{2mm}  \n', length(addtorow$pos))
   do.call(
     paste,
-    as.list(
+    c(as.list(
       capture.output(
-        print(xtable(x),
+        print(do.call(xtable, c(list(x), argsXtable)),
               include.rownames= FALSE,
+              add.to.row = addtorow,
               sanitize.text.function=identity,
-              comment = FALSE))))
+              comment = FALSE,
+              ...))),
+      sep = '\n'))
 }
-
-
-
 
 #' @method print PCMTable
 #' @export
 print.PCMTable <- function(x, ...) {
   argList <- list(...)
-  if(!is.null(argList$latex) && argList$latex == TRUE) {
-    cat(FormatAsLatex(x, ...), "\n")
+  if(!is.null(argList$xtable) && argList$xtable == TRUE) {
+    cat(do.call(
+      FormatPCMTableAsLatex, c(list(x), argList[-match('xtable', names(argList))])),
+      "\n")
   } else {
     NextMethod()
   }

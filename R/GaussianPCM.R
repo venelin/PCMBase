@@ -292,7 +292,7 @@ PCMSim.GaussianPCM <- function(
   }
 
   if(length(X0)!=metaI$k) {
-    stop(paste('ERR:02102:PCMBase:GaussianPCM.R:PCMSim:: X0 must be of length', metaI$k, '.'))
+    stop(paste('GaussianPCM.R:PCMSim:: X0 must be of length', metaI$k, '.'))
   }
 
   values <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)

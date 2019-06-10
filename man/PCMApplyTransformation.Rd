@@ -18,7 +18,7 @@ a transformed version of o.
 This is an S3 generic that transforms the passed argument by
 applying the transformation rules for its S3 class.
 
-This is an S3 generic. See `PCMApplyTransformation._CholeskiFactor`
+This is an S3 generic. See `PCMApplyTransformation._CholeskyFactor`
 for an example.
 }
 \details{

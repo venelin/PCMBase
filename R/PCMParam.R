@@ -54,7 +54,7 @@ NULL
 #' class attribute.}
 #' \item{Constancy (optional)}{These are the "_Fixed", "_Ones", "_Identity" and
 #' "_Zeros" classes.}
-#' \item{Transformation (optional)}{These are the "_Transformable", "_CholeskiFactor"
+#' \item{Transformation (optional)}{These are the "_Transformable", "_CholeskyFactor"
 #'  and "_Schur" classes. }
 #' \item{Other properties (optional)}{These are the "_NonNegative",
 #' "_WithNonNegativeDiagonal", "_LowerTriangular", "_AllEqual", "_ScalarDiagonal",
@@ -153,12 +153,12 @@ is.UpperTriangular <- function(o) { inherits(o, "_UpperTriangular") }
 #' @describeIn PCMParamType
 #'
 #' @export
-is.UpperTriangularWithDiagonal <- function(o) { inherits(o, "_UpperTriangularWithDiagonal") || inherits(o, "_CholeskiFactor") }
+is.UpperTriangularWithDiagonal <- function(o) { inherits(o, "_UpperTriangularWithDiagonal") || inherits(o, "_CholeskyFactor") }
 
 #' @describeIn PCMParamType
 #'
 #' @export
-is.WithNonNegativeDiagonal <- function(o) { inherits(o, "_WithNonNegativeDiagonal") || inherits(o, "_CholeskiFactor") }
+is.WithNonNegativeDiagonal <- function(o) { inherits(o, "_WithNonNegativeDiagonal") || inherits(o, "_CholeskyFactor") }
 
 # lower triangular excluding diagonal
 #' @describeIn PCMParamType
@@ -179,7 +179,7 @@ is.Omitted <- function(o) { inherits(o, "_Omitted") }
 #' @describeIn PCMParamType
 #'
 #' @export
-is.CholeskiFactor <- function(o) { inherits(o, "_CholeskiFactor") }
+is.CholeskyFactor <- function(o) { inherits(o, "_CholeskyFactor") }
 
 #' @describeIn PCMParamType
 #'
@@ -1219,7 +1219,7 @@ PCMDefaultObject.MatrixParameter <- function(spec, model, ...) {
 }
 
 #' @export
-PCMApplyTransformation._CholeskiFactor <- function(o, ...) {
+PCMApplyTransformation._CholeskyFactor <- function(o, ...) {
   # when assigning to o, we use o[] <-  instead of just o <- , in order to
   # preserve the attributes
   if(is.Global(o)) {
@@ -1230,7 +1230,7 @@ PCMApplyTransformation._CholeskiFactor <- function(o, ...) {
     }
   }
   classes <- class(o)
-  classes <- classes[!(classes %in% c("_UpperTriangular", "_UpperTriangularWithDiagonal", "_CholeskiFactor", "_Transformable", "matrix"))]
+  classes <- classes[!(classes %in% c("_UpperTriangular", "_UpperTriangularWithDiagonal", "_CholeskyFactor", "_Transformable", "matrix"))]
   if(is.WithNonNegativeDiagonal(o)) {
     classes <- c(classes, "_SemiPositiveDefinite")
   }
@@ -1293,4 +1293,18 @@ PCMApplyTransformation._Schur <- function(o, ...) {
   }
   class(o) <- classes
   o
+}
+
+GetSigma_x <- function(
+  o, name = "Sigma", r = 1,
+  transpose = getOption("PCMBase.Transpose.Sigma_x", FALSE)) {
+
+  name <- paste0(name, "_x")
+  S <- if(is.Global(o[[name]])) as.matrix(o[[name]]) else as.matrix(o[[name]][,, r])
+
+  if(transpose) {
+    t(S)
+  } else {
+    S
+  }
 }

@@ -6,7 +6,8 @@
 \usage{
 PCMCondVOU(H, Sigma, Sigmae = NULL, Sigmaj = NULL, xi = NULL,
   e_Ht = NULL,
-  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-08))
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij",
+  0.00000001))
 }
 \arguments{
 \item{H}{a numerical k x k matrix - selection strength parameter.}

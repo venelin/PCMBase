@@ -54,7 +54,7 @@ PCMCond.White <- function(
   metaI = PCMInfo(NULL, tree, model, verbose = verbose),
   verbose=FALSE) {
   if(!is.null(model$Sigmae_x)) {
-    Sigmae_x <- if(is.Global(model$Sigmae_x)) as.matrix(model$Sigmae_x) else as.matrix(model$Sigmae_x[,,r])
+    Sigmae_x <- GetSigma_x(model, "Sigmae", r)
     Sigmae <- Sigmae_x %*% t(Sigmae_x)
   } else {
     Sigmae <- NULL

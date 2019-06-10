@@ -30,10 +30,10 @@ PCMCond.BM <- function(
   tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, verbose = verbose),
   verbose=FALSE) {
 
-  Sigma_x <- if(is.Global(model$Sigma_x)) as.matrix(model$Sigma_x) else as.matrix(model$Sigma_x[,, r])
+  Sigma_x <- GetSigma_x(model, "Sigma", r)
   Sigma <- Sigma_x %*% t(Sigma_x)
   if(!is.null(model$Sigmae_x)) {
-    Sigmae_x <- if(is.Global(model$Sigmae_x)) as.matrix(model$Sigmae_x) else as.matrix(model$Sigmae_x[,,r])
+    Sigmae_x <- GetSigma_x(model, "Sigmae", r)
     Sigmae <- Sigmae_x %*% t(Sigmae_x)
   } else {
     Sigmae <- NULL
