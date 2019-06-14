@@ -49,7 +49,7 @@ TableForRegime <- function(model, r, addTransformed = TRUE) {
       }
       table[[paste0(name, nameSuffix)]] <- list(value)
       if(addTransformed) {
-        if(name %in% c("Sigma_x", "Sigmae_x")) {
+        if(name %in% c("Sigma_x", "Sigmae_x", "Sigmaj_x")) {
           value <- value %*% t(value)
           name <- gsub('_x', '', name, fixed = TRUE)
           table[[name]] <- list(value)
@@ -187,9 +187,10 @@ FormatPCMTableAsLatex <- function(x, argsXtable = list(), ...) {
     nLatexGreek <- gsub(
       '___BACKSLASH___', "\\",
       gsub(reGreek, "___BACKSLASH___\\1", n), fixed = TRUE)
-    nLatexGreek <- gsub('Sigma_x', 'Sigma_{C}', nLatexGreek, fixed = TRUE)
-    nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,C}', nLatexGreek, fixed = TRUE)
+    nLatexGreek <- gsub('Sigma_x', 'Sigma_{u}', nLatexGreek, fixed = TRUE)
+    nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,u}', nLatexGreek, fixed = TRUE)
     nLatexGreek <- gsub('Sigmae', 'Sigma_{e}', nLatexGreek, fixed = TRUE)
+    nLatexGreek <- gsub('Sigmaj_x', 'Sigma_{j,u}', nLatexGreek, fixed = TRUE)
     if(! (n %in% c('regime', 'type')) ) {
       nLatexGreek <- paste0('$',nLatexGreek,'$')
     }
