@@ -95,13 +95,13 @@ if(PCMBaseIsADevRelease()) {
                                       offset = 0, k = 3, load = TRUE))
 
     expect_silent(params_for_BM_drift<-NA)
-    expect_silent(PCMParamLoadOrStore(model.a.123.BM,params_for_BM_drift, offset = 0, k = 3, load = FALSE))
+    expect_silent(PCMParamLoadOrStore(model.a.123.BM_drift,params_for_BM_drift, offset = 0, k = 3, load = FALSE))
     expect_silent(params_for_BM_drift<-c(params_for_BM_drift[1:3],0.0,0.0,0.0,params_for_BM_drift[4:length(params_for_BM_drift)]))
     expect_silent(PCMParamLoadOrStore(model.a.123.BM_drift, params_for_BM_drift, offset = 0, k = 3, load = TRUE))
 
     expect_equivalent(
       PCMLik(traits.a.123, tree.a, model.a.123.BM_drift, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])),
-      PCMLik(traits.a.123, tree.a, model.a.123.BM, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])))
+      PCMLik(traits.a.123, tree.a, model.a.123.BM_drift, SE = abs(0.01*traits.a.123[, seq_len(PCMTreeNumTips(tree.a))])))
   })
 
 
