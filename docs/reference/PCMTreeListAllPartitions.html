@@ -136,8 +136,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMTreeListAllPartitions</span>(<span class='no'>tree</span>, <span class='no'>minCladeSize</span>, <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMTreeListAllPartitions</span>(<span class='no'>tree</span>, <span class='no'>minCladeSize</span>, <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>character</a></span>(),
+  <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,6 +150,12 @@
       <th>minCladeSize</th>
       <td><p>integer indicating the minimum number of tips allowed in
 one part.</p></td>
+    </tr>
+    <tr>
+      <th>skipNodes</th>
+      <td><p>an integer or character vector indicating the ids or labels
+of nodes that should not be used as partition nodes. By default, this is an
+empty character vector.</p></td>
     </tr>
     <tr>
       <th>tableAncestors</th>
@@ -168,6 +174,93 @@ the console.</p></td>
     <p>a list of integer vectors.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>10</span>))</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>tree</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>() + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>()</div><div class='img'><img src='PCMTreeListAllPartitions-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># list of all partitions into parts of at least 4 tips</span>
+<span class='fu'>PCMTreeListAllPartitions</span>(<span class='no'>tree</span>, <span class='fl'>4</span>)</div><div class='output co'>#&gt; [[1]]
+#&gt; integer(0)
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] 15
+#&gt; </div><div class='input'>
+<span class='co'># list of all partitions into parts of at least 3 tips</span>
+<span class='fu'>PCMTreeListAllPartitions</span>(<span class='no'>tree</span>, <span class='fl'>3</span>)</div><div class='output co'>#&gt; [[1]]
+#&gt; integer(0)
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] 18
+#&gt; 
+#&gt; [[3]]
+#&gt; [1] 16
+#&gt; 
+#&gt; [[4]]
+#&gt; [1] 18 16
+#&gt; 
+#&gt; [[5]]
+#&gt; [1] 15
+#&gt; 
+#&gt; [[6]]
+#&gt; [1] 18 15
+#&gt; 
+#&gt; [[7]]
+#&gt; [1] 14
+#&gt; 
+#&gt; [[8]]
+#&gt; [1] 14 18
+#&gt; 
+#&gt; [[9]]
+#&gt; [1] 14 16
+#&gt; 
+#&gt; [[10]]
+#&gt; [1] 14 15
+#&gt; 
+#&gt; [[11]]
+#&gt; [1] 12
+#&gt; 
+#&gt; [[12]]
+#&gt; [1] 18 12
+#&gt; 
+#&gt; [[13]]
+#&gt; [1] 16 12
+#&gt; 
+#&gt; [[14]]
+#&gt; [1] 15 12
+#&gt; </div><div class='input'>
+<span class='co'># list all partitions into parts of at least 3 tips, excluding the partitions</span>
+<span class='co'># where node 16 is one of the partition nodes:</span>
+<span class='fu'>PCMTreeListAllPartitions</span>(<span class='no'>tree</span>, <span class='kw'>minCladeSize</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='st'>"16"</span>)</div><div class='output co'>#&gt; [[1]]
+#&gt; integer(0)
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] 18
+#&gt; 
+#&gt; [[3]]
+#&gt; [1] 15
+#&gt; 
+#&gt; [[4]]
+#&gt; [1] 18 15
+#&gt; 
+#&gt; [[5]]
+#&gt; [1] 14
+#&gt; 
+#&gt; [[6]]
+#&gt; [1] 14 18
+#&gt; 
+#&gt; [[7]]
+#&gt; [1] 14 15
+#&gt; 
+#&gt; [[8]]
+#&gt; [1] 12
+#&gt; 
+#&gt; [[9]]
+#&gt; [1] 18 12
+#&gt; 
+#&gt; [[10]]
+#&gt; [1] 15 12
+#&gt; </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -175,7 +268,9 @@ the console.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

@@ -137,7 +137,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>PCMParamSetByName</span>(<span class='no'>model</span>, <span class='no'>params</span>, <span class='kw'>inplace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>replaceWholeParameters</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>replaceWholeParameters</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>deepCopySubPCMs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -161,6 +161,14 @@ the parameters set as specified should be returned. Defaults to TRUE.</p></td>
       <td><p>logical, by default set to FALSE. If TRUE, the
 parameters will be completely replaced, meaning that their attributes (e.g.
 S3 class) will be replaced as well (dangerous).</p></td>
+    </tr>
+    <tr>
+      <th>deepCopySubPCMs</th>
+      <td><p>a logical indicating whether nested PCMs should be
+'deep'-copied, meaning element by element, eventually preserving the
+attributes as in <code>model</code>. By default this is set to FALSE, meaning
+that sub-PCMs found in <code>params</code> will completely overwrite the
+sub-PCMs of with the same name in <code>model</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

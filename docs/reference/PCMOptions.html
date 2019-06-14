@@ -151,10 +151,17 @@ and added as an attribute "error" to returne likelihood values. Default TRUE.</p
 <li><p><code>PCMBase.Threshold.Lambda_ij </code>a 0-threshold for abs(Lambda_i + Lambda_j),
 where Lambda_i and Lambda_j are eigenvalues of the parameter matrix H of an OU or
 other model. Default 1e-8. See <code><a href='PCMPExpxMeanExp.html'>PCMPExpxMeanExp</a></code>.</p></li>
+<li><p><code>PCMBase.Threshold.EV </code>A 0-threshold for the eigenvalues of the
+matrix V for a given branch. The V matrix is considered singular if it has
+eigenvalues smaller than <code>PCMBase.Threshold.EV </code> or when the ratio
+min(svdV)/max(svdV) is below <code>PCMBase.Threshold.SV </code>. Default is 1e-5.
+Treatment of branches with singular V matrix is defined by the option
+<code>PCMBase.Skip.Singular</code>.</p></li>
 <li><p><code>PCMBase.Threshold.SV </code>A 0-threshold for min(svdV)/max(svdV), where
-svdV is the vector of eigenvalues of the matrix V for a given branch. The V matrix
-is considered singular if it has eigenvalues equal to 0 or when the ratio
-min(svdV)/max(svdV) is below PCMBase.Threshold.SV. Default is 1e-6. Treatment
+svdV is the vector of singular values of the matrix V for a given branch.
+The V matrix is considered singular if it has eigenvalues smaller than
+<code>PCMBase.Threshold.EV </code> or when the ratio min(svdV)/max(svdV) is below
+PCMBase.Threshold.SV. Default is 1e-6. Treatment
 of branches with singular V matrix is defined by the option <code>PCMBase.Skip.Singular</code>.</p></li>
 <li><p><code>PCMBase.Threshold.Skip.Singular </code>A double indicating if a branch of shorter
 length with singular matrix V should be skipped during likelihood calculation. Setting this
@@ -174,6 +181,7 @@ for symmetric matrices. Default 1e-8; see also <code><a href='https://www.rdocum
 <li><p><code>PCMBase.ParamValue.LowerLimit</code>Default lower limit value for parameters, default setting is -10.0.</p></li>
 <li><p><code>PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal</code>Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.</p></li>
 <li><p><code>PCMBase.ParamValue.UpperLimit</code>Default upper limit value for parameters, default setting is 10.0.</p></li>
+<li><p><code>PCMBase.Transpose.Sigma_x</code>Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also <code><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></code>. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.</p></li>
 </ul>
 
     
@@ -214,6 +222,9 @@ for symmetric matrices. Default 1e-8; see also <code><a href='https://www.rdocum
 #&gt; 
 #&gt; $PCMBase.ParamValue.UpperLimit
 #&gt; [1] 10
+#&gt; 
+#&gt; $PCMBase.Transpose.Sigma_x
+#&gt; [1] FALSE
 #&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

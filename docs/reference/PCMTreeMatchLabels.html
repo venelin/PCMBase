@@ -136,7 +136,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMTreeMatchLabels</span>(<span class='no'>tree</span>, <span class='no'>labels</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMTreeMatchLabels</span>(<span class='no'>tree</span>, <span class='no'>labels</span>, <span class='kw'>stopIfNotFound</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,14 +149,23 @@
       <th>labels</th>
       <td><p>a character vector with valid tip or node labels from tree</p></td>
     </tr>
+    <tr>
+      <th>stopIfNotFound</th>
+      <td><p>logical indicating if an error should be raised in case
+a label has not been found in the tree labels. Default: TRUE</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>an integer vector giving the tip- or node- integer indices
- corresponding to labels.</p>
+ corresponding to labels. If stopIfNotFound is set to FALSE, this vector may
+ contain NAs for the labels that were not found.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='fu'>PCMTreeMatchLabels</span>(<span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>20</span>)), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"1"</span>, <span class='st'>"15"</span>, <span class='st'>"21"</span>, <span class='st'>"39"</span>))</div><div class='output co'>#&gt; [1]  1 15 21 39</div><div class='input'><span class='fu'>PCMTreeMatchLabels</span>(<span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>20</span>)), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"1"</span>, <span class='st'>"45"</span>), <span class='kw'>stopIfNotFound</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1]  1 NA</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -164,7 +173,9 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

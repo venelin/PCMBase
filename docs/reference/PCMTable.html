@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculate the likelihood of a model using the standard formula for multivariate pdf — PCMLikDmvNorm • PCMBase</title>
+<title>A data.table representation of a PCM object — PCMTable • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Calculate the likelihood of a model using the standard formula for multivariate pdf — PCMLikDmvNorm" />
+<meta property="og:title" content="A data.table representation of a PCM object — PCMTable" />
 
-<meta property="og:description" content="Calculate the likelihood of a model using the standard formula for multivariate pdf" />
+<meta property="og:description" content="A data.table representation of a PCM object" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,71 +125,46 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculate the likelihood of a model using the standard formula for multivariate pdf</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCM.R'><code>R/PCM.R</code></a></small>
-    <div class="hidden name"><code>PCMLikDmvNorm.Rd</code></div>
+    <h1>A data.table representation of a PCM object</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTable.R'><code>R/PCMTable.R</code></a></small>
+    <div class="hidden name"><code>PCMTable.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Calculate the likelihood of a model using the standard formula for multivariate pdf</p>
+    <p>A data.table representation of a PCM object</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMLikDmvNorm</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
-  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>metaI</span> <span class='kw'>=</span> <span class='fu'><a href='PCMInfo.html'>PCMInfo</a></span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span>
-  <span class='no'>verbose</span>), <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMTable</span>(<span class='no'>model</span>, <span class='kw'>skipGlobalRegime</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>addTransformed</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>X</th>
-      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-Thse two values have are treated differently when calculating
-likelihoods: see <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>tree</th>
-      <td><p>a phylo object with N tips.</p></td>
-    </tr>
-    <tr>
       <th>model</th>
-      <td><p>an S3 object specifying both, the model type (class, e.g. "OU") as
-well as the concrete model parameter values at which the likelihood is to be
-calculated (see also Details).</p></td>
+      <td><p>a PCM object.</p></td>
     </tr>
     <tr>
-      <th>SE</th>
-      <td><p>a k x N matrix specifying the standard error for each measurement in
-X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-Cholesky factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
+      <th>skipGlobalRegime</th>
+      <td><p>logical indicating whether a raw in the returned
+table for the global-scope parameters should be omitted (this is mostly for
+internal use). Default (FALSE).</p></td>
     </tr>
     <tr>
-      <th>metaI</th>
-      <td><p>a list returned from a call to <code><a href='PCMInfo.html'>PCMInfo(X, tree, model, SE)</a></code>,
-containing meta-data such as N, M and k. Alternatively, this can be a
-function object that returns such a list, e.g. the function<code>PCMInfo</code>
-or the function <code>PCMInfoCpp</code> from the <code>PCMBaseCpp</code> package.</p></td>
-    </tr>
-    <tr>
-      <th>log</th>
-      <td><p>logical indicating whether a log-liklehood should be calculated. Default
-is TRUE.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>logical indicating if some debug-messages should printed.</p></td>
+      <th>addTransformed</th>
+      <td><p>logical. If TRUE (the default), columns for the
+transformed version of the transformable parameters will be added.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a numerical value with named attributes as follows:</p>
+    <p>an object of S3 class PCMTable</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This is an S3 generic.</p>
     
 
   </div>
@@ -199,6 +174,8 @@ is TRUE.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>

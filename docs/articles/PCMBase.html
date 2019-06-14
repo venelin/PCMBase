@@ -88,9 +88,9 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-04-08</h4>
+            <h4 class="date">2019-06-14</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/R/vignettes/PCMBase.Rmd"><code>R/vignettes/PCMBase.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
 
     </div>
@@ -209,14 +209,10 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 <pre><code>## function (tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, 
 ##     verbose = verbose), verbose = FALSE) 
 ## {
-##     Sigma_x &lt;- if (is.Global(model$Sigma_x)) 
-##         as.matrix(model$Sigma_x)
-##     else as.matrix(model$Sigma_x[, , r])
+##     Sigma_x &lt;- GetSigma_x(model, "Sigma", r)
 ##     Sigma &lt;- Sigma_x %*% t(Sigma_x)
 ##     if (!is.null(model$Sigmae_x)) {
-##         Sigmae_x &lt;- if (is.Global(model$Sigmae_x)) 
-##             as.matrix(model$Sigmae_x)
-##         else as.matrix(model$Sigmae_x[, , r])
+##         Sigmae_x &lt;- GetSigma_x(model, "Sigmae", r)
 ##         Sigmae &lt;- Sigmae_x %*% t(Sigmae_x)
 ##     }
 ##     else {
@@ -232,7 +228,7 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 ##     }
 ##     list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x7fe524edc4b0&gt;
+## &lt;bytecode: 0x7fe804c2ba18&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span>
 <span class="co"># R-code by typing :</span>
@@ -249,14 +245,14 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=8; regimes: 1. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
 ## [1] 0 0
-## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
+## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , 1
 ## 
 ##      [,1] [,2]
 ## [1,]    0    0
 ## [2,]    0    0
 ## 
-## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
+## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , 1
 ## 
 ##      [,1] [,2]
@@ -276,7 +272,7 @@ modelBM.ab</code></pre></div>
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
 ## [1] 0 0
-## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
+## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
 ##      [,1] [,2]
@@ -289,7 +285,7 @@ modelBM.ab</code></pre></div>
 ## [1,]    0    0
 ## [2,]    0    0
 ## 
-## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
+## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
 ##      [,1] [,2]
@@ -333,9 +329,9 @@ modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;
 param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</code></pre></div>
-<pre><code>##  [1]  4.9915257387  2.0124058722  1.5866930985 -0.0130271463  2.4075879162
-##  [6]  1.6148793794  0.7832468006  2.3812704641  0.1195659304  0.0003131928
-## [11]  0.4014788533  0.1094560525 -0.0065809532  0.3827570472</code></pre>
+<pre><code>##  [1]  5.006203717  2.006912434  1.613350404 -0.000180332  2.398974210
+##  [6]  1.592401878  0.788396206  2.399927507  0.090988011  0.010605254
+## [11]  0.418919796  0.099617233  0.007940091  0.418790495</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
 <span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -343,32 +339,32 @@ param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 4.991526 2.012406
-## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):
+## [1] 5.006204 2.006912
+## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]        [,2]
-## [1,] 1.586693 -0.01302715
-## [2,] 0.000000  2.40758792
+##         [,1]         [,2]
+## [1,] 1.61335 -0.000180332
+## [2,] 0.00000  2.398974210
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.614879 0.7832468
-## [2,] 0.800000 2.3812705
+## [1,] 1.592402 0.7883962
+## [2,] 0.800000 2.3999275
 ## 
-## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the non-heritable variance or the variance of the measurement error):
+## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]         [,2]
-## [1,] 0.1195659 0.0003131928
-## [2,] 0.0000000 0.4014788533
+##            [,1]       [,2]
+## [1,] 0.09098801 0.01060525
+## [2,] 0.00000000 0.41891980
 ## 
 ## , , b
 ## 
-##           [,1]         [,2]
-## [1,] 0.1094561 -0.006580953
-## [2,] 0.0000000  0.382757047
+##            [,1]        [,2]
+## [1,] 0.09961723 0.007940091
+## [2,] 0.00000000 0.418790495
 ## 
 ## </code></pre>
 </div>
@@ -415,9 +411,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -408.9629
+<pre><code>## [1] -409.5427
 ## attr(,"X0")
-## [1] 4.991526 2.012406
+## [1] 5.006204 2.006912
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")
@@ -427,9 +423,9 @@ palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM
 likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
 
 <span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -408.9629
+<pre><code>## [1] -409.5427
 ## attr(,"X0")
-## [1] 4.991526 2.012406
+## [1] 5.006204 2.006912
 ## attr(,"class")
 ## [1] "VectorParameter" "_Global"         "numeric"        
 ## attr(,"description")

@@ -13,6 +13,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/Args_MixedGaussian_MGPMSurfaceOUType.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/FormatCellAsLatex.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/MGPMScalarOUType.html</loc>
   </url>
   <url>
@@ -139,6 +142,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMParamLoadOrStore.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMParamLocateInShortVector.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMParamLowerLimit.html</loc>
   </url>
   <url>
@@ -182,6 +188,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMSpecify.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTable.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTableParameterizations.html</loc>
@@ -242,6 +251,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetTipsInPart.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetTipsInRegime.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeInsertSingletons.html</loc>

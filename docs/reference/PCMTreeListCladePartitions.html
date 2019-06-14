@@ -137,7 +137,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>PCMTreeListCladePartitions</span>(<span class='no'>tree</span>, <span class='no'>nNodes</span>, <span class='kw'>minCladeSize</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer</a></span>(<span class='fl'>0</span>), <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>character</a></span>(<span class='fl'>0</span>), <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,8 +157,9 @@
     </tr>
     <tr>
       <th>skipNodes</th>
-      <td><p>integer vector indicating nodes that should not be used as
-partition nodes. By default, this is an empty vector.</p></td>
+      <td><p>an integer or character vector indicating the ids or labels
+of nodes that should not be used as partition nodes. By default, this is an
+empty character vector.</p></td>
     </tr>
     <tr>
       <th>tableAncestors</th>

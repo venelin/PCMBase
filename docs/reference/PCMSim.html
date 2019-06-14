@@ -162,7 +162,7 @@ trait values at the root of the tree.</p></td>
       <th>SE</th>
       <td><p>a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-Choleski factor of the variance covariance matrix for the measurement error
+Cholesky factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
@@ -186,7 +186,7 @@ with indices from 1 to N=length(tree$tip.label) corresponding to tips, N+1
 corresponding to the root and bigger than N+1 corresponding to internal nodes.
 The function will fail in case that the length of the argument vector X0 differs
 from the number of traits specified in <code>metaI$k</code>. Error message:
-"ERR:02002:PCMBase:PCM.R:PCMSim:: X0 must be of length ...".</p>
+"PCMSim:: X0 must be of length ...".</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 

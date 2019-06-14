@@ -141,11 +141,22 @@ a MGPM model with some of the default MGPM model types.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>Args_MixedGaussian_MGPMDefaultModelTypes</span>()</pre>
-        
+    <pre class="usage"><span class='fu'>Args_MixedGaussian_MGPMDefaultModelTypes</span>(<span class='kw'>omitGlobalSigmae_x</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>omitGlobalSigmae_x</th>
+      <td><p>logical, indicating if the returned list should specify
+the global Sigmae_x parameter as '_Omitted'. Default: TRUE.</p></td>
+    </tr>
+    </table>
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a list of named arguments.</p>
+    <p>a list of named arguments. Currently only a named element Sigmae_x
+with specification depending on <code>omitGlobalSigmae_x</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -156,6 +167,7 @@ a MGPM model with some of the default MGPM model types.</p>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
 
