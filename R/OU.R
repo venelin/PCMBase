@@ -70,8 +70,8 @@ PCMDescribeParameters.OU <- function(model, ...) {
     X0 = "trait values at the root",
     H = "adaptation rate matrix",
     Theta = "long-term optimum",
-    Sigma_x = "Choleski factor of the unit-time variance rate",
-    Sigmae_x = "Choleski factor of the non-heritable variance or the variance of the measurement error")
+    Sigma_x = "factor of the unit-time variance rate",
+    Sigmae_x = "factor of the non-heritable variance or the variance of the measurement error")
 }
 
 #' @export
@@ -179,9 +179,9 @@ PCMSpecify.OU <- function(model, ...) {
     Theta = structure(0.0, class = c('VectorParameter'),
                       description = 'long-term optimum'),
     Sigma_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                        description = 'Choleski factor of the unit-time variance rate'),
+                        description = 'factor of the unit-time variance rate'),
     Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                         description = 'Choleski factor of the non-heritable variance or the variance of the measurement error'))
+                         description = 'factor of the non-heritable variance or the variance of the measurement error'))
   attributes(spec) <- attributes(model)
   if(is.null(names(spec))) names(spec) <- c('X0', 'H', 'Theta', 'Sigma_x', 'Sigmae_x')
   if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')

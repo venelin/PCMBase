@@ -151,7 +151,7 @@ MixedGaussian <- function(
   Sigmae_x = structure(
     0.0,
     class = c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-    description = "Upper triangular Choleski factor of the non-phylogenetic variance-covariance")) {
+    description = "Upper triangular factor of the non-phylogenetic variance-covariance")) {
 
   regimes <- if(is.null(names(mapping))) {
     seq_len(length(mapping))

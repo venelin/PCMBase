@@ -72,13 +72,13 @@ Args_MixedGaussian_MGPMDefaultModelTypes <- function(omitGlobalSigmae_x = TRUE) 
     list(
       Sigmae_x = structure(
         0.0, class = c("MatrixParameter", "_Omitted"),
-        description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
+        description = "upper triangular factor of the non-phylogenetic variance-covariance")
     )
   } else {
     list(Sigmae_x = structure(
       0.0,
       class = c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-      description = "Upper triangular Choleski factor of the non-phylogenetic variance-covariance")
+      description = "Upper triangular factor of the non-phylogenetic variance-covariance")
     )
   }
 }
@@ -106,7 +106,7 @@ Args_MixedGaussian_MGPMScalarOUType <- function() {
       class = c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
       description = "adaptation rate matrix"),
     Sigmae_x = structure(0.0, class = c("MatrixParameter", "_Omitted"),
-                         description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
+                         description = "upper triangular factor of the non-phylogenetic variance-covariance")
   )
 }
 
@@ -136,7 +136,7 @@ Args_MixedGaussian_MGPMSurfaceOUType <- function() {
       description = "unit-time variance parameter of the OU-process"),
     Sigmae_x = structure(
       0.0, class = c("MatrixParameter", "_Omitted"),
-      description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
+      description = "upper triangular factor of the non-phylogenetic variance-covariance")
   )
 }
 

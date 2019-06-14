@@ -81,7 +81,7 @@ PCMCond.White <- function(
 PCMDescribeParameters.White <- function(model, ...) {
   list(
     X0 = "trait values at the root of the tree (for White model this is the mean vector)",
-    Sigmae_x = "Choleski factor of the non-phylogenetic variance-covariance matrix")
+    Sigmae_x = "factor of the non-phylogenetic variance-covariance matrix")
 }
 
 #' @export
@@ -106,7 +106,7 @@ PCMSpecify.White <- function(model, ...) {
     X0 = structure(0.0, class = c('VectorParameter', '_Global'),
                    description = 'trait values at the root of the tree (for White model this is the mean vector)'),
     Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                         description = 'Choleski factor of the non-phylogenetic variance-covariance matrix'))
+                         description = 'factor of the non-phylogenetic variance-covariance matrix'))
   attributes(spec) <- attributes(model)
   if(is.null(names(spec))) names(spec) <- c('X0', 'Sigmae_x')
   if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')

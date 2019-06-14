@@ -83,10 +83,10 @@ PCMDescribeParameters.JOU <- function(model, ...) {
     X0 = "trait values at the root",
     H = "adaptation rate matrix",
     Theta = "long-term optimum",
-    Sigma_x = "Choleski factor of the unit-time variance rate",
+    Sigma_x = "factor of the unit-time variance rate",
     mj = "jump mean vector",
-    Sigmaj_x = "Choleski factor of the jump variance-covariance matrix",
-    Sigmae_x = "Choleski factor of the non-heritable variance or the variance of the measurement error")
+    Sigmaj_x = "factor of the jump variance-covariance matrix",
+    Sigmae_x = "factor of the non-heritable variance or the variance of the measurement error")
 }
 
 #' @export
@@ -163,13 +163,13 @@ PCMSpecify.JOU <- function(model, ...) {
     Theta = structure(0.0, class = c('VectorParameter'),
                       description = 'long-term optimum'),
     Sigma_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                        description = 'Choleski factor of the unit-time variance rate'),
+                        description = 'factor of the unit-time variance rate'),
     mj = structure(0.0, class = c('VectorParameter'),
                    description = 'jump mean vector'),
     Sigmaj_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                         description = 'Choleski factor of the jump variance-covariance matrix'),
+                         description = 'factor of the jump variance-covariance matrix'),
     Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                         description = 'Choleski factor of the non-heritable variance or the variance of the measurement error'))
+                         description = 'factor of the non-heritable variance or the variance of the measurement error'))
   attributes(spec) <- attributes(model)
   if(is.null(names(spec))) names(spec) <- c('X0', 'H', 'Theta', 'Sigma_x', 'mj', 'Sigmaj_x', 'Sigmae_x')
   if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')
