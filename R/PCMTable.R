@@ -44,7 +44,7 @@ TableForRegime <- function(model, r, addTransformed = TRUE) {
         if(is.Schur(value)) {
           nameSuffix <- "_S"
         } else if(is.CholeskyFactor(value)) {
-          nameSuffix <- "_C"
+          nameSuffix <- "_u"
         }
       }
       table[[paste0(name, nameSuffix)]] <- list(value)
