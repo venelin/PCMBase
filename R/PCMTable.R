@@ -22,11 +22,17 @@
 #' internal use). Default (FALSE).
 #' @param addTransformed logical. If TRUE (the default), columns for the
 #' transformed version of the transformable parameters will be added.
+#' @param removeUntransformed logical If TRUE (default), columns for the
+#' untransformed version of the transformable parameters will be omitted.
 #' @return an object of S3 class PCMTable
 #' @details This is an S3 generic.
 #'
 #' @export
-PCMTable <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE) {
+PCMTable <- function(
+  model, skipGlobalRegime = FALSE,
+  addTransformed = TRUE,
+  removeUntransformed = TRUE) {
+
   if(is.PCM(model)) {
     UseMethod("PCMTable", model)
   } else {
@@ -34,7 +40,9 @@ PCMTable <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE) {
   }
 }
 
-TableForRegime <- function(model, r, addTransformed = TRUE) {
+TableForRegime <- function(
+  model, r, addTransformed = TRUE, removeUntransformed = TRUE) {
+
   table <- data.table(`regime` = if(is.na(r)) ':global:' else as.character(r))
   for(name in names(model)) {
     if(!is.PCM(model[[name]]) && is.Global(model[[name]]) && r == ':global:') {
@@ -73,7 +81,7 @@ TableForRegime <- function(model, r, addTransformed = TRUE) {
         if(is.Schur(model[[name]])) {
           nameSuffix <- "_S"
         } else if(is.CholeskyFactor(model[[name]])) {
-          nameSuffix <- "_C"
+          nameSuffix <- "_u"
         }
       }
       table[[paste0(name, nameSuffix)]] <- list(value)
@@ -99,12 +107,25 @@ TableForRegime <- function(model, r, addTransformed = TRUE) {
       }
     }
   }
+
+  if(removeUntransformed) {
+    toRemove <- sapply(names(table), function(n) {
+      endsWith(n, "_x") || endsWith(n, "x}") ||
+        endsWith(n, "_u")  || endsWith(n, "u}") ||
+        endsWith(n, "S")
+    })
+    namesToRetain <- setdiff(names(table), names(table)[toRemove])
+    table <- table[, namesToRetain, with=FALSE]
+  }
   table
 }
 
 #' @importFrom data.table rbindlist data.table setattr
 #' @export
-PCMTable.PCM <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE) {
+PCMTable.PCM <- function(
+  model, skipGlobalRegime = FALSE,
+  addTransformed = TRUE,
+  removeUntransformed = TRUE) {
   regimes <- if(skipGlobalRegime) {
     as.character(PCMRegimes(model))
   } else {
@@ -112,7 +133,7 @@ PCMTable.PCM <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE)
   }
   res <- rbindlist(
     lapply(regimes, function(r) {
-      TableForRegime(model, r, addTransformed)
+      TableForRegime(model, r, addTransformed, removeUntransformed)
     }), fill=TRUE, use.names = TRUE)
 
   setattr(res, "model", model)
@@ -122,13 +143,17 @@ PCMTable.PCM <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE)
 
 #' @importFrom data.table setcolorder
 #' @export
-PCMTable.MixedGaussian <- function(model, skipGlobalRegime = FALSE, addTransformed = TRUE) {
+PCMTable.MixedGaussian <- function(
+  model, skipGlobalRegime = FALSE,
+  addTransformed = TRUE,
+  removeUntransformed = TRUE) {
+
   # NEEDED to avoid no visible binding notes during check.
   regime <- type <- typeId <- NULL
   res <- rbindlist(
     lapply(c(':global:', as.character(PCMRegimes(model))), function(r) {
       if(r == ':global:') {
-        TableForRegime(model, r, addTransformed)
+        TableForRegime(model, r, addTransformed, removeUntransformed)
       } else {
         table <- PCMTable(model[[as.character(r)]], skipGlobalRegime = TRUE, addTransformed)
         table[, `regime`:=as.character(r)]

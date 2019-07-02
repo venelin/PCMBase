@@ -1066,7 +1066,8 @@ PCMVarAtTime <- function(
 #' @param X0 a numeric vector specifying an initial point in the trait space.
 #' Default is rep(0, PCMNumTraits(model))
 #' @param W0 a numeric k x k symmetric positive definite matrix or 0 matrix,
-#' specifying the initial variance covariance matrix at t0.
+#' specifying the initial variance covariance matrix at t0. By default, this is
+#' a k x k 0 matrix.
 #' @param tX,tVar numeric vectors of positive points in time sorted in
 #' increasing order. tX specifies the points in time at which to calculate the
 #' mean (conditional on X0). tVar specifies a subset of the points in tX at
@@ -1083,7 +1084,7 @@ PCMVarAtTime <- function(
 #' @param doPlot2D Should a ggplot object be produced and returned. This is
 #' possible only for two of the traits specified in dims.  Default: FALSE.
 #' @param plot a ggplot object. This can be specified when doPlot2D is TRUE and
-#' allows to add the plot of this trajector as a layer in an existing ggplot.
+#' allows to add the plot of this trajectory as a layer in an existing ggplot.
 #' Default: NULL
 #'
 #' @return if doPlot2D is TRUE, returns a ggplot. Otherwise a named list of two
@@ -1275,6 +1276,37 @@ PCMLikDmvNorm <- function(
 #'
 #' @importFrom mvtnorm rmvnorm
 #' @seealso \code{\link{PCMLik}} \code{\link{PCMInfo}} \code{\link{PCMCond}}
+#' @examples
+#' library(data.table)
+#' N <- 10
+#' L <- 100.0
+#' tr <- ape::stree(N)
+#' tr$edge.length <- rep(L, N)
+#' for(epoch in seq(1, L, by = 1.0)) {
+#'   tr <- PCMTreeInsertSingletonsAtEpoch(tr, epoch)
+#' }
+#'
+#' model <- PCMBaseTestObjects$model_MixedGaussian_ab
+#'
+#' PCMTreeSetPartRegimes(tr, c(`11` = 'a'), setPartition = TRUE)
+#'
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#' X <- PCMSim(tr, model, X0 = rep(0, 3))
+#'
+#' dt <- NULL
+#' for(epoch in seq(0, L, by = 1)) {
+#'   nodes <- PCMTreeLocateEpochOnBranches(tr, epoch)$nodes
+#'   dtEpoch <- as.data.table(t(X[, nodes]))
+#'   dtEpoch[, t:=epoch]
+#'   if(epoch == 0) {
+#'     dtEpoch[, lineage:="root"]
+#'   } else {
+#'     dtEpoch[, lineage:=gsub("i.*x", "x", PCMTreeGetLabels(tr)[nodes], perl = TRUE)]
+#'   }
+#'
+#'   dt <- rbindlist(list(dt, dtEpoch))
+#' }
+#'
 #' @export
 PCMSim <- function(
   tree, model, X0,

@@ -19,7 +19,8 @@ PCMTrajectory(model, regime = PCMRegimes(model)[1], X0 = rep(0,
 Default is rep(0, PCMNumTraits(model))}
 
 \item{W0}{a numeric k x k symmetric positive definite matrix or 0 matrix,
-specifying the initial variance covariance matrix at t0.}
+specifying the initial variance covariance matrix at t0. By default, this is
+a k x k 0 matrix.}
 
 \item{tX, tVar}{numeric vectors of positive points in time sorted in
 increasing order. tX specifies the points in time at which to calculate the
@@ -41,7 +42,7 @@ samples (see tX and tVar above). Default 100.}
 possible only for two of the traits specified in dims.  Default: FALSE.}
 
 \item{plot}{a ggplot object. This can be specified when doPlot2D is TRUE and
-allows to add the plot of this trajector as a layer in an existing ggplot.
+allows to add the plot of this trajectory as a layer in an existing ggplot.
 Default: NULL}
 }
 \value{

@@ -4,7 +4,8 @@
 \alias{PCMTable}
 \title{A data.table representation of a PCM object}
 \usage{
-PCMTable(model, skipGlobalRegime = FALSE, addTransformed = TRUE)
+PCMTable(model, skipGlobalRegime = FALSE, addTransformed = TRUE,
+  removeUntransformed = TRUE)
 }
 \arguments{
 \item{model}{a PCM object.}
@@ -15,6 +16,9 @@ internal use). Default (FALSE).}
 
 \item{addTransformed}{logical. If TRUE (the default), columns for the
 transformed version of the transformable parameters will be added.}
+
+\item{removeUntransformed}{logical If TRUE (default), columns for the
+untransformed version of the transformable parameters will be omitted.}
 }
 \value{
 an object of S3 class PCMTable
