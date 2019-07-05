@@ -1392,6 +1392,32 @@ PCMLik <- function(
   UseMethod("PCMLik", model)
 }
 
+#' Tracing the log-likelihood calculation of a model over each node of the tree
+#'
+#' @description This is an S3 generic function providing tracing information
+#' for the likelihood calculation for a given tree, data and model parameters.
+#' Useful for illustration or for debugging purpose.
+#'
+#' @inheritParams PCMLik
+#'
+#' @return The returned object will, in general, depend on the type of model and
+#' the algorithm used for likelihood calculation. For a G_LInv model and
+#' pruning-wise likelihood calculation, the returned object will be a data.table
+#' with columns corresponding to the node-state variables, e.g. the quadratic
+#' polynomial coefficients associated with each node in the tree.
+#' @seealso \code{\link{PCMInfo}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{PCMParseErrorMessage}}
+#' @export
+PCMLikTrace <- function(
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(
+    X = X, tree = tree, model = model, SE = SE, verbose = verbose),
+  log = TRUE,
+  verbose = FALSE) {
+
+  UseMethod("PCMLikTrace", model)
+}
+
 #' @export
 logLik.PCM <- function(object, ...) {
   if(!is.PCM(object)) {
@@ -1446,8 +1472,9 @@ logLik.PCM <- function(object, ...) {
 #' for a given trait, if all of its descendants have this coordinate set to FALSE.}
 #' }
 #' These two cases have different effect on the likelihood calculation: missing
-#' measurements (NA) are integrated out at the parent nodes; while non-existent traits (NaN)
-#' are treated as reduced dimensionality of the vector at the parent node.
+#' measurements (NA) are integrated out at the parent nodes; while non-existent
+#' traits (NaN) are treated as reduced dimensionality of the vector at the
+#' parent node.
 #'
 #' @param X numeric k x N matrix of observed values, with possible NA entries. The
 #' columns in X are in the order of tree$tip.label
@@ -1456,8 +1483,8 @@ logLik.PCM <- function(object, ...) {
 #' @return a k x M logical matrix which can be passed as a pc argument to the PCMLik
 #' function. The function fails in case when all traits are NAs for some of the tips.
 #' In that case an error message is issued
-#' "ERR:02001:PCMBase:PCM.R:PCMPresentCoordinates:: Some tips have 0
-#' present coordinates. Consider removing these tips.".
+#' "PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider
+#' removing these tips.".
 #' @seealso \code{\link{PCMLik}}
 #' @export
 PCMPresentCoordinates <- function(X, tree, metaI) {
@@ -1479,25 +1506,26 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 
       if(i <= N) {
         # all es pointing to tips
-        # here we count NAs as present because they are integrated out at the parent nodes
+        # here we count NAs as present because they are integrated out at the
+        # parent nodes.
         pc[, i] <- !is.nan(X[, i])
       } else {
-        # edges pointing to internal nodes, for which all children nodes have been
-        # visited
-        # here we do nothing
+        # edges pointing to internal nodes, for which all children nodes have
+        # been visited here we do nothing.
       }
 
       #update parent pc
       pc[, j] <- pc[, j] | pc[, i]
     }
     # at the end correct the present coordinates for the traits at the tips which
-    # are NA but not NaN : Both NAs and NaNs result in FALSE at a tip;
-    # only coordinates for which all descending tips have NaN are FALSE at internal nodes
+    # are NA but not NaN: Both NAs and NaNs result in FALSE at a tip;
+    # only coordinates for which all descending tips have NaN are FALSE at
+    # internal nodes.
     pc[, 1:N] <- !is.na(X[, 1:N])
 
     if(any(rowSums(pc) == 0)) {
-      stop("ERR:02001:PCMBase:PCM.R:PCMPresentCoordinates:: Some tips
-           have 0 present coordinates. Consider removing these tips.")
+      stop("PCMPresentCoordinates:: Some tips have 0 present coordinates.
+           Consider removing these tips.")
     }
   }
   pc

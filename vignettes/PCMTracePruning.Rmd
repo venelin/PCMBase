@@ -1,0 +1,181 @@
+---
+title: "Tracing the pruning algorithm"
+author: "Venelin Mitov"
+date: '`r Sys.Date()`'
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Tracing the pruning algorithm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: REFERENCES.bib
+---
+
+<!--
+# Copyright 2016 Venelin Mitov
+#
+# This file is part of PCMBase.
+#
+# PCMBase is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PCMBase is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ape)
+library(PCMBase)
+library(data.table)
+library(xtable)
+library(PCMBaseCpp)
+
+if(!requireNamespace("ggtree")) {
+  message("Building the vignette requires ggtree R-package. Trying to install.")
+  status.ggtree <- try({
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+      install.packages("BiocManager")
+    BiocManager::install("ggtree", version = "3.8")
+  }, silent = TRUE)
+  if(class(status.ggtree == "try-error")) {
+    stop(
+      "The ggtree installation did not succeed. The vignette cannot be built.")
+  }
+}
+
+options(digits = 2)
+
+# specify either 'html' or 'latex'
+tableOutputType <- 'html'
+```
+
+```{r tree}
+X <- cbind(
+  c(0.3, NaN, 1.4), 
+  c(0.1, NaN, NA), 
+  c(0.2, NaN, 1.2), 
+  c(NA, 0.2, 0.2), 
+  c(NA, 1.2, 0.4))
+
+colnames(X) <- as.character(1:5)
+```
+
+```{r}
+treeText <- "((5:0.8,4:1.8)7:1.5,(((3:0.8,2:1.8)6:0.5)8:0.4,1:2.6)9:0.9)0;"
+tree <- PCMTree(read.tree(text = treeText))
+
+PCMTreeSetPartRegimes(tree, part.regime = c(`6`=2), setPartition = TRUE, inplace = TRUE)
+
+PCMTreePlot(tree) + ggtree::geom_nodelab(geom="label") + ggtree::geom_tiplab(geom = "label")
+
+X <- X[, tree$tip.label]
+N <- PCMTreeNumTips(tree)
+pOrder <- c(PCMTreeGetLabels(tree)[tree$edge[PCMTreePostorder(tree), 2]], "0")
+```
+
+```{r, results='asis'}
+model.OU.BM <- MixedGaussian(
+  k = nrow(X), 
+  modelTypes = MGPMDefaultModelTypes(), 
+  mapping = c(6, 2), 
+  Sigmae_x = Args_MixedGaussian_MGPMDefaultModelTypes(TRUE)$Sigmae_x)
+
+model.OU.BM <- PCMApplyTransformation(model.OU.BM)
+model.OU.BM$X0[] <- c(NA, NA, NA)
+model.OU.BM$`1`$H[,,1] <- cbind(
+  c(.1, -.7, .6), 
+  c(1.3, 2.2, -1.4), 
+  c(0.8, 0.2, 0.9))
+model.OU.BM$`1`$Theta[] <- c(1.3, -.5, .2)
+model.OU.BM$`1`$Sigma_x[,,1] <- cbind(
+  c(1, 0, 0), 
+  c(1.0, 0.5, 0), 
+  c(0.3, -.8, 1))
+
+model.OU.BM$`2`$Sigma_x[,,1] <- cbind(
+  c(0.8, 0, 0), 
+  c(1, 0.3, 0), 
+  c(0.4, 0.5, 0.3))
+
+print(
+  PCMTable(model.OU.BM, removeUntransformed = FALSE), 
+  xtable = TRUE, type=tableOutputType)
+
+print(PCMLik(X, tree, model.OU.BM))
+print(PCMLik(X, tree, model.OU.BM, metaI = PCMInfoCpp))
+```
+
+```{r traceTableR}
+traceTable <- PCMLikTrace(X, tree, model.OU.BM)
+setkey(traceTable, i)
+```
+
+```{r traceTableCpp, eval=TRUE}
+traceTableCpp <- PCMLikTrace(X, tree, model.OU.BM, metaI = PCMInfoCpp)
+setkey(traceTableCpp, i)
+```
+
+```{r loadTraceTableCpp, eval=FALSE}
+nodeStates <- lapply(seq_len(PCMTreeNumNodes(tree)), function(n) {
+  cat("======\n")
+  cat(">node=", n, "; \n")
+  id <- metaICpp$cppObject$tree$FindIdOfNode(n)
+  cat(">id=", id, "; \n")
+  metaICpp$cppObject$spec$StateAtNode(id) })
+
+load("temp.RData")
+```
+
+## Omega, Phi, V
+```{r omegaPhiVR, results='asis'}
+cat(FormatTableAsLatex(
+  traceTable[list(pOrder), list(j, i, t_i, X_i, k_i, omega_i, Phi_i, V_i, V_1_i)], 
+  type = tableOutputType))
+```
+
+```{r omegaPhiVCpp, results='asis', eval=TRUE}
+cat(FormatTableAsLatex(
+  traceTableCpp[list(pOrder), list(j, i, t_i, X_i, k_i, omega_i, Phi_i, V_i, V_1_i)], 
+  type = tableOutputType))
+```
+
+## A, b, C, d, E, f
+```{r AbCdEfR, results='asis'}
+cat(FormatTableAsLatex(
+  traceTable[list(pOrder), list(j, i, A_i, b_i, C_i, d_i, E_i, f_i)], 
+  type = tableOutputType))
+```
+
+```{r AbCdEfCpp, results='asis', eval=TRUE}
+cat(FormatTableAsLatex(
+  traceTableCpp[list(pOrder), list(j, i, A_i, b_i, C_i, d_i, f_i)], 
+  type = tableOutputType))
+```
+
+## L, m, r
+
+```{r LmrR, results='asis'}
+cat(FormatTableAsLatex(
+  traceTable[list(pOrder), list(j, i, L_i, m_i, r_i, `\\hat{X}_i`, `\\ell\\ell_i`)], 
+  type = tableOutputType))
+```
+
+```{r LmrCpp, results='asis', eval=TRUE}
+cat(FormatTableAsLatex(
+  traceTableCpp[list(pOrder), list(j, i, L_i, m_i, r_i, `\\hat{X}_i`, `\\ell\\ell_i`)], 
+  type = tableOutputType))
+```
+
+
+# References

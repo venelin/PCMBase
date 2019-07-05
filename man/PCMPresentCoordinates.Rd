@@ -18,8 +18,8 @@ columns in X are in the order of tree$tip.label}
 a k x M logical matrix which can be passed as a pc argument to the PCMLik
 function. The function fails in case when all traits are NAs for some of the tips.
 In that case an error message is issued
-"ERR:02001:PCMBase:PCM.R:PCMPresentCoordinates:: Some tips have 0
-present coordinates. Consider removing these tips.".
+"PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider
+removing these tips.".
 }
 \description{
 For every node (root, internal or tip) in tree, build a logical
@@ -35,8 +35,9 @@ nodes - an internal or root node will have a present coordinate set to FALSE
 for a given trait, if all of its descendants have this coordinate set to FALSE.}
 }
 These two cases have different effect on the likelihood calculation: missing
-measurements (NA) are integrated out at the parent nodes; while non-existent traits (NaN)
-are treated as reduced dimensionality of the vector at the parent node.
+measurements (NA) are integrated out at the parent nodes; while non-existent
+traits (NaN) are treated as reduced dimensionality of the vector at the
+parent node.
 }
 \seealso{
 \code{\link{PCMLik}}

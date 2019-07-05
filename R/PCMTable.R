@@ -155,7 +155,7 @@ PCMTable.MixedGaussian <- function(
       if(r == ':global:') {
         TableForRegime(model, r, addTransformed, removeUntransformed)
       } else {
-        table <- PCMTable(model[[as.character(r)]], skipGlobalRegime = TRUE, addTransformed)
+        table <- PCMTable(model[[as.character(r)]], skipGlobalRegime = TRUE, addTransformed, removeUntransformed)
         table[, `regime`:=as.character(r)]
         subModelType <- match(
           class(model[[as.character(r)]])[1], attr(model, "modelTypes"))
@@ -179,72 +179,13 @@ PCMTable.MixedGaussian <- function(
   res
 }
 
-#' Latex represenataion of a model parameter or other found in a PCMTable object
-#' @param x an R object. Currently, objects of S3 classes MatrixParameter,
-#' VectorParameter, ScalarParameter and PCMTable are supported.
-#' @return a character string
-FormatCellAsLatex <- function(x) {
-  if(is.null(x)) {
-    ' '
-  } else if(is.character(x)) {
-    paste0(' ', x,' ')
-  } else {
-    mat <- xtable(
-      as.matrix(x), align=rep("", ncol(as.matrix(x)) + 1),
-      digits = getOption("digits", default = 2))
-    latex <- capture.output(
-      print(mat, floating=FALSE, tabular.environment="bmatrix",
-            hline.after=NULL, include.rownames=FALSE,
-            include.colnames=FALSE, comment = FALSE))
-    paste0(' $', do.call(paste0, as.list(latex)), '$ ')
-  }
-}
-
-#' @importFrom data.table set
-#' @importFrom xtable xtable
-FormatPCMTableAsLatex <- function(x, argsXtable = list(), ...) {
-  reGreek <- "(alpha|Alpha|beta|Beta|gamma|Gamma|delta|Delta|epsilon|Epsilon|zeta|Zeta|eta|Eta|theta|Theta|iota|Iota|kappa|Kappa|lambda|Lambda|mu|Mu|nu|Nu|xi|Xi|omicron|Omicron|pi|Pi|rho|Rho|sigma|Sigma|tau|Tau|upsilon|Upsilon|phi|Phi|chi|Chi|psi|Psi|omega|Omega)"
-
-  for(name in names(x)) {
-    set(x, j = name, value = lapply(x[[name]], FormatCellAsLatex))
-  }
-  setnames(x, old = names(x), new = sapply(names(x), function(n) {
-    nLatexGreek <- gsub(
-      '___BACKSLASH___', "\\",
-      gsub(reGreek, "___BACKSLASH___\\1", n), fixed = TRUE)
-    nLatexGreek <- gsub('Sigma_x', 'Sigma_{u}', nLatexGreek, fixed = TRUE)
-    nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,u}', nLatexGreek, fixed = TRUE)
-    nLatexGreek <- gsub('Sigmae', 'Sigma_{e}', nLatexGreek, fixed = TRUE)
-    nLatexGreek <- gsub('Sigmaj_x', 'Sigma_{j,u}', nLatexGreek, fixed = TRUE)
-    if(! (n %in% c('regime', 'type')) ) {
-      nLatexGreek <- paste0('$',nLatexGreek,'$')
-    }
-    nLatexGreek
-  }))
-
-  addtorow <- list()
-  addtorow$pos <- as.list(seq(1, nrow(x) - 1L))
-  addtorow$command <- rep('\\vspace{2mm}  \n', length(addtorow$pos))
-  do.call(
-    paste,
-    c(as.list(
-      capture.output(
-        print(do.call(xtable, c(list(x), argsXtable)),
-              include.rownames= FALSE,
-              add.to.row = addtorow,
-              sanitize.text.function=identity,
-              comment = FALSE,
-              ...))),
-      sep = '\n'))
-}
-
 #' @method print PCMTable
 #' @export
 print.PCMTable <- function(x, ...) {
   argList <- list(...)
   if(!is.null(argList$xtable) && argList$xtable == TRUE) {
     cat(do.call(
-      FormatPCMTableAsLatex, c(list(x), argList[-match('xtable', names(argList))])),
+      FormatTableAsLatex, c(list(x), argList[-match('xtable', names(argList))])),
       "\n")
   } else {
     NextMethod()

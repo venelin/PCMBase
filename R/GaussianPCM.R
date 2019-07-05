@@ -375,7 +375,7 @@ PCMLik.GaussianPCM <- function(
   if(class(PCMLmr) == "try-error") {
     errL <- PCMParseErrorMessage(PCMLmr)
     if(is.null(errL)) {
-      err <- paste0("ERR:02141:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr, "; print(model):",
+      err <- paste0("GaussianPCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr, "; print(model):",
                     do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
       errL <- PCMParseErrorMessage(err)
     } else {
@@ -398,7 +398,7 @@ PCMLik.GaussianPCM <- function(
     r_root <- PCMLmr$r
 
     if(is.null(L_root) | is.null(m_root) | is.null(r_root)) {
-      err <- paste0("ERR:02142:PCMBase:GaussianPCM.R:PCMLik:: The list returned by PCMLmr did not contain elements 'L', 'm' and 'r'.")
+      err <- paste0("GaussianPCM.R:PCMLik:: The list returned by PCMLmr did not contain elements 'L', 'm' and 'r'.")
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
         warning(err)
       } else {
@@ -420,8 +420,11 @@ PCMLik.GaussianPCM <- function(
       X0 <- try(solve(a=L_root + t(L_root), b = -m_root), silent = TRUE)
       if(class(X0) == "try-error") {
         err <- paste0(
-          "ERR:02143:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating X0 from the coefficients L,m,r. ", "L=", toString(PCMLmr$L), "; m=", toString(PCMLmr$m), "; r=", PCMLmr$r,
-          ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):", X0, "; print(model):",
+          "GaussianPCM.R:PCMLik:: There was a problem calculating X0 from L,m,r. ",
+          "L=", toString(PCMLmr$L), "; m=", toString(PCMLmr$m),
+          "; r=", PCMLmr$r,
+          ". Error message from call to solve(a=L_root + t(L_root), b = -m_root):",
+          X0, "; print(model):",
           do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
         errL <- PCMParseErrorMessage(err)
@@ -445,7 +448,7 @@ PCMLik.GaussianPCM <- function(
     loglik <- try(X0 %*% L_root %*% X0 + m_root %*% X0 + r_root, silent = TRUE)
     if(class(loglik) == "try-error") {
       err <- paste0(
-        "ERR:02144:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L_root), "; m=", toString(m_root), "; r=", r_root,
+        "GaussianPCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L=", toString(L_root), "; m=", toString(m_root), "; r=", r_root,
         ". Error message from call to X0 %*% L_root %*% X0 + m_root %*% X0 + r_root:", loglik, "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
@@ -467,7 +470,7 @@ PCMLik.GaussianPCM <- function(
 
     if(class(value) == "try-error") {
       err <- paste0(
-        "ERR:02145:PCMBase:GaussianPCM.R:PCMLik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value, "; print(model):",
+        "GaussianPCM.R:PCMLik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value, "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
       errL <- PCMParseErrorMessage(err)
@@ -484,7 +487,7 @@ PCMLik.GaussianPCM <- function(
 
     } else if(is.na(value)) {
       err <- paste0(
-        "ERR:02146:PCMBase:GaussianPCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), "; print(model):",
+        "GaussianPCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))), ". No error message was returned from the call to PCMLmr. Check for runtime warnings.")
 
       errL <- PCMParseErrorMessage(err)
@@ -505,6 +508,141 @@ PCMLik.GaussianPCM <- function(
     attr(value, "X0") <- X0
     return(value)
   }
+}
+
+#' @export
+PCMLikTrace.GaussianPCM <- function(
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(
+    X = X, tree = tree, model = model, SE = SE, verbose = verbose),
+  log = TRUE,
+  verbose = FALSE
+) {
+  if(is.Transformable(model)) {
+    model <- PCMApplyTransformation(model)
+  }
+
+  if(is.function(metaI)) {
+    metaI <- metaI(
+      X = X, tree = tree, model = model, SE = SE, verbose = verbose)
+  }
+
+  trace <- PCMLmr(X = X, tree, model, metaI = metaI)
+  names(trace) <- paste0(names(trace), "_i")
+
+  traceList <- lapply(
+    names(trace), function(name) {
+      res <- if(is.list(trace[[name]])) {
+        trace[[name]]
+      } else if(is.array(trace[[name]]) && length(dim(trace[[name]])) == 3) {
+        lapply(seq_len(dim(trace[[name]])[3]), function(i) {
+          trace[[name]][,,i]
+        })
+      } else if(is.array(trace[[name]]) && length(dim(trace[[name]])) == 2) {
+        lapply(seq_len(dim(trace[[name]])[2]), function(i) {
+          trace[[name]][,i]
+        })
+      } else if(
+        is.array(trace[[name]]) && length(dim(trace[[name]])) == 1 ||
+        is.vector(trace[[name]])) {
+
+        trace[[name]]
+      }
+    })
+  names(traceList) <- names(trace)
+
+  traceTable <- do.call(data.table, traceList)
+  traceTable[, j:=sapply(.I, function(nodeId) {
+    if(nodeId != metaI$N+1) {
+      PCMTreeGetLabels(tree)[PCMTreeGetParent(tree, nodeId)]
+    } else {
+      "NA"
+    }
+  })]
+  traceTable[, i:=PCMTreeGetLabels(tree)[.I]]
+  traceTable[, t_i:=sapply(.I, function(.) tree$edge.length[match(., tree$edge[, 2])])]
+
+  traceTable[, k_i:=lapply(
+    seq_len(ncol(metaI$pc)), function(i) which(metaI$pc[,i]))]
+
+  traceTable[, X_i:=lapply(seq_len(.N), function(nodeId) {
+    nodeLabel <- i[nodeId]
+    x <- if(nodeId <= metaI$N) {
+      X[, nodeLabel]
+    } else if(nodeId == metaI$N+1) {
+      model$X0
+    } else {
+      x <- rep(NaN, PCMNumTraits(model))
+      if(any(is.finite(k_i[[nodeId]]))) {
+        x[k_i[[nodeId]]] <- NA_real_
+      }
+      x
+    }
+    x <- as.character(x)
+    mat <- xtable(
+      as.matrix(x), align=rep("", ncol(as.matrix(x)) + 1),
+      digits = getOption("digits", default = 2))
+    latex <- capture.output(
+      print(mat, floating=FALSE, tabular.environment="bmatrix",
+            hline.after=NULL, include.rownames=FALSE,
+            include.colnames=FALSE, comment = FALSE,
+            NA.string = "NA"))
+    paste0(" $", do.call(paste0, as.list(latex)), "$ ")
+  })]
+
+  traceTable[, VE_i:=lapply(seq_len(.N), function(nodeId) {
+    nodeLabel <- i[nodeId]
+    ve <- matrix(NA_real_, nrow(X), nrow(X))
+    ve[k_i[[nodeId]], k_i[[nodeId]]] <- if(nodeId <= metaI$N) {
+      metaI$VE[k_i[[nodeId]], k_i[[nodeId]], nodeId]
+    } else {
+      matrix(0, length(k_i[[nodeId]]), length(k_i[[nodeId]]))
+    }
+    ve
+  })]
+
+  setcolorder(traceTable, neworder = tail(seq_len(ncol(traceTable)), n = 5))
+
+  traceTable[, `\\hat{X}_i`:=lapply(seq_len(.N), function(nodeId) {
+    nodeLabel <- i[nodeId]
+    if(nodeId <= metaI$N) {
+      X[, nodeLabel]
+    } else if(nodeId == metaI$N+1) {
+      if(is.null(model$X0) || isTRUE(all(is.na(model$X0)))) {
+        # set the root value to the one that maximizes the likelihood
+        X0 <- try(solve(a=L_i[[nodeId]] + t(L_i[[nodeId]]), b = -m_i[[nodeId]]), silent = TRUE)
+        X0
+      } else {
+        model$X0
+      }
+    } else {
+      x <- rep(NaN, PCMNumTraits(model))
+      if(any(is.finite(k_i[[nodeId]]))) {
+        x[k_i[[nodeId]]] <- try(
+          solve(
+            a = L_i[[nodeId]][k_i[[nodeId]], k_i[[nodeId]]] + t(L_i[[nodeId]][k_i[[nodeId]],k_i[[nodeId]]]),
+            b = -m_i[[nodeId]][k_i[[nodeId]]]), silent = TRUE)
+      }
+      x
+    }
+  })]
+
+  traceTable[, `\\ell\\ell_i`:=lapply(seq_len(.N), function(nodeId) {
+    X0 <- `\\hat{X}_i`[[nodeId]]
+
+    nodeLabel <- i[nodeId]
+
+    if(nodeId == metaI$N+1) {
+      X0 %*% L_i[[nodeId]] %*% X0 + m_i[[nodeId]] %*% X0 + r_i[[nodeId]]
+    } else {
+      X0[k_i[[nodeId]]] %*% L_i[[nodeId]][k_i[[nodeId]],k_i[[nodeId]]] %*% X0[k_i[[nodeId]]] +
+        m_i[[nodeId]][k_i[[nodeId]]] %*% X0[k_i[[nodeId]]] +
+        r_i[[nodeId]]
+    }
+  })]
+
+  traceTable
 }
 
 #' Quadratic polynomial parameters A, b, C, d, E, f for each node
@@ -613,7 +751,7 @@ PCMAbCdEf.default <- function(
       singular[edgeIndex] <- TRUE
       if(!skip_singular || ti > threshold_skip_singular ) {
         err <- paste0(
-          "ERR:02131:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+          "GaussianPCM.R:PCMAbCdEf.default:",i,":",
           " The matrix V for node ", i,
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
           "; eigval[sum(ki)] = ", eigval[sum(ki)],
@@ -628,7 +766,7 @@ PCMAbCdEf.default <- function(
       if(sum(ki) == 1) {
         if(V[ki,ki,i] < 0) {
           err <- paste0(
-            "ERR:02132:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+            "GaussianPCM.R:PCMAbCdEf.default:",i,":",
             " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
             " is not positive definite, V[ki,ki,i]. Check the model parameters; V[ki,ki,i]=", V[ki,ki,i], ".")
           stop(err)
@@ -636,7 +774,7 @@ PCMAbCdEf.default <- function(
       } else {
         if(!isSymmetric(V[ki,ki,i], tol = metaI$PCMBase.Tolerance.Symmetric)) {
           err <- paste0(
-            "ERR:02133:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+            "GaussianPCM.R:PCMAbCdEf.default:",i,":",
             " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
             " is not symmetric. It must be symmetric positive definite.")
           stop(err)
@@ -644,7 +782,7 @@ PCMAbCdEf.default <- function(
 
         if(any(eigval<=0)) {
           err <- paste0(
-            "ERR:02134:PCMBase:GaussianPCM.R:PCMAbCdEf.default:",i,":",
+            "GaussianPCM.R:PCMAbCdEf.default:",i,":",
             " The matrix V[ki,ki,i] for node ", i, " (sum(ki)=", sum(ki), ")",
             " is not positive definite. It must be symmetric positive definite; eigval=", toString(eigval), ".")
           stop(err)
@@ -665,7 +803,9 @@ PCMAbCdEf.default <- function(
     }
   }
 
-  list(A=A, b=b, C=C, d=d, E=E, f=f, omega=omega, Phi=Phi, V=V, V_1=V_1, singular = singular)
+  list(omega=omega, Phi=Phi, V=V, V_1=V_1,
+       A=A, b=b, C=C, d=d, E=E, f=f,
+       singular = singular)
 }
 
 #' Quadratic polynomial parameters L, m, r
@@ -774,7 +914,7 @@ PCMLmr.default <- function(
          m = m[,N+1],
          r = r[N+1])
   } else {
-    c(AbCdEf[c("A", "b", "C", "d", "E", "f", "V", "V_1")],
+    c(AbCdEf[c("omega", "Phi", "V", "V_1", "A", "b", "C", "d", "E", "f")],
       list(L = L, m = m, r = r))
   }
 }
