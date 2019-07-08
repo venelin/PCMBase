@@ -39,16 +39,6 @@ library(ape)
 library(PCMBase)
 library(data.table)
 library(xtable)
-if(!requireNamespace("PCMBaseCpp")) {
-  message("Building the vignette requires PCMBaseCpp R-package. Trying to install.")
-  status.PCMBaseCpp <- try({
-    devtools::install_github("venelin/PCMBaseCpp")
-  }, silent = TRUE)
-  if(class(status.PCMBaseCpp == "try-error")) {
-    stop(
-      "The PCMBaseCpp installation did not succeed. The vignette cannot be built.")
-  }
-}
 
 if(!requireNamespace("ggtree")) {
   message("Building the vignette requires ggtree R-package. Trying to install.")
@@ -130,32 +120,10 @@ traceTable <- PCMLikTrace(X, tree, model.OU.BM)
 setkey(traceTable, i)
 ```
 
-```{r traceTableCpp, eval=TRUE}
-traceTableCpp <- PCMLikTrace(X, tree, model.OU.BM, metaI = PCMInfoCpp)
-setkey(traceTableCpp, i)
-```
-
-```{r loadTraceTableCpp, eval=FALSE}
-nodeStates <- lapply(seq_len(PCMTreeNumNodes(tree)), function(n) {
-  cat("======\n")
-  cat(">node=", n, "; \n")
-  id <- metaICpp$cppObject$tree$FindIdOfNode(n)
-  cat(">id=", id, "; \n")
-  metaICpp$cppObject$spec$StateAtNode(id) })
-
-load("temp.RData")
-```
-
 ## Omega, Phi, V
 ```{r omegaPhiVR, results='asis'}
 cat(FormatTableAsLatex(
   traceTable[list(pOrder), list(j, i, t_i, X_i, k_i, omega_i, Phi_i, V_i, V_1_i)], 
-  type = tableOutputType))
-```
-
-```{r omegaPhiVCpp, results='asis', eval=TRUE}
-cat(FormatTableAsLatex(
-  traceTableCpp[list(pOrder), list(j, i, t_i, X_i, k_i, omega_i, Phi_i, V_i, V_1_i)], 
   type = tableOutputType))
 ```
 
@@ -166,23 +134,11 @@ cat(FormatTableAsLatex(
   type = tableOutputType))
 ```
 
-```{r AbCdEfCpp, results='asis', eval=TRUE}
-cat(FormatTableAsLatex(
-  traceTableCpp[list(pOrder), list(j, i, A_i, b_i, C_i, d_i, E_i, f_i)], 
-  type = tableOutputType))
-```
 
 ## L, m, r
-
 ```{r LmrR, results='asis'}
 cat(FormatTableAsLatex(
   traceTable[list(pOrder), list(j, i, L_i, m_i, r_i, `\\hat{X}_i`, `\\ell\\ell_i`)], 
-  type = tableOutputType))
-```
-
-```{r LmrCpp, results='asis', eval=TRUE}
-cat(FormatTableAsLatex(
-  traceTableCpp[list(pOrder), list(j, i, L_i, m_i, r_i, `\\hat{X}_i`, `\\ell\\ell_i`)], 
   type = tableOutputType))
 ```
 
