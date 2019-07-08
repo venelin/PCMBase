@@ -112,7 +112,6 @@ print(
   xtable = TRUE, type=tableOutputType)
 
 print(PCMLik(X, tree, model.OU.BM))
-print(PCMLik(X, tree, model.OU.BM, metaI = PCMInfoCpp))
 ```
 
 ```{r traceTableR}
