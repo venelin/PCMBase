@@ -159,7 +159,7 @@ cat(FormatTableAsLatex(
 
 ```{r AbCdEfCpp, results='asis', eval=TRUE}
 cat(FormatTableAsLatex(
-  traceTableCpp[list(pOrder), list(j, i, A_i, b_i, C_i, d_i, f_i)], 
+  traceTableCpp[list(pOrder), list(j, i, A_i, b_i, C_i, d_i, E_i, f_i)], 
   type = tableOutputType))
 ```
 

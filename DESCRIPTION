@@ -50,7 +50,8 @@ Suggests:
   ggtree, 
   cowplot, 
   covr,
-  mvSLOUCH
+  mvSLOUCH,
+  PCMBaseCpp
 RoxygenNote: 6.1.1
 ByteCompile: yes
 VignetteBuilder: knitr, rmarkdown

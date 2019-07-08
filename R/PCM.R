@@ -1629,6 +1629,7 @@ PCMInfo.PCM <- function(
   res <- c(res, PCMOptions())
 
   res$pc <- PCMPresentCoordinates(X, tree, res)
+  res$NA_double_ <- NA_real_
 
   res
 }
