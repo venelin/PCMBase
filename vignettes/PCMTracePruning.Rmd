@@ -39,7 +39,16 @@ library(ape)
 library(PCMBase)
 library(data.table)
 library(xtable)
-library(PCMBaseCpp)
+if(!requireNamespace("PCMBaseCpp")) {
+  message("Building the vignette requires PCMBaseCpp R-package. Trying to install.")
+  status.PCMBaseCpp <- try({
+    devtools::install_github("venelin/PCMBaseCpp")
+  }, silent = TRUE)
+  if(class(status.PCMBaseCpp == "try-error")) {
+    stop(
+      "The PCMBaseCpp installation did not succeed. The vignette cannot be built.")
+  }
+}
 
 if(!requireNamespace("ggtree")) {
   message("Building the vignette requires ggtree R-package. Trying to install.")
