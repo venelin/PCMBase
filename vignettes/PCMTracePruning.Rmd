@@ -56,7 +56,7 @@ if(!requireNamespace("ggtree")) {
 options(digits = 2)
 
 # specify either 'html' or 'latex'
-tableOutputType <- 'html'
+tableOutputType <- 'latex'
 ```
 
 ```{r tree}
@@ -122,14 +122,14 @@ setkey(traceTable, i)
 ## Omega, Phi, V
 ```{r omegaPhiVR, results='asis'}
 cat(FormatTableAsLatex(
-  traceTable[list(pOrder), list(j, i, t_i, X_i, k_i, omega_i, Phi_i, V_i, V_1_i)], 
+  traceTable[list(pOrder), list(j, i, t_i, k_i, omega_i, Phi_i, V_i, V_1_i)], 
   type = tableOutputType))
 ```
 
 ## A, b, C, d, E, f
 ```{r AbCdEfR, results='asis'}
 cat(FormatTableAsLatex(
-  traceTable[list(pOrder), list(j, i, A_i, b_i, C_i, d_i, E_i, f_i)], 
+  traceTable[list(pOrder), list(j, i, k_i, A_i, b_i, C_i, d_i, E_i, f_i)], 
   type = tableOutputType))
 ```
 
@@ -137,7 +137,13 @@ cat(FormatTableAsLatex(
 ## L, m, r
 ```{r LmrR, results='asis'}
 cat(FormatTableAsLatex(
-  traceTable[list(pOrder), list(j, i, L_i, m_i, r_i, `\\hat{X}_i`, `\\ell\\ell_i`)], 
+  traceTable[
+    list(pOrder), 
+    list(
+      j, i, X_i, k_i, 
+      L_i, m_i, r_i, # `\\hat{X}_i`, `\\ell\\ell_i`,
+      `L_{ji}`, `m_{ji}`, `r_{ji}`)], 
+  
   type = tableOutputType))
 ```
 

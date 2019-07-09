@@ -510,6 +510,7 @@ PCMLik.GaussianPCM <- function(
   }
 }
 
+#' @importFrom data.table setnames
 #' @export
 PCMLikTrace.GaussianPCM <- function(
   X, tree, model,
@@ -529,7 +530,13 @@ PCMLikTrace.GaussianPCM <- function(
   }
 
   trace <- PCMLmr(X = X, tree, model, metaI = metaI)
-  names(trace) <- paste0(names(trace), "_i")
+  names(trace) <- sapply(names(trace), function(name) {
+    if(name %in% c("L", "m", "r")) {
+      paste0(name, "_{ji}")
+    } else {
+      paste0(name, "_i")
+    }
+  })
 
   traceList <- lapply(
     names(trace), function(name) {
@@ -553,15 +560,18 @@ PCMLikTrace.GaussianPCM <- function(
   names(traceList) <- names(trace)
 
   traceTable <- do.call(data.table, traceList)
+
+
   traceTable[, j:=sapply(.I, function(nodeId) {
     if(nodeId != metaI$N+1) {
       PCMTreeGetLabels(tree)[PCMTreeGetParent(tree, nodeId)]
     } else {
-      "NA"
+      "ND"
     }
   })]
   traceTable[, i:=PCMTreeGetLabels(tree)[.I]]
-  traceTable[, t_i:=sapply(.I, function(.) tree$edge.length[match(., tree$edge[, 2])])]
+  traceTable[, t_i:=lapply(.I, function(.) tree$edge.length[match(., tree$edge[, 2])])]
+  traceTable[metaI$N+1]$t_i[[1]] <- list("ND")
 
   traceTable[, k_i:=lapply(
     seq_len(ncol(metaI$pc)), function(i) which(metaI$pc[,i]))]
@@ -593,7 +603,7 @@ PCMLikTrace.GaussianPCM <- function(
 
   traceTable[, VE_i:=lapply(seq_len(.N), function(nodeId) {
     nodeLabel <- i[nodeId]
-    ve <- matrix(NA_real_, nrow(X), nrow(X))
+    ve <- matrix(NA_real_, metaI$k, metaI$k)
     ve[k_i[[nodeId]], k_i[[nodeId]]] <- if(nodeId <= metaI$N) {
       metaI$VE[k_i[[nodeId]], k_i[[nodeId]], nodeId]
     } else {
@@ -604,10 +614,85 @@ PCMLikTrace.GaussianPCM <- function(
 
   setcolorder(traceTable, neworder = tail(seq_len(ncol(traceTable)), n = 5))
 
-  traceTable[, `\\hat{X}_i`:=lapply(seq_len(.N), function(nodeId) {
-    nodeLabel <- i[nodeId]
+  traceTable[, L_i:=lapply(.I, function(nodeId) {
     if(nodeId <= metaI$N) {
-      X[, nodeLabel]
+      "ND"
+    } else {
+      mat <- matrix(NA_real_, metaI$k, metaI$k)
+      mat[k_i[[nodeId]], k_i[[nodeId]]] <- 0.0
+      mat
+    }
+  })]
+  traceTable[, m_i:=lapply(.I, function(nodeId) {
+    if(nodeId <= metaI$N) {
+      "ND"
+    } else {
+      vec <- rep(NA_real_, metaI$k)
+      vec[k_i[[nodeId]]] <- 0.0
+      vec
+    }
+  })]
+  traceTable[, r_i:=lapply(.I, function(nodeId) {
+    if(nodeId <= metaI$N) {
+      "ND"
+    } else {
+      0.0
+    }
+  })]
+
+  # nodeId column needed because setting a key will sort the table on the
+  # key-column.
+  traceTable[, nodeId:=.I]
+  setkey(traceTable, i)
+  for(rowId in seq_len(nrow(traceTable))) {
+    # daughter node label
+    ii <- traceTable[rowId, i]
+    # parent node label
+    jj <- traceTable[rowId, j]
+
+    if(traceTable[rowId, nodeId] != metaI$N + 1) {
+      # not at the root node, so a parent node certainly exists
+      traceTable[
+        list(jj),
+        L_i:=list(list(L_i[[1]] + traceTable[list(ii), `L_{ji}`[[1]]]))]
+      traceTable[
+        list(jj),
+        m_i:=list(list(m_i[[1]] + traceTable[list(ii), `m_{ji}`[[1]]]))]
+      traceTable[
+        list(jj),
+        r_i:=list(list(r_i[[1]] + traceTable[list(ii), `r_{ji}`[[1]]]))]
+    }
+  }
+  setkey(traceTable, nodeId)
+  traceTable[, nodeId:=NULL]
+
+  traceTable[metaI$N+1]$omega_i[[1]] <- list("ND")
+  traceTable[metaI$N+1]$Phi_i[[1]] <- list("ND")
+  traceTable[metaI$N+1]$V_i[[1]] <- list("ND")
+  traceTable[metaI$N+1]$V_1_i[[1]] <- list("ND")
+
+  traceTable[metaI$N+1]$A_i[[1]] <- list("ND")
+  traceTable[metaI$N+1]$b_i[[1]] <- list("ND")
+  traceTable[metaI$N+1]$C_i[[1]] <- list("ND")
+  traceTable[metaI$N+1]$d_i[[1]] <- list("ND")
+  traceTable[metaI$N+1]$E_i[[1]] <- list("ND")
+  traceTable[, ff_i:=as.list(f_i)]
+  traceTable[, f_i:=NULL]
+  setnames(traceTable, "ff_i", "f_i")
+  traceTable[metaI$N+1]$f_i[[1]] <- list("ND")
+
+  traceTable[metaI$N+1]$`L_{ji}`[[1]] <- list("ND")
+  traceTable[metaI$N+1]$`m_{ji}`[[1]] <- list("ND")
+  traceTable[, `rr_{ji}`:=as.list(`r_{ji}`)]
+  traceTable[, `r_{ji}`:=NULL]
+  setnames(traceTable, "rr_{ji}", "r_{ji}")
+  traceTable[metaI$N+1]$`r_{ji}`[[1]] <- list("ND")
+
+
+
+  traceTable[, `\\hat{X}_i`:=lapply(seq_len(.N), function(nodeId) {
+    if(nodeId <= metaI$N) {
+      "ND"
     } else if(nodeId == metaI$N+1) {
       if(is.null(model$X0) || isTRUE(all(is.na(model$X0)))) {
         # set the root value to the one that maximizes the likelihood
@@ -629,16 +714,22 @@ PCMLikTrace.GaussianPCM <- function(
   })]
 
   traceTable[, `\\ell\\ell_i`:=lapply(seq_len(.N), function(nodeId) {
-    X0 <- `\\hat{X}_i`[[nodeId]]
 
-    nodeLabel <- i[nodeId]
-
-    if(nodeId == metaI$N+1) {
-      X0 %*% L_i[[nodeId]] %*% X0 + m_i[[nodeId]] %*% X0 + r_i[[nodeId]]
+    if(nodeId <= metaI$N) {
+      # tip node
+      "ND"
     } else {
-      X0[k_i[[nodeId]]] %*% L_i[[nodeId]][k_i[[nodeId]],k_i[[nodeId]]] %*% X0[k_i[[nodeId]]] +
-        m_i[[nodeId]][k_i[[nodeId]]] %*% X0[k_i[[nodeId]]] +
-        r_i[[nodeId]]
+      X0 <- `\\hat{X}_i`[[nodeId]]
+
+      if(nodeId == metaI$N+1) {
+        # root node
+        X0 %*% L_i[[nodeId]] %*% X0 + m_i[[nodeId]] %*% X0 + r_i[[nodeId]]
+      } else {
+        # internal node
+        X0[k_i[[nodeId]]] %*% L_i[[nodeId]][k_i[[nodeId]],k_i[[nodeId]]] %*% X0[k_i[[nodeId]]] +
+          m_i[[nodeId]][k_i[[nodeId]]] %*% X0[k_i[[nodeId]]] +
+          r_i[[nodeId]]
+      }
     }
   })]
 
@@ -689,19 +780,19 @@ PCMAbCdEf.default <- function(
     cond[[r]] <- PCMCond(tree, model, r, metaI, verbose)
   }
 
-  omega <- array(NA, dim=c(k, M))
-  Phi <- array(NA, dim=c(k, k, M))
-  V <- array(NA, dim=c(k, k, M))
-  V_1 <- array(NA, dim=c(k, k, M))
+  omega <- array(NA_real_, dim=c(k, M))
+  Phi <- array(NA_real_, dim=c(k, k, M))
+  V <- array(NA_real_, dim=c(k, k, M))
+  V_1 <- array(NA_real_, dim=c(k, k, M))
 
 
   # returned general form parameters
-  A <- array(NA, dim=c(k, k, M))
-  b <- array(NA, dim=c(k, M))
-  C <- array(NA, dim=c(k, k, M))
-  d <- array(NA, dim=c(k, M))
-  E <- array(NA, dim=c(k, k, M))
-  f <- array(NA, dim=c(M))
+  A <- array(NA_real_, dim=c(k, k, M))
+  b <- array(NA_real_, dim=c(k, M))
+  C <- array(NA_real_, dim=c(k, k, M))
+  d <- array(NA_real_, dim=c(k, M))
+  E <- array(NA_real_, dim=c(k, k, M))
+  f <- array(NA_real_, dim=c(M))
 
   singular <- rep(FALSE, M)
 
@@ -839,13 +930,19 @@ PCMLmr.default <- function(
   edge <- tree$edge
   pc <- metaI$pc
 
-  L <- array(0, dim=c(k, k, M))
-  m <- array(0, dim=c(k, M))
-  r <- array(0, dim=c(M))
-
   AbCdEf <- PCMAbCdEf(
     tree = tree, model = model, SE = SE, metaI = metaI,
     verbose = verbose)
+
+  L <- array(NA_real_, dim=c(k, k, M))
+  m <- array(NA_real_, dim=c(k, M))
+  r <- array(NA_real_, dim=c(M))
+
+  for(i in seq(N+1, M)) {
+    L[pc[,i],pc[,i],i] <- 0.0
+    m[pc[,i],i] <- 0.0
+    r[i] <- 0.0
+  }
 
   postorder <- rev(metaI$preorder)
 
