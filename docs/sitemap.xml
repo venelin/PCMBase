@@ -16,6 +16,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/FormatCellAsLatex.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/FormatTableAsLatex.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/MGPMScalarOUType.html</loc>
   </url>
   <url>
@@ -89,6 +92,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMLikDmvNorm.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMLikTrace.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMListParameterizations.html</loc>
@@ -362,5 +368,8 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/articles/PCMParam.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/articles/PCMTracePruning.html</loc>
   </url>
 </urlset>

@@ -1,5 +1,5 @@
 ---
-title: "Tracing the pruning algorithm"
+title: "Tracing the likelihood calculation of a Gaussian model"
 author: "Venelin Mitov"
 date: '`r Sys.Date()`'
 output: 
@@ -8,7 +8,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Tracing the pruning algorithm}
+  %\VignetteIndexEntry{Tracing the likelihood calculation of a Gaussian model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: REFERENCES.bib
@@ -40,23 +40,10 @@ library(PCMBase)
 library(data.table)
 library(xtable)
 
-if(!requireNamespace("ggtree")) {
-  message("Building the vignette requires ggtree R-package. Trying to install.")
-  status.ggtree <- try({
-    if (!requireNamespace("BiocManager", quietly = TRUE))
-      install.packages("BiocManager")
-    BiocManager::install("ggtree", version = "3.8")
-  }, silent = TRUE)
-  if(class(status.ggtree == "try-error")) {
-    stop(
-      "The ggtree installation did not succeed. The vignette cannot be built.")
-  }
-}
-
 options(digits = 2)
 
 # specify either 'html' or 'latex'
-tableOutputType <- 'latex'
+tableOutputType <- 'html'
 ```
 
 ```{r tree}
@@ -71,17 +58,12 @@ colnames(X) <- as.character(1:5)
 ```
 
 ```{r}
-treeText <- "((5:0.8,4:1.8)7:1.5,(((3:0.8,2:1.8)6:0.5)8:0.4,1:2.6)9:0.9)0;"
+treeText <- "((5:0.8,4:1.8)7:1.5,(((3:0.8,2:1.6)6:0.7)8:0.6,1:2.6)9:0.9)0;"
 tree <- PCMTree(read.tree(text = treeText))
 
 PCMTreeSetPartRegimes(tree, part.regime = c(`6`=2), setPartition = TRUE, inplace = TRUE)
-
-PCMTreePlot(tree) + ggtree::geom_nodelab(geom="label") + ggtree::geom_tiplab(geom = "label")
-
-X <- X[, tree$tip.label]
-N <- PCMTreeNumTips(tree)
-pOrder <- c(PCMTreeGetLabels(tree)[tree$edge[PCMTreePostorder(tree), 2]], "0")
 ```
+
 
 ```{r, results='asis'}
 model.OU.BM <- MixedGaussian(
@@ -110,24 +92,32 @@ model.OU.BM$`2`$Sigma_x[,,1] <- cbind(
 print(
   PCMTable(model.OU.BM, removeUntransformed = FALSE), 
   xtable = TRUE, type=tableOutputType)
-
-print(PCMLik(X, tree, model.OU.BM))
 ```
 
+```{r}
+options(digits=4)
+print(PCMLik(X[, tree$tip.label], tree, model.OU.BM))
+```
+
+![A tree with five tips and two evolutionary regimes](Fig1.pdf){height="500px" width="100%"}
+
 ```{r traceTableR}
-traceTable <- PCMLikTrace(X, tree, model.OU.BM)
+traceTable <- PCMLikTrace(X[, tree$tip.label], tree, model.OU.BM)
+traceTable[, node:=.I]
 setkey(traceTable, i)
+pOrder <- c(PCMTreeGetLabels(tree)[tree$edge[PCMTreePostorder(tree), 2]], "0")
+options(digits=2)
 ```
 
 ## Omega, Phi, V
-```{r omegaPhiVR, results='asis'}
+```{r omegaPhiVR, results='asis', echo=FALSE}
 cat(FormatTableAsLatex(
   traceTable[list(pOrder), list(j, i, t_i, k_i, omega_i, Phi_i, V_i, V_1_i)], 
   type = tableOutputType))
 ```
 
 ## A, b, C, d, E, f
-```{r AbCdEfR, results='asis'}
+```{r AbCdEfR, results='asis', echo=FALSE}
 cat(FormatTableAsLatex(
   traceTable[list(pOrder), list(j, i, k_i, A_i, b_i, C_i, d_i, E_i, f_i)], 
   type = tableOutputType))
@@ -135,7 +125,7 @@ cat(FormatTableAsLatex(
 
 
 ## L, m, r
-```{r LmrR, results='asis'}
+```{r LmrR, results='asis', echo=FALSE}
 cat(FormatTableAsLatex(
   traceTable[
     list(pOrder), 

@@ -5,6 +5,7 @@ articles:
   PCMBase: PCMBase.html
   PCMCreateModel: PCMCreateModel.html
   PCMParam: PCMParam.html
+  PCMTracePruning: PCMTracePruning.html
 urls:
   reference: http://venelin.github.io/PCMBase/reference
   article: http://venelin.github.io/PCMBase/articles

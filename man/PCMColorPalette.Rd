@@ -4,12 +4,18 @@
 \alias{PCMColorPalette}
 \title{A fixed palette of n colors}
 \usage{
-PCMColorPalette(n, names)
+PCMColorPalette(n, names, colors = structure(hcl(h = seq(15, 375, length
+  = n + 1), l = 65, c = 100)[seq_len(n)], names = names))
 }
 \arguments{
 \item{n}{an integer defining the number of colors in the resulting palette.}
 
 \item{names}{a character vector of length `n`.}
+
+\item{colors}{a vector of n values convertible to colors. Default:
+\code{structure(hcl(
+h = seq(15, 375, length = n + 1), l = 65, c = 100)[seq_len(n)],
+names = names)}}
 }
 \value{
 A vector of character strings which can be used as color

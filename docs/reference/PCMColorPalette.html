@@ -101,6 +101,9 @@
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -136,7 +139,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMColorPalette</span>(<span class='no'>n</span>, <span class='no'>names</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMColorPalette</span>(<span class='no'>n</span>, <span class='no'>names</span>, <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/structure'>structure</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/grDevices/topics/hcl'>hcl</a></span>(<span class='kw'>h</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>15</span>, <span class='fl'>375</span>, <span class='kw'>length</span>
+  <span class='kw'>=</span> <span class='no'>n</span> + <span class='fl'>1</span>), <span class='kw'>l</span> <span class='kw'>=</span> <span class='fl'>65</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='fl'>100</span>)[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='no'>n</span>)], <span class='kw'>names</span> <span class='kw'>=</span> <span class='no'>names</span>))</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,6 +152,13 @@
     <tr>
       <th>names</th>
       <td><p>a character vector of length `n`.</p></td>
+    </tr>
+    <tr>
+      <th>colors</th>
+      <td><p>a vector of n values convertible to colors. Default:
+<code><a href='https://www.rdocumentation.org/packages/base/topics/structure'>structure(hcl(
+h = seq(15, 375, length = n + 1), l = 65, c = 100)[seq_len(n)],
+names = names)</a></code></p></td>
     </tr>
     </table>
     

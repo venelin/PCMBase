@@ -43,8 +43,9 @@ propagate towards the parent
 nodes - an internal or root node will have a present coordinate set to FALSE
 for a given trait, if all of its descendants have this coordinate set to FALSE.
 These two cases have different effect on the likelihood calculation: missing
-measurements (NA) are integrated out at the parent nodes; while non-existent traits (NaN)
-are treated as reduced dimensionality of the vector at the parent node." />
+measurements (NA) are integrated out at the parent nodes; while non-existent
+traits (NaN) are treated as reduced dimensionality of the vector at the
+parent node." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -113,6 +114,9 @@ are treated as reduced dimensionality of the vector at the parent node." />
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -155,8 +159,9 @@ propagate towards the parent
 nodes - an internal or root node will have a present coordinate set to FALSE
 for a given trait, if all of its descendants have this coordinate set to FALSE.</p></dd>
 </dl><p>These two cases have different effect on the likelihood calculation: missing
-measurements (NA) are integrated out at the parent nodes; while non-existent traits (NaN)
-are treated as reduced dimensionality of the vector at the parent node.</p>
+measurements (NA) are integrated out at the parent nodes; while non-existent
+traits (NaN) are treated as reduced dimensionality of the vector at the
+parent node.</p>
     
     </div>
 
@@ -185,8 +190,8 @@ columns in X are in the order of tree$tip.label</p></td>
     <p>a k x M logical matrix which can be passed as a pc argument to the PCMLik
 function. The function fails in case when all traits are NAs for some of the tips.
 In that case an error message is issued
-"ERR:02001:PCMBase:PCM.R:PCMPresentCoordinates:: Some tips have 0
-present coordinates. Consider removing these tips.".</p>
+"PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider
+removing these tips.".</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

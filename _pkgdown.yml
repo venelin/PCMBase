@@ -18,6 +18,8 @@ navbar:
       href: articles/PCMParam.html
     - text: Creating a Custom Model in the PCMBase Framework
       href: articles/PCMCreateModel.html
+    - text: Tracing the likelihood calculation of a Gaussian model
+      href: articles/PCMTracePruning.html
   - text: Reference
     href: reference/index.html
   - text: News
@@ -31,3 +33,4 @@ articles:
   - '`PCMBase`'
   - '`PCMParam`'
   - '`PCMCreateModel`'
+  - '`PCMTracePruning`'

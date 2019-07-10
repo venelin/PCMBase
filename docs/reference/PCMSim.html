@@ -102,6 +102,9 @@ model with one or several regimes" />
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -198,6 +201,36 @@ from the number of traits specified in <code>metaI$k</code>. Error message:
     <div class='dont-index'><p><code><a href='PCMLik.html'>PCMLik</a></code> <code><a href='PCMInfo.html'>PCMInfo</a></code> <code><a href='PCMCond.html'>PCMCond</a></code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>data.table</span>)
+<span class='no'>N</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span>
+<span class='no'>L</span> <span class='kw'>&lt;-</span> <span class='fl'>100.0</span>
+<span class='no'>tr</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/stree'>stree</a></span>(<span class='no'>N</span>)
+<span class='no'>tr</span>$<span class='no'>edge.length</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>L</span>, <span class='no'>N</span>)
+<span class='kw'>for</span>(<span class='no'>epoch</span> <span class='kw'>in</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>1</span>, <span class='no'>L</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1.0</span>)) {
+  <span class='no'>tr</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeInsertSingletons.html'>PCMTreeInsertSingletonsAtEpoch</a></span>(<span class='no'>tr</span>, <span class='no'>epoch</span>)
+}
+
+<span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='no'>PCMBaseTestObjects</span>$<span class='no'>model_MixedGaussian_ab</span>
+
+<span class='fu'><a href='PCMTreeSetPartRegimes.html'>PCMTreeSetPartRegimes</a></span>(<span class='no'>tr</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>`11`</span> <span class='kw'>=</span> <span class='st'>'a'</span>), <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMSim</span>(<span class='no'>tr</span>, <span class='no'>model</span>, <span class='kw'>X0</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0</span>, <span class='fl'>3</span>))
+
+<span class='no'>dt</span> <span class='kw'>&lt;-</span> <span class='kw'>NULL</span>
+<span class='kw'>for</span>(<span class='no'>epoch</span> <span class='kw'>in</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>0</span>, <span class='no'>L</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>)) {
+  <span class='no'>nodes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeLocateEpochOnBranches.html'>PCMTreeLocateEpochOnBranches</a></span>(<span class='no'>tr</span>, <span class='no'>epoch</span>)$<span class='no'>nodes</span>
+  <span class='no'>dtEpoch</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/data.table/topics/as.data.table'>as.data.table</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/t'>t</a></span>(<span class='no'>X</span>[, <span class='no'>nodes</span>]))
+  <span class='no'>dtEpoch</span>[, <span class='no'>t</span><span class='kw'>:=</span><span class='no'>epoch</span>]
+  <span class='kw'>if</span>(<span class='no'>epoch</span> <span class='kw'>==</span> <span class='fl'>0</span>) {
+    <span class='no'>dtEpoch</span>[, <span class='no'>lineage</span><span class='kw'>:=</span><span class='st'>"root"</span>]
+  } <span class='kw'>else</span> {
+    <span class='no'>dtEpoch</span>[, <span class='no'>lineage</span><span class='kw'>:=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/grep'>gsub</a></span>(<span class='st'>"i.*x"</span>, <span class='st'>"x"</span>, <span class='fu'><a href='PCMTreeGetLabels.html'>PCMTreeGetLabels</a></span>(<span class='no'>tr</span>)[<span class='no'>nodes</span>], <span class='kw'>perl</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)]
+  }
+
+  <span class='no'>dt</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/data.table/topics/rbindlist'>rbindlist</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='no'>dt</span>, <span class='no'>dtEpoch</span>))
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -209,7 +242,9 @@ from the number of traits specified in <code>metaI$k</code>. Error message:
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

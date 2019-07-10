@@ -247,6 +247,10 @@ PCMPlotMath.PCM <- function(o, roundDigits = 2, transformChol = FALSE) {
 #'
 #' @param n an integer defining the number of colors in the resulting palette.
 #' @param names a character vector of length `n`.
+#' @param colors a vector of n values convertible to colors. Default:
+#' \code{structure(hcl(
+#' h = seq(15, 375, length = n + 1), l = 65, c = 100)[seq_len(n)],
+#' names = names)}
 #'
 #' @return A vector of character strings which can be used as color
 #' specifications by R graphics functions.
@@ -254,11 +258,17 @@ PCMPlotMath.PCM <- function(o, roundDigits = 2, transformChol = FALSE) {
 #' @importFrom grDevices hcl
 #'
 #' @export
-PCMColorPalette <- function(n, names) {
-  hues = seq(15, 375, length = n + 1)
-  palette <- hcl(h = hues, l = 65, c = 100)[1:n]
-  names(palette) <- names
-  palette
+PCMColorPalette <- function(
+  n, names,
+  colors = structure(hcl(
+    h = seq(15, 375, length = n + 1), l = 65, c = 100)[seq_len(n)],
+    names = names)) {
+
+  if(length(colors) != n) {
+    stop("colors should be of length n.")
+  }
+  names(colors) <- names
+  colors
 }
 
 

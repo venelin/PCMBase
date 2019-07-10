@@ -101,6 +101,9 @@
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -256,7 +259,7 @@ that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.</p></td
   <span class='no'>tree</span>,
   <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
   <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># this fails, because the branch leading to node "47" is shorter now (0.55).</span>
-<span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/should_stop'>should_stop</a></span>(
+<span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/should_stop.html'>should_stop</a></span>(
   <span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletons</span>(
     <span class='no'>tree</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='st'>"47"</span>, <span class='kw'>positions</span><span class='kw'>=</span> <span class='fl'>2</span>* <span class='no'>length47</span> / <span class='fl'>3</span>))
 

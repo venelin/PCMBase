@@ -101,6 +101,9 @@
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -161,7 +164,8 @@ Default is rep(0, PCMNumTraits(model))</p></td>
     <tr>
       <th>W0</th>
       <td><p>a numeric k x k symmetric positive definite matrix or 0 matrix,
-specifying the initial variance covariance matrix at t0.</p></td>
+specifying the initial variance covariance matrix at t0. By default, this is
+a k x k 0 matrix.</p></td>
     </tr>
     <tr>
       <th>tX, tVar</th>
@@ -193,7 +197,7 @@ possible only for two of the traits specified in dims.  Default: FALSE.</p></td>
     <tr>
       <th>plot</th>
       <td><p>a ggplot object. This can be specified when doPlot2D is TRUE and
-allows to add the plot of this trajector as a layer in an existing ggplot.
+allows to add the plot of this trajectory as a layer in an existing ggplot.
 Default: NULL</p></td>
     </tr>
     </table>
@@ -242,19 +246,19 @@ This is suitable for plotting with ggplot.</p></li>
   <span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>PCMBaseTestObjects</span>$<span class='no'>model_MixedGaussian_ab</span>, <span class='kw'>regime</span> <span class='kw'>=</span> <span class='st'>"a"</span>,
   <span class='kw'>X0</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>),
   <span class='kw'>doPlot2D</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>) +
-  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous'>scale_y_continuous</a></span>(<span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>10</span>)) +
-  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/facet_grid'>facet_grid</a></span>(<span class='no'>.</span>~<span class='no'>regime</span>)
+  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous</a></span>(<span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>10</span>)) +
+  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></span>(<span class='no'>.</span>~<span class='no'>regime</span>)
 
 <span class='no'>plb</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTrajectory</span>(
   <span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>PCMBaseTestObjects</span>$<span class='no'>model_MixedGaussian_ab</span>, <span class='kw'>regime</span> <span class='kw'>=</span> <span class='st'>"b"</span>,
   <span class='kw'>X0</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>),
   <span class='kw'>doPlot2D</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>) +
-  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous'>scale_y_continuous</a></span>(<span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>10</span>)) +
-  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/facet_grid'>facet_grid</a></span>(<span class='no'>.</span>~<span class='no'>regime</span>) +
-  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/theme'>theme</a></span>(
-    <span class='kw'>axis.title.y</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/element'>element_blank</a></span>(),
-    <span class='kw'>axis.text.y</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/element'>element_blank</a></span>(),
-    <span class='kw'>axis.ticks.y</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/element'>element_blank</a></span>())
+  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous</a></span>(<span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>10</span>)) +
+  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></span>(<span class='no'>.</span>~<span class='no'>regime</span>) +
+  <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span>(
+    <span class='kw'>axis.title.y</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank</a></span>(),
+    <span class='kw'>axis.text.y</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank</a></span>(),
+    <span class='kw'>axis.ticks.y</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank</a></span>())
 <span class='kw pkg'>cowplot</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/cowplot/topics/plot_grid'>plot_grid</a></span>(<span class='no'>pla</span>, <span class='no'>plb</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 98 rows containing non-finite values (stat_ellipse).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 98 rows containing non-finite values (stat_ellipse).</span></div><div class='img'><img src='PCMTrajectory-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

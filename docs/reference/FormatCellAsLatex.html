@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Latex represenataion of a model parameter or other found in a PCMTable object — FormatCellAsLatex • PCMBase</title>
+<title>Latex represenataion of a model parameter or other found in a data.table object — FormatCellAsLatex • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Latex represenataion of a model parameter or other found in a PCMTable object — FormatCellAsLatex" />
+<meta property="og:title" content="Latex represenataion of a model parameter or other found in a data.table object — FormatCellAsLatex" />
 
-<meta property="og:description" content="Latex represenataion of a model parameter or other found in a PCMTable object" />
+<meta property="og:description" content="Latex represenataion of a model parameter or other found in a data.table object" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -101,6 +101,9 @@
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -125,14 +128,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Latex represenataion of a model parameter or other found in a PCMTable object</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTable.R'><code>R/PCMTable.R</code></a></small>
+    <h1>Latex represenataion of a model parameter or other found in a data.table object</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/LatexTools.R'><code>R/LatexTools.R</code></a></small>
     <div class="hidden name"><code>FormatCellAsLatex.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Latex represenataion of a model parameter or other found in a PCMTable object</p>
+    <p>Latex represenataion of a model parameter or other found in a data.table object</p>
     
     </div>
 
@@ -143,8 +146,8 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>an R object. Currently, objects of S3 classes MatrixParameter,
-VectorParameter, ScalarParameter and PCMTable are supported.</p></td>
+      <td><p>an R object. Currently, character vectors of length 1,
+numeric vectors and matrices are supported.</p></td>
     </tr>
     </table>
     

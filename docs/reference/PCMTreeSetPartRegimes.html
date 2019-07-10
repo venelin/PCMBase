@@ -101,6 +101,9 @@
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -191,7 +194,7 @@ edge.part and part.regime members.</p>
 #&gt; "global-regime" </div><div class='input'><span class='fu'><a href='PCMTreeGetPartNames.html'>PCMTreeGetPartNames</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt; [1] "26"</div><div class='input'>
 <span class='co'># This should fail because no partition with nodes 26, 28 and 41 has been</span>
 <span class='co'># done.</span>
-<span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/should_stop'>should_stop</a></span>(
+<span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/should_stop.html'>should_stop</a></span>(
   <span class='fu'>PCMTreeSetPartRegimes</span>(<span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>`26`</span> <span class='kw'>=</span> <span class='st'>"a"</span>, <span class='kw'>`28`</span> <span class='kw'>=</span> <span class='st'>"b"</span>, <span class='kw'>`41`</span> <span class='kw'>=</span> <span class='st'>"c"</span>)))
 <span class='co'># This should succeed and change the partition as well as regime assignment</span>
 <span class='fu'>PCMTreeSetPartRegimes</span>(

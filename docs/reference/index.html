@@ -98,6 +98,9 @@
     <li>
       <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
+    <li>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -164,7 +167,13 @@ a MGPM model with some of the default MGPM model types.</p></td>
         <td>
           <p><code><a href="FormatCellAsLatex.html">FormatCellAsLatex()</a></code> </p>
         </td>
-        <td><p>Latex represenataion of a model parameter or other found in a PCMTable object</p></td>
+        <td><p>Latex represenataion of a model parameter or other found in a data.table object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="FormatTableAsLatex.html">FormatTableAsLatex()</a></code> </p>
+        </td>
+        <td><p>Latex representation of a data.table with matrix and vectors in its cells</p></td>
       </tr><tr>
         
         <td>
@@ -318,6 +327,12 @@ the model classes associated with each regime.</p></td>
           <p><code><a href="PCMLikDmvNorm.html">PCMLikDmvNorm()</a></code> </p>
         </td>
         <td><p>Calculate the likelihood of a model using the standard formula for multivariate pdf</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="PCMLikTrace.html">PCMLikTrace()</a></code> </p>
+        </td>
+        <td><p>Tracing the log-likelihood calculation of a model over each node of the tree</p></td>
       </tr><tr>
         
         <td>
