@@ -2,16 +2,9 @@
 title: "Tracing the pruning algorithm"
 author: "Venelin Mitov"
 date: '`r Sys.Date()`'
-output: 
-  rmarkdown::html_vignette:
-    fig_caption: yes
-    toc: true
-    toc_depth: 3
-vignette: >
-  %\VignetteIndexEntry{Tracing the pruning algorithm}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-bibliography: REFERENCES.bib
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 <!--
@@ -45,7 +38,7 @@ if(!requireNamespace("ggtree")) {
   status.ggtree <- try({
     if (!requireNamespace("BiocManager", quietly = TRUE))
       install.packages("BiocManager")
-    BiocManager::install("ggtree", version = "3.8")
+    BiocManager::install("ggtree", version = "3.9")
   }, silent = TRUE)
   if(class(status.ggtree == "try-error")) {
     stop(
@@ -54,36 +47,68 @@ if(!requireNamespace("ggtree")) {
 }
 
 options(digits = 2)
-
 # specify either 'html' or 'latex'
-tableOutputType <- 'html'
+tableOutputType <- 'latex'
 ```
 
-```{r tree}
-X <- cbind(
-  c(0.3, NaN, 1.4), 
-  c(0.1, NaN, NA), 
-  c(0.2, NaN, 1.2), 
-  c(NA, 0.2, 0.2), 
-  c(NA, 1.2, 0.4))
+```{r treeAndData}
+library(tikzDevice); library(ggtree); library(ggplot2); library(data.table); library(ape); library(PCMBase);
 
-colnames(X) <- as.character(1:5)
-```
-
-```{r}
+# 1. Non-ultrametric phylogenetic tree of 5 tips:
 treeText <- "((5:0.8,4:1.8)7:1.5,(((3:0.8,2:1.6)6:0.7)8:0.6,1:2.6)9:0.9)0;"
 tree <- PCMTree(read.tree(text = treeText))
-
+# Partitioning the tree in two parts and assign the regimes:
 PCMTreeSetPartRegimes(tree, part.regime = c(`6`=2), setPartition = TRUE, inplace = TRUE)
+
+# 2. Trait data:
+X <- cbind(c(0.3, NaN, 1.4), c(0.1, NaN, NA), c(0.2, NaN, 1.2), c(NA, 0.2, 0.2), c(NA, 1.2, 0.4))
+colnames(X) <- as.character(1:5)
+# Determine the active coordinates:
+k_i <- PCMPresentCoordinates(X[, tree$tip.label], tree, NULL)
+
+# 4. Plotting the tree, the data and the active coordinates:
+tipValueLabels <- data.table(
+  node = seq_len(PCMTreeNumTips(tree)),
+  valueLabel = paste0(
+    "$\\vec{x}_{", tree$tip.label, "}=(", apply(X[, tree$tip.label], 2, toString), ")^T$"),
+  parse = TRUE)
+
+dtNodes <- PCMTreeDtNodes(tree)
+dtNodes[, kLabel:=paste0(
+  "$\\vec{k}_{", endNodeLab, "}=(", sapply(endNode, function(i) toString(which(k_i[,i]))), ")^T$")]
+dtNodes[, kLabel2:=kLabel]
+dtNodes[endNodeLab == "8", kLabel:=NA]
+dtNodes[endNodeLab != "8", kLabel2:=NA]
+dtNodes[, tLabel:=paste0("$t_{", endNodeLab, "}=", endTime-startTime, "$")]
+dtNodes[endNodeLab == "0", tLabel:=NA]
+
+tikz(file = "TreeMGPMExample.tex", width = 8, height = 5)
+palette <- PCMColorPalette(2, names = c("1", "2"), colors = c("black", "orange"))
+plTree <- PCMTreePlot(tree, palette = palette, size=2) +
+  geom_nodelab(geom = "label", color = "red") + geom_tiplab(geom = "label", color = "black")
+plTree <- plTree %<+% tipValueLabels %<+% dtNodes[, list(node = endNode, kLabel, kLabel2, tLabel)]
+plTree +
+  geom_tiplab(geom = "text", aes(label = valueLabel), color = "black", hjust = -0.2, vjust = -1.1) +
+  geom_tiplab(geom = "text", aes(label = kLabel), color = "black", hjust = -0.4, vjust = 1.1) +
+  geom_nodelab(geom = "text", aes(label = kLabel), color = "red", hjust = -0.2, vjust = 0.6) +
+  geom_nodelab(geom = "text", aes(label = kLabel2), color = "red", hjust = 0.4, vjust = 2.8) +
+  geom_text(aes(x = branch, label = tLabel), vjust = -0.8, color = "black") +
+  scale_x_continuous(limits = c(0, 5.2)) + scale_y_continuous(limits = c(0.8, 5.2))
+dev.off()
 ```
 
 
 ```{r, results='asis'}
 model.OU.BM <- MixedGaussian(
   k = nrow(X), 
-  modelTypes = MGPMDefaultModelTypes(), 
-  mapping = c(6, 2), 
-  Sigmae_x = Args_MixedGaussian_MGPMDefaultModelTypes(TRUE)$Sigmae_x)
+  modelTypes = c(
+    "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x",
+    "OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"), 
+  mapping = c(2, 1), 
+  Sigmae_x = structure(
+    0, 
+    class = c("MatrixParameter", "_Omitted", 
+              description = "upper triangular factor of the non-phylogenetic variance-covariance")))
 
 model.OU.BM <- PCMApplyTransformation(model.OU.BM)
 model.OU.BM$X0[] <- c(NA, NA, NA)
@@ -108,53 +133,9 @@ print(
 ```
 
 ```{r}
-print(PCMLik(X[, tree$tip.label], tree, model.OU.BM))
+PCMLik(X[, tree$tip.label], tree, model.OU.BM)
 ```
 
-
-```{r traceTableR}
-traceTable <- PCMLikTrace(X[, tree$tip.label], tree, model.OU.BM)
-traceTable[, node:=.I]
-setkey(traceTable, i)
-pOrder <- c(PCMTreeGetLabels(tree)[tree$edge[PCMTreePostorder(tree), 2]], "0")
-```
-
-```{r plotTree, eval=FALSE}
-library(tikzDevice)
-library(ggtree)
-library(ggplot2)
-
-palette <- PCMColorPalette(2, names = c("1", "2"), colors = c("black", "orange"))
-plTree <- PCMTreePlot(tree, palette = palette) + 
-  ggtree::geom_nodelab(geom = "label", color = "red") + 
-  ggtree::geom_tiplab(geom = "label", color = "black")
-
-tipValueLabels <- data.table(
-  node = seq_len(PCMTreeNumTips(tree)), 
-  valueLabel = paste0("$\\vec{x}_{", tree$tip.label, "}=(", apply(X[, tree$tip.label], 2, toString), ")^T$"),
-  parse = TRUE)
-
-traceTable[, kLabel:=paste0("$\\vec{k}_{", i, "}=(", sapply(k_i, toString), ")^T$")]
-traceTable[, kLabel2:=kLabel]
-traceTable[i == "8", kLabel:=NA]
-traceTable[i != "8", kLabel2:=NA]
-traceTable[, tLabel:=paste0("$t_{", i, "}=", t_i, "$")]
-traceTable[i == "0", tLabel:=NA]
-
-tikzDevice::tikz(file = "TreeMGPMExample.tex", width = 8, height = 5)
-plTree <- plTree %<+% tipValueLabels %<+% traceTable[, list(node, kLabel, kLabel2, tLabel)]
-
-plTree + 
-  geom_tiplab(geom = "text", aes(label = valueLabel), color = "black", hjust = -0.2, vjust = -1.1) +
-  geom_tiplab(geom = "text", aes(label = kLabel), color = "black", hjust = -0.4, vjust = 1.1) +
-  geom_nodelab(geom = "text", aes(label = kLabel), color = "red", hjust = -0.2, vjust = 0.6) +
-  geom_nodelab(geom = "text", aes(label = kLabel2), color = "red", hjust = 0.4, vjust = 2.8) +
-  geom_text(aes(x = branch, label = tLabel), vjust = -0.6, color = "black") +
-  scale_x_continuous(limits = c(0, 5.2)) +
-  scale_y_continuous(limits = c(0.8, 5.2))  
-
-dev.off()
-```
 ```{r traceTableR}
 traceTable <- PCMLikTrace(X[, tree$tip.label], tree, model.OU.BM)
 traceTable[, node:=.I]
@@ -191,4 +172,3 @@ cat(FormatTableAsLatex(
 ```
 
 
-# References

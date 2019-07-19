@@ -43,7 +43,7 @@ if(!requireNamespace("ggtree")) {
   status.ggtree <- try({
     if (!requireNamespace("BiocManager", quietly = TRUE))
       install.packages("BiocManager")
-    BiocManager::install("ggtree", version = "3.8")
+    BiocManager::install("ggtree", version = "3.9")
   }, silent = TRUE)
   if(class(status.ggtree == "try-error")) {
     stop(

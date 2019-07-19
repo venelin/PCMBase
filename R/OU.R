@@ -136,6 +136,7 @@ PCMListDefaultParameterizations.OU <- function(model, ...) {
     ),
 
     H = list(
+      c("MatrixParameter"),
       c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal"),
       c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable"),
       c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable"),

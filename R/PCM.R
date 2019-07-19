@@ -1489,10 +1489,17 @@ logLik.PCM <- function(object, ...) {
 #' @export
 PCMPresentCoordinates <- function(X, tree, metaI) {
 
-  N <- metaI$N
-  M <- metaI$M
-  k <- metaI$k
-  postorder <- rev(metaI$preorder)
+  if(is.null(metaI)) {
+    N <- PCMTreeNumTips(tree)
+    M <- PCMTreeNumNodes(tree)
+    k <- nrow(X)
+    postorder <- PCMTreePostorder(tree)
+  } else {
+    N <- metaI$N
+    M <- metaI$M
+    k <- metaI$k
+    postorder <- rev(metaI$preorder)
+  }
 
   edge <- tree$edge
 
@@ -1521,7 +1528,7 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
     # are NA but not NaN: Both NAs and NaNs result in FALSE at a tip;
     # only coordinates for which all descending tips have NaN are FALSE at
     # internal nodes.
-    pc[, 1:N] <- !is.na(X[, 1:N])
+    pc[, seq_len(N)] <- !is.na(X[, seq_len(N)])
 
     if(any(rowSums(pc) == 0)) {
       stop("PCMPresentCoordinates:: Some tips have 0 present coordinates.
