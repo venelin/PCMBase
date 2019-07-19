@@ -81,15 +81,165 @@ is.Global <- function(o) { inherits(o, "_Global") }
 #' @export
 is.ScalarParameter <- function(o) { inherits(o, "ScalarParameter") }
 
+#' @export
+PCMNumTraits.ScalarParameter <- function(model) {
+  0L
+}
+
+#' @export
+PCMNumRegimes.ScalarParameter <- function(obj) {
+  if(is.Global(obj)) {
+    0L
+  } else {
+    length(obj)
+  }
+}
+
+#' @export
+PCMExtractDimensions.ScalarParameter <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
+  obj
+}
+
+#' @export
+PCMExtractRegimes.ScalarParameter <- function(obj, regimes = seq_len(PCMNumRegimes(obj))) {
+  if(is.Global(obj)) {
+    obj
+  } else {
+    regimes <- as.integer(regimes)
+    if(isTRUE(any(regimes > PCMNumRegimes(obj) | regimes < 1))) {
+      stop(paste0(
+        "PCMExtractRegimes.ScalarParameter:: some of regimes are outside the",
+        " range 1:R; regimes=(", toString(regimes), "); R=", PCMNumRegimes(obj)))
+    } else {
+      # obj is local scope, so a matrix
+      obj2 <- obj[regimes]
+      class(obj2) <- class(obj)
+      attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
+      obj2
+    }
+  }
+}
+
 #' @describeIn PCMParamType
 #'
 #' @export
 is.VectorParameter <- function(o) { inherits(o, "VectorParameter") }
 
+#' @export
+PCMNumTraits.VectorParameter <- function(model) {
+  if(is.Global(model)) {
+    length(model)
+  } else {
+    dim(model)[1L]
+  }
+}
+
+#' @export
+PCMNumRegimes.VectorParameter <- function(obj) {
+  if(is.Global(obj)) {
+    0L
+  } else {
+    dim(obj)[2L]
+  }
+}
+
+#' @export
+PCMExtractDimensions.VectorParameter <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
+  dims <- as.integer(dims)
+  if(isTRUE(any(dims > PCMNumTraits(obj) | dims < 1))) {
+    stop(paste0(
+      "PCMExtractDimensions.VectorParameter:: some of dims are outside the",
+      " range 1:k; dims=(", toString(dims), "); k=", PCMNumTraits(obj)))
+  }
+  obj2 <- if(is.Global(obj)) {
+    obj[dims]
+  } else {
+    # obj is local scope, so a matrix
+    obj[dims, , drop = FALSE]
+  }
+  class(obj2) <- class(obj)
+  attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
+  obj2
+}
+
+#' @export
+PCMExtractRegimes.VectorParameter <- function(obj, regimes = seq_len(PCMNumRegimes(obj))) {
+  if(is.Global(obj)) {
+    obj
+  } else {
+    regimes <- as.integer(regimes)
+    if(isTRUE(any(regimes > PCMNumRegimes(obj) | regimes < 1))) {
+      stop(paste0(
+        "PCMExtractRegimes.VectorParameter:: some of regimes are outside the",
+        " range 1:R; regimes=(", toString(regimes), "); R=", PCMNumRegimes(obj)))
+    } else {
+      # obj is local scope, so a matrix
+      obj2 <- obj[, regimes, drop=FALSE]
+      class(obj2) <- class(obj)
+      attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
+      obj2
+    }
+  }
+}
+
+
 #' @describeIn PCMParamType
 #'
 #' @export
 is.MatrixParameter <- function(o) { inherits(o, "MatrixParameter") }
+
+#' @export
+PCMNumTraits.MatrixParameter <- function(model) {
+  dim(model)[1L]
+}
+
+#' @export
+PCMNumRegimes.MatrixParameter <- function(obj) {
+  if(is.Global(obj)) {
+    0L
+  } else {
+    dim(obj)[3L]
+  }
+}
+
+#' @export
+PCMExtractDimensions.MatrixParameter <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
+  dims <- as.integer(dims)
+  if(isTRUE(any(dims > PCMNumTraits(obj) | dims < 1))) {
+    stop(paste0(
+      "PCMExtractDimensions.MatrixParameter:: some of dims are outside the",
+      " range 1:k; dims=(", toString(dims), "); k=", PCMNumTraits(obj)))
+  }
+  obj2 <- if(is.Global(obj)) {
+    obj[dims, dims, drop = FALSE]
+  } else {
+    # obj is local scope, so an array
+    obj[dims, dims, , drop = FALSE]
+  }
+  class(obj2) <- class(obj)
+  attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
+  obj2
+}
+
+#' @export
+PCMExtractRegimes.MatrixParameter <- function(obj, regimes = seq_len(PCMNumRegimes(obj))) {
+  if(is.Global(obj)) {
+    obj
+  } else {
+    regimes <- as.integer(regimes)
+    if(isTRUE(any(regimes > PCMNumRegimes(obj) | regimes < 1))) {
+      stop(paste0(
+        "PCMExtractRegimes.MatrixParameter:: some of regimes are outside the",
+        " range 1:R; regimes=(", toString(regimes), "); R=", PCMNumRegimes(obj)))
+    } else {
+      # obj is local scope, so a matrix
+      obj2 <- obj[, , regimes, drop=FALSE]
+      class(obj2) <- class(obj)
+      attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
+      obj2
+    }
+  }
+}
 
 #' @describeIn PCMParamType
 #'

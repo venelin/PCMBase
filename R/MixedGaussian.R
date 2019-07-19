@@ -99,6 +99,32 @@ PCMParamCount.MixedGaussian <- function(
   p
 }
 
+#' @export
+PCMExtractRegimes.MixedGaussian <- function(obj, regimes = seq_len(PCMNumRegimes(obj))) {
+  regimes.obj <- PCMRegimes(obj)
+  regimes.obj2 <- regimes.obj[regimes]
+
+  names.obj2 <- setdiff(names(obj), setdiff(regimes.obj, regimes.obj2))
+  obj2 <- obj[names.obj2]
+
+  for(na in names(attributes(obj))) {
+    if(na != "names") {
+      attr(obj2, na) <- attr(obj, na)
+    }
+  }
+
+  attr(obj2, "regimes") <- regimes.obj2
+  attr(obj2, "mapping") <- attr(obj2, "mapping")[regimes.obj2]
+  attr(obj2, "p") <- PCMParamCount(obj2)
+
+  names.spec.obj2 <- setdiff(names(attr(obj, "spec")), setdiff(regimes.obj, regimes.obj2))
+  attr(obj2, "spec") <- attr(obj2, "spec")[names.spec.obj2]
+
+  class(obj2)[1L] <- class(attr(obj2, "spec"))[1L] <-
+    paste0("MixedGaussian", "_", do.call(paste0, as.list(regimes.obj2)))
+
+  obj2
+}
 
 #' Create a multi-regime Gaussian model (MixedGaussian)
 #' @param k integer defining the number of traits.

@@ -701,7 +701,8 @@ PCMUnfixParameter <- function(model, name) {
 
 
 #' Number of traits modeled by a PCM
-#' @param model a PCM object
+#' @param model a PCM object or an a parameter object (the name of this argument
+#' could be misleading, because both, model and parameter objects are supported).
 #' @return an integer
 #' @export
 PCMNumTraits <- function(model) {
@@ -1711,4 +1712,55 @@ PCMFindMethod <- function(x, method = "PCMCond") {
   cls <- c(class(o), 'default')
   results <- lapply(cls, function(y) try(getS3method(method, y), silent = TRUE))
   Find(function (x) class(x) != 'try-error', results)
+}
+
+#' Given a PCM or a parameter object, extract an analogical object for a subset
+#' of the dimensions (traits) in the original object.
+#'
+#' @details This is an S3 generic
+#' @param obj a PCM or a parameter object.
+#' @param dims an integer vector; should be a subset or equal to
+#' \code{seq_len(PCMNumTraits(obj))} (the default).
+#' @return an object of the same class as obj with a subset of obj's dimensions
+#' @export
+PCMExtractDimensions <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
+  UseMethod("PCMExtractDimensions", obj)
+}
+
+#' @export
+PCMExtractDimensions.PCM <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
+  obj2 <- lapply(obj, PCMExtractDimensions, dims = dims)
+  attributes(obj2) <- attributes(obj)
+  attr(obj2, "k") <- length(dims)
+  attr(attr(obj2, "spec"), "k") <- length(dims)
+  for(name in names(attr(obj2, "spec"))) {
+    if(is.PCM(attr(obj2, "spec")[[name]])) {
+      attr(attr(obj2, "spec")[[name]], "k") <- length(dims)
+    }
+  }
+  attr(obj2, "p") <- PCMParamCount(obj2)
+  obj2
+}
+
+#' Given a PCM or a parameter object, extract an analogical object for a subset
+#' of the regimes in the original object.
+#'
+#' @details This is an S3 generic
+#' @param obj a PCM or a parameter object.
+#' @param regimes an integer vector; should be a subset or equal to
+#' \code{seq_len(PCMNumRegimes(obj))} (the default).
+#' @return an object of the same class as obj with a subset of obj's regimes
+#' @export
+PCMExtractRegimes <- function(obj, regimes = seq_len(PCMNumRegimes(obj))) {
+  UseMethod("PCMExtractRegimes", obj)
+}
+
+#' @export
+PCMExtractRegimes.PCM <- function(obj, regimes = seq_len(PCMNumRegimes(obj))) {
+  obj2 <- lapply(obj, PCMExtractRegimes, regimes = regimes)
+  attributes(obj2) <- attributes(obj)
+  attr(obj2, "regimes") <- attr(obj2, "regimes")[regimes]
+  attr(obj2, "p") <- PCMParamCount(obj2)
+  attr(attr(obj2, "spec"), "regimes") <- attr(attr(obj2, "spec"), "regimes")[regimes]
+  obj2
 }

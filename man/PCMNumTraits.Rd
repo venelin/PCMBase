@@ -7,7 +7,8 @@
 PCMNumTraits(model)
 }
 \arguments{
-\item{model}{a PCM object}
+\item{model}{a PCM object or an a parameter object (the name of this argument
+could be misleading, because both, model and parameter objects are supported).}
 }
 \value{
 an integer
