@@ -1,0 +1,43 @@
+library(tikzDevice); library(ggtree); library(ggplot2); library(data.table); library(ape);
+
+# 1. Non-ultrametric phylogenetic tree of 5 tips:
+treeText <- "((5:0.8,4:1.8)7:1.5,(((3:0.8,2:1.6)6:0.7)8:0.6,1:2.6)9:0.9)0;"
+tree <- PCMTree(read.tree(text = treeText))
+# Partitioning the tree in two parts and assign the regimes:
+PCMTreeSetPartRegimes(tree, part.regime = c(`6`=2), setPartition = TRUE, inplace = TRUE)
+
+# 2. Trait data:
+X <- cbind(c(0.3, NaN, 1.4), c(0.1, NaN, NA), c(0.2, NaN, 1.2), c(NA, 0.2, 0.2), c(NA, 1.2, 0.4))
+colnames(X) <- as.character(1:5)
+# Determine the active coordinates:
+k_i <- PCMPresentCoordinates(X[, tree$tip.label], tree, NULL)
+
+# 4. Plotting the tree, the data and the active coordinates:
+tipValueLabels <- data.table(
+  node = seq_len(PCMTreeNumTips(tree)),
+  valueLabel = paste0(
+    "$\\vec{x}_{", tree$tip.label, "}=(", apply(X[, tree$tip.label], 2, toString), ")^T$"),
+  parse = TRUE)
+
+dtNodes <- PCMTreeDtNodes(tree)
+dtNodes[, kLabel:=paste0(
+  "$\\vec{k}_{", endNodeLab, "}=(", sapply(endNode, function(i) toString(which(k_i[,i]))), ")^T$")]
+dtNodes[, kLabel2:=kLabel]
+dtNodes[endNodeLab == "8", kLabel:=NA]
+dtNodes[endNodeLab != "8", kLabel2:=NA]
+dtNodes[, tLabel:=paste0("$t_{", endNodeLab, "}=", endTime-startTime, "$")]
+dtNodes[endNodeLab == "0", tLabel:=NA]
+
+tikz(file = "TreeMGPMExample.tex", width = 8, height = 5)
+palette <- PCMColorPalette(2, names = c("1", "2"), colors = c("black", "orange"))
+plTree <- PCMTreePlot(tree, palette = palette, size=2) +
+  geom_nodelab(geom = "label", color = "red") + geom_tiplab(geom = "label", color = "black")
+plTree <- plTree %<+% tipValueLabels %<+% dtNodes[, list(node = endNode, kLabel, kLabel2, tLabel)]
+plTree +
+  geom_tiplab(geom = "text", aes(label = valueLabel), color = "black", hjust = -0.2, vjust = -1.1) +
+  geom_tiplab(geom = "text", aes(label = kLabel), color = "black", hjust = -0.4, vjust = 1.1) +
+  geom_nodelab(geom = "text", aes(label = kLabel), color = "red", hjust = -0.2, vjust = 0.6) +
+  geom_nodelab(geom = "text", aes(label = kLabel2), color = "red", hjust = 0.4, vjust = 2.8) +
+  geom_text(aes(x = branch, label = tLabel), vjust = -0.8, color = "black") +
+  scale_x_continuous(limits = c(0, 5.2)) + scale_y_continuous(limits = c(0.8, 5.2))
+dev.off()
