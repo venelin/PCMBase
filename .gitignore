@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+*tikzDictionary
+*.log
+data-raw/PCMLikTraceExample.tex
