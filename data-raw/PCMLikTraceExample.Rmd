@@ -97,7 +97,6 @@ plTree +
 dev.off()
 ```
 
-
 ```{r, results='asis'}
 model.OU.BM <- MixedGaussian(
   k = nrow(X), 
@@ -130,6 +129,15 @@ model.OU.BM$`2`$Sigma_x[,,1] <- cbind(
 print(
   PCMTable(model.OU.BM, removeUntransformed = FALSE), 
   xtable = TRUE, type=tableOutputType)
+```
+
+```{r add-to-PCMBaseTestObjects, include = FALSE, eval=FALSE}
+# add these objects to the PCMBaseTestObjects (needed for the coding examples).
+PCMBaseTestObjects[["tree"]] <- tree
+PCMBaseTestObjects[["X"]] <- X[tree$tip.label]
+PCMBaseTestObjects[["model.OU.BM"]] <- model.OU.BM
+
+usethis::use_data(PCMBaseTestObjects, overwrite = TRUE)
 ```
 
 ```{r}

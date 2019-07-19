@@ -56,5 +56,8 @@
 #'   \item{traits.a.2 }{ trait values simulated with model.a.2. }
 #'   \item{traits.a.3 }{ trait values simulated with model.a.3. }
 #'   \item{traits.ab.123 }{ trait values simulated with model.ab.123 on tree.ab. }
+#'   \item{tree }{a tree of 5 tips used for examples.}
+#'   \item{X }{3-trait data for 5 tips used together with tree for examples. }
+#'   \item{model.OU.BM }{a mixed Gaussian phylogenetic model for 3 traits and an OU and BM regime used in examples. }
 #' }
 "PCMBaseTestObjects"
