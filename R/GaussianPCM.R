@@ -511,6 +511,7 @@ PCMLik.GaussianPCM <- function(
 }
 
 #' @importFrom data.table setnames
+#' @importFrom utils tail
 #' @export
 PCMLikTrace.GaussianPCM <- function(
   X, tree, model,
@@ -561,6 +562,10 @@ PCMLikTrace.GaussianPCM <- function(
 
   traceTable <- do.call(data.table, traceList)
 
+  # prevent warning during R CMD CHECK
+  j <- .I <- i <- t_i <- k_i <- X_i <- .N <- VE_i <- L_i <- m_i <-
+    r_i <- nodeId <- `L_{ji}` <- `m_{ji}` <- `r_{ji}` <- ff_i <- f_i <-
+    `rr_{ji}` <- L_i <- m_i <- r_i <- `\\hat{X}_i` <- `\\ell\\ell_i` <- NULL
 
   traceTable[, j:=sapply(.I, function(nodeId) {
     if(nodeId != metaI$N+1) {

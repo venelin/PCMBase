@@ -96,7 +96,10 @@ PCMNumRegimes.ScalarParameter <- function(obj) {
 }
 
 #' @export
-PCMExtractDimensions.ScalarParameter <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
+PCMExtractDimensions.ScalarParameter <- function(
+  obj,
+  dims = seq_len(PCMNumTraits(obj)),
+  nRepBlocks = 1L) {
   obj
 }
 
