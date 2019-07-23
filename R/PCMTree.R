@@ -841,8 +841,13 @@ PCMTreeGetRegimesForNodes <- function(
 #' the console.
 #'
 #'
-#' @return a list of integer \code{nNodes}-vectors.
+#' @return a list of integer \code{nNodes}-vectors. By default a full traversal
+#' of all partitions is done. It is possible to truncate the search to a limited
+#' number of partitions by setting the option PCMBase.MaxLengthListCladePartitions
+#' to a finite positive integer.
 #' @importFrom stats na.omit
+#'
+#' @seealso \code{\link{PCMOptions}}
 #' @export
 PCMTreeListCladePartitions <- function(
   tree, nNodes, minCladeSize = 0, skipNodes = character(0),
@@ -882,7 +887,6 @@ PCMTreeListCladePartitions <- function(
   envir$numRemainingTips <- envir$N
 
   addToPartition <- function(partition, i, envir) {
-
     numTips <- sum(envir$listDesc[[i]] <= envir$N)
     if(envir$nodesInUse[i] ||
        numTips < envir$minCladeSize ||
@@ -911,14 +915,16 @@ PCMTreeListCladePartitions <- function(
         envir$listPartitions[[envir$nextPartition]] <- partition
         if(verbose && envir$nextPartition %% 1000 == 0) {
           cat("Generated ", envir$nextPartition, " partitions out of ",
-              envir$numTries, " ...\n")
+              envir$numTries, "tries ...\n")
         }
 
         envir$nextPartition <- envir$nextPartition + 1L
       } else {
         if(envir$numNodesInUse < envir$M) {
           for(iNext in (i+1):envir$M) {
-            addToPartition(partition, iNext, envir)
+            if(length(envir$listPartitions) < getOption("PCMBase.MaxLengthListCladePartitions", Inf)) {
+              addToPartition(partition, iNext, envir)
+            }
           }
         }
       }
@@ -928,11 +934,16 @@ PCMTreeListCladePartitions <- function(
     }
   }
 
-  for(i in 1:envir$M) {
-    if(verbose) {
-      cat("Trying with first node in partition: ", i, "...\n")
+  for(i in seq_len(envir$M)) {
+    if(length(envir$listPartitions) < getOption("PCMBase.MaxLengthListCladePartitions", Inf)) {
+      if(verbose) {
+        cat("Trying with first node in partition: ", i, "...\n")
+      }
+      addToPartition(c(), i, envir)
+      if(verbose) {
+        cat("Done with first node in partition: ", i, "...\n")
+      }
     }
-    addToPartition(c(), i, envir)
   }
 
   envir$listPartitions

@@ -26,7 +26,10 @@ to \code{PCMTreeTableAncestors(tree)}.}
 the console.}
 }
 \value{
-a list of integer \code{nNodes}-vectors.
+a list of integer \code{nNodes}-vectors. By default a full traversal
+of all partitions is done. It is possible to truncate the search to a limited
+number of partitions by setting the option PCMBase.MaxLengthListCladePartitions
+to a finite positive integer.
 }
 \description{
 A list of all possible clade partitions of a tree with a number of splitting nodes
@@ -38,4 +41,7 @@ This function generates partitions in which \code{nNode} of the blocks
 are monophyletic complete groups (clades), while the \code{(nNodes+1)}'th block
 is a subtree originating at the root with tips ending at the rooting nodes of
 the \code{nNode} clades, eventually containing a clade of tips.
+}
+\seealso{
+\code{\link{PCMOptions}}
 }

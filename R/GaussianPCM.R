@@ -579,7 +579,7 @@ PCMLikTrace.GaussianPCM <- function(
   traceTable[, X_i:=lapply(seq_len(.N), function(nodeId) {
     nodeLabel <- i[nodeId]
     x <- if(nodeId <= metaI$N) {
-      X[, nodeLabel]
+      X[, nodeId]
     } else if(nodeId == metaI$N+1) {
       model$X0
     } else {

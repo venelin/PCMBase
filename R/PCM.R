@@ -85,8 +85,9 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.Lmr.mode }}{An integer code specifying the parallel likelihood calculation mode.}
 #' \item{\code{PCMBase.ParamValue.LowerLimit}}{Default lower limit value for parameters, default setting is -10.0.}
 #' \item{\code{PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal}}{Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.}
-#' \item{\code{PCMBase.ParamValue.UpperLimit}}{Default upper limit value for parameters, default setting is 10.0.}
-#' \item{\code{PCMBase.Transpose.Sigma_x}}{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}}. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.}
+#' \item{\code{PCMBase.ParamValue.UpperLimit} }{Default upper limit value for parameters, default setting is 10.0.}
+#' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}}. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.}
+#' \item{\code{PCMBase.MaxLengthListCladePartitions} }{Maximum number of tree partitions returned by \code{\link{PCMTreeListCladePartitions}}. This option has the goal to interrupt the recursive search for new partitions in the case of calling PCMTreeListCladePartitions on a big tree with a small value of the maxCladeSize argument. By default this is set to Inf.}
 #' }
 #' @export
 #' @examples
@@ -104,7 +105,8 @@ PCMOptions <- function() {
        PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal = getOption("PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal", 0.0),
        PCMBase.ParamValue.LowerLimit = getOption("PCMBase.ParamValue.LowerLimit", -10.0),
        PCMBase.ParamValue.UpperLimit = getOption("PCMBase.ParamValue.UpperLimit", 10.0),
-       PCMBase.Transpose.Sigma_x = getOption("PCMBase.Transpose.Sigma_x", FALSE)
+       PCMBase.Transpose.Sigma_x = getOption("PCMBase.Transpose.Sigma_x", FALSE),
+       PCMBase.MaxLengthListCladePartitions = getOption("PCMBase.MaxLengthListCladePartitions", Inf)
        )
 }
 
@@ -711,7 +713,7 @@ PCMNumTraits <- function(model) {
 
 #' @export
 PCMNumTraits.PCM <- function(model) {
-  attr(model, "k", exact = TRUE)
+  as.integer(attr(model, "k", exact = TRUE))
 }
 
 #' Get the regimes (aka colors) of a PCM or of a PCMTree object
@@ -1721,24 +1723,51 @@ PCMFindMethod <- function(x, method = "PCMCond") {
 #' @param obj a PCM or a parameter object.
 #' @param dims an integer vector; should be a subset or equal to
 #' \code{seq_len(PCMNumTraits(obj))} (the default).
+#' @param nRepBlocks a positive integer specifying if the specified dimensions
+#' should be replicated to obtain a higher dimensional model, where the parameter
+#' matrices are block-diagonal with blocks corresponding to dims. Default: 1L.
 #' @return an object of the same class as obj with a subset of obj's dimensions
+#' multiplied \code{nRepBlocks} times.
 #' @export
-PCMExtractDimensions <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
+PCMExtractDimensions <- function(
+  obj,
+  dims = seq_len(PCMNumTraits(obj)),
+  nRepBlocks = 1L) {
   UseMethod("PCMExtractDimensions", obj)
 }
 
 #' @export
-PCMExtractDimensions.PCM <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
-  obj2 <- lapply(obj, PCMExtractDimensions, dims = dims)
+PCMExtractDimensions.PCM <- function(
+  obj,
+  dims = seq_len(PCMNumTraits(obj)),
+  nRepBlocks = 1L) {
+  dims <- unique(dims)
+  if( !isTRUE(all(dims %in% seq_len(PCMNumTraits(obj)))) ) {
+    stop("PCMExtractDimensions.PCM:: Some dims are outside 1:PCMNumTraits(obj).")
+  }
+  obj2 <- lapply(obj, PCMExtractDimensions, dims = dims, nRepBlocks = nRepBlocks)
   attributes(obj2) <- attributes(obj)
-  attr(obj2, "k") <- length(dims)
-  attr(attr(obj2, "spec"), "k") <- length(dims)
+  attr(obj2, "k") <- as.integer(length(dims) * nRepBlocks)
+  attr(attr(obj2, "spec"), "k") <- as.integer(length(dims) * nRepBlocks)
   for(name in names(attr(obj2, "spec"))) {
     if(is.PCM(attr(obj2, "spec")[[name]])) {
-      attr(attr(obj2, "spec")[[name]], "k") <- length(dims)
+      attr(attr(obj2, "spec")[[name]], "k") <- as.integer(length(dims) * nRepBlocks)
     }
   }
   attr(obj2, "p") <- PCMParamCount(obj2)
+  if(!is.null(attr(obj, "X"))) {
+    attr(obj2, "X") <- attr(obj, "X")[rep(dims, nRepBlocks), , drop = FALSE]
+  }
+  if(!is.null(attr(obj, "SE"))) {
+    attr(obj2, "SE") <- if(is.matrix(attr(obj, "SE"))) {
+      attr(obj, "SE")[rep(dims, nRepBlocks), , drop = FALSE]
+    } else {
+      kronecker(diag(1, nRepBlocks), attr(obj, "SE"))
+    }
+  }
+  if(!is.null(attr(obj, "tree"))) {
+    attr(obj2, "tree") <- attr(obj, "tree")
+  }
   obj2
 }
 
@@ -1762,5 +1791,6 @@ PCMExtractRegimes.PCM <- function(obj, regimes = seq_len(PCMNumRegimes(obj))) {
   attr(obj2, "regimes") <- attr(obj2, "regimes")[regimes]
   attr(obj2, "p") <- PCMParamCount(obj2)
   attr(attr(obj2, "spec"), "regimes") <- attr(attr(obj2, "spec"), "regimes")[regimes]
+
   obj2
 }

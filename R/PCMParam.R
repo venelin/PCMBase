@@ -144,18 +144,21 @@ PCMNumRegimes.VectorParameter <- function(obj) {
 }
 
 #' @export
-PCMExtractDimensions.VectorParameter <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
-  dims <- as.integer(dims)
+PCMExtractDimensions.VectorParameter <- function(
+  obj,
+  dims = seq_len(PCMNumTraits(obj)),
+  nRepBlocks = 1L) {
+  dims <- unique(as.integer(dims))
   if(isTRUE(any(dims > PCMNumTraits(obj) | dims < 1))) {
     stop(paste0(
       "PCMExtractDimensions.VectorParameter:: some of dims are outside the",
       " range 1:k; dims=(", toString(dims), "); k=", PCMNumTraits(obj)))
   }
   obj2 <- if(is.Global(obj)) {
-    obj[dims]
+    obj[rep(dims, nRepBlocks)]
   } else {
     # obj is local scope, so a matrix
-    obj[dims, , drop = FALSE]
+    obj[rep(dims, nRepBlocks), , drop = FALSE]
   }
   class(obj2) <- class(obj)
   attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
@@ -203,18 +206,21 @@ PCMNumRegimes.MatrixParameter <- function(obj) {
 }
 
 #' @export
-PCMExtractDimensions.MatrixParameter <- function(obj, dims = seq_len(PCMNumTraits(obj))) {
-  dims <- as.integer(dims)
+PCMExtractDimensions.MatrixParameter <- function(
+  obj,
+  dims = seq_len(PCMNumTraits(obj)),
+  nRepBlocks = 1L) {
+  dims <- unique(as.integer(dims))
   if(isTRUE(any(dims > PCMNumTraits(obj) | dims < 1))) {
     stop(paste0(
       "PCMExtractDimensions.MatrixParameter:: some of dims are outside the",
       " range 1:k; dims=(", toString(dims), "); k=", PCMNumTraits(obj)))
   }
   obj2 <- if(is.Global(obj)) {
-    obj[dims, dims, drop = FALSE]
+    kronecker(diag(1, nRepBlocks), obj[dims, dims, drop = FALSE])
   } else {
     # obj is local scope, so an array
-    obj[dims, dims, , drop = FALSE]
+    kronecker(diag(1, nRepBlocks), obj[dims, dims, , drop = FALSE])
   }
   class(obj2) <- class(obj)
   attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
@@ -1373,10 +1379,10 @@ PCMApplyTransformation._CholeskyFactor <- function(o, ...) {
   # when assigning to o, we use o[] <-  instead of just o <- , in order to
   # preserve the attributes
   if(is.Global(o)) {
-    o[] <- o %*% t(o)
+    o[] <- as.matrix(o) %*% t(as.matrix(o))
   } else {
     for(r in 1:dim(o)[3]) {
-      o[,,r] <- o[,,r] %*% t(o[,,r])
+      o[,,r] <- as.matrix(o[,,r]) %*% t(as.matrix(o[,,r]))
     }
   }
   classes <- class(o)
@@ -1423,7 +1429,7 @@ PCMApplyTransformation._Schur <- function(o, ...) {
     o[] <- transformMatrix(o)
   } else {
     for(r in 1:dim(o)[3]) {
-      o[,,r] <- transformMatrix(o[,,r])
+      o[,,r] <- transformMatrix(as.matrix(o[,,r]))
     }
   }
   classes <- class(o)

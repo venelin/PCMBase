@@ -5,16 +5,22 @@
 \title{Given a PCM or a parameter object, extract an analogical object for a subset
 of the dimensions (traits) in the original object.}
 \usage{
-PCMExtractDimensions(obj, dims = seq_len(PCMNumTraits(obj)))
+PCMExtractDimensions(obj, dims = seq_len(PCMNumTraits(obj)),
+  nRepBlocks = 1L)
 }
 \arguments{
 \item{obj}{a PCM or a parameter object.}
 
 \item{dims}{an integer vector; should be a subset or equal to
 \code{seq_len(PCMNumTraits(obj))} (the default).}
+
+\item{nRepBlocks}{a positive integer specifying if the specified dimensions
+should be replicated to obtain a higher dimensional model, where the parameter
+matrices are block-diagonal with blocks corresponding to dims. Default: 1L.}
 }
 \value{
 an object of the same class as obj with a subset of obj's dimensions
+multiplied \code{nRepBlocks} times.
 }
 \description{
 Given a PCM or a parameter object, extract an analogical object for a subset
