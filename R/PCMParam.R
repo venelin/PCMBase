@@ -157,14 +157,15 @@ PCMExtractDimensions.VectorParameter <- function(
       "PCMExtractDimensions.VectorParameter:: some of dims are outside the",
       " range 1:k; dims=(", toString(dims), "); k=", PCMNumTraits(obj)))
   }
-  obj2 <- if(is.Global(obj)) {
-    obj[rep(dims, nRepBlocks)]
+  if(is.Global(obj)) {
+    obj2 <- obj[rep(dims, nRepBlocks)]
   } else {
     # obj is local scope, so a matrix
-    obj[rep(dims, nRepBlocks), , drop = FALSE]
+    obj2 <- obj[rep(dims, nRepBlocks), , drop = FALSE]
   }
   class(obj2) <- class(obj)
   attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
+
   obj2
 }
 
@@ -227,6 +228,7 @@ PCMExtractDimensions.MatrixParameter <- function(
   }
   class(obj2) <- class(obj)
   attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
+  attr(obj2, "dimnames") <- attr(obj, "dimnames", exact = TRUE)
   obj2
 }
 
@@ -241,7 +243,7 @@ PCMExtractRegimes.MatrixParameter <- function(obj, regimes = seq_len(PCMNumRegim
         "PCMExtractRegimes.MatrixParameter:: some of regimes are outside the",
         " range 1:R; regimes=(", toString(regimes), "); R=", PCMNumRegimes(obj)))
     } else {
-      # obj is local scope, so a matrix
+      # obj is local scope, so a array
       obj2 <- obj[, , regimes, drop=FALSE]
       class(obj2) <- class(obj)
       attr(obj2, "description") <- attr(obj, "description", exact = TRUE)
@@ -998,6 +1000,8 @@ PCMParamLocateInShortVector <- function(o, accessExpr) {
 #'   attributes as in \code{model}. By default this is set to FALSE, meaning
 #'   that sub-PCMs found in \code{params} will completely overwrite the
 #'   sub-PCMs of with the same name in \code{model}.
+#' @param failIfNamesInParamsDontExist logical indicating if an error should be
+#' raised if \code{params} contains elements not existing in model.
 #' @param ... other arguments that can be used by implementing methods.
 #' @return If inplace is TRUE, the function only has a side effect of setting
 #' the parameters of the model object in the calling environment; otherwise the
@@ -1010,6 +1014,7 @@ PCMParamSetByName <- function(
   inplace = TRUE,
   replaceWholeParameters = FALSE,
   deepCopySubPCMs = FALSE,
+  failIfNamesInParamsDontExist = TRUE,
   ...) {
 
   UseMethod("PCMParamSetByName", model)
@@ -1022,12 +1027,17 @@ PCMParamSetByName.PCM <- function(
   inplace = TRUE,
   replaceWholeParameters = FALSE,
   deepCopySubPCMs = FALSE,
+  failIfNamesInParamsDontExist = TRUE,
   ...) {
 
   for(name in names(params)) {
     if(! (name %in% names(model)) ) {
-      stop(paste0("ERR:02751:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: ", name,
-                  " is not a settable parameter of the model."))
+      if(failIfNamesInParamsDontExist) {
+        stop(paste0("ERR:02751:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: ", name,
+                    " is not a settable parameter of the model."))
+      } else {
+        next
+      }
     }
 
     if(is.PCM(model[[name]])) {
@@ -1407,14 +1417,15 @@ PCMApplyTransformation._CholeskyFactor <- function(o, ...) {
 #' @export
 PCMApplyTransformation._Schur <- function(o, ...) {
   # Assuming o is a MatrixParameter, we transform each matrix M in o as follows:
-  # use the upper triangle without the diagonal of M as rotation angles for a Givens
-  # rotation to obtain an orthoganal matrix Q;
+  # use the upper triangle without the diagonal of M as rotation angles for a
+  # Givens rotation to obtain an orthoganal matrix Q;
   # Then, use the lower triangle with the diagonal of M as a matrix T
   # Return the product Q %*% t(T) %*% t(Q).
   # The returned matrix will have all of its eigenvalues equal to the elements
-  # on the diaogonal of M (and T). If M is upper triangular, then T will be diagonal
-  # and the returned matrix will be symmetric. If the elements on the diagonal
-  # of M are positive, so will be the eigenvalues of the returned matrix.
+  # on the diaogonal of M (and T). If M is upper triangular, then T will be
+  # diagonal and the returned matrix will be symmetric. If the elements on the
+  # diagonal of M are positive, so will be the eigenvalues of the returned
+  # matrix.
 
   transformMatrix <- function(M) {
     k <- nrow(M)

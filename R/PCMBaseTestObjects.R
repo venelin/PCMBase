@@ -61,3 +61,12 @@
 #'   \item{model.OU.BM }{a mixed Gaussian phylogenetic model for 3 traits and an OU and BM regime used in examples. }
 #' }
 "PCMBaseTestObjects"
+
+#' Data for Fig3 in the TPB manuscript
+#'
+#' A list containing simulated tree, models and data used in Fig. 3
+#'
+#' @format This is a list containing the following named elements representing
+#' simulation parameters, a simulated tree and PCM objects, used in Fig. 3. For
+#' details on all these objects, read the file data-raw/Fig3.Rmd.
+"dataFig3"

@@ -53,6 +53,11 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.Errors.As.Warnings }}{a logical flag indicating if errors
 #' (occuring, e.g. during likelihood calculation) should be treated as warnings
 #' and added as an attribute "error" to returne likelihood values. Default TRUE.}
+#' \item{\item{PCMBase.Raise.Lik.Errors} }{Should numerical and other sort of
+#' errors occurring during likelihood calculation be raised either as errors or
+#' as warnings, depending on the option \code{PCMBase.Errors.As.Warnings}.
+#' Default TRUE. This option can be useful if too frequent warnings get raised
+#' during a model fit procedure.}
 #' \item{\code{PCMBase.Threshold.Lambda_ij }}{a 0-threshold for abs(Lambda_i + Lambda_j),
 #' where Lambda_i and Lambda_j are eigenvalues of the parameter matrix H of an OU or
 #' other model. Default 1e-8. See \code{\link{PCMPExpxMeanExp}}.}
@@ -88,6 +93,12 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.ParamValue.UpperLimit} }{Default upper limit value for parameters, default setting is 10.0.}
 #' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}}. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.}
 #' \item{\code{PCMBase.MaxLengthListCladePartitions} }{Maximum number of tree partitions returned by \code{\link{PCMTreeListCladePartitions}}. This option has the goal to interrupt the recursive search for new partitions in the case of calling PCMTreeListCladePartitions on a big tree with a small value of the maxCladeSize argument. By default this is set to Inf.}
+#' \item{\code{PCMBase.PCMPresentCoordinatesFun} }{A function with the same synopsis as \code{\link{PCMPresentCoordinates}} that can be specified in case of custom setting for the present coordinates for specific nodes of the tree. See \code{\link{PCMPresentCoordinates}}, and \code{\link{PCMInfo}}.}
+#' \item{\code{PCMBase.Use1DClasses} }{Logical indicating if 1D arithmetic operations
+#' should be used instead of multi-dimensional ones. This can speed-up computations
+#' in the case of a single trait. Currently, this feature is implemented only in
+#' the PCMBaseCpp R-package and only for some model types, such as OU and BM.
+#' Default: FALSE}
 #' }
 #' @export
 #' @examples
@@ -106,7 +117,10 @@ PCMOptions <- function() {
        PCMBase.ParamValue.LowerLimit = getOption("PCMBase.ParamValue.LowerLimit", -10.0),
        PCMBase.ParamValue.UpperLimit = getOption("PCMBase.ParamValue.UpperLimit", 10.0),
        PCMBase.Transpose.Sigma_x = getOption("PCMBase.Transpose.Sigma_x", FALSE),
-       PCMBase.MaxLengthListCladePartitions = getOption("PCMBase.MaxLengthListCladePartitions", Inf)
+       PCMBase.MaxLengthListCladePartitions = getOption("PCMBase.MaxLengthListCladePartitions", Inf),
+       PCMBase.PCMPresentCoordinatesFun = getOption("PCMBase.PCMPresentCoordinatesFun", PCMPresentCoordinates),
+       PCMBase.Use1DClasses = getOption("PCMBase.Use1DClasses", FALSE),
+       PCMBase.Raise.Lik.Errors = getOption("PCMBase.Raise.Lik.Errors", TRUE)
        )
 }
 
@@ -852,7 +866,15 @@ PCMApplyTransformation.default <- function(o, ...) {
 #' @export
 PCMApplyTransformation.PCM <- function(o, ...) {
   if(is.Transformable(o)) {
-    PCMParamSetByName(o, lapply(o, PCMApplyTransformation, ...), replaceWholeParameters = TRUE)
+
+    # Previously, the following call was used but was too slow, particularly
+    # in the case of MixedGaussian models, because of their deeper nested
+    # structure:
+    # PCMParamSetByName(o, lapply(o, PCMApplyTransformation, ...), replaceWholeParameters = TRUE)
+    # The for loop below is faster, but does no checks on the transformed object:
+    for(i in seq_along(o)) {
+      o[[i]] <- PCMApplyTransformation(o[[i]], ...)
+    }
     classes <- class(o)
     classes <- classes[classes != "_Transformable"]
     classes <- c(classes, "_Transformed")
@@ -1483,8 +1505,7 @@ logLik.PCM <- function(object, ...) {
 #' columns in X are in the order of tree$tip.label
 #' @param tree a phylo object
 #' @param metaI  The result of calling PCMInfo.
-#' @return a k x M logical matrix which can be passed as a pc argument to the PCMLik
-#' function. The function fails in case when all traits are NAs for some of the tips.
+#' @return a k x M logical matrix. The function fails in case when all traits are NAs for some of the tips.
 #' In that case an error message is issued
 #' "PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider
 #' removing these tips.".
@@ -1541,7 +1562,7 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
   pc
 }
 
-#' Meta-information about a tree associated with a PCM
+#' Meta-information about a tree and trait data associated with a PCM
 #'
 #' @description This function pre-processes the given tree and data in order to
 #' create meta-information used during likelihood calculaiton.
@@ -1567,7 +1588,10 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 #' \item{xi}{an integer vector of 0's and 1's corresponding to the rows in tree$edge
 #' indicating the presence of a jump at the corresponding branch;}
 #' \item{pc}{a logical matrix of dimension k x M denoting the present coordinates
-#' for each node;}
+#' for each node; in special cases this matrix can be edited by hand after calling
+#' PCMInfo and before passing the returned list to PCMLik. Otherwise, this matrix
+#' can be calculated in a custom way by specifying the option PCMBase.PCMPresentCoordinatesFun.
+#' See also \code{\link{PCMPresentCoordinates}} and \code{\link{PCMOptions}}. }
 #' This list is passed to \code{\link{PCMLik}}.
 #'
 #' @export
@@ -1638,7 +1662,9 @@ PCMInfo.PCM <- function(
   )
   res <- c(res, PCMOptions())
 
-  res$pc <- PCMPresentCoordinates(X, tree, res)
+  PCMPresentCoordinatesFun <- getOption(
+    "PCMBase.PCMPresentCoordinatesFun", PCMPresentCoordinates)
+  res$pc <- PCMPresentCoordinatesFun(X, tree, res)
   res$NA_double_ <- NA_real_
 
   res

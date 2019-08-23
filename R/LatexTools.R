@@ -69,6 +69,8 @@ FormatTableAsLatex <- function(x, argsXtable = list(), ...) {
     nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,u}', nLatexGreek, fixed = TRUE)
     nLatexGreek <- gsub('Sigmae', 'Sigma_{e}', nLatexGreek, fixed = TRUE)
     nLatexGreek <- gsub('Sigmaj_x', 'Sigma_{j,u}', nLatexGreek, fixed = TRUE)
+    nLatexGreek <- gsub('Sigmaj', 'Sigma_{j}', nLatexGreek, fixed = TRUE)
+    nLatexGreek <- gsub('mj', '\\vec{\\mu}_{j}', nLatexGreek, fixed = TRUE)
     if(! (n %in% c('regime', 'type')) ) {
       nLatexGreek <- paste0('$',nLatexGreek,'$')
     }

@@ -15,8 +15,7 @@ columns in X are in the order of tree$tip.label}
 \item{metaI}{The result of calling PCMInfo.}
 }
 \value{
-a k x M logical matrix which can be passed as a pc argument to the PCMLik
-function. The function fails in case when all traits are NAs for some of the tips.
+a k x M logical matrix. The function fails in case when all traits are NAs for some of the tips.
 In that case an error message is issued
 "PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider
 removing these tips.".

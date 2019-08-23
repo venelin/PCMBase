@@ -189,7 +189,7 @@ MixedGaussian <- function(
     if(any(is.na(mapping2))) {
       stop(
         paste0(
-          "ERR:02511:PCMBase:MixedGaussian.R:MixedGaussian:: some of the models in mapping not found in modelTypes: ",
+          "MixedGaussian.R:MixedGaussian:: some of the models in mapping not found in modelTypes: ",
           "modelTypes = ", toString(modelTypes),
           ", mapping =", toString(mapping)))
     } else {

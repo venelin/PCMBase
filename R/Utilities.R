@@ -281,23 +281,38 @@ PCMColorPalette <- function(
 #'   should reflect the distance from the present (points that are farther away in time with
 #'   respect to the present moment, i.e. closer to the root of the tree, are displayed smaller
 #'   and more transparent.). By default this is set to \code{!is.ultrametric(tree)}.
-#' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme
-#' @param sizeLabeledTips passed geom_text to specify the size of tip-labels for the trait-points.
+#'
+#' @param sizeLabels passed to \code{geom_text} to specify the size of tip-labels for the trait-points.
+#' @param nudgeLabels a numeric vector of two elements (default: c(0,0)), passed as
+#' arguments nudge_x and nudge_y of \code{geom_text}.
+#' @param sizePoints,alphaPoints numeric parameters passed as arguments size and alpha to \code{geom_point}.
+#' Default: sizePoints = 2, alphaPoints = 1.
+#' @param numTimeFacets a number or a numeric vector controlling the creation of different facets
+#' corresponding to different time intervals when the tree is non-ultrametric. If a single number,
+#' it will be interpreted as an integer specifying the number of facets, each facets corresponding to
+#' an equal interval of time. If a numeric vector, it will be used to specify the cut-points for
+#' each interval. Default: \code{if(is.ultrametric(tree) || scaleSizeWithTime) 1L else 3}.
+#' @param nrowTimeFacets,ncolTimeFacets integers specifying how the time facets should
+#' be layed out. Default: \code{nrowTimeFacets = 1L, ncolTimeFacets = numTimeFacets}.
 #'
 #' @return a ggplot object
 #' @importFrom data.table data.table is.data.table setkey := setnames
-#' @importFrom ggplot2 scale_color_manual
+#' @importFrom ggplot2 ggplot geom_point scale_size_continuous scale_alpha_continuous geom_text aes theme_gray theme scale_color_manual facet_wrap vars
 #' @importFrom ape is.ultrametric
 #' @export
 PCMPlotTraitData2D <- function(
-  X, tree, labeledTips = NULL, sizeLabeledTips = 8,
+  X, tree,
+  sizePoints = 2, alphaPoints = 1,
+  labeledTips = NULL, sizeLabels = 8, nudgeLabels = c(0.0, 0.0),
   palette = PCMColorPalette(PCMNumRegimes(tree), PCMRegimes(tree)),
-  scaleSizeWithTime = !is.ultrametric(tree)) {
+  scaleSizeWithTime = !is.ultrametric(tree),
+  numTimeFacets = if(is.ultrametric(tree) || scaleSizeWithTime) 1L else 3L,
+  nrowTimeFacets = 1L, ncolTimeFacets = numTimeFacets) {
 
   tree <- PCMTree(tree)
 
   # Needed to pass the check
-  id <- .N <- time <- regime <- label <- x <- y <- NULL
+  id <- .N <- time <- regime <- label <- x <- y <- timeFacet <- NULL
 
   N <- PCMTreeNumTips(tree)
   R <- PCMNumRegimes(tree)
@@ -308,6 +323,11 @@ PCMPlotTraitData2D <- function(
   setnames(data, c("x", "y"))
   data[, id:=seq_len(.N)]
   data[, time:=times]
+  data[, timeFacet:=if(length(numTimeFacets) > 1L || numTimeFacets > 1L) {
+    cut(time, numTimeFacets, include.lowest = TRUE)
+  } else {
+    factor(paste0("[", toString(range(time)), "]"))
+  }]
 
   data[, regime := factor(PCMTreeGetPartRegimes(tree)[PCMTreeGetPartsForNodes(tree, id)])]
   setkey(data, id)
@@ -323,14 +343,24 @@ PCMPlotTraitData2D <- function(
       scale_size_continuous(range = c(0.2, 2.8)) +
       scale_alpha_continuous(range = c(0.2, 0.75))
   } else {
-    pl <- pl + geom_point(aes(x=x, y=y, col=regime), alpha=.8, na.rm = TRUE)
+    pl <- pl + geom_point(
+      aes(x=x, y=y, col=regime),
+      size = sizePoints, alpha=alphaPoints, na.rm = TRUE)
   }
 
   pl <- pl + scale_color_manual(name = "regime", values = palette)
 
   if(!is.null(labeledTips)) {
-    pl <- pl +
-      geom_text(aes(label = label, x = x, y = y, col = regime), size = sizeLabeledTips)
+    pl <- pl + geom_text(
+      aes(label = label, x = x, y = y, col = regime),
+      size = sizeLabels,
+      nudge_x = nudgeLabels[1], nudge_y = nudgeLabels[2],
+      show.legend = FALSE,
+      check_overlap = TRUE)
+  }
+
+  if(length(numTimeFacets) > 1L || numTimeFacets > 1L) {
+    pl <- pl + facet_wrap(vars(timeFacet), nrow = nrowTimeFacets, ncol = ncolTimeFacets)
   }
 
   pl

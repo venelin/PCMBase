@@ -2,7 +2,7 @@
 % Please edit documentation in R/PCM.R
 \name{PCMInfo}
 \alias{PCMInfo}
-\title{Meta-information about a tree associated with a PCM}
+\title{Meta-information about a tree and trait data associated with a PCM}
 \usage{
 PCMInfo(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   PCMTreeNumTips(tree)), verbose = FALSE, preorder = NULL, ...)
@@ -51,7 +51,10 @@ branch in tree;}
 \item{xi}{an integer vector of 0's and 1's corresponding to the rows in tree$edge
 indicating the presence of a jump at the corresponding branch;}
 \item{pc}{a logical matrix of dimension k x M denoting the present coordinates
-for each node;}
+for each node; in special cases this matrix can be edited by hand after calling
+PCMInfo and before passing the returned list to PCMLik. Otherwise, this matrix
+can be calculated in a custom way by specifying the option PCMBase.PCMPresentCoordinatesFun.
+See also \code{\link{PCMPresentCoordinates}} and \code{\link{PCMOptions}}. }
 This list is passed to \code{\link{PCMLik}}.
 }
 \description{

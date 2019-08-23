@@ -5,7 +5,8 @@
 \title{Set model parameters from a named list}
 \usage{
 PCMParamSetByName(model, params, inplace = TRUE,
-  replaceWholeParameters = FALSE, deepCopySubPCMs = FALSE, ...)
+  replaceWholeParameters = FALSE, deepCopySubPCMs = FALSE,
+  failIfNamesInParamsDontExist = TRUE, ...)
 }
 \arguments{
 \item{model}{a PCM model object}
@@ -25,6 +26,9 @@ S3 class) will be replaced as well (dangerous).}
 attributes as in \code{model}. By default this is set to FALSE, meaning
 that sub-PCMs found in \code{params} will completely overwrite the
 sub-PCMs of with the same name in \code{model}.}
+
+\item{failIfNamesInParamsDontExist}{logical indicating if an error should be
+raised if \code{params} contains elements not existing in model.}
 
 \item{...}{other arguments that can be used by implementing methods.}
 }

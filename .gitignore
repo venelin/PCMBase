@@ -5,3 +5,6 @@
 *tikzDictionary
 *.log
 data-raw/PCMLikTraceExample.tex
+*.knit.md
+*.utf8.md
+*.synctex.gz
