@@ -1,0 +1,143 @@
+---
+title: "ManuscriptFig3"
+author: "Venelin Mitov"
+date: "8/19/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(PCMBase)
+library(cowplot)
+library(ggplot2)
+library(ggtree)
+library(data.table)
+library(abind)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r simulateTree, eval=FALSE}
+# Simulate the tree
+dataFig3 <- list(N=80, b = 1, d = 0.5, Qab = 0.1, Qba = 0.01)
+
+# The tree was generated using the following commands, but I don't remember
+# having set the set.seed before running them. So it may be hard to produce
+# exactly the same tree with exactly the same regimes. That's why the following
+# code is commented. The tree is stored in dataFig3$tree.
+#
+#dataFig3$tree <- phytools::pbtree(b = dataFig3$b, d = dataFig3$d, n = dataFig3$N)
+# Q <- rbind(c(-dataFig3$Qab, dataFig3$Qab),
+#           c(dataFig3$Qba, -dataFig3$Qba))
+# history <- phytools::sim.history(dataFig3$tree, Q = Q)
+# dataFig3$tree$edge.regime <- names(history$edge.length)
+#
+# Convert the tree to a PCMTree object
+# dataFig3$tree <- PCMTree(dataFig3$tree)
+# 
+# Set jumps to occur at the root node of each part in the tree
+# dataFig3$tree$edge.jump <- integer(length(dataFig3$tree$edge.length))
+# dataFig3$tree$edge.jump[
+#  dataFig3$tree$edge[, 2] %in% PCMTreeGetPartition(dataFig3$tree)[-1]] <- 1L
+```
+
+```{r Models, eval=TRUE}
+dataFig3$modelBM <- PCM("BM", k = 2L, regimes = c("a", "b"))
+dataFig3$modelOU <- PCM("OU", k = 2L, regimes = c("a", "b"))
+dataFig3$modelJOU <- PCM("JOU", k = 2L, regimes = c("a", "b"))
+
+dataFig3$modelBM$X0[] <- dataFig3$modelOU$X0[] <- dataFig3$modelJOU$X0[] <- c(5, 5)
+
+dataFig3$modelBM$Sigma_x[,,] <- dataFig3$modelOU$Sigma_x[,,] <- 
+  dataFig3$modelJOU$Sigma_x[,,] <- diag(0.4, 2)
+
+dataFig3$modelOU$H[,,"a"] <- 
+  dataFig3$modelJOU$H[,,"a"] <- diag(c(0.25, 0.16))
+dataFig3$modelOU$H[,,"b"] <- 
+  dataFig3$modelJOU$H[,,"b"] <- diag(c(0.16, 0.09))
+
+dataFig3$modelOU$Theta[,"b"] <- 
+  dataFig3$modelJOU$Theta[,"b"] <- c(10, 10)
+
+dataFig3$modelJOU$mj[,"b"] <- c(2, 4)
+```
+
+```{r SimulateTraitData, fig.width=9, fig.height=3, eval=FALSE}
+# The following code was used to generate the trait data
+# Again I forgot to set the set.seed but one can see that the patterns generated
+# are similar to the ones on Fig3 in the manuscript.
+
+# dataFig3$zBM <- PCMSim(dataFig3$tree, dataFig3$modelBM, X0 = dataFig3$modelBM$X0)[, seq_len(PCMTreeNumTips(dataFig3$tree))]
+# dataFig3$zOU <- PCMSim(dataFig3$tree, dataFig3$modelOU, X0 = dataFig3$modelOU$X0)[, seq_len(PCMTreeNumTips(dataFig3$tree))]
+# dataFig3$zJOU <- PCMSim(dataFig3$tree, dataFig3$modelJOU, X0 = dataFig3$modelJOU$X0)[, seq_len(PCMTreeNumTips(dataFig3$tree))]
+
+# Plot the data:
+cowplot::plot_grid(PCMPlotTraitData2D(dataFig3$zBM, dataFig3$tree) + scale_y_continuous(limits = c(0, 10)) + scale_x_continuous(limits = c(0, 10)),
+                   PCMPlotTraitData2D(dataFig3$zOU, dataFig3$tree) + scale_y_continuous(limits = c(0, 10)) + scale_x_continuous(limits = c(0, 10)),
+                   PCMPlotTraitData2D(dataFig3$zJOU, dataFig3$tree) + scale_y_continuous(limits = c(0, 10)) + scale_x_continuous(limits = c(0, 10)),
+                   ncol = 3, labels = c("BM", "OU", "JOU"))
+```
+
+Save the data:
+```{r saveData, eval=FALSE}
+usethis::use_data(dataFig3, overwrite = TRUE)
+```
+
+# Plot for Fig3 in the manuscript
+```{r fig3, fig.width=9, fig.height=9.4}
+timeBreaks <- c(0, 3.5, 5.2, 6.0, 6.75, 6.8)
+
+plTree <- PCMTreePlot(dataFig3$tree, size = .25, alpha=0.8, palette = c(a = "red", b = "blue"))
+plTree$data <- as.data.table(plTree$data)
+plTree$data[, offsetLabel:=0.05]
+plTree$data[node %% 2 == 0 & x >= 6.7, offsetLabel:=0.3]
+plTree$data[node %% 3 == 0 & x >= 6.7, offsetLabel:=0.55]
+plTree <- plTree + 
+  geom_tiplab(aes(x = x + offsetLabel), size = 2.8) + 
+  geom_vline(xintercept = timeBreaks[2:5], color = "grey", alpha=0.5) +
+  theme_tree2() +
+  scale_x_continuous(breaks = timeBreaks[1:5], labels = timeBreaks[1:5])
+
+plBM <- PCMPlotTraitData2D(
+  dataFig3$zBM, dataFig3$tree, 
+  labeledTips = seq_len(PCMTreeNumTips(dataFig3$tree)))
+
+plOU <- PCMPlotTraitData2D(
+  dataFig3$zOU, dataFig3$tree, 
+  labeledTips = seq_len(PCMTreeNumTips(dataFig3$tree))) 
+  
+plJOU <- PCMPlotTraitData2D(
+  dataFig3$zJOU, dataFig3$tree, 
+  labeledTips = seq_len(PCMTreeNumTips(dataFig3$tree))) 
+
+dataAll <- rbindlist(
+  list(as.data.table(plBM$data[, Model:="BM"]),
+       as.data.table(plOU$data[, Model:="OU"]),
+       as.data.table(plJOU$data[, Model:="JOU"])))
+
+dataAll[, timeFacet:=cut(time, breaks = timeBreaks)]
+
+plAll <- ggplot(dataAll) +
+  geom_point(aes(x, y, color = regime), size = 0.25, alpha = 0.8) + 
+  scale_x_continuous(limits = c(0, 10)) +
+  scale_y_continuous(limits = c(0, 10)) +
+  geom_text(aes(x = x, y = ifelse(id %% 2 == 0, y + 0.2, y - 0.2), label = label, color = regime), 
+            nudge_x = 0.8, size = 2.8, check_overlap = TRUE, show.legend = FALSE) +
+  scale_color_manual(values = c(a = "red", b = "blue"))
+  
+
+plLegend <- cowplot::get_legend(plAll)
+plAll <- plAll + theme(legend.position = "none") + 
+  facet_grid(factor(Model, levels = c("BM", "OU", "JOU"))~timeFacet)
+
+plot_grid(plotlist = list(
+  #plot_grid(plLegend, plTree, ncol = 2, rel_widths = c(1, 19)), 
+  plTree,
+  plAll), 
+  nrow = 2, rel_heights = c(0.75, 1), labels = LETTERS[2:3])
+```
+
+```{r, results='asis'}
+options(digits = 2)
+# print(PCMTable(dataFig3$modelBM), xtable=TRUE, type = "latex")
+# print(PCMTable(dataFig3$modelOU), xtable=TRUE, type = "latex")
+print(PCMTable(dataFig3$modelJOU), xtable=TRUE, type = "latex")
+```

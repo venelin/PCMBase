@@ -1,0 +1,49 @@
+\documentclass[single=minipage]{standalone}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{array}
+
+
+\begin{document}
+\makeatletter
+
+\newcommand*{\@rowstyle}{}
+
+\newcommand*{\rowstyle}[1]{% sets the style of the next row
+  \gdef\@rowstyle{#1}%
+  \@rowstyle\ignorespaces%
+}
+
+\newcolumntype{=}{% resets the row style
+  >{\gdef\@rowstyle{}}%
+}
+
+\newcolumntype{+}{% adds the current row style to the next column
+  >{\@rowstyle}%
+}
+
+\definecolor{regimea}{rgb}{248, 118, 109}
+\definecolor{regimeb}{rgb}{0, 191, 196}
+
+
+\makeatother
+\small
+\sffamily
+\begin{minipage}{6.4in}
+\begin{table}[ht]
+\centering
+\begin{tabular}{+r +r +r +r +r +r +r}
+  \hline
+regime & $\vec{x}_{0}$ (BM, OU, JOU) & $\mathbf{H}$ (OU, JOU) & $\vec{\Theta}$ (OU, JOU) & $\mathbf{\Sigma}$ (BM, OU, JOU) & $\vec{\mu}_{J}$ (JOU) & $\mathbf{\Sigma}_{J}$ (JOU)\\
+  \hline
+ :global:  &  $\begin{bmatrix}{}  5.00 \\   5.00 \\   \end{bmatrix}$  &   &   &   &   &  \\
+   \vspace{2mm}
+\rowstyle{\color{red}} a  &   &  $\begin{bmatrix}{}  0.25 & 0.00 \\   0.00 & 0.16 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  0.00 \\   0.00 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  0.16 & 0.00 \\   0.00 & 0.16 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  0.00 \\   0.00 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  0.00 & 0.00 \\   0.00 & 0.00 \\   \end{bmatrix}$  \\
+   \vspace{2mm}
+\rowstyle{\color{blue}} b  &   &  $\begin{bmatrix}{}  0.16 & 0.00 \\   0.00 & 0.09 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  10.00 \\   10.00 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  0.16 & 0.00 \\   0.00 & 0.16 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  2.00 \\   4.00 \\   \end{bmatrix}$  &  $\begin{bmatrix}{}  0.00 & 0.00 \\   0.00 & 0.00 \\   \end{bmatrix}$  \\
+   \hline
+\end{tabular}
+\end{table}
+\end{minipage}
+{\hspace*{0.025in}}
+\end{document}
