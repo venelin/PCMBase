@@ -1,9 +1,20 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "15 March, 2018"
+date: "27 August, 2019"
 output: html_document
 ---
+
+# PCMBase 1.2.10
+- Speedup of PCMApplyTransformation in the case of mixed Gaussian models. 
+- Added functions PCMExtractDimensions and PCMExtractRegimes
+- Finished parametrization vignette. 
+- Added functions for printing a PCM object as a table - see corresponding 
+section in the Getting started guide.
+- Added functions for tracing a likelihood calculation - see ?PCMLikTrace.
+- Some new runtime options were added - see ?PCMOptions.
+- Updated documentation pages.
+
 
 # PCMBase 1.2.9
 * Important changes in the PCMTree module: 
