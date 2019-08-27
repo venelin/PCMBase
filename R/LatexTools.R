@@ -65,10 +65,18 @@ FormatTableAsLatex <- function(x, argsXtable = list(), ...) {
       '___BACKSLASH___', "\\",
       gsub(reGreek, "___BACKSLASH___\\1", n), fixed = TRUE)
     nLatexGreek <- gsub('_1', '^{-1}', nLatexGreek, fixed = TRUE)
-    nLatexGreek <- gsub('Sigma_x', 'Sigma_{u}', nLatexGreek, fixed = TRUE)
-    nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,u}', nLatexGreek, fixed = TRUE)
+
+    if(getOption("PCMBase.PrintSuffix_u", FALSE)) {
+      nLatexGreek <- gsub('Sigma_x', 'Sigma_{u}', nLatexGreek, fixed = TRUE)
+      nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,u}', nLatexGreek, fixed = TRUE)
+      nLatexGreek <- gsub('Sigmaj_x', 'Sigma_{j,u}', nLatexGreek, fixed = TRUE)
+    } else {
+      nLatexGreek <- gsub('Sigma_x', 'Sigma_{x}', nLatexGreek, fixed = TRUE)
+      nLatexGreek <- gsub('Sigmae_x', 'Sigma_{e,x}', nLatexGreek, fixed = TRUE)
+      nLatexGreek <- gsub('Sigmaj_x', 'Sigma_{j,x}', nLatexGreek, fixed = TRUE)
+    }
+
     nLatexGreek <- gsub('Sigmae', 'Sigma_{e}', nLatexGreek, fixed = TRUE)
-    nLatexGreek <- gsub('Sigmaj_x', 'Sigma_{j,u}', nLatexGreek, fixed = TRUE)
     nLatexGreek <- gsub('Sigmaj', 'Sigma_{j}', nLatexGreek, fixed = TRUE)
     nLatexGreek <- gsub('mj', '\\vec{\\mu}_{j}', nLatexGreek, fixed = TRUE)
     if(! (n %in% c('regime', 'type')) ) {
