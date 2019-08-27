@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Meta-information about a tree associated with a PCM — PCMInfo • PCMBase</title>
+<title>Meta-information about a tree and trait data associated with a PCM — PCMInfo • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 
 
-<meta property="og:title" content="Meta-information about a tree associated with a PCM — PCMInfo" />
+<meta property="og:title" content="Meta-information about a tree and trait data associated with a PCM — PCMInfo" />
 
 <meta property="og:description" content="This function pre-processes the given tree and data in order to
 create meta-information used during likelihood calculaiton." />
@@ -100,10 +100,10 @@ create meta-information used during likelihood calculaiton." />
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -129,7 +129,7 @@ create meta-information used during likelihood calculaiton." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Meta-information about a tree associated with a PCM</h1>
+    <h1>Meta-information about a tree and trait data associated with a PCM</h1>
     <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCM.R'><code>R/PCM.R</code></a></small>
     <div class="hidden name"><code>PCMInfo.Rd</code></div>
     </div>
@@ -207,7 +207,10 @@ branch in tree;</p></dd>
 <dt>xi</dt><dd><p>an integer vector of 0's and 1's corresponding to the rows in tree$edge
 indicating the presence of a jump at the corresponding branch;</p></dd>
 <dt>pc</dt><dd><p>a logical matrix of dimension k x M denoting the present coordinates
-for each node;</p></dd>
+for each node; in special cases this matrix can be edited by hand after calling
+PCMInfo and before passing the returned list to PCMLik. Otherwise, this matrix
+can be calculated in a custom way by specifying the option PCMBase.PCMPresentCoordinatesFun.
+See also <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code> and <code><a href='PCMOptions.html'>PCMOptions</a></code>.</p></dd>
 This list is passed to <a href='PCMLik.html'>PCMLik</a>.
 
     

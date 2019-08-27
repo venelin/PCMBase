@@ -112,10 +112,10 @@ parent node." />
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -187,8 +187,7 @@ columns in X are in the order of tree$tip.label</p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a k x M logical matrix which can be passed as a pc argument to the PCMLik
-function. The function fails in case when all traits are NAs for some of the tips.
+    <p>a k x M logical matrix. The function fails in case when all traits are NAs for some of the tips.
 In that case an error message is issued
 "PCMPresentCoordinates:: Some tips have 0 present coordinates. Consider
 removing these tips.".</p>

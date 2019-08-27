@@ -62,10 +62,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -91,7 +91,7 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-07-10</h4>
+            <h4 class="date">2019-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMBase.Rmd"><code>vignettes/PCMBase.Rmd</code></a></small>
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
@@ -144,11 +144,9 @@
 <div id="example-ornstein-uhlenbeck-model-types" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example-ornstein-uhlenbeck-model-types" class="anchor"></a>Example: Ornstein-Uhlenbeck model types</h2>
-As an example, let’s consider a model representing a <span class="math inline">\(k\)</span>-variate Ornstein-Uhlenbec branching stochastic process. This is defined by the following stochastic differential equation:
-<span class="math display">\[\begin{equation}\label{eq:mammals:OUprocess}
+<p>As an example, let’s consider a model representing a <span class="math inline">\(k\)</span>-variate Ornstein-Uhlenbec branching stochastic process. This is defined by the following stochastic differential equation: <span class="math display">\[\begin{equation}\label{eq:mammals:OUprocess}
 d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma}}_{\chi} dW(t). 
-\end{equation}\]</span>
-<p>In the above equation, <span class="math inline">\(\vec{X}(t)\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{H}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional eigen-decomposable real matrix, <span class="math inline">\(\vec{\theta}\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional real positive definite matrix and <span class="math inline">\(W(t)\)</span> denotes the <span class="math inline">\(k\)</span>-dimensional standard Wiener process.</p>
+\end{equation}\]</span> In the above equation, <span class="math inline">\(\vec{X}(t)\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{H}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional eigen-decomposable real matrix, <span class="math inline">\(\vec{\theta}\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional real positive definite matrix and <span class="math inline">\(W(t)\)</span> denotes the <span class="math inline">\(k\)</span>-dimensional standard Wiener process.</p>
 <p>Biologically, <span class="math inline">\(\vec{X}(t)\)</span> denotes the mean values of <span class="math inline">\(k\)</span> continuous traits in a species at a time <span class="math inline">\(t\)</span> from the root, the parameter <span class="math inline">\(\mathbf{\Sigma}=\mathbf{\Sigma}_{\chi}\mathbf{\Sigma}_{\chi}^T\)</span> defines the magnitude and shape of the momentary fluctuations in the mean vector due to genetic drift, the matrix <span class="math inline">\(\mathbf{H}\)</span> and the vector <span class="math inline">\(\vec{\theta}\)</span> specify the trajectory of the population mean through time. When <span class="math inline">\(\mathbf{H}\)</span> is the zero matrix, the process is equivalent to a Brownian motion process and the parameter <span class="math inline">\(\vec{\theta}\)</span> is irrelevant. When <span class="math inline">\(\mathbf{H}\)</span> has strictly positive eigenvalues, the population mean converges in the long term towards <span class="math inline">\(\vec{\theta}\)</span>, although the trajectory of this convergence can be complex.</p>
 <p>So, the OU-model defines the following set of parameters:</p>
 <ul>
@@ -162,14 +160,13 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> : (coded <code>Sigma_x</code>) : a <span class="math inline">\(k\times k\)</span> matrix denoting the Choleski factor or the stochastic drift variance-covariances; <!-- - $\mathbf{\Sigma}_{e,\chi}$ (coded `Sigmae_x`) : a $k\times k$ matrix denoting the Choleski factor of the non-genetic (non-heritable) variance covariance; -->
 </li>
 </ul>
-The rule defining how the parameters of the OU-model are used to calculate the model likelihood and to simulate data consists in the definition of the functions <span class="math inline">\(\vec{\omega}\)</span> and matrices <span class="math inline">\(\mathbf{\Phi}\)</span>, <span class="math inline">\(\mathbf{V}\)</span> <span class="citation">(Mitov et al. 2018)</span>:
-<span class="math display">\[\begin{equation}\label{eq:mammals:omegaPhiVOU}
+<p>The rule defining how the parameters of the OU-model are used to calculate the model likelihood and to simulate data consists in the definition of the functions <span class="math inline">\(\vec{\omega}\)</span> and matrices <span class="math inline">\(\mathbf{\Phi}\)</span>, <span class="math inline">\(\mathbf{V}\)</span> <span class="citation">(Mitov et al. 2018)</span>: <span class="math display">\[\begin{equation}\label{eq:mammals:omegaPhiVOU}
 \begin{array}{l}
 \vec{\omega}_{s,t}=\bigg(\mathbf{I}-\text{Exp}\big(-(t-s)\mathbf{H}\big)\bigg)\vec{\theta} \\
 \mathbf{\Phi}_{s,t}=\text{Exp}(-(t-s)\mathbf{H}) \\
 \mathbf{V}_{s,t}=\int_{0}^{t-s}\text{Exp}(-v\mathbf{H})(\mathbf{\Sigma}_{\chi}\mathbf{\Sigma}_{\chi}^T)\text{Exp}(-v\mathbf{H}^T)dv
 \end{array}
-\end{equation}\]</span>
+\end{equation}\]</span></p>
 <p>Together, <span class="math inline">\(\vec{X}_{0}\)</span>, <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span>, <span class="math inline">\(\mathbf{V}\)</span> and the tree define a <span class="math inline">\(kN\)</span>-variate Gaussian distribution for the vector of trait values at the tips. This is the defining property of all Gaussian phylogenetic models. Hence, calculating the model likelihood is equivalent to calculating the density of this Gaussian distribution at observed trait values, and simulating data under the model is equivalent to drawing a random sample from this distribution. The functions <code><a href="../reference/PCMMean.html">PCMMean()</a></code> and <code><a href="../reference/PCMVar.html">PCMVar()</a></code> allow to calculate the mean <span class="math inline">\(kN\)</span>-vector and the <span class="math inline">\(kN\times kN\)</span> variance covariance matrix of this distribution. This can be useful, in particular, to compare two models by calculating a distance metric such as the Mahalanobis distance, or the Bhattacharyya distance. However, for big <span class="math inline">\(k\)</span> and/or <span class="math inline">\(N\)</span>, it is inefficient to use these functions in combination with a general purpose multivariate normal implementation (e.g. the <code><a href="https://www.rdocumentation.org/packages/mvtnorm/topics/Mvnorm">mvtnorm::dmvnorm</a></code> and <code><a href="https://www.rdocumentation.org/packages/mvtnorm/topics/Mvnorm">mvtnorm::rmvnorm</a></code>), to calculate the likelihood or simulate data assuming an OU model. The main purpose of PCMBase package is to provide a generic and computationally efficient way to perform these two operations.</p>
 </div>
 <div id="groups-of-model-types" class="section level2">
@@ -191,9 +188,9 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 <span class="math inline">\(OU_{F}\)</span> (asymmetric <span class="math inline">\(\mathbf{H}\)</span>, symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>): An OU with non-diagonal asymmetric <span class="math inline">\(\mathbf{H}\)</span> and non-diagonal symmetric <span class="math inline">\(\mathbf{\Sigma}\)</span>;</li>
 </ul>
 <p>Calling the function <code><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes()</a></code> returns a named vector of the technical class-names for these six models:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># scroll to the right in the following listing to see the full model type names </span>
-<span class="co"># and their corresponding alias:</span>
-<span class="kw"><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># scroll to the right in the following listing to see the full model type names </span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># and their corresponding alias:</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()</a></code></pre></div>
 <pre><code>##                                                                                                                                                                                A 
 ##                                                                                                      "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
 ##                                                                                                                                                                                B 
@@ -208,7 +205,7 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 ##                             "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</code></pre>
 <p>The PCMBase package comes with numerous other predefined model types. At present, all these are members of the <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family. A list of these model types is returned from calling the function <code><a href="../reference/PCMModels.html">PCMModels()</a></code>.</p>
 <p>For each model type, it is possible to check how the conditional distribution of <span class="math inline">\(\vec{X}\)</span> at the end of a time interval of length <span class="math inline">\(t\)</span> is defined from an ancestral value <span class="math inline">\(X_{0}\)</span>. In particular, for <span class="math inline">\(\mathcal{G}_{LInv}\)</span> models, this is the definition of the functions <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span>. For example,</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMFindMethod.html">PCMFindMethod</a></span>(<span class="kw"><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"A"</span>], <span class="st">"PCMCond"</span>)</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="../reference/PCMFindMethod.html">PCMFindMethod</a></span>(<span class="kw"><a href="../reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"A"</span>], <span class="st">"PCMCond"</span>)</a></code></pre></div>
 <pre><code>## function (tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, 
 ##     verbose = verbose), verbose = FALSE) 
 ## {
@@ -231,19 +228,19 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 ##     }
 ##     list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x7fbc631fc778&gt;
+## &lt;bytecode: 0x7fd51310ea50&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span>
-<span class="co"># R-code by typing :</span>
-<span class="co"># PCMBase::PCMCondVOU</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># R-code by typing :</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># PCMBase::PCMCondVOU</span></a></code></pre></div>
 </div>
 <div id="creating-pcm-objects" class="section level2">
 <h2 class="hasAnchor">
 <a href="#creating-pcm-objects" class="anchor"></a>Creating PCM objects</h2>
 <p>In the computer memory, models are represented by S3 objects, i.e. ordinary R-lists with a class attribute. The base S3 class of all models is called <code>"PCM"</code>, which is inherited by more specific model-classes. Let us create a BM PCM for two traits:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="dt">model =</span> <span class="st">"BM"</span>, <span class="dt">k =</span> <span class="dv">2</span>)</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">modelBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="dt">model =</span> <span class="st">"BM"</span>, <span class="dt">k =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p>Printing the model object shows a short verbal description, the S3-class, the number of traits, k, the number of numerical parameters of the model, p, the model regimes and the current values of the parameters for each regime (more on regimes in the next sub-section):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM</code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">modelBM</a></code></pre></div>
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=8; regimes: 1. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
@@ -269,8 +266,8 @@ The rule defining how the parameters of the OU-model are used to calculate the m
 <h2 class="hasAnchor">
 <a href="#model-regimes" class="anchor"></a>Model regimes</h2>
 <p>Model <em>regimes</em> are different models associated with different parts of the phylogenetic tree. This is a powerful concept allowing to model different evolutionary modes on different lineages on the tree. Let us create a 2-trait BM model with two regimes called a and b:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM"</span>, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))
-modelBM.ab</code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">modelBM.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM"</span>, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">modelBM.ab</a></code></pre></div>
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
@@ -303,73 +300,252 @@ modelBM.ab</code></pre></div>
 ## 
 ## </code></pre>
 <p>Now, we can set some different values for the parameters of the model we’ve just created. First, let us specify an initial value vector different from the default 0-vector:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM.ab<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">5</span>, <span class="dv">2</span>)</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">modelBM.ab<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">5</span>, <span class="dv">2</span>)</a></code></pre></div>
 <p>X0 is defined as a parameter with S3 class <code><a href="https://www.rdocumentation.org/packages/base/topics/class">class(modelBM.ab$X0)</a></code>. This specifies that <code>X0</code> is global vector parameter shared by all model regimes. This is also the reason, why the number of parameters is not the double of the number of parameters in the first model:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM)</code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM)</a></code></pre></div>
 <pre><code>## [1] 8</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab)</code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab)</a></code></pre></div>
 <pre><code>## [1] 14</code></pre>
 <p>The other parameters, Sigma_x and Sigmae_x are local for each regime:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># in regime 'a' the traits evolve according to two independent BM processes (starting from the global vecto X0).</span>
-modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="dv">0</span>),
-                                  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">2.4</span>))
-modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">0</span>),
-                                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, .<span class="dv">4</span>))
-<span class="co"># in regime 'b' there is a correlation between the traits</span>
-modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, .<span class="dv">8</span>),
-                                  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">8</span>, <span class="fl">2.4</span>))
-modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">0</span>),
-                                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, .<span class="dv">4</span>))</code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># in regime 'a' the traits evolve according to two independent BM processes (starting from the global vecto X0).</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="dv">0</span>),</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">                                  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">2.4</span>))</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"a"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">0</span>),</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">                                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">.4</span>))</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co"># in regime 'b' there is a correlation between the traits</span></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7">modelBM.ab<span class="op">$</span>Sigma_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="fl">.8</span>),</a>
+<a class="sourceLine" id="cb16-8" data-line-number="8">                                  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">8</span>, <span class="fl">2.4</span>))</a>
+<a class="sourceLine" id="cb16-9" data-line-number="9">modelBM.ab<span class="op">$</span>Sigmae_x[,, <span class="st">"b"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">0</span>),</a>
+<a class="sourceLine" id="cb16-10" data-line-number="10">                                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">.4</span>))</a></code></pre></div>
 <p>The above way of setting values for model parameters, while human readable, is not handy during model fitting procedures, such as likelihood maximization. Thus, there is another way to set (or get) the model parameter values from a numerical vector:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">double</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab))
-
-<span class="co"># load the current model parameters into param</span>
-<span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param, <span class="dt">offset=</span><span class="dv">0</span>, <span class="dt">load=</span><span class="ot">FALSE</span>)</code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">param &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">double</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelBM.ab))</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="co"># load the current model parameters into param</span></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param, <span class="dt">offset=</span><span class="dv">0</span>, <span class="dt">load=</span><span class="ot">FALSE</span>)</a></code></pre></div>
 <pre><code>## [1] 14</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param)</code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param)</a></code></pre></div>
 <pre><code>##  [1] 5.0 2.0 1.6 0.0 2.4 1.6 0.8 2.4 0.1 0.0 0.4 0.1 0.0 0.4</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># modify slightly the model parameters</span>
-param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)
-
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</code></pre></div>
-<pre><code>##  [1]  5.000349217  1.994537825  1.588202098  0.010641299  2.411833898
-##  [6]  1.586736625  0.782514002  2.380697862  0.111239377 -0.005881332
-## [11]  0.382908953  0.098318041  0.008424378  0.395633933</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
-<span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co"># modify slightly the model parameters</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</a></code></pre></div>
+<pre><code>##  [1] 5.0020382717 1.9985609690 1.6038607283 0.0022086313 2.4011903361
+##  [6] 1.5963817343 0.7960488424 2.3993096782 0.1171938891 0.0031995620
+## [11] 0.4083754882 0.1043481292 0.0005869645 0.4120615134</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># set the new parameter vector</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>## [1] 14</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(modelBM.ab)</code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(modelBM.ab)</a></code></pre></div>
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.000349 1.994538
+## [1] 5.002038 1.998561
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]      [,2]
-## [1,] 1.588202 0.0106413
-## [2,] 0.000000 2.4118339
+##          [,1]        [,2]
+## [1,] 1.603861 0.002208631
+## [2,] 0.000000 2.401190336
 ## 
 ## , , b
 ## 
-##          [,1]     [,2]
-## [1,] 1.586737 0.782514
-## [2,] 0.800000 2.380698
+##          [,1]      [,2]
+## [1,] 1.596382 0.7960488
+## [2,] 0.800000 2.3993097
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]         [,2]
-## [1,] 0.1112394 -0.005881332
-## [2,] 0.0000000  0.382908953
+##           [,1]        [,2]
+## [1,] 0.1171939 0.003199562
+## [2,] 0.0000000 0.408375488
 ## 
 ## , , b
 ## 
-##            [,1]        [,2]
-## [1,] 0.09831804 0.008424378
-## [2,] 0.00000000 0.395633933
+##           [,1]         [,2]
+## [1,] 0.1043481 0.0005869645
+## [2,] 0.0000000 0.4120615134
 ## 
 ## </code></pre>
+</div>
+<div id="printing-models-in-the-form-of-a-table" class="section level2">
+<h2 class="hasAnchor">
+<a href="#printing-models-in-the-form-of-a-table" class="anchor"></a>Printing models in the form of a table</h2>
+<p>It can be handy to print the parameters of a model in the form of a table with rows corresponding to the different regimes. For that purpose we use the <code><a href="../reference/PCMTable.html">PCMTable()</a></code> function, which generates a <code>PCMTable</code> object for a given <code>PCM</code> object. The <code>PCMTable</code> S3 class inherits from <code>data.table</code> and implements a print method that allows for beautiful formatting of matrix and vector parameters. Here is an example:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(modelBM.ab), <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">"html"</span>)</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+regime
+</th>
+<th>
+<span class="math inline">\(X0\)</span>
+</th>
+<th>
+<span class="math inline">\(\Sigma\)</span>
+</th>
+<th>
+<span class="math inline">\(\Sigma_{e}\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+:global:
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 5.00 \\ 2.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+</tr>
+<br><tr>
+<td align="right">
+a
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.57 &amp; 0.01 \\ 0.01 &amp; 5.77 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.00 \\ 0.00 &amp; 0.17 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+b
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 3.18 &amp; 3.19 \\ 3.19 &amp; 6.40 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.00 \\ 0.00 &amp; 0.17 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+</table>
+<p>Check the help-page for the <code>PCMTable</code>-function for more details.</p>
+</div>
+<div id="mixed-gaussian-models" class="section level2">
+<h2 class="hasAnchor">
+<a href="#mixed-gaussian-models" class="anchor"></a>Mixed Gaussian models</h2>
+<p>One of the features of the package is the possibility to specify models in which different types of processes are associated with different regimes. We call these “mixed Gaussian” models. To create a mixed Gaussian model, we use the constructor function <code>MixedGaussian</code>:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">model.OU.BM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">3</span>, </a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">  <span class="dt">modelTypes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
+<a class="sourceLine" id="cb28-4" data-line-number="4">    <span class="dt">BM =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"BM"</span>,</a>
+<a class="sourceLine" id="cb28-5" data-line-number="5">    <span class="st">"__Omitted_X0"</span>,</a>
+<a class="sourceLine" id="cb28-6" data-line-number="6">    <span class="st">"__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x"</span>,</a>
+<a class="sourceLine" id="cb28-7" data-line-number="7">    <span class="st">"__Omitted_Sigmae_x"</span>),</a>
+<a class="sourceLine" id="cb28-8" data-line-number="8">    <span class="dt">OU =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"OU"</span>,</a>
+<a class="sourceLine" id="cb28-9" data-line-number="9">    <span class="st">"__Omitted_X0"</span>,</a>
+<a class="sourceLine" id="cb28-10" data-line-number="10">    <span class="st">"__H"</span>,</a>
+<a class="sourceLine" id="cb28-11" data-line-number="11">    <span class="st">"__Theta"</span>,</a>
+<a class="sourceLine" id="cb28-12" data-line-number="12">    <span class="st">"__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x"</span>,</a>
+<a class="sourceLine" id="cb28-13" data-line-number="13">    <span class="st">"__Omitted_Sigmae_x"</span>)), </a>
+<a class="sourceLine" id="cb28-14" data-line-number="14">  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">a =</span> <span class="dv">2</span>, <span class="dt">b =</span> <span class="dv">1</span>), </a>
+<a class="sourceLine" id="cb28-15" data-line-number="15">  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
+<a class="sourceLine" id="cb28-16" data-line-number="16">    <span class="dv">0</span>, </a>
+<a class="sourceLine" id="cb28-17" data-line-number="17">    <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>), </a>
+<a class="sourceLine" id="cb28-18" data-line-number="18">    <span class="dt">description =</span> <span class="st">"upper triangular factor of the non-phylogenetic variance-covariance"</span>))</a></code></pre></div>
+<p>In the above, snippet, notice the long names for the BM and the OU model types. These are the model types that can be mapped to regimes. It is important to notice that both of these model types omit the parameter <code>X0</code>, which is a global parameter shared by all regimes. Similarly the two model types omit the parameter <code>Sigmae_x</code>. However, in this example, we specify that the whole mixed Gaussian model does not have a <code>Sigmae_x</code> paramter, i.e. the model assumes that the trait variation is completely explainable by the mixed Gaussian phylogenetic process and there is no non-heritable component. For more information on model parametrizations, see the <a href="https://venelin.github.io/PCMBase/articles/PCMParam.html">PCMBase parameterizations</a> guide. For further information on mixed Gaussian models, see the <code><a href="../reference/MixedGaussian.html">?MixedGaussian</a></code> help page.</p>
+<p>We can set the parameters of the model manually as follows:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">model.OU.BM<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</a>
+<a class="sourceLine" id="cb29-2" data-line-number="2">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">a</span><span class="st">`</span><span class="op">$</span>H[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb29-3" data-line-number="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="fl">-.7</span>, <span class="fl">.6</span>), </a>
+<a class="sourceLine" id="cb29-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.3</span>, <span class="fl">2.2</span>, <span class="fl">-1.4</span>), </a>
+<a class="sourceLine" id="cb29-5" data-line-number="5">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.9</span>))</a>
+<a class="sourceLine" id="cb29-6" data-line-number="6">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">a</span><span class="st">`</span><span class="op">$</span>Theta[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.3</span>, <span class="fl">-.5</span>, <span class="fl">.2</span>)</a>
+<a class="sourceLine" id="cb29-7" data-line-number="7">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">a</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb29-8" data-line-number="8">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb29-9" data-line-number="9">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb29-10" data-line-number="10">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.3</span>, <span class="fl">-.8</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb29-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb29-12" data-line-number="12">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">b</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb29-13" data-line-number="13">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb29-14" data-line-number="14">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="fl">0.3</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb29-15" data-line-number="15">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>))</a></code></pre></div>
+<p>We can print the mixed Gaussian model as a table:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(model.OU.BM), <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">"html"</span>)</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+regime
+</th>
+<th>
+type
+</th>
+<th>
+<span class="math inline">\(X0\)</span>
+</th>
+<th>
+<span class="math inline">\(H\)</span>
+</th>
+<th>
+<span class="math inline">\(\Theta\)</span>
+</th>
+<th>
+<span class="math inline">\(\Sigma\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+:global:
+</td>
+<td align="right">
+NA
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ . \\ . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+</tr>
+<br><tr>
+<td align="right">
+a
+</td>
+<td align="right">
+OU
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.10 &amp; 1.30 &amp; 0.80 \\ -0.70 &amp; 2.20 &amp; 0.20 \\ 0.60 &amp; -1.40 &amp; 0.90 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.30 \\ -0.50 \\ 0.20 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.09 &amp; 0.26 &amp; 0.30 \\ 0.26 &amp; 0.89 &amp; -0.80 \\ 0.30 &amp; -0.80 &amp; 1.00 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+b
+</td>
+<td align="right">
+BM
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.80 &amp; 0.50 &amp; 0.12 \\ 0.50 &amp; 0.34 &amp; 0.15 \\ 0.12 &amp; 0.15 &amp; 0.09 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div id="simulating-data-on-a-phylogenetic-tree" class="section level1">
@@ -377,69 +553,61 @@ param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <a href="#simulating-data-on-a-phylogenetic-tree" class="anchor"></a>Simulating data on a phylogenetic tree</h1>
 <p>The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM.</p>
 <p>For this example, first we simulate a birth death tree with two parts “a” and “b” using the <code>phytools</code> R-package:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># make results reproducible</span>
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">2</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)
-
-<span class="co"># number of regimes</span>
-R &lt;-<span class="st"> </span><span class="dv">2</span>
-
-<span class="co"># number of extant tips</span>
-N &lt;-<span class="st"> </span><span class="dv">100</span>
-
-tree.a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTree.html">PCMTree</a></span>(<span class="kw">rtree</span>(<span class="dt">n=</span>N))
-<span class="kw"><a href="../reference/PCMTreeSetLabels.html">PCMTreeSetLabels</a></span>(tree.a)
-<span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(tree.a, <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">101</span><span class="st">`</span> =<span class="st"> "a"</span>), <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)
-
-lstDesc &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeListDescendants.html">PCMTreeListDescendants</a></span>(tree.a)
-splitNode &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(lstDesc)[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(lstDesc, length) <span class="op">&gt;</span><span class="st"> </span>N<span class="op">/</span><span class="dv">2</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(lstDesc, length) <span class="op">&lt;</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span>N<span class="op">/</span><span class="dv">3</span>)][<span class="dv">1</span>]
-
-tree.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeInsertSingletons.html">PCMTreeInsertSingletons</a></span>(
-  tree.a, <span class="dt">nodes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(splitNode), 
-  <span class="dt">positions =</span> <span class="kw"><a href="../reference/PCMTreeGetBranchLength.html">PCMTreeGetBranchLength</a></span>(tree.a, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(splitNode))<span class="op">/</span><span class="dv">2</span>)
-<span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(
-  tree.ab,
-  <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>), <span class="dt">names =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(N<span class="op">+</span><span class="dv">1</span>, splitNode))), 
-  <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)
-
-palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMColorPalette.html">PCMColorPalette</a></span>(<span class="dv">2</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))
-<span class="kw"><a href="../reference/PCMTreePlot.html">PCMTreePlot</a></span>(tree.ab) <span class="op">+</span><span class="st"> </span>ggtree<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>)</code></pre></div>
-<p><img src="PCMBase_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot(tree.ab, show.tip.label=FALSE, </span>
-<span class="co">#      edge.color = palette[PCMTreeGetRegimesForEdges(tree.ab)])</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co"># make results reproducible</span></a>
+<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">2</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="co"># number of regimes</span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5">R &lt;-<span class="st"> </span><span class="dv">2</span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb31-7" data-line-number="7"><span class="co"># number of extant tips</span></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8">N &lt;-<span class="st"> </span><span class="dv">100</span></a>
+<a class="sourceLine" id="cb31-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb31-10" data-line-number="10">tree.a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTree.html">PCMTree</a></span>(<span class="kw">rtree</span>(<span class="dt">n=</span>N))</a>
+<a class="sourceLine" id="cb31-11" data-line-number="11"><span class="kw"><a href="../reference/PCMTreeSetLabels.html">PCMTreeSetLabels</a></span>(tree.a)</a>
+<a class="sourceLine" id="cb31-12" data-line-number="12"><span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(tree.a, <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">101</span><span class="st">`</span> =<span class="st"> "a"</span>), <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb31-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb31-14" data-line-number="14">lstDesc &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeListDescendants.html">PCMTreeListDescendants</a></span>(tree.a)</a>
+<a class="sourceLine" id="cb31-15" data-line-number="15">splitNode &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(lstDesc)[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(lstDesc, length) <span class="op">&gt;</span><span class="st"> </span>N<span class="op">/</span><span class="dv">2</span> <span class="op">&amp;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(lstDesc, length) <span class="op">&lt;</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span>N<span class="op">/</span><span class="dv">3</span>)][<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb31-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb31-17" data-line-number="17">tree.ab &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeInsertSingletons.html">PCMTreeInsertSingletons</a></span>(</a>
+<a class="sourceLine" id="cb31-18" data-line-number="18">  tree.a, <span class="dt">nodes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(splitNode), </a>
+<a class="sourceLine" id="cb31-19" data-line-number="19">  <span class="dt">positions =</span> <span class="kw"><a href="../reference/PCMTreeGetBranchLength.html">PCMTreeGetBranchLength</a></span>(tree.a, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(splitNode))<span class="op">/</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb31-20" data-line-number="20"><span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(</a>
+<a class="sourceLine" id="cb31-21" data-line-number="21">  tree.ab,</a>
+<a class="sourceLine" id="cb31-22" data-line-number="22">  <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>), <span class="dt">names =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(N<span class="op">+</span><span class="dv">1</span>, splitNode))), </a>
+<a class="sourceLine" id="cb31-23" data-line-number="23">  <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb31-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb31-25" data-line-number="25">palette &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMColorPalette.html">PCMColorPalette</a></span>(<span class="dv">2</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</a>
+<a class="sourceLine" id="cb31-26" data-line-number="26"><span class="kw"><a href="../reference/PCMTreePlot.html">PCMTreePlot</a></span>(tree.ab) <span class="op">+</span><span class="st"> </span>ggtree<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>)</a></code></pre></div>
+<p><img src="PCMBase_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="co"># plot(tree.ab, show.tip.label=FALSE, </span></a>
+<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="co">#      edge.color = palette[PCMTreeGetRegimesForEdges(tree.ab)])</span></a></code></pre></div>
 <p>Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">traits &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMSim.html">PCMSim</a></span>(tree.ab, modelBM.ab, modelBM.ab<span class="op">$</span>X0)</code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">traits &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMSim.html">PCMSim</a></span>(tree.ab, modelBM.ab, modelBM.ab<span class="op">$</span>X0)</a></code></pre></div>
 </div>
 <div id="calculating-likelihoods" class="section level1">
 <h1 class="hasAnchor">
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</code></pre></div>
-<pre><code>## [1] -408.1801
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</a></code></pre></div>
+<pre><code>## [1] -414
 ## attr(,"X0")
-## [1] 5.000349 1.994538
-## attr(,"class")
-## [1] "VectorParameter" "_Global"         "numeric"        
-## attr(,"description")
-## [1] "trait values at the root"</code></pre>
+## [1] 5 2</code></pre>
 <p>For faster and repeated likelihood evaluation, I recommend creating a likelihood function for a given data, tree and model object. Passing this function object to <code>optim</code> would save the need for pre-processing the data and tree at every likelihood evaluation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># a function of a numerical parameter vector:</span>
-likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)
-
-<span class="kw">likFun</span>(param2)</code></pre></div>
-<pre><code>## [1] -408.1801
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="co"># a function of a numerical parameter vector:</span></a>
+<a class="sourceLine" id="cb36-2" data-line-number="2">likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)</a>
+<a class="sourceLine" id="cb36-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb36-4" data-line-number="4"><span class="kw">likFun</span>(param2)</a></code></pre></div>
+<pre><code>## [1] -414
 ## attr(,"X0")
-## [1] 5.000349 1.994538
-## attr(,"class")
-## [1] "VectorParameter" "_Global"         "numeric"        
-## attr(,"description")
-## [1] "trait values at the root"</code></pre>
+## [1] 5 2</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
 <div id="refs" class="references">
 <div id="ref-Mitov:2018fl">
-<p>Mitov, Venelin, Krzysztof Bartoszek, Georgios Asimomitis, and Tanja Stadler. 2018. “Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package.” <em>arXiv.org</em>, September, arXiv:1809.09014. <a href="http://arxiv.org/abs/1809.09014" class="uri">http://arxiv.org/abs/1809.09014</a>.</p>
+<p>Mitov, Venelin, Krzysztof Bartoszek, Georgios Asimomitis, and Tanja Stadler. 2018. “Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package.” <em>arXiv.org</em>, September, arXiv:1809.09014. <a href="http://arxiv.org/abs/1809.09014">http://arxiv.org/abs/1809.09014</a>.</p>
 </div>
 </div>
 </div>
@@ -458,6 +626,8 @@ likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMC
       <li><a href="#groups-of-model-types">Groups of model types</a></li>
       <li><a href="#creating-pcm-objects">Creating PCM objects</a></li>
       <li><a href="#model-regimes">Model regimes</a></li>
+      <li><a href="#printing-models-in-the-form-of-a-table">Printing models in the form of a table</a></li>
+      <li><a href="#mixed-gaussian-models">Mixed Gaussian models</a></li>
       </ul>
 </li>
       <li><a href="#simulating-data-on-a-phylogenetic-tree">Simulating data on a phylogenetic tree</a></li>

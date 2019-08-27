@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check if an object is a `MixedGaussian` PCM — is.MixedGaussian • PCMBase</title>
+<title>Given a PCM or a parameter object, extract an analogical object for a subset
+of the dimensions (traits) in the original object. — PCMExtractDimensions • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +31,11 @@
 
 
 
-<meta property="og:title" content="Check if an object is a `MixedGaussian` PCM — is.MixedGaussian" />
+<meta property="og:title" content="Given a PCM or a parameter object, extract an analogical object for a subset
+of the dimensions (traits) in the original object. — PCMExtractDimensions" />
 
-<meta property="og:description" content="Check if an object is a `MixedGaussian` PCM" />
+<meta property="og:description" content="Given a PCM or a parameter object, extract an analogical object for a subset
+of the dimensions (traits) in the original object." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -128,31 +131,50 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Check if an object is a `MixedGaussian` PCM</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/MixedGaussian.R'><code>R/MixedGaussian.R</code></a></small>
-    <div class="hidden name"><code>is.MixedGaussian.Rd</code></div>
+    <h1>Given a PCM or a parameter object, extract an analogical object for a subset
+of the dimensions (traits) in the original object.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCM.R'><code>R/PCM.R</code></a></small>
+    <div class="hidden name"><code>PCMExtractDimensions.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Check if an object is a `MixedGaussian` PCM</p>
+    <p>Given a PCM or a parameter object, extract an analogical object for a subset
+of the dimensions (traits) in the original object.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>is.MixedGaussian</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMExtractDimensions</span>(<span class='no'>obj</span>, <span class='kw'>dims</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>obj</span>)),
+  <span class='kw'>nRepBlocks</span> <span class='kw'>=</span> <span class='fl'>1L</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>any object</p></td>
+      <th>obj</th>
+      <td><p>a PCM or a parameter object.</p></td>
+    </tr>
+    <tr>
+      <th>dims</th>
+      <td><p>an integer vector; should be a subset or equal to
+<code><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len(PCMNumTraits(obj))</a></code> (the default).</p></td>
+    </tr>
+    <tr>
+      <th>nRepBlocks</th>
+      <td><p>a positive integer specifying if the specified dimensions
+should be replicated to obtain a higher dimensional model, where the parameter
+matrices are block-diagonal with blocks corresponding to dims. Default: 1L.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>TRUE if x inherits from the S3 class `MixedGaussian`, FALSE otherwise.</p>
+    <p>an object of the same class as obj with a subset of obj's dimensions
+multiplied <code>nRepBlocks</code> times.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This is an S3 generic</p>
     
 
   </div>
@@ -162,6 +184,8 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>

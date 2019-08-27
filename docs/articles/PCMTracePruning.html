@@ -62,10 +62,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -91,7 +91,7 @@
       <h1>Tracing the likelihood calculation of a Gaussian model</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-07-10</h4>
+            <h4 class="date">2019-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMTracePruning.Rmd"><code>vignettes/PCMTracePruning.Rmd</code></a></small>
       <div class="hidden name"><code>PCMTracePruning.Rmd</code></div>
@@ -118,44 +118,68 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.3</span>, <span class="ot">NaN</span>, <span class="fl">1.4</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.1</span>, <span class="ot">NaN</span>, <span class="ot">NA</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.2</span>, <span class="ot">NaN</span>, <span class="fl">1.2</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="fl">1.2</span>, <span class="fl">0.4</span>))
-
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(X) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">treeText &lt;-<span class="st"> "((5:0.8,4:1.8)7:1.5,(((3:0.8,2:1.6)6:0.7)8:0.6,1:2.6)9:0.9)0;"</span>
-tree &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTree.html">PCMTree</a></span>(<span class="kw">read.tree</span>(<span class="dt">text =</span> treeText))
-
-<span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(tree, <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">6</span><span class="st">`</span>=<span class="dv">2</span>), <span class="dt">setPartition =</span> <span class="ot">TRUE</span>, <span class="dt">inplace =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model.OU.BM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(
-  <span class="dt">k =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(X), 
-  <span class="dt">modelTypes =</span> <span class="kw"><a href="../reference/PCMDefaultModelTypes.html">MGPMDefaultModelTypes</a></span>(), 
-  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">6</span>, <span class="dv">2</span>), 
-  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="../reference/Args_MixedGaussian_MGPMDefaultModelTypes.html">Args_MixedGaussian_MGPMDefaultModelTypes</a></span>(<span class="ot">TRUE</span>)<span class="op">$</span>Sigmae_x)
-
-model.OU.BM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(model.OU.BM)
-model.OU.BM<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)
-model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>H[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="op">-</span>.<span class="dv">7</span>, .<span class="dv">6</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.3</span>, <span class="fl">2.2</span>, <span class="op">-</span><span class="fl">1.4</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.9</span>))
-model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>Theta[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.3</span>, <span class="op">-</span>.<span class="dv">5</span>, .<span class="dv">2</span>)
-model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="dv">0</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.3</span>, <span class="op">-</span>.<span class="dv">8</span>, <span class="dv">1</span>))
-
-model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">2</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">0</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="fl">0.3</span>, <span class="dv">0</span>), 
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>))
-
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(
-  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(model.OU.BM, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), 
-  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span>tableOutputType)</code></pre></div>
+<p>In this tutorial shows how the pruning likelihood calculation algorithm works for <span class="math inline">\(\mathcal{G}_{LInv}\)</span> models. This is an advanced topic, which can be helpful in case you wish to validate another implementation of the algorithm, e.g. in a different programming language, such as Java.</p>
+<div id="example-tree-and-data" class="section level1">
+<h1 class="hasAnchor">
+<a href="#example-tree-and-data" class="anchor"></a>Example tree and data</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ape); </a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase);</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># Non-ultrametric phylogenetic tree of 5 tips in both examples:</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">treeNewick &lt;-<span class="st"> "((5:0.8,4:1.8)7:1.5,(((3:0.8,2:1.6)6:0.7)8:0.6,1:2.6)9:0.9)0;"</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">tree &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTree.html">PCMTree</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ape/topics/read.tree">read.tree</a></span>(<span class="dt">text =</span> treeNewick))</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># Partitioning the tree in two parts and assign the regimes:</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw"><a href="../reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(tree, <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">6</span><span class="st">`</span>=<span class="dv">2</span>), <span class="dt">setPartition =</span> <span class="ot">TRUE</span>, <span class="dt">inplace =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="../reference/PCMTreeGetLabels.html">PCMTreeGetLabels</a></span>(tree)[tree<span class="op">$</span>edge[<span class="kw"><a href="../reference/PCMTreePostorder.html">PCMTreePostorder</a></span>(tree), <span class="dv">2</span>]], <span class="st">"0"</span>)</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># Trait-data:</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.3</span>, <span class="ot">NaN</span>, <span class="fl">1.4</span>), </a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.1</span>, <span class="ot">NaN</span>, <span class="ot">NA</span>), </a>
+<a class="sourceLine" id="cb1-16" data-line-number="16">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.2</span>, <span class="ot">NaN</span>, <span class="fl">1.2</span>), </a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>), </a>
+<a class="sourceLine" id="cb1-18" data-line-number="18">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="fl">1.2</span>, <span class="fl">0.4</span>))</a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(X) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)</a></code></pre></div>
+<div class="figure">
+<embed src="Fig1.pdf" style="width:100.0%" height="500"></embed><p class="caption">A tree with five tips and two evolutionary regimes</p>
+</div>
+</div>
+<div id="a-mixed-gaussian-model" class="section level1">
+<h1 class="hasAnchor">
+<a href="#a-mixed-gaussian-model" class="anchor"></a>A mixed Gaussian model</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">model.OU.BM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="dt">k =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(X), </a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="dt">modelTypes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">    <span class="dt">BM =</span> <span class="st">"BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>,</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">    <span class="dt">OU =</span> <span class="st">"OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>), </a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>, <span class="dv">1</span>), </a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">    <span class="dv">0</span>, </a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">    <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>, </a>
+<a class="sourceLine" id="cb2-10" data-line-number="10">              <span class="dt">description =</span> <span class="st">"upper triangular factor of the non-phylogenetic variance-covariance"</span>)))</a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">model.OU.BM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(model.OU.BM)</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13">model.OU.BM<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>H[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="fl">-.7</span>, <span class="fl">.6</span>), </a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.3</span>, <span class="fl">2.2</span>, <span class="fl">-1.4</span>), </a>
+<a class="sourceLine" id="cb2-17" data-line-number="17">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.9</span>))</a>
+<a class="sourceLine" id="cb2-18" data-line-number="18">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>Theta[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.3</span>, <span class="fl">-.5</span>, <span class="fl">.2</span>)</a>
+<a class="sourceLine" id="cb2-19" data-line-number="19">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb2-20" data-line-number="20">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb2-21" data-line-number="21">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb2-22" data-line-number="22">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.3</span>, <span class="fl">-.8</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb2-23" data-line-number="23"></a>
+<a class="sourceLine" id="cb2-24" data-line-number="24">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">2</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb2-25" data-line-number="25">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb2-26" data-line-number="26">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="fl">0.3</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb2-27" data-line-number="27">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>))</a>
+<a class="sourceLine" id="cb2-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb2-29" data-line-number="29"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(</a>
+<a class="sourceLine" id="cb2-30" data-line-number="30">  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(model.OU.BM, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), </a>
+<a class="sourceLine" id="cb2-31" data-line-number="31">  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span>tableOutputType)</a></code></pre></div>
 <table class="table">
 <tr>
 <th>
@@ -174,7 +198,7 @@ type
 <span class="math inline">\(\Theta\)</span>
 </th>
 <th>
-<span class="math inline">\(\Sigma_{u}\)</span>
+<span class="math inline">\(\Sigma_{x}\)</span>
 </th>
 <th>
 <span class="math inline">\(\Sigma\)</span>
@@ -204,7 +228,7 @@ NA
 1
 </td>
 <td align="right">
-F
+OU
 </td>
 <td align="right">
 </td>
@@ -226,7 +250,7 @@ F
 2
 </td>
 <td align="right">
-B
+BM
 </td>
 <td align="right">
 </td>
@@ -242,22 +266,158 @@ B
 </td>
 </tr>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits=</span><span class="dv">4</span>)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM))</code></pre></div>
+</div>
+<div id="likelihood-values-for-the-three-example-variants" class="section level1">
+<h1 class="hasAnchor">
+<a href="#likelihood-values-for-the-three-example-variants" class="anchor"></a>Likelihood values for the three example variants</h1>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># Variant 1: </span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)</a></code></pre></div>
 <pre><code>## [1] -11.92
 ## attr(,"X0")
 ## [1]  9.566 -6.349 15.254</code></pre>
-<div class="figure">
-<embed src="Fig1.pdf" style="width:100.0%" height="500"></embed><p class="caption">A tree with five tips and two evolutionary regimes</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># Variant 2: First we call the function PCMInfo to obtain a meta-information object.</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">metaI.variant2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMInfo.html">PCMInfo</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># Then, we manually change the vector of present coordinates for the root node.</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co"># The pc-matrix is a k x M matrix of logical values, each column corresponding</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># to a node. The active coordinates are indicated by the TRUE entries.</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co"># To prevent assigning to the wrong column in the pc-table, we first assign</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co"># the node-labels as column nanmes.</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(metaI.variant2<span class="op">$</span>pc) &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeGetLabels.html">PCMTreeGetLabels</a></span>(tree)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">metaI.variant2<span class="op">$</span>pc[, <span class="st">"0"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">TRUE</span>, <span class="ot">FALSE</span>, <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co"># After the change, the pc-matrix looks like this:</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">metaI.variant2<span class="op">$</span>pc</a></code></pre></div>
+<pre><code>##          5     4     3     2     1     0    7     9     8     6
+## [1,] FALSE FALSE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE  TRUE  TRUE
+## [2,]  TRUE  TRUE FALSE FALSE FALSE FALSE TRUE FALSE FALSE FALSE
+## [3,]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE TRUE  TRUE  TRUE  TRUE</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># And the log-likelihood value is:</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM, <span class="dt">metaI =</span> metaI.variant2)</a></code></pre></div>
+<pre><code>## [1] -12.17
+## attr(,"X0")
+## [1] 10.611    NaN  8.747</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># Variant 3: We set all NaN values in X to NA, to indicate that these are</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="co"># missing measurements</span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">X3 &lt;-<span class="st"> </span>X</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">X3[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/is.finite">is.nan</a></span>(X3)] &lt;-<span class="st"> </span><span class="ot">NA_real_</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(X3[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)</a></code></pre></div>
+<pre><code>## [1] -10.71
+## attr(,"X0")
+## [1]  15.99  18.34 -11.95</code></pre>
 </div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">traceTable &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLikTrace.html">PCMLikTrace</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)
-traceTable[, node<span class="op">:</span><span class="er">=</span>.I]
-<span class="kw">setkey</span>(traceTable, i)
-pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="../reference/PCMTreeGetLabels.html">PCMTreeGetLabels</a></span>(tree)[tree<span class="op">$</span>edge[<span class="kw"><a href="../reference/PCMTreePostorder.html">PCMTreePostorder</a></span>(tree), <span class="dv">2</span>]], <span class="st">"0"</span>)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits=</span><span class="dv">2</span>)</code></pre></div>
-<div id="omega-phi-v" class="section level2">
+<div id="tracing-the-likelihood-calculation-using-the-function-pcmliktrace" class="section level1">
+<h1 class="hasAnchor">
+<a href="#tracing-the-likelihood-calculation-using-the-function-pcmliktrace" class="anchor"></a>Tracing the likelihood calculation using the function <code>PCMLikTrace</code>
+</h1>
+<div id="variant-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#omega-phi-v" class="anchor"></a>Omega, Phi, V</h2>
+<a href="#variant-1" class="anchor"></a>Variant 1</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">traceTable1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLikTrace.html">PCMLikTrace</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">traceTable1[, node<span class="op">:</span><span class="er">=</span>.I]</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="kw">setkey</span>(traceTable1, i)</a></code></pre></div>
+</div>
+<div id="variant-2" class="section level2">
+<h2 class="hasAnchor">
+<a href="#variant-2" class="anchor"></a>Variant 2</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">traceTable2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLikTrace.html">PCMLikTrace</a></span>(</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">  X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM, <span class="dt">metaI =</span> metaI.variant2)</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3">traceTable2[, node<span class="op">:</span><span class="er">=</span>.I]</a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="kw">setkey</span>(traceTable2, i)</a></code></pre></div>
+</div>
+<div id="variant-3" class="section level2">
+<h2 class="hasAnchor">
+<a href="#variant-3" class="anchor"></a>Variant 3</h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">traceTable3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLikTrace.html">PCMLikTrace</a></span>(X3[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">traceTable3[, node<span class="op">:</span><span class="er">=</span>.I]</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="kw">setkey</span>(traceTable3, i)</a></code></pre></div>
+</div>
+</div>
+<div id="a-step-by-step-description-of-the-log-likelihood-calculation" class="section level1">
+<h1 class="hasAnchor">
+<a href="#a-step-by-step-description-of-the-log-likelihood-calculation" class="anchor"></a>A step by step description of the log-likelihood calculation</h1>
+<div id="step-1-calculating-vecomega-mathbfphi-and-mathbfv-for-each-tip-or-internal-node" class="section level2">
+<h2 class="hasAnchor">
+<a href="#step-1-calculating-vecomega-mathbfphi-and-mathbfv-for-each-tip-or-internal-node" class="anchor"></a>Step 1: Calculating <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> for each tip or internal node}</h2>
+<div id="calculating-vecomega-mathbfphi-and-mathbfv-for-a-node-in-an-ou-regime" class="section level3">
+<h3 class="hasAnchor">
+<a href="#calculating-vecomega-mathbfphi-and-mathbfv-for-a-node-in-an-ou-regime" class="anchor"></a>Calculating <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> for a node in an OU regime</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co"># OU parameters:</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">H &lt;-<span class="st"> </span>model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>H[,,<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">theta &lt;-<span class="st"> </span>model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>Theta[,<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">Sigma &lt;-<span class="st"> </span>model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">1</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>])</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co"># Eigenvalues of H: these can be complex numbers</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7">lambda &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eigen">eigen</a></span>(H)<span class="op">$</span>values</a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co"># Matrix of eigenvectors of H: again, these can be complex</span></a>
+<a class="sourceLine" id="cb14-10" data-line-number="10">P &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eigen">eigen</a></span>(H)<span class="op">$</span>vectors</a>
+<a class="sourceLine" id="cb14-11" data-line-number="11">P_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(P)</a>
+<a class="sourceLine" id="cb14-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb14-13" data-line-number="13"><span class="co"># vectors of active coordinates:</span></a>
+<a class="sourceLine" id="cb14-14" data-line-number="14">pc &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMInfo.html">PCMInfo</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)<span class="op">$</span>pc</a>
+<a class="sourceLine" id="cb14-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb14-16" data-line-number="16"><span class="co"># length of the branch leading to tip 1 (2.6):</span></a>
+<a class="sourceLine" id="cb14-17" data-line-number="17">t1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeDtNodes.html">PCMTreeDtNodes</a></span>(tree)[endNodeLab <span class="op">==</span><span class="st"> "1"</span>, endTime <span class="op">-</span><span class="st"> </span>startTime]</a>
+<a class="sourceLine" id="cb14-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb14-19" data-line-number="19"><span class="co"># active coordinates for tip 1 and its parent:</span></a>
+<a class="sourceLine" id="cb14-20" data-line-number="20">k1 &lt;-<span class="st"> </span>pc[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/match">match</a></span>(<span class="st">"1"</span>, <span class="kw"><a href="../reference/PCMTreeGetLabels.html">PCMTreeGetLabels</a></span>(tree))]</a>
+<a class="sourceLine" id="cb14-21" data-line-number="21">k9 &lt;-<span class="st"> </span>pc[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/match">match</a></span>(<span class="st">"9"</span>, <span class="kw"><a href="../reference/PCMTreeGetLabels.html">PCMTreeGetLabels</a></span>(tree))]</a>
+<a class="sourceLine" id="cb14-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb14-23" data-line-number="23"><span class="co"># k x k matrix formed from the pairs of lambda-values and t1 (see Eq. 19):</span></a>
+<a class="sourceLine" id="cb14-24" data-line-number="24">LambdaMat &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb14-25" data-line-number="25"><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>) </a>
+<a class="sourceLine" id="cb14-26" data-line-number="26">  <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>) </a>
+<a class="sourceLine" id="cb14-27" data-line-number="27">    LambdaMat[i,j] &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>(lambda[i]<span class="op">+</span>lambda[j])<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">exp</a></span>(<span class="op">-</span>(lambda[i]<span class="op">+</span>lambda[j])<span class="op">*</span>t1))</a>
+<a class="sourceLine" id="cb14-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb14-29" data-line-number="29"><span class="co"># omega, Phi, V for tip 1:</span></a>
+<a class="sourceLine" id="cb14-30" data-line-number="30"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(omega1 &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/diag">diag</a></span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>)[k1, ] <span class="op">-</span><span class="st"> </span>expm<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/expm/topics/expm">expm</a></span>(<span class="op">-</span>H<span class="op">*</span>t1)[k1, ]) <span class="op">%*%</span><span class="st"> </span>theta[])</a></code></pre></div>
+<pre><code>##        [,1]
+## [1,] 0.6151
+## [2,] 0.3392</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(Phi1 &lt;-<span class="st"> </span>expm<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/expm/topics/expm">expm</a></span>(<span class="op">-</span>H<span class="op">*</span>t1)[k1, k9])</a></code></pre></div>
+<pre><code>##          [,1]    [,2]
+## [1,]  0.37818 -0.3461
+## [2,] -0.06011  0.1261</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(V1 &lt;-<span class="st"> </span>(P <span class="op">%*%</span><span class="st"> </span>(LambdaMat <span class="op">*</span><span class="st"> </span>(P_<span class="dv">1</span> <span class="op">%*%</span><span class="st"> </span>Sigma <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(P_<span class="dv">1</span>))) <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(P))[k1, k1])</a></code></pre></div>
+<pre><code>##             [,1]        [,2]
+## [1,]  2.21599+0i -0.07466+0i
+## [2,] -0.07466-0i  0.25787-0i</code></pre>
+</div>
+<div id="calculating-vecomega-mathbfphi-and-mathbfv-for-a-node-in-a-bm-regime" class="section level3">
+<h3 class="hasAnchor">
+<a href="#calculating-vecomega-mathbfphi-and-mathbfv-for-a-node-in-a-bm-regime" class="anchor"></a>Calculating <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> for a node in a BM regime</h3>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="co"># BM parameter:</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">Sigma &lt;-<span class="st"> </span>model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">2</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>] <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">2</span><span class="st">`</span><span class="op">$</span>Sigma_x[,,<span class="dv">1</span>])</a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb20-4" data-line-number="4"><span class="co"># vectors of active coordinates:</span></a>
+<a class="sourceLine" id="cb20-5" data-line-number="5">pc &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMInfo.html">PCMInfo</a></span>(X[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)<span class="op">$</span>pc</a>
+<a class="sourceLine" id="cb20-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb20-7" data-line-number="7"><span class="co"># length of the branch leading to tip 2 (1.6):</span></a>
+<a class="sourceLine" id="cb20-8" data-line-number="8">t2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTreeDtNodes.html">PCMTreeDtNodes</a></span>(tree)[endNodeLab <span class="op">==</span><span class="st"> "2"</span>, endTime <span class="op">-</span><span class="st"> </span>startTime]</a>
+<a class="sourceLine" id="cb20-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb20-10" data-line-number="10"><span class="co"># active coordinates for tip 1 and its parent:</span></a>
+<a class="sourceLine" id="cb20-11" data-line-number="11">k2 &lt;-<span class="st"> </span>pc[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/match">match</a></span>(<span class="st">"2"</span>, <span class="kw"><a href="../reference/PCMTreeGetLabels.html">PCMTreeGetLabels</a></span>(tree))]</a>
+<a class="sourceLine" id="cb20-12" data-line-number="12">k6 &lt;-<span class="st"> </span>pc[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/match">match</a></span>(<span class="st">"6"</span>, <span class="kw"><a href="../reference/PCMTreeGetLabels.html">PCMTreeGetLabels</a></span>(tree))]</a>
+<a class="sourceLine" id="cb20-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb20-14" data-line-number="14"><span class="co"># omega, Phi, V for tip 1:</span></a>
+<a class="sourceLine" id="cb20-15" data-line-number="15"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(omega2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span>, <span class="dv">3</span>)[k2]))</a></code></pre></div>
+<pre><code>##      [,1]
+## [1,]    0</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(Phi2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/diag">diag</a></span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>)[k2, k6]))</a></code></pre></div>
+<pre><code>##      [,1]
+## [1,]    1
+## [2,]    0</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(V2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>((t2<span class="op">*</span>Sigma)[k2, k2]))</a></code></pre></div>
+<pre><code>##      [,1]
+## [1,] 2.88</code></pre>
+</div>
+<div id="variant-1-1" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-1-1" class="anchor"></a>Variant 1</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb26-3" data-line-number="3">  traceTable1[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(j, i, t_i, k_i, omega_i, Phi_i, V_i, V_<span class="dv">1</span>_i)], </a>
+<a class="sourceLine" id="cb26-4" data-line-number="4">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
 <table class="table">
 <tr>
 <th>
@@ -299,13 +459,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ 0.00 \\ 0.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ . \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.00 &amp; 0.00 \\ 0.00 &amp; 1.00 &amp; 0.00 \\ 0.00 &amp; 0.00 &amp; 1.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.00 \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.88 &amp; 0.80 &amp; 0.19 \\ 0.80 &amp; 0.54 &amp; 0.24 \\ 0.19 &amp; 0.24 &amp; 0.14 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.88 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} 0.35 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
@@ -325,13 +485,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ 0.00 \\ 0.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.00 &amp; 0.00 \\ 0.00 &amp; 1.00 &amp; 0.00 \\ 0.00 &amp; 0.00 &amp; 1.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.00 \\ . &amp; . &amp; . \\ 0.00 &amp; . &amp; 1.00 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.44 &amp; 0.40 &amp; 0.10 \\ 0.40 &amp; 0.27 &amp; 0.12 \\ 0.10 &amp; 0.12 &amp; 0.07 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.44 &amp; . &amp; 0.10 \\ . &amp; . &amp; . \\ 0.10 &amp; . &amp; 0.07 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} 0.76 &amp; . &amp; -1.02 \\ . &amp; . &amp; . \\ -1.02 &amp; . &amp; 15.24 \\ \end{bmatrix}\)</span>
@@ -351,13 +511,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ 0.00 \\ 0.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.00 &amp; 0.00 \\ 0.00 &amp; 1.00 &amp; 0.00 \\ 0.00 &amp; 0.00 &amp; 1.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.00 \\ . &amp; . &amp; . \\ 0.00 &amp; . &amp; 1.00 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.26 &amp; 0.35 &amp; 0.08 \\ 0.35 &amp; 0.24 &amp; 0.10 \\ 0.08 &amp; 0.10 &amp; 0.06 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.26 &amp; . &amp; 0.08 \\ . &amp; . &amp; . \\ 0.08 &amp; . &amp; 0.06 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} 0.87 &amp; . &amp; -1.16 \\ . &amp; . &amp; . \\ -1.16 &amp; . &amp; 17.42 \\ \end{bmatrix}\)</span>
@@ -377,13 +537,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.62 \\ -0.78 \\ 0.34 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.62 \\ . \\ 0.34 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.38 &amp; -0.52 &amp; -0.35 \\ 0.16 &amp; -0.20 &amp; -0.14 \\ -0.06 &amp; 0.17 &amp; 0.13 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.38 &amp; . &amp; -0.35 \\ . &amp; . &amp; . \\ -0.06 &amp; . &amp; 0.13 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.22 &amp; 0.61 &amp; -0.07 \\ 0.61 &amp; 0.41 &amp; -0.22 \\ -0.07 &amp; -0.22 &amp; 0.26 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.22 &amp; . &amp; -0.07 \\ . &amp; . &amp; . \\ -0.07 &amp; . &amp; 0.26 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} 0.46 &amp; . &amp; 0.13 \\ . &amp; . &amp; . \\ 0.13 &amp; . &amp; 3.92 \\ \end{bmatrix}\)</span>
@@ -403,13 +563,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.04 \\ -0.69 \\ 0.49 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.04 \\ . \\ 0.49 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.89 &amp; -0.51 &amp; -0.32 \\ 0.23 &amp; 0.17 &amp; -0.10 \\ -0.17 &amp; 0.40 &amp; 0.60 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.89 &amp; . &amp; -0.32 \\ . &amp; . &amp; . \\ -0.17 &amp; . &amp; 0.60 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.19 &amp; 0.06 \\ 0.19 &amp; 0.24 &amp; -0.17 \\ 0.06 &amp; -0.17 &amp; 0.21 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.06 \\ . &amp; . &amp; . \\ 0.06 &amp; . &amp; 0.21 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} 1.01 &amp; . &amp; -0.26 \\ . &amp; . &amp; . \\ -0.26 &amp; . &amp; 4.77 \\ \end{bmatrix}\)</span>
@@ -429,13 +589,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.33 \\ -0.86 \\ 0.44 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} . \\ -0.86 \\ 0.44 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.56 &amp; -0.65 &amp; -0.42 \\ 0.22 &amp; -0.21 &amp; -0.16 \\ -0.11 &amp; 0.29 &amp; 0.24 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ 0.22 &amp; -0.21 &amp; -0.16 \\ -0.11 &amp; 0.29 &amp; 0.24 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.98 &amp; 0.51 &amp; -0.04 \\ 0.51 &amp; 0.37 &amp; -0.21 \\ -0.04 &amp; -0.21 &amp; 0.25 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 0.37 &amp; -0.21 \\ . &amp; -0.21 &amp; 0.25 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 5.16 &amp; 4.30 \\ . &amp; 4.30 &amp; 7.58 \\ \end{bmatrix}\)</span>
@@ -455,13 +615,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.00 \\ -0.78 \\ 0.53 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} . \\ -0.78 \\ 0.53 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.83 &amp; -0.59 &amp; -0.37 \\ 0.25 &amp; 0.03 &amp; -0.12 \\ -0.17 &amp; 0.42 &amp; 0.51 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ 0.25 &amp; 0.03 &amp; -0.12 \\ -0.17 &amp; 0.42 &amp; 0.51 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.25 &amp; 0.26 &amp; 0.04 \\ 0.26 &amp; 0.27 &amp; -0.18 \\ 0.04 &amp; -0.18 &amp; 0.22 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 0.27 &amp; -0.18 \\ . &amp; -0.18 &amp; 0.22 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 7.78 &amp; 6.15 \\ . &amp; 6.15 &amp; 9.30 \\ \end{bmatrix}\)</span>
@@ -481,13 +641,13 @@ pOrder &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.02 \\ -0.81 \\ 0.53 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.02 \\ . \\ 0.53 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.81 &amp; -0.61 &amp; -0.39 \\ 0.25 &amp; -0.02 &amp; -0.13 \\ -0.17 &amp; 0.42 &amp; 0.47 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.81 &amp; -0.61 &amp; -0.39 \\ . &amp; . &amp; . \\ -0.17 &amp; 0.42 &amp; 0.47 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.35 &amp; 0.29 &amp; 0.03 \\ 0.29 &amp; 0.28 &amp; -0.18 \\ 0.03 &amp; -0.18 &amp; 0.23 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.35 &amp; . &amp; 0.03 \\ . &amp; . &amp; . \\ 0.03 &amp; . &amp; 0.23 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 <span class="math inline">\(\begin{bmatrix}{} 0.74 &amp; . &amp; -0.11 \\ . &amp; . &amp; . \\ -0.11 &amp; . &amp; 4.38 \\ \end{bmatrix}\)</span>
@@ -547,9 +707,639 @@ ND
 </tr>
 </table>
 </div>
-<div id="a-b-c-d-e-f" class="section level2">
+<div id="variant-2-1" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-2-1" class="anchor"></a>Variant 2</h3>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2">  traceTable2[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(j, i, t_i, k_i, omega_i, Phi_i, V_i, V_<span class="dv">1</span>_i)], </a>
+<a class="sourceLine" id="cb27-3" data-line-number="3">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+<span class="math inline">\(j\)</span>
+</th>
+<th>
+<span class="math inline">\(i\)</span>
+</th>
+<th>
+<span class="math inline">\(t_i\)</span>
+</th>
+<th>
+<span class="math inline">\(k_i\)</span>
+</th>
+<th>
+<span class="math inline">\(\omega_i\)</span>
+</th>
+<th>
+<span class="math inline">\(\Phi_i\)</span>
+</th>
+<th>
+<span class="math inline">\(V_i\)</span>
+</th>
+<th>
+<span class="math inline">\(V^{-1}_i\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td align="right">
+2
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.00 \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.88 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.35 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+6
+</td>
+<td align="right">
+3
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.80 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.00 \\ . &amp; . &amp; . \\ 0.00 &amp; . &amp; 1.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.44 &amp; . &amp; 0.10 \\ . &amp; . &amp; . \\ 0.10 &amp; . &amp; 0.07 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.76 &amp; . &amp; -1.02 \\ . &amp; . &amp; . \\ -1.02 &amp; . &amp; 15.24 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+8
+</td>
+<td align="right">
+6
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.70 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.00 \\ . &amp; . &amp; . \\ 0.00 &amp; . &amp; 1.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.26 &amp; . &amp; 0.08 \\ . &amp; . &amp; . \\ 0.08 &amp; . &amp; 0.06 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.87 &amp; . &amp; -1.16 \\ . &amp; . &amp; . \\ -1.16 &amp; . &amp; 17.42 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+1
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.62 \\ . \\ 0.34 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.38 &amp; . &amp; -0.35 \\ . &amp; . &amp; . \\ -0.06 &amp; . &amp; 0.13 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.22 &amp; . &amp; -0.07 \\ . &amp; . &amp; . \\ -0.07 &amp; . &amp; 0.26 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.46 &amp; . &amp; 0.13 \\ . &amp; . &amp; . \\ 0.13 &amp; . &amp; 3.92 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+8
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.04 \\ . \\ 0.49 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.89 &amp; . &amp; -0.32 \\ . &amp; . &amp; . \\ -0.17 &amp; . &amp; 0.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; . &amp; 0.06 \\ . &amp; . &amp; . \\ 0.06 &amp; . &amp; 0.21 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.01 &amp; . &amp; -0.26 \\ . &amp; . &amp; . \\ -0.26 &amp; . &amp; 4.77 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+4
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.80 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -0.86 \\ 0.44 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ 0.22 &amp; -0.21 &amp; -0.16 \\ -0.11 &amp; 0.29 &amp; 0.24 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 0.37 &amp; -0.21 \\ . &amp; -0.21 &amp; 0.25 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 5.16 &amp; 4.30 \\ . &amp; 4.30 &amp; 7.58 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+5
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.80 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -0.78 \\ 0.53 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ 0.25 &amp; 0.03 &amp; -0.12 \\ -0.17 &amp; 0.42 &amp; 0.51 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 0.27 &amp; -0.18 \\ . &amp; -0.18 &amp; 0.22 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 7.78 &amp; 6.15 \\ . &amp; 6.15 &amp; 9.30 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+9
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.90 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.02 \\ . \\ 0.53 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.81 &amp; . &amp; -0.39 \\ . &amp; . &amp; . \\ -0.17 &amp; . &amp; 0.47 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.35 &amp; . &amp; 0.03 \\ . &amp; . &amp; . \\ 0.03 &amp; . &amp; 0.23 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.74 &amp; . &amp; -0.11 \\ . &amp; . &amp; . \\ -0.11 &amp; . &amp; 4.38 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+7
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.50 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.22 \\ -0.88 \\ 0.49 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.64 &amp; . &amp; -0.43 \\ 0.24 &amp; . &amp; -0.16 \\ -0.13 &amp; . &amp; 0.30 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.82 &amp; 0.45 &amp; -0.02 \\ 0.45 &amp; 0.34 &amp; -0.20 \\ -0.02 &amp; -0.20 &amp; 0.25 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.29 &amp; -3.11 &amp; -2.44 \\ -3.11 &amp; 13.06 &amp; 10.44 \\ -2.44 &amp; 10.44 &amp; 12.43 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+ND
+</td>
+<td align="right">
+0
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+</tr>
+</table>
+</div>
+<div id="variant-3-1" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-3-1" class="anchor"></a>Variant 3</h3>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">  traceTable3[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(j, i, t_i, k_i, omega_i, Phi_i, V_i, V_<span class="dv">1</span>_i)], </a>
+<a class="sourceLine" id="cb28-4" data-line-number="4">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+<span class="math inline">\(j\)</span>
+</th>
+<th>
+<span class="math inline">\(i\)</span>
+</th>
+<th>
+<span class="math inline">\(t_i\)</span>
+</th>
+<th>
+<span class="math inline">\(k_i\)</span>
+</th>
+<th>
+<span class="math inline">\(\omega_i\)</span>
+</th>
+<th>
+<span class="math inline">\(\Phi_i\)</span>
+</th>
+<th>
+<span class="math inline">\(V_i\)</span>
+</th>
+<th>
+<span class="math inline">\(V^{-1}_i\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td align="right">
+2
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.00 &amp; 0.00 \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.88 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.35 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+6
+</td>
+<td align="right">
+3
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.80 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.00 &amp; 0.00 \\ . &amp; . &amp; . \\ 0.00 &amp; 0.00 &amp; 1.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.44 &amp; . &amp; 0.10 \\ . &amp; . &amp; . \\ 0.10 &amp; . &amp; 0.07 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.76 &amp; . &amp; -1.02 \\ . &amp; . &amp; . \\ -1.02 &amp; . &amp; 15.24 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+8
+</td>
+<td align="right">
+6
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.70 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ 0.00 \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.00 &amp; 0.00 \\ 0.00 &amp; 1.00 &amp; 0.00 \\ 0.00 &amp; 0.00 &amp; 1.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.26 &amp; 0.35 &amp; 0.08 \\ 0.35 &amp; 0.24 &amp; 0.10 \\ 0.08 &amp; 0.10 &amp; 0.06 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.23 &amp; -7.44 &amp; 9.42 \\ -7.44 &amp; 40.67 &amp; -57.87 \\ 9.42 &amp; -57.87 &amp; 99.76 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+1
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.62 \\ . \\ 0.34 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.38 &amp; -0.52 &amp; -0.35 \\ . &amp; . &amp; . \\ -0.06 &amp; 0.17 &amp; 0.13 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.22 &amp; . &amp; -0.07 \\ . &amp; . &amp; . \\ -0.07 &amp; . &amp; 0.26 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.46 &amp; . &amp; 0.13 \\ . &amp; . &amp; . \\ 0.13 &amp; . &amp; 3.92 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+8
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.04 \\ -0.69 \\ 0.49 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.89 &amp; -0.51 &amp; -0.32 \\ 0.23 &amp; 0.17 &amp; -0.10 \\ -0.17 &amp; 0.40 &amp; 0.60 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.00 &amp; 0.19 &amp; 0.06 \\ 0.19 &amp; 0.24 &amp; -0.17 \\ 0.06 &amp; -0.17 &amp; 0.21 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.09 &amp; -4.60 &amp; -4.16 \\ -4.60 &amp; 19.50 &amp; 16.55 \\ -4.16 &amp; 16.55 &amp; 18.82 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+4
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.80 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -0.86 \\ 0.44 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ 0.22 &amp; -0.21 &amp; -0.16 \\ -0.11 &amp; 0.29 &amp; 0.24 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 0.37 &amp; -0.21 \\ . &amp; -0.21 &amp; 0.25 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 5.16 &amp; 4.30 \\ . &amp; 4.30 &amp; 7.58 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+5
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.80 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -0.78 \\ 0.53 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ 0.25 &amp; 0.03 &amp; -0.12 \\ -0.17 &amp; 0.42 &amp; 0.51 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 0.27 &amp; -0.18 \\ . &amp; -0.18 &amp; 0.22 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; 7.78 &amp; 6.15 \\ . &amp; 6.15 &amp; 9.30 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+9
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.90 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.02 \\ -0.81 \\ 0.53 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.81 &amp; -0.61 &amp; -0.39 \\ 0.25 &amp; -0.02 &amp; -0.13 \\ -0.17 &amp; 0.42 &amp; 0.47 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.35 &amp; 0.29 &amp; 0.03 \\ 0.29 &amp; 0.28 &amp; -0.18 \\ 0.03 &amp; -0.18 &amp; 0.23 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.60 &amp; -3.66 &amp; -3.14 \\ -3.66 &amp; 15.62 &amp; 12.92 \\ -3.14 &amp; 12.92 &amp; 15.08 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+7
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.50 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.22 \\ -0.88 \\ 0.49 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.64 &amp; -0.67 &amp; -0.43 \\ 0.24 &amp; -0.18 &amp; -0.16 \\ -0.13 &amp; 0.34 &amp; 0.30 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.82 &amp; 0.45 &amp; -0.02 \\ 0.45 &amp; 0.34 &amp; -0.20 \\ -0.02 &amp; -0.20 &amp; 0.25 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.29 &amp; -3.11 &amp; -2.44 \\ -3.11 &amp; 13.06 &amp; 10.44 \\ -2.44 &amp; 10.44 &amp; 12.43 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+ND
+</td>
+<td align="right">
+0
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="step-2-calculating-mathbfa-vecb-mathbfc-vecd-mathbfe-and-f-for-tips-and-internal-nodes" class="section level2">
 <h2 class="hasAnchor">
-<a href="#a-b-c-d-e-f" class="anchor"></a>A, b, C, d, E, f</h2>
+<a href="#step-2-calculating-mathbfa-vecb-mathbfc-vecd-mathbfe-and-f-for-tips-and-internal-nodes" class="anchor"></a>Step 2: Calculating <span class="math inline">\(\mathbf{A}\)</span>, <span class="math inline">\(\vec{b}\)</span>, <span class="math inline">\(\mathbf{C}\)</span>, <span class="math inline">\(\vec{d}\)</span>, <span class="math inline">\(\mathbf{E}\)</span> and <span class="math inline">\(f\)</span> for tips and internal nodes</h2>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="co"># For tip 1. We directly apply Eq. 2, Thm 1:</span></a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="co"># We can safely use the real part of V1 (all imaginary parts are 0):</span></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(V1)</a></code></pre></div>
+<pre><code>##           [,1]      [,2]
+## [1,]  2.216+0i -0.075+0i
+## [2,] -0.075-0i  0.258-0i</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">V1 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/complex">Re</a></span>(V1)</a>
+<a class="sourceLine" id="cb31-2" data-line-number="2">V1_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(V1)</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(A1 &lt;-<span class="st"> </span><span class="fl">-0.5</span><span class="op">*</span>V1_<span class="dv">1</span>)</a></code></pre></div>
+<pre><code>##        [,1]   [,2]
+## [1,] -0.228 -0.066
+## [2,] -0.066 -1.958</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(E1 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(Phi1) <span class="op">%*%</span><span class="st"> </span>V1_<span class="dv">1</span>)</a></code></pre></div>
+<pre><code>##       [,1]  [,2]
+## [1,]  0.16 -0.19
+## [2,] -0.14  0.45</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(b1 &lt;-<span class="st"> </span>V1_<span class="dv">1</span> <span class="op">%*%</span><span class="st"> </span>omega1)</a></code></pre></div>
+<pre><code>##      [,1]
+## [1,] 0.33
+## [2,] 1.41</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(C1 &lt;-<span class="st"> </span><span class="fl">-0.5</span> <span class="op">*</span><span class="st"> </span>E1 <span class="op">%*%</span><span class="st"> </span>Phi1)</a></code></pre></div>
+<pre><code>##        [,1]   [,2]
+## [1,] -0.037  0.040
+## [2,]  0.040 -0.053</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(d1 &lt;-<span class="st"> </span><span class="op">-</span>E1 <span class="op">%*%</span><span class="st"> </span>omega1)</a></code></pre></div>
+<pre><code>##        [,1]
+## [1,] -0.038
+## [2,] -0.065</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(f1 &lt;-<span class="st"> </span><span class="fl">-0.5</span> <span class="op">*</span><span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(omega1) <span class="op">%*%</span><span class="st"> </span>V1_<span class="dv">1</span> <span class="op">%*%</span><span class="st"> </span>omega1 <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(k1)<span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">2</span><span class="op">*</span>pi) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/det">det</a></span>(V1))))</a></code></pre></div>
+<pre><code>##      [,1]
+## [1,] -1.9</code></pre>
+<div id="variant-1-2" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-1-2" class="anchor"></a>Variant 1</h3>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb43-2" data-line-number="2">  traceTable1[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(j, i, k_i, A_i, b_i, C_i, d_i, E_i, f_i)], </a>
+<a class="sourceLine" id="cb43-3" data-line-number="3">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
 <table class="table">
 <tr>
 <th>
@@ -872,9 +1662,747 @@ ND
 </tr>
 </table>
 </div>
-<div id="l-m-r" class="section level2">
+<div id="variant-2-2" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-2-2" class="anchor"></a>Variant 2</h3>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb44-2" data-line-number="2">  traceTable2[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(j, i, k_i, A_i, b_i, C_i, d_i, E_i, f_i)], </a>
+<a class="sourceLine" id="cb44-3" data-line-number="3">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+<span class="math inline">\(j\)</span>
+</th>
+<th>
+<span class="math inline">\(i\)</span>
+</th>
+<th>
+<span class="math inline">\(k_i\)</span>
+</th>
+<th>
+<span class="math inline">\(A_i\)</span>
+</th>
+<th>
+<span class="math inline">\(b_i\)</span>
+</th>
+<th>
+<span class="math inline">\(C_i\)</span>
+</th>
+<th>
+<span class="math inline">\(d_i\)</span>
+</th>
+<th>
+<span class="math inline">\(E_i\)</span>
+</th>
+<th>
+<span class="math inline">\(f_i\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td align="right">
+2
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.17 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.17 &amp; . &amp; -0.00 \\ . &amp; . &amp; . \\ -0.00 &amp; . &amp; -0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.00 \\ . \\ -0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.35 &amp; . &amp; . \\ . &amp; . &amp; . \\ 0.00 &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.45 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+6
+</td>
+<td align="right">
+3
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.38 &amp; . &amp; 0.51 \\ . &amp; . &amp; . \\ 0.51 &amp; . &amp; -7.62 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.38 &amp; . &amp; 0.51 \\ . &amp; . &amp; . \\ 0.51 &amp; . &amp; -7.62 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.76 &amp; . &amp; -1.02 \\ . &amp; . &amp; . \\ -1.02 &amp; . &amp; 15.24 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.66 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+8
+</td>
+<td align="right">
+6
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.44 &amp; . &amp; 0.58 \\ . &amp; . &amp; . \\ 0.58 &amp; . &amp; -8.71 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.44 &amp; . &amp; 0.58 \\ . &amp; . &amp; . \\ 0.58 &amp; . &amp; -8.71 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.87 &amp; . &amp; -1.16 \\ . &amp; . &amp; . \\ -1.16 &amp; . &amp; 17.42 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.52 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+1
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.23 &amp; . &amp; -0.07 \\ . &amp; . &amp; . \\ -0.07 &amp; . &amp; -1.96 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.33 \\ . \\ 1.41 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.04 &amp; . &amp; 0.04 \\ . &amp; . &amp; . \\ 0.04 &amp; . &amp; -0.05 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.04 \\ . \\ -0.07 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.16 &amp; . &amp; -0.19 \\ . &amp; . &amp; . \\ -0.14 &amp; . &amp; 0.45 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.89 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+8
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.51 &amp; . &amp; 0.13 \\ . &amp; . &amp; . \\ 0.13 &amp; . &amp; -2.39 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.17 \\ . \\ 2.37 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.50 &amp; . &amp; 0.46 \\ . &amp; . &amp; . \\ 0.46 &amp; . &amp; -0.96 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.54 \\ . \\ -1.48 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.94 &amp; . &amp; -1.02 \\ . &amp; . &amp; . \\ -0.48 &amp; . &amp; 2.95 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.65 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+4
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; -2.58 &amp; -2.15 \\ . &amp; -2.15 &amp; -3.79 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -2.54 \\ -0.35 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.07 &amp; 0.05 &amp; 0.04 \\ 0.05 &amp; -0.17 &amp; -0.14 \\ 0.04 &amp; -0.14 &amp; -0.11 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.53 \\ -0.43 \\ -0.32 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; 0.67 &amp; 0.11 \\ . &amp; 0.17 &amp; 1.31 \\ . &amp; 0.19 &amp; 1.10 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.34 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+5
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; -3.89 &amp; -3.07 \\ . &amp; -3.07 &amp; -4.65 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -2.85 \\ 0.10 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.12 &amp; -0.00 &amp; 0.07 \\ -0.00 &amp; -0.89 &amp; -0.87 \\ 0.07 &amp; -0.87 &amp; -0.89 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.73 \\ 0.05 \\ -0.40 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; 0.88 &amp; -0.06 \\ . &amp; 2.81 &amp; 4.07 \\ . &amp; 2.19 &amp; 4.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.21 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+9
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.37 &amp; . &amp; 0.06 \\ . &amp; . &amp; . \\ 0.06 &amp; . &amp; -2.19 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.04 \\ . \\ 2.34 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.32 &amp; . &amp; 0.32 \\ . &amp; . &amp; . \\ 0.32 &amp; . &amp; -0.57 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.43 \\ . \\ -1.12 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.62 &amp; . &amp; -0.83 \\ . &amp; . &amp; . \\ -0.34 &amp; . &amp; 2.11 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.87 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+7
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.64 &amp; 1.55 &amp; 1.22 \\ 1.55 &amp; -6.53 &amp; -5.22 \\ 1.22 &amp; -5.22 &amp; -6.22 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.82 \\ -7.04 \\ -3.63 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.15 &amp; . &amp; 0.17 \\ . &amp; . &amp; . \\ 0.17 &amp; . &amp; -0.44 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.06 \\ . \\ 0.75 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.40 &amp; -0.22 &amp; -0.70 \\ . &amp; . &amp; . \\ -0.79 &amp; 2.38 &amp; 3.09 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -3.47 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+ND
+</td>
+<td align="right">
+0
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+</tr>
+</table>
+</div>
+<div id="variant-3-2" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-3-2" class="anchor"></a>Variant 3</h3>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb45-2" data-line-number="2">  traceTable3[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(j, i, k_i, A_i, b_i, C_i, d_i, E_i, f_i)], </a>
+<a class="sourceLine" id="cb45-3" data-line-number="3">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+<span class="math inline">\(j\)</span>
+</th>
+<th>
+<span class="math inline">\(i\)</span>
+</th>
+<th>
+<span class="math inline">\(k_i\)</span>
+</th>
+<th>
+<span class="math inline">\(A_i\)</span>
+</th>
+<th>
+<span class="math inline">\(b_i\)</span>
+</th>
+<th>
+<span class="math inline">\(C_i\)</span>
+</th>
+<th>
+<span class="math inline">\(d_i\)</span>
+</th>
+<th>
+<span class="math inline">\(E_i\)</span>
+</th>
+<th>
+<span class="math inline">\(f_i\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td align="right">
+2
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.17 &amp; . &amp; . \\ . &amp; . &amp; . \\ . &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.17 &amp; -0.00 &amp; -0.00 \\ -0.00 &amp; -0.00 &amp; -0.00 \\ -0.00 &amp; -0.00 &amp; -0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.00 \\ -0.00 \\ -0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.35 &amp; . &amp; . \\ 0.00 &amp; . &amp; . \\ 0.00 &amp; . &amp; . \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.45 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+6
+</td>
+<td align="right">
+3
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.38 &amp; . &amp; 0.51 \\ . &amp; . &amp; . \\ 0.51 &amp; . &amp; -7.62 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.38 &amp; -0.00 &amp; 0.51 \\ -0.00 &amp; -0.00 &amp; -0.00 \\ 0.51 &amp; -0.00 &amp; -7.62 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ 0.00 \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.76 &amp; . &amp; -1.02 \\ 0.00 &amp; . &amp; 0.00 \\ -1.02 &amp; . &amp; 15.24 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.66 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+8
+</td>
+<td align="right">
+6
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.12 &amp; 3.72 &amp; -4.71 \\ 3.72 &amp; -20.34 &amp; 28.94 \\ -4.71 &amp; 28.94 &amp; -49.88 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ 0.00 \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.12 &amp; 3.72 &amp; -4.71 \\ 3.72 &amp; -20.34 &amp; 28.94 \\ -4.71 &amp; 28.94 &amp; -49.88 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.00 \\ 0.00 \\ 0.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.23 &amp; -7.44 &amp; 9.42 \\ -7.44 &amp; 40.67 &amp; -57.87 \\ 9.42 &amp; -57.87 &amp; 99.76 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.41 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+1
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.23 &amp; . &amp; -0.07 \\ . &amp; . &amp; . \\ -0.07 &amp; . &amp; -1.96 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.33 \\ . \\ 1.41 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.04 &amp; 0.06 &amp; 0.04 \\ 0.06 &amp; -0.11 &amp; -0.08 \\ 0.04 &amp; -0.08 &amp; -0.05 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.04 \\ -0.07 \\ -0.07 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.16 &amp; . &amp; -0.19 \\ -0.22 &amp; . &amp; 0.61 \\ -0.14 &amp; . &amp; 0.45 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.89 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+8
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.05 &amp; 2.30 &amp; 2.08 \\ 2.30 &amp; -9.75 &amp; -8.28 \\ 2.08 &amp; -8.28 &amp; -9.41 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.04 \\ -5.12 \\ -1.98 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.65 &amp; 1.19 &amp; 1.04 \\ 1.19 &amp; -4.36 &amp; -3.66 \\ 1.04 &amp; -3.66 &amp; -3.26 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.08 \\ 2.17 \\ 1.01 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.50 &amp; -2.38 &amp; -3.04 \\ -3.49 &amp; 12.17 &amp; 12.36 \\ -2.71 &amp; 9.46 &amp; 10.98 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.75 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+4
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; -2.58 &amp; -2.15 \\ . &amp; -2.15 &amp; -3.79 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -2.54 \\ -0.35 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.07 &amp; 0.05 &amp; 0.04 \\ 0.05 &amp; -0.17 &amp; -0.14 \\ 0.04 &amp; -0.14 &amp; -0.11 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.53 \\ -0.43 \\ -0.32 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; 0.67 &amp; 0.11 \\ . &amp; 0.17 &amp; 1.31 \\ . &amp; 0.19 &amp; 1.10 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.34 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+5
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; . &amp; . \\ . &amp; -3.89 &amp; -3.07 \\ . &amp; -3.07 &amp; -4.65 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . \\ -2.85 \\ 0.10 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.12 &amp; -0.00 &amp; 0.07 \\ -0.00 &amp; -0.89 &amp; -0.87 \\ 0.07 &amp; -0.87 &amp; -0.89 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.73 \\ 0.05 \\ -0.40 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} . &amp; 0.88 &amp; -0.06 \\ . &amp; 2.81 &amp; 4.07 \\ . &amp; 2.19 &amp; 4.00 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.21 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+9
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.80 &amp; 1.83 &amp; 1.57 \\ 1.83 &amp; -7.81 &amp; -6.46 \\ 1.57 &amp; -6.46 &amp; -7.54 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.34 \\ -5.90 \\ -2.54 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.36 &amp; 0.64 &amp; 0.52 \\ 0.64 &amp; -2.26 &amp; -1.83 \\ 0.52 &amp; -1.83 &amp; -1.53 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.01 \\ 1.76 \\ 0.96 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.89 &amp; -1.17 &amp; -1.80 \\ -2.22 &amp; 7.31 &amp; 7.94 \\ -1.63 &amp; 5.50 &amp; 6.66 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -2.53 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+7
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.64 &amp; 1.55 &amp; 1.22 \\ 1.55 &amp; -6.53 &amp; -5.22 \\ 1.22 &amp; -5.22 &amp; -6.22 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.82 \\ -7.04 \\ -3.63 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.15 &amp; 0.23 &amp; 0.17 \\ 0.23 &amp; -0.76 &amp; -0.58 \\ 0.17 &amp; -0.58 &amp; -0.44 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.06 \\ 1.16 \\ 0.75 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.40 &amp; -0.22 &amp; -0.70 \\ -1.13 &amp; 3.25 &amp; 3.98 \\ -0.79 &amp; 2.38 &amp; 3.09 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -3.47 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+ND
+</td>
+<td align="right">
+0
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="step-3-calculating-mathbfl-vecm-r-for-the-internal-nodes-and-the-root" class="section level2">
 <h2 class="hasAnchor">
-<a href="#l-m-r" class="anchor"></a>L, m, r</h2>
+<a href="#step-3-calculating-mathbfl-vecm-r-for-the-internal-nodes-and-the-root" class="anchor"></a>Step 3: Calculating <span class="math inline">\(\mathbf{L}\)</span>, <span class="math inline">\(\vec{m}\)</span>, <span class="math inline">\(r\)</span> for the internal nodes and the root</h2>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="co"># For tip 2 with parent node 6, we use the following terms stored in Table S5:</span></a>
+<a class="sourceLine" id="cb46-2" data-line-number="2">A2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="op">-</span><span class="fl">0.17</span>)</a>
+<a class="sourceLine" id="cb46-3" data-line-number="3">b2 &lt;-<span class="st"> </span><span class="fl">0.0</span></a>
+<a class="sourceLine" id="cb46-4" data-line-number="4">C2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">0.17</span>, <span class="dv">0</span>), </a>
+<a class="sourceLine" id="cb46-5" data-line-number="5">            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb46-6" data-line-number="6">d2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>)</a>
+<a class="sourceLine" id="cb46-7" data-line-number="7">E2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.35</span>, <span class="dv">0</span>), <span class="dt">nrow =</span> <span class="dv">2</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb46-8" data-line-number="8">f2 &lt;-<span class="st"> </span><span class="fl">-1.45</span></a>
+<a class="sourceLine" id="cb46-9" data-line-number="9">k2 &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb46-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb46-11" data-line-number="11"><span class="co"># Now we apply Eq. S3:</span></a>
+<a class="sourceLine" id="cb46-12" data-line-number="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(L62 &lt;-<span class="st"> </span>C2)</a></code></pre></div>
+<pre><code>##       [,1] [,2]
+## [1,] -0.17    0
+## [2,]  0.00    0</code></pre>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(m62 &lt;-<span class="st"> </span>d2 <span class="op">+</span><span class="st"> </span>E2 <span class="op">%*%</span><span class="st"> </span>X[k2, <span class="st">"2"</span>, <span class="dt">drop =</span> <span class="ot">FALSE</span>])</a></code></pre></div>
+<pre><code>##          2
+## [1,] 0.035
+## [2,] 0.000</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(r62 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X[k2, <span class="st">"2"</span>, <span class="dt">drop =</span> <span class="ot">FALSE</span>]) <span class="op">%*%</span><span class="st"> </span>A2 <span class="op">%*%</span><span class="st"> </span>X[k2, <span class="st">"2"</span>, <span class="dt">drop =</span> <span class="ot">FALSE</span>] <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb50-2" data-line-number="2"><span class="st">        </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X[k2, <span class="st">"2"</span>, <span class="dt">drop =</span> <span class="ot">FALSE</span>]) <span class="op">%*%</span><span class="st"> </span>b2 <span class="op">+</span><span class="st"> </span>f2)</a></code></pre></div>
+<pre><code>##      2
+## 2 -1.5</code></pre>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="co"># For tip 3 with parent node 6, applying Eq. S3, we obtain (see Table S8):</span></a>
+<a class="sourceLine" id="cb52-2" data-line-number="2">L63 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">0.38</span>, <span class="fl">0.51</span>),</a>
+<a class="sourceLine" id="cb52-3" data-line-number="3">             <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.51</span>, <span class="fl">-7.62</span>))</a>
+<a class="sourceLine" id="cb52-4" data-line-number="4">m63 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">1.07</span>, <span class="fl">18.09</span>)</a>
+<a class="sourceLine" id="cb52-5" data-line-number="5">r63 &lt;-<span class="st"> </span><span class="fl">-11.41</span></a>
+<a class="sourceLine" id="cb52-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb52-7" data-line-number="7"><span class="co"># Now, we sum the terms L6i, m6i and r6i over all daughters of 6 (i) to obtain:</span></a>
+<a class="sourceLine" id="cb52-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(L6 &lt;-<span class="st"> </span>L62 <span class="op">+</span><span class="st"> </span>L63)</a></code></pre></div>
+<pre><code>##       [,1]  [,2]
+## [1,] -0.55  0.51
+## [2,]  0.51 -7.62</code></pre>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(m6 &lt;-<span class="st"> </span>m62 <span class="op">+</span><span class="st"> </span>m63)</a></code></pre></div>
+<pre><code>##       2
+## [1,] -1
+## [2,] 18</code></pre>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(r6 &lt;-<span class="st"> </span>r62 <span class="op">+</span><span class="st"> </span>r63)</a></code></pre></div>
+<pre><code>##     2
+## 2 -13</code></pre>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="co"># Using Eq. S3, we obtain L86, m86, r86, using the values for A,b,C,d,E,f in Table S5:</span></a>
+<a class="sourceLine" id="cb58-2" data-line-number="2">A6 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">0.44</span>, <span class="fl">0.58</span>),</a>
+<a class="sourceLine" id="cb58-3" data-line-number="3">            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.58</span>, <span class="fl">-8.71</span>))</a>
+<a class="sourceLine" id="cb58-4" data-line-number="4">b6 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>)</a>
+<a class="sourceLine" id="cb58-5" data-line-number="5">C6 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">0.44</span>, <span class="fl">0.58</span>),</a>
+<a class="sourceLine" id="cb58-6" data-line-number="6">            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.58</span>, <span class="fl">-8.71</span>))</a>
+<a class="sourceLine" id="cb58-7" data-line-number="7">d6 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>)</a>
+<a class="sourceLine" id="cb58-8" data-line-number="8">E6 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.87</span>, <span class="fl">-1.16</span>),</a>
+<a class="sourceLine" id="cb58-9" data-line-number="9">            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">1.16</span>, <span class="fl">17.42</span>))</a>
+<a class="sourceLine" id="cb58-10" data-line-number="10">f6 &lt;-<span class="st"> </span><span class="fl">-0.52</span></a>
+<a class="sourceLine" id="cb58-11" data-line-number="11">k6 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb58-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb58-13" data-line-number="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(L86 &lt;-<span class="st"> </span>C6 <span class="op">-</span><span class="st"> </span>(<span class="dv">1</span><span class="op">/</span><span class="dv">4</span>)<span class="op">*</span>E6 <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(A6 <span class="op">+</span><span class="st"> </span>L6) <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(E6))</a></code></pre></div>
+<pre><code>##       [,1]  [,2]
+## [1,] -0.25  0.27
+## [2,]  0.27 -4.06</code></pre>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(m86 &lt;-<span class="st"> </span>d6 <span class="op">-</span><span class="st"> </span>(<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>E6 <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(A6 <span class="op">+</span><span class="st"> </span>L6) <span class="op">%*%</span><span class="st"> </span>(b6<span class="op">+</span>m6))</a></code></pre></div>
+<pre><code>##          2
+## [1,] -0.57
+## [2,]  9.65</code></pre>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(r86 &lt;-<span class="st"> </span>f6<span class="op">+</span>r6<span class="op">+</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(k6)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">2</span><span class="op">*</span>pi) <span class="op">-</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb62-2" data-line-number="2"><span class="st">        </span>(<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/det">det</a></span>(<span class="op">-</span><span class="dv">2</span><span class="op">*</span>(A6<span class="op">+</span>L6))) <span class="op">-</span></a>
+<a class="sourceLine" id="cb62-3" data-line-number="3"><span class="st">        </span>(<span class="dv">1</span><span class="op">/</span><span class="dv">4</span>)<span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(b6<span class="op">+</span>m6) <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(A6<span class="op">+</span>L6) <span class="op">%*%</span><span class="st"> </span>(b6<span class="op">+</span>m6))</a></code></pre></div>
+<pre><code>##      2
+## 2 -8.6</code></pre>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" data-line-number="1"><span class="co"># Because 8 is a singleton node, we immediately obtain L8, m8, r8:</span></a>
+<a class="sourceLine" id="cb64-2" data-line-number="2">L8 &lt;-<span class="st"> </span>L86; m8 &lt;-<span class="st"> </span>m86; r8 &lt;-<span class="st"> </span>r86;</a></code></pre></div>
+<div id="variant-1-3" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-1-3" class="anchor"></a>Variant 1</h3>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb65-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb65-3" data-line-number="3">  traceTable1[</a>
+<a class="sourceLine" id="cb65-4" data-line-number="4">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), </a>
+<a class="sourceLine" id="cb65-5" data-line-number="5">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb65-6" data-line-number="6">      j, i, X_i, k_i, </a>
+<a class="sourceLine" id="cb65-7" data-line-number="7">      L_i, m_i, r_i,</a>
+<a class="sourceLine" id="cb65-8" data-line-number="8">      <span class="st">`</span><span class="dt">L_{ji}</span><span class="st">`</span>, <span class="st">`</span><span class="dt">m_{ji}</span><span class="st">`</span>, <span class="st">`</span><span class="dt">r_{ji}</span><span class="st">`</span>)], </a>
+<a class="sourceLine" id="cb65-9" data-line-number="9">  </a>
+<a class="sourceLine" id="cb65-10" data-line-number="10">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
 <table class="table">
 <tr>
 <th>
@@ -931,13 +2459,13 @@ ND
 ND
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.17 &amp; . &amp; -0.00 \\ . &amp; . &amp; . \\ -0.00 &amp; . &amp; -0.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.174 &amp; . &amp; -0.000 \\ . &amp; . &amp; . \\ -0.000 &amp; . &amp; -0.000 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.03 \\ . \\ 0.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.035 \\ . \\ 0.000 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -1.45 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -1.450 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -963,13 +2491,13 @@ ND
 ND
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.38 &amp; . &amp; 0.51 \\ . &amp; . &amp; . \\ 0.51 &amp; . &amp; -7.62 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.381 &amp; . &amp; 0.508 \\ . &amp; . &amp; . \\ 0.508 &amp; . &amp; -7.622 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -1.07 \\ . \\ 18.09 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -1.067 \\ . \\ 18.089 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -11.41 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -11.405 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -986,22 +2514,22 @@ ND
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.55 &amp; . &amp; 0.51 \\ . &amp; . &amp; . \\ 0.51 &amp; . &amp; -7.62 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.555 &amp; . &amp; 0.508 \\ . &amp; . &amp; . \\ 0.508 &amp; . &amp; -7.622 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -1.03 \\ . \\ 18.09 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -1.032 \\ . \\ 18.089 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -12.85 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -12.855 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.24 &amp; . &amp; 0.27 \\ . &amp; . &amp; . \\ 0.27 &amp; . &amp; -4.07 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.243 &amp; . &amp; 0.271 \\ . &amp; . &amp; . \\ 0.271 &amp; . &amp; -4.065 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.57 \\ . \\ 9.65 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.568 \\ . \\ 9.648 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -8.57 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -8.571 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -1027,13 +2555,13 @@ ND
 ND
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.04 &amp; . &amp; 0.04 \\ . &amp; . &amp; . \\ 0.04 &amp; . &amp; -0.05 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.037 &amp; . &amp; 0.040 \\ . &amp; . &amp; . \\ 0.040 &amp; . &amp; -0.053 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.25 \\ . \\ 0.52 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.249 \\ . \\ 0.520 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -3.74 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -3.735 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -1050,22 +2578,22 @@ ND
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.24 &amp; . &amp; 0.27 \\ . &amp; . &amp; . \\ 0.27 &amp; . &amp; -4.07 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.243 &amp; . &amp; 0.271 \\ . &amp; . &amp; . \\ 0.271 &amp; . &amp; -4.065 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.57 \\ . \\ 9.65 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.568 \\ . \\ 9.648 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -8.57 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -8.571 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.20 &amp; . &amp; 0.25 \\ . &amp; . &amp; . \\ 0.25 &amp; . &amp; -0.59 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.195 &amp; . &amp; 0.250 \\ . &amp; . &amp; . \\ 0.250 &amp; . &amp; -0.594 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.40 \\ . \\ 1.27 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.402 \\ . \\ 1.267 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -4.25 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -4.248 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -1091,13 +2619,13 @@ ND
 ND
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.07 &amp; 0.05 &amp; 0.04 \\ 0.05 &amp; -0.17 &amp; -0.14 \\ 0.04 &amp; -0.14 &amp; -0.11 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.068 &amp; 0.054 &amp; 0.040 \\ 0.054 &amp; -0.174 &amp; -0.141 \\ 0.040 &amp; -0.141 &amp; -0.114 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.68 \\ -0.14 \\ -0.07 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.683 \\ -0.138 \\ -0.066 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -2.35 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -2.349 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -1123,13 +2651,13 @@ ND
 ND
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.12 &amp; -0.00 &amp; 0.07 \\ -0.00 &amp; -0.89 &amp; -0.87 \\ 0.07 &amp; -0.87 &amp; -0.89 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.115 &amp; -0.001 &amp; 0.070 \\ -0.001 &amp; -0.893 &amp; -0.869 \\ 0.070 &amp; -0.869 &amp; -0.890 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.76 \\ 5.04 \\ 3.83 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.762 \\ 5.043 \\ 3.834 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -13.88 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -13.880 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -1146,22 +2674,22 @@ ND
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.23 &amp; . &amp; 0.29 \\ . &amp; . &amp; . \\ 0.29 &amp; . &amp; -0.65 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.232 &amp; . &amp; 0.291 \\ . &amp; . &amp; . \\ 0.291 &amp; . &amp; -0.647 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.65 \\ . \\ 1.79 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.651 \\ . \\ 1.786 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -7.98 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -7.983 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.14 &amp; 0.16 &amp; 0.14 \\ 0.16 &amp; -0.20 &amp; -0.18 \\ 0.14 &amp; -0.18 &amp; -0.17 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.140 &amp; 0.162 &amp; 0.143 \\ 0.162 &amp; -0.200 &amp; -0.183 \\ 0.143 &amp; -0.183 &amp; -0.170 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.26 \\ 0.42 \\ 0.43 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.262 \\ 0.422 \\ 0.429 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -7.43 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -7.430 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -1178,22 +2706,22 @@ ND
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.18 &amp; 0.05 &amp; 0.11 \\ 0.05 &amp; -1.07 &amp; -1.01 \\ 0.11 &amp; -1.01 &amp; -1.00 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.183 &amp; 0.053 &amp; 0.110 \\ 0.053 &amp; -1.066 &amp; -1.010 \\ 0.110 &amp; -1.010 &amp; -1.004 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.44 \\ 4.91 \\ 3.77 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.444 \\ 4.906 \\ 3.769 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -16.23 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -16.230 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.05 &amp; 0.05 &amp; 0.03 \\ 0.05 &amp; -0.11 &amp; -0.08 \\ 0.03 &amp; -0.08 &amp; -0.06 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.052 &amp; 0.052 &amp; 0.035 \\ 0.052 &amp; -0.113 &amp; -0.082 \\ 0.035 &amp; -0.082 &amp; -0.060 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1.22 \\ -0.40 \\ -0.17 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.222 \\ -0.396 \\ -0.174 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -10.95 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -10.947 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -1210,13 +2738,13 @@ ND
 <span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -0.19 &amp; 0.21 &amp; 0.18 \\ 0.21 &amp; -0.31 &amp; -0.27 \\ 0.18 &amp; -0.27 &amp; -0.23 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -0.192 &amp; 0.214 &amp; 0.178 \\ 0.214 &amp; -0.313 &amp; -0.265 \\ 0.178 &amp; -0.265 &amp; -0.230 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.96 \\ 0.03 \\ 0.26 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.960 \\ 0.026 \\ 0.255 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} -18.38 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} -18.377 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 ND
@@ -1230,9 +2758,803 @@ ND
 </tr>
 </table>
 </div>
-<div id="references" class="section level1">
-<h1 class="hasAnchor">
-<a href="#references" class="anchor"></a>References</h1>
+<div id="variant-2-3" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-2-3" class="anchor"></a>Variant 2</h3>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb66-2" data-line-number="2">  traceTable2[</a>
+<a class="sourceLine" id="cb66-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), </a>
+<a class="sourceLine" id="cb66-4" data-line-number="4">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb66-5" data-line-number="5">      j, i, X_i, k_i, </a>
+<a class="sourceLine" id="cb66-6" data-line-number="6">      L_i, m_i, r_i,</a>
+<a class="sourceLine" id="cb66-7" data-line-number="7">      <span class="st">`</span><span class="dt">L_{ji}</span><span class="st">`</span>, <span class="st">`</span><span class="dt">m_{ji}</span><span class="st">`</span>, <span class="st">`</span><span class="dt">r_{ji}</span><span class="st">`</span>)], </a>
+<a class="sourceLine" id="cb66-8" data-line-number="8">  </a>
+<a class="sourceLine" id="cb66-9" data-line-number="9">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+<span class="math inline">\(j\)</span>
+</th>
+<th>
+<span class="math inline">\(i\)</span>
+</th>
+<th>
+<span class="math inline">\(X_i\)</span>
+</th>
+<th>
+<span class="math inline">\(k_i\)</span>
+</th>
+<th>
+<span class="math inline">\(L_i\)</span>
+</th>
+<th>
+<span class="math inline">\(m_i\)</span>
+</th>
+<th>
+<span class="math inline">\(r_i\)</span>
+</th>
+<th>
+<span class="math inline">\(L_{ji}\)</span>
+</th>
+<th>
+<span class="math inline">\(m_{ji}\)</span>
+</th>
+<th>
+<span class="math inline">\(r_{ji}\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td align="right">
+2
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.1 \\ NaN \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.174 &amp; . &amp; -0.000 \\ . &amp; . &amp; . \\ -0.000 &amp; . &amp; -0.000 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.035 \\ . \\ 0.000 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.450 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+6
+</td>
+<td align="right">
+3
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.2 \\ NaN \\ 1.2 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.381 &amp; . &amp; 0.508 \\ . &amp; . &amp; . \\ 0.508 &amp; . &amp; -7.622 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.067 \\ . \\ 18.089 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -11.405 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+8
+</td>
+<td align="right">
+6
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NaN \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.555 &amp; . &amp; 0.508 \\ . &amp; . &amp; . \\ 0.508 &amp; . &amp; -7.622 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.032 \\ . \\ 18.089 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -12.855 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.243 &amp; . &amp; 0.271 \\ . &amp; . &amp; . \\ 0.271 &amp; . &amp; -4.065 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.568 \\ . \\ 9.648 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -8.571 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+1
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.3 \\ NaN \\ 1.4 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.037 &amp; . &amp; 0.040 \\ . &amp; . &amp; . \\ 0.040 &amp; . &amp; -0.053 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.249 \\ . \\ 0.520 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -3.735 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+8
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NaN \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.243 &amp; . &amp; 0.271 \\ . &amp; . &amp; . \\ 0.271 &amp; . &amp; -4.065 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.568 \\ . \\ 9.648 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -8.571 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.195 &amp; . &amp; 0.250 \\ . &amp; . &amp; . \\ 0.250 &amp; . &amp; -0.594 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.402 \\ . \\ 1.267 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -4.248 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+4
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ 0.2 \\ 0.2 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.068 &amp; 0.054 &amp; 0.040 \\ 0.054 &amp; -0.174 &amp; -0.141 \\ 0.040 &amp; -0.141 &amp; -0.114 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.683 \\ -0.138 \\ -0.066 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -2.349 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+5
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ 1.2 \\ 0.4 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.115 &amp; -0.001 &amp; 0.070 \\ -0.001 &amp; -0.893 &amp; -0.869 \\ 0.070 &amp; -0.869 &amp; -0.890 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.762 \\ 5.043 \\ 3.834 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -13.880 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+9
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NaN \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.232 &amp; . &amp; 0.291 \\ . &amp; . &amp; . \\ 0.291 &amp; . &amp; -0.647 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.651 \\ . \\ 1.786 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -7.983 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.140 &amp; . &amp; 0.143 \\ . &amp; . &amp; . \\ 0.143 &amp; . &amp; -0.170 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.262 \\ . \\ 0.429 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -7.430 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+7
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NA \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.183 &amp; 0.053 &amp; 0.110 \\ 0.053 &amp; -1.066 &amp; -1.010 \\ 0.110 &amp; -1.010 &amp; -1.004 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.444 \\ 4.906 \\ 3.769 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -16.230 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.052 &amp; 0.053 &amp; 0.035 \\ 0.053 &amp; -1.066 &amp; -1.010 \\ 0.035 &amp; -1.010 &amp; -0.060 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.222 \\ 4.906 \\ -0.174 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -10.947 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+ND
+</td>
+<td align="right">
+0
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NaN \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.192 &amp; . &amp; 0.178 \\ . &amp; . &amp; . \\ 0.178 &amp; . &amp; -0.230 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.960 \\ . \\ 0.255 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -18.377 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+</tr>
+</table>
+</div>
+<div id="variant-3-3" class="section level3">
+<h3 class="hasAnchor">
+<a href="#variant-3-3" class="anchor"></a>Variant 3</h3>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cat">cat</a></span>(<span class="kw"><a href="../reference/FormatTableAsLatex.html">FormatTableAsLatex</a></span>(</a>
+<a class="sourceLine" id="cb67-2" data-line-number="2">  traceTable3[</a>
+<a class="sourceLine" id="cb67-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(pOrder), </a>
+<a class="sourceLine" id="cb67-4" data-line-number="4">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb67-5" data-line-number="5">      j, i, X_i, k_i, </a>
+<a class="sourceLine" id="cb67-6" data-line-number="6">      L_i, m_i, r_i, </a>
+<a class="sourceLine" id="cb67-7" data-line-number="7">      <span class="st">`</span><span class="dt">L_{ji}</span><span class="st">`</span>, <span class="st">`</span><span class="dt">m_{ji}</span><span class="st">`</span>, <span class="st">`</span><span class="dt">r_{ji}</span><span class="st">`</span>)], </a>
+<a class="sourceLine" id="cb67-8" data-line-number="8">  </a>
+<a class="sourceLine" id="cb67-9" data-line-number="9">  <span class="dt">type =</span> tableOutputType))</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+<span class="math inline">\(j\)</span>
+</th>
+<th>
+<span class="math inline">\(i\)</span>
+</th>
+<th>
+<span class="math inline">\(X_i\)</span>
+</th>
+<th>
+<span class="math inline">\(k_i\)</span>
+</th>
+<th>
+<span class="math inline">\(L_i\)</span>
+</th>
+<th>
+<span class="math inline">\(m_i\)</span>
+</th>
+<th>
+<span class="math inline">\(r_i\)</span>
+</th>
+<th>
+<span class="math inline">\(L_{ji}\)</span>
+</th>
+<th>
+<span class="math inline">\(m_{ji}\)</span>
+</th>
+<th>
+<span class="math inline">\(r_{ji}\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td align="right">
+2
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.1 \\ NA \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.174 &amp; -0.000 &amp; -0.000 \\ -0.000 &amp; -0.000 &amp; -0.000 \\ -0.000 &amp; -0.000 &amp; -0.000 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.035 \\ 0.000 \\ 0.000 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.450 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+6
+</td>
+<td align="right">
+3
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.2 \\ NA \\ 1.2 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.381 &amp; -0.000 &amp; 0.508 \\ -0.000 &amp; -0.000 &amp; -0.000 \\ 0.508 &amp; -0.000 &amp; -7.622 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.067 \\ 0.000 \\ 18.089 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -11.405 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+8
+</td>
+<td align="right">
+6
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NA \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.555 &amp; 0.000 &amp; 0.508 \\ 0.000 &amp; 0.000 &amp; 0.000 \\ 0.508 &amp; 0.000 &amp; -7.622 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -1.032 \\ 0.000 \\ 18.089 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -12.855 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.243 &amp; -0.000 &amp; 0.271 \\ -0.000 &amp; 0.000 &amp; -0.000 \\ 0.271 &amp; -0.000 &amp; -4.065 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.568 \\ -0.000 \\ 9.648 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -8.571 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+1
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.3 \\ NA \\ 1.4 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.037 &amp; 0.059 &amp; 0.040 \\ 0.059 &amp; -0.109 &amp; -0.076 \\ 0.040 &amp; -0.076 &amp; -0.053 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.249 \\ 0.711 \\ 0.520 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -3.735 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+9
+</td>
+<td align="right">
+8
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NA \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.243 &amp; -0.000 &amp; 0.271 \\ -0.000 &amp; 0.000 &amp; -0.000 \\ 0.271 &amp; -0.000 &amp; -4.065 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.568 \\ -0.000 \\ 9.648 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -8.571 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.195 &amp; 0.213 &amp; 0.250 \\ 0.213 &amp; -0.318 &amp; -0.426 \\ 0.250 &amp; -0.426 &amp; -0.594 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.402 \\ 0.860 \\ 1.267 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -4.248 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+4
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ 0.2 \\ 0.2 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.068 &amp; 0.054 &amp; 0.040 \\ 0.054 &amp; -0.174 &amp; -0.141 \\ 0.040 &amp; -0.141 &amp; -0.114 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.683 \\ -0.138 \\ -0.066 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -2.349 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+7
+</td>
+<td align="right">
+5
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ 1.2 \\ 0.4 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.115 &amp; -0.001 &amp; 0.070 \\ -0.001 &amp; -0.893 &amp; -0.869 \\ 0.070 &amp; -0.869 &amp; -0.890 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.762 \\ 5.043 \\ 3.834 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -13.880 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+9
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NA \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.232 &amp; 0.272 &amp; 0.291 \\ 0.272 &amp; -0.427 &amp; -0.502 \\ 0.291 &amp; -0.502 &amp; -0.647 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.651 \\ 1.571 \\ 1.786 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -7.983 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.089 &amp; 0.140 &amp; 0.106 \\ 0.140 &amp; -0.258 &amp; -0.204 \\ 0.106 &amp; -0.204 &amp; -0.163 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.394 \\ 1.044 \\ 0.833 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -8.380 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+0
+</td>
+<td align="right">
+7
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NA \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.183 &amp; 0.053 &amp; 0.110 \\ 0.053 &amp; -1.066 &amp; -1.010 \\ 0.110 &amp; -1.010 &amp; -1.004 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 2.444 \\ 4.906 \\ 3.769 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -16.230 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.052 &amp; 0.052 &amp; 0.035 \\ 0.052 &amp; -0.113 &amp; -0.082 \\ 0.035 &amp; -0.082 &amp; -0.060 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1.222 \\ -0.396 \\ -0.174 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -10.947 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+ND
+</td>
+<td align="right">
+0
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} NA \\ NA \\ NA \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ 3 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -0.141 &amp; 0.192 &amp; 0.141 \\ 0.192 &amp; -0.372 &amp; -0.286 \\ 0.141 &amp; -0.286 &amp; -0.223 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 0.827 \\ 0.648 \\ 0.659 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} -19.328 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+<td align="right">
+ND
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="step-4-calculating-the-log-likelihood-value-using-mathbfl_0-vecm_0-and-r_0-" class="section level2">
+<h2 class="hasAnchor">
+<a href="#step-4-calculating-the-log-likelihood-value-using-mathbfl_0-vecm_0-and-r_0-" class="anchor"></a>Step 4: Calculating the log-likelihood value using <span class="math inline">\(\mathbf{L}_{0}\)</span>, <span class="math inline">\(\vec{m}_{0}\)</span>, and <span class="math inline">\(r_{0}\)</span>.</h2>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" data-line-number="1"><span class="co"># Variant 1.</span></a>
+<a class="sourceLine" id="cb68-2" data-line-number="2"><span class="co"># Copy the values of L0, m0 and r0 from Table S8:</span></a>
+<a class="sourceLine" id="cb68-3" data-line-number="3">L0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">0.192</span>, <span class="fl">0.214</span>, <span class="fl">0.178</span>),</a>
+<a class="sourceLine" id="cb68-4" data-line-number="4">            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.214</span>, <span class="fl">-0.313</span>, <span class="fl">-0.265</span>),</a>
+<a class="sourceLine" id="cb68-5" data-line-number="5">            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.178</span>, <span class="fl">-0.265</span>, <span class="fl">-0.230</span>))</a>
+<a class="sourceLine" id="cb68-6" data-line-number="6">m0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.96</span>, <span class="fl">0.026</span>, <span class="fl">0.255</span>)</a>
+<a class="sourceLine" id="cb68-7" data-line-number="7">r0 &lt;-<span class="st"> </span><span class="fl">-18.377</span></a>
+<a class="sourceLine" id="cb68-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb68-9" data-line-number="9"><span class="co"># Use Eq. S2 to estimate the optimal X0:</span></a>
+<a class="sourceLine" id="cb68-10" data-line-number="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat &lt;-<span class="st"> </span><span class="fl">-0.5</span><span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(L0) <span class="op">%*%</span><span class="st"> </span>m0))</a></code></pre></div>
+<pre><code>##      [,1]  [,2] [,3]
+## [1,] 9.64 -6.25 15.2</code></pre>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" data-line-number="1"><span class="co"># Use Eq. S1 to calculate the log-likelihood:</span></a>
+<a class="sourceLine" id="cb70-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ll0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat) <span class="op">%*%</span><span class="st"> </span>L0 <span class="op">%*%</span><span class="st"> </span>x0Hat <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat) <span class="op">%*%</span><span class="st"> </span>m0 <span class="op">+</span><span class="st"> </span>r0)</a></code></pre></div>
+<pre><code>##       [,1]
+## [1,] -11.9</code></pre>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" data-line-number="1"><span class="co"># Variant 2.</span></a>
+<a class="sourceLine" id="cb72-2" data-line-number="2"><span class="co"># Copy the values of L0, m0 and r0 from Table S9:</span></a>
+<a class="sourceLine" id="cb72-3" data-line-number="3">L0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="fl">0.192</span>, <span class="fl">0.178</span>),</a>
+<a class="sourceLine" id="cb72-4" data-line-number="4">            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.178</span>, <span class="fl">-0.230</span>))</a>
+<a class="sourceLine" id="cb72-5" data-line-number="5">m0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.96</span>, <span class="fl">0.255</span>)</a>
+<a class="sourceLine" id="cb72-6" data-line-number="6">r0 &lt;-<span class="st"> </span><span class="fl">-18.377</span></a>
+<a class="sourceLine" id="cb72-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb72-8" data-line-number="8"><span class="co"># Use Eq. S2 to estimate the optimal X0:</span></a>
+<a class="sourceLine" id="cb72-9" data-line-number="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat &lt;-<span class="st"> </span><span class="fl">-0.5</span><span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(L0) <span class="op">%*%</span><span class="st"> </span>m0))</a></code></pre></div>
+<pre><code>##      [,1] [,2]
+## [1,] 10.7 8.81</code></pre>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" data-line-number="1"><span class="co"># Use Eq. S1 to calculate the log-likelihood:</span></a>
+<a class="sourceLine" id="cb74-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ll0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat) <span class="op">%*%</span><span class="st"> </span>L0 <span class="op">%*%</span><span class="st"> </span>x0Hat <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat) <span class="op">%*%</span><span class="st"> </span>m0 <span class="op">+</span><span class="st"> </span>r0)</a></code></pre></div>
+<pre><code>##       [,1]
+## [1,] -12.1</code></pre>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" data-line-number="1"><span class="co"># Variant 3.</span></a>
+<a class="sourceLine" id="cb76-2" data-line-number="2"><span class="co"># The function PCMLikTrace generates a data.table with the values of </span></a>
+<a class="sourceLine" id="cb76-3" data-line-number="3"><span class="co"># omega, Phi, V, A, b, C, d, E, f, L, m, r. </span></a>
+<a class="sourceLine" id="cb76-4" data-line-number="4">traceTable3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLikTrace.html">PCMLikTrace</a></span>(X3[, tree<span class="op">$</span>tip.label], tree, model.OU.BM)</a>
+<a class="sourceLine" id="cb76-5" data-line-number="5"><span class="co"># The column i corresponds to the node label in the tree as depicted on Fig. 1:</span></a>
+<a class="sourceLine" id="cb76-6" data-line-number="6"><span class="kw">setkey</span>(traceTable3, i)</a>
+<a class="sourceLine" id="cb76-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb76-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb76-9" data-line-number="9"><span class="co"># Variant 3.</span></a>
+<a class="sourceLine" id="cb76-10" data-line-number="10"><span class="co"># Copy the values of L0, m0 and r0 from the traceTable object (these values have</span></a>
+<a class="sourceLine" id="cb76-11" data-line-number="11"><span class="co"># the maximal double floating point precision):</span></a>
+<a class="sourceLine" id="cb76-12" data-line-number="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(L0 &lt;-<span class="st"> </span>traceTable3[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"0"</span>)][[<span class="st">"L_i"</span>]][[<span class="dv">1</span>]])</a></code></pre></div>
+<pre><code>##         [,1]    [,2]    [,3]
+## [1,] -0.1408  0.1919  0.1407
+## [2,]  0.1919 -0.3715 -0.2862
+## [3,]  0.1407 -0.2862 -0.2233</code></pre>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(m0 &lt;-<span class="st"> </span>traceTable3[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"0"</span>)][[<span class="st">"m_i"</span>]][[<span class="dv">1</span>]])</a></code></pre></div>
+<pre><code>## [1] 0.8273 0.6484 0.6590</code></pre>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb80-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(r0 &lt;-<span class="st"> </span>traceTable3[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"0"</span>)][[<span class="st">"r_i"</span>]][[<span class="dv">1</span>]])</a></code></pre></div>
+<pre><code>## [1] -19.33</code></pre>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb82-1" data-line-number="1"><span class="co"># Notice the exact match with the values for variant 3 reported in Fig. S5:</span></a>
+<a class="sourceLine" id="cb82-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat &lt;-<span class="st"> </span><span class="fl">-0.5</span><span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/solve">solve</a></span>(L0) <span class="op">%*%</span><span class="st"> </span>m0))</a></code></pre></div>
+<pre><code>##       [,1]  [,2]   [,3]
+## [1,] 15.99 18.34 -11.95</code></pre>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb84-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ll0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat) <span class="op">%*%</span><span class="st"> </span>L0 <span class="op">%*%</span><span class="st"> </span>x0Hat <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(x0Hat) <span class="op">%*%</span><span class="st"> </span>m0 <span class="op">+</span><span class="st"> </span>r0)</a></code></pre></div>
+<pre><code>##        [,1]
+## [1,] -10.71</code></pre>
+</div>
 </div>
   </div>
 
@@ -1241,10 +3563,24 @@ ND
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#omega-phi-v">Omega, Phi, V</a></li>
-      <li><a href="#a-b-c-d-e-f">A, b, C, d, E, f</a></li>
-      <li><a href="#l-m-r">L, m, r</a></li>
-      <li><a href="#references">References</a></li>
+<li><a href="#example-tree-and-data">Example tree and data</a></li>
+      <li><a href="#a-mixed-gaussian-model">A mixed Gaussian model</a></li>
+      <li><a href="#likelihood-values-for-the-three-example-variants">Likelihood values for the three example variants</a></li>
+      <li>
+<a href="#tracing-the-likelihood-calculation-using-the-function-pcmliktrace">Tracing the likelihood calculation using the function <code>PCMLikTrace</code></a><ul class="nav nav-pills nav-stacked">
+<li><a href="#variant-1">Variant 1</a></li>
+      <li><a href="#variant-2">Variant 2</a></li>
+      <li><a href="#variant-3">Variant 3</a></li>
+      </ul>
+</li>
+      <li>
+<a href="#a-step-by-step-description-of-the-log-likelihood-calculation">A step by step description of the log-likelihood calculation</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#step-1-calculating-vecomega-mathbfphi-and-mathbfv-for-each-tip-or-internal-node">Step 1: Calculating <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> for each tip or internal node}</a></li>
+      <li><a href="#step-2-calculating-mathbfa-vecb-mathbfc-vecd-mathbfe-and-f-for-tips-and-internal-nodes">Step 2: Calculating <span class="math inline">\(\mathbf{A}\)</span>, <span class="math inline">\(\vec{b}\)</span>, <span class="math inline">\(\mathbf{C}\)</span>, <span class="math inline">\(\vec{d}\)</span>, <span class="math inline">\(\mathbf{E}\)</span> and <span class="math inline">\(f\)</span> for tips and internal nodes</a></li>
+      <li><a href="#step-3-calculating-mathbfl-vecm-r-for-the-internal-nodes-and-the-root">Step 3: Calculating <span class="math inline">\(\mathbf{L}\)</span>, <span class="math inline">\(\vec{m}\)</span>, <span class="math inline">\(r\)</span> for the internal nodes and the root</a></li>
+      <li><a href="#step-4-calculating-the-log-likelihood-value-using-mathbfl_0-vecm_0-and-r_0-">Step 4: Calculating the log-likelihood value using <span class="math inline">\(\mathbf{L}_{0}\)</span>, <span class="math inline">\(\vec{m}_{0}\)</span>, and <span class="math inline">\(r_{0}\)</span>.</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

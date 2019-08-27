@@ -62,10 +62,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -91,7 +91,7 @@
       <h1>Creating a Custom Model in the PCMBase Framework</h1>
                         <h4 class="author">Krzysztof Bartoszek</h4>
             
-            <h4 class="date">2019-07-10</h4>
+            <h4 class="date">2019-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMCreateModel.Rmd"><code>vignettes/PCMCreateModel.Rmd</code></a></small>
       <div class="hidden name"><code>PCMCreateModel.Rmd</code></div>
@@ -118,19 +118,19 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(abind)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(abind)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</a></code></pre></div>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>The PCMBase package is designed as a computational engine to calculate the likelihood for a user specified model evolving on a phylogenetic tree. The package comes with some pre-implemented models, e.g. Brownian Motion or Ornstein-Uhlenbeck, both allowing for multivariate correlated evolution. However, the mathematical theory behind the method for calculating the likelihood (Mitov et. al. 2018) is not limited to these two models. In fact any stochastic process that belongs to the so-called GLInv family of models is implementable in PCMBase. From a mathematical perspective one needs to be able to implement functions that calculate the compound parameters <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span>. Furthermore, from the implementation side one has to be able to handle the model defining parameters (default values, allowable parametrizations, etc.).</p>
+<p>The PCMBase package is designed as a computational engine to calculate the likelihood for a user specified model evolving on a phylogenetic tree. The package comes with some pre-implemented models, e.g. Brownian Motion or Ornstein-Uhlenbeck, both allowing for multivariate correlated evolution. However, the mathematical theory behind the method for calculating the likelihood (Mitov et. al. 2018) is not limited to these two models. In fact any stochastic process that belongs to the so-called GLInv family of models is implementable in PCMBase. From a mathematical perspective one needs to be able to implement functions that calculate the compound parameters <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span>. Furthermore, from the implementation side one has to be able to handle the model defining parameters (default values, allowable parametrizations, etc.).</p>
 <p>PCMBase’s interface is based on the S3 object system (an excellent introduction by Hadley Wickham is available at <a href="http://adv-r.had.co.nz/S3.html" class="uri">http://adv-r.had.co.nz/S3.html</a>). Each implemented model will be an S3 object and below we will describe how a user can implement a new model class by themselves.</p>
 </div>
 <div id="brownian-motion-with-drift" class="section level1">
 <h1 class="hasAnchor">
 <a href="#brownian-motion-with-drift" class="anchor"></a>Brownian motion with drift</h1>
-<p>We will show how to create one’s own model class with the example of Brownian motion with drift. The model is a simple generalization of the Brownian motion model by including a deterministic drift. It is defined by the stochastic differential equation (SDE) <span class="math display">\[d\vec{X}(t) = \vec{h} dt + \Sigma_{x} d W(t),\]</span> where <span class="math inline">\(W(t)\)</span> is the standard Wiener process. Setting <span class="math inline">\(\vec{h}=\vec{0}\)</span> reduces the model to the Brownian motion process. The expectation of the process is <span class="math inline">\(E[\vec{X}(t)] = \vec{X}(0)+t\vec{h}\)</span> and the variance <span class="math inline">\(Var[\vec{X}(t)] = t\Sigma_{x}\Sigma_{x}^{T}\)</span>. Based on this we can calculate the the compound parameters <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> defining the model in the GLInv family (Eq. 30, Mitov et. al. 2018) <span class="math display">\[
+<p>We will show how to create one’s own model class with the example of Brownian motion with drift. The model is a simple generalization of the Brownian motion model by including a deterministic drift. It is defined by the stochastic differential equation (SDE) <span class="math display">\[d\vec{X}(t) = \vec{h} dt + \Sigma_{x} d W(t),\]</span> where <span class="math inline">\(W(t)\)</span> is the standard Wiener process. Setting <span class="math inline">\(\vec{h}=\vec{0}\)</span> reduces the model to the Brownian motion process. The expectation of the process is <span class="math inline">\(E[\vec{X}(t)] = \vec{X}(0)+t\vec{h}\)</span> and the variance <span class="math inline">\(Var[\vec{X}(t)] = t\Sigma_{x}\Sigma_{x}^{T}\)</span>. Based on this we can calculate the the compound parameters <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> defining the model in the GLInv family (Eq. 30, Mitov et. al. 2018) <span class="math display">\[
 \vec{\omega} = \vec{h}t,
 \]</span> <span class="math display">\[
 \mathbf{\Phi} = \mathbf{I},
@@ -148,275 +148,275 @@
 <li>
 <code>PCMParentClasses.BM_drift</code> : function returning the parental classes. of “BM_drift”:</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PCMParentClasses.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model) {
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"GaussianPCM"</span>, <span class="st">"PCM"</span>)
-}</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">PCMParentClasses.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model) {</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"GaussianPCM"</span>, <span class="st">"PCM"</span>)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">}</a></code></pre></div>
 <ul>
 <li>
 <code>PCMDescribe.BM_drift</code> : function returning a custom description of the model.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PCMDescribe.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {
-  <span class="st">"Brownian motion model with drift"</span>
-}</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">PCMDescribe.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="st">"Brownian motion model with drift"</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">}</a></code></pre></div>
 <ul>
 <li>
 <code>PCMCond.BM_drift</code> : the key function when implementing a new model class. This function returns a list with functions for calculating the <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> compound parameters that define the conditional distribution of the daughter node given the value of the trait at its parent node (<span class="math inline">\(\vec{x}_{parent}\)</span>. Following Mitov et. al. (2018) we know that in the GLInv family a daughter node conditional on its parent is normally distributed with expectation <span class="math inline">\(\vec{\omega}+\mathbf{\Phi}\vec{x}_{parent}\)</span> and variance-covariance matrix <span class="math inline">\(\mathbf{V}\)</span>. In particular the <span class="math inline">\(\vec{\omega}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> and <span class="math inline">\(\mathbf{V}\)</span> compound parameters can depend on time (i.e. the length of the branch from the parental to the daughter node). In the case of the BM with drift model the <span class="math inline">\(\vec{\omega}=t\cdot \vec{h}\)</span>, <span class="math inline">\(\mathbf{\Phi}\)</span> is the identity matrix and <span class="math inline">\(\mathbf{V}\)</span> is the same as in the Brownian motion model (which in itself is a limit of the OU model, hence the reuse of the PCMConcVOU function).</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PCMCond.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(
-  tree, model, <span class="dt">r =</span> <span class="dv">1</span>, <span class="dt">metaI =</span> <span class="kw"><a href="../reference/PCMInfo.html">PCMInfo</a></span>(<span class="ot">NULL</span>, tree, model, <span class="dt">verbose =</span> verbose),
-  <span class="dt">verbose=</span><span class="ot">FALSE</span>) {
-
-  
-  Sigma_x &lt;-<span class="st"> </span><span class="cf">if</span>(<span class="kw"><a href="../reference/PCMParamType.html">is.Global</a></span>(model<span class="op">$</span>Sigma_x)){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigma_x)}
-         <span class="cf">else</span>{<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigma_x[,, r])}
-  Sigma &lt;-<span class="st"> </span>Sigma_x <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(Sigma_x)
-  <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(model<span class="op">$</span>Sigmae_x)) {
-    Sigmae_x &lt;-<span class="st"> </span><span class="cf">if</span>(<span class="kw"><a href="../reference/PCMParamType.html">is.Global</a></span>(model<span class="op">$</span>Sigmae_x)){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigmae_x)}
-        <span class="cf">else</span>{<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigmae_x[,,r])}
-    Sigmae &lt;-<span class="st"> </span>Sigmae_x <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(Sigmae_x)
-  } <span class="cf">else</span> {
-    Sigmae &lt;-<span class="st"> </span><span class="ot">NULL</span>
-  }
-
-  <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(model<span class="op">$</span>h_drift)) { 
-    h_drift &lt;-<span class="st"> </span><span class="cf">if</span>(<span class="kw"><a href="../reference/PCMParamType.html">is.Global</a></span>(model<span class="op">$</span>h_drift)) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/vector">as.vector</a></span>(model<span class="op">$</span>h_drift) <span class="cf">else</span> model<span class="op">$</span>h_drift[, r]
-  }<span class="cf">else</span>{
-    h_drift &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(Sigma_x))
-  }
-
-  V &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCondVOU.html">PCMCondVOU</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">0</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(Sigma), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(Sigma)), Sigma, Sigmae)
-  omega &lt;-<span class="st"> </span><span class="cf">function</span>(t, edgeIndex, metaI) {
-    t<span class="op">*</span>h_drift
-  }
-  Phi &lt;-<span class="st"> </span><span class="cf">function</span>(t, edgeIndex, metaI, <span class="dt">e_Ht =</span> <span class="ot">NULL</span>) {
-    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/diag">diag</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(Sigma))
-  }
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">omega =</span> omega, <span class="dt">Phi =</span> Phi, <span class="dt">V =</span> V)
-}</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">PCMCond.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">  tree, model, <span class="dt">r =</span> <span class="dv">1</span>, <span class="dt">metaI =</span> <span class="kw"><a href="../reference/PCMInfo.html">PCMInfo</a></span>(<span class="ot">NULL</span>, tree, model, <span class="dt">verbose =</span> verbose),</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="dt">verbose=</span><span class="ot">FALSE</span>) {</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  </a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  Sigma_x &lt;-<span class="st"> </span><span class="cf">if</span>(<span class="kw"><a href="../reference/PCMParamType.html">is.Global</a></span>(model<span class="op">$</span>Sigma_x)){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigma_x)}</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">         <span class="cf">else</span>{<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigma_x[,, r])}</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">  Sigma &lt;-<span class="st"> </span>Sigma_x <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(Sigma_x)</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(model<span class="op">$</span>Sigmae_x)) {</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">    Sigmae_x &lt;-<span class="st"> </span><span class="cf">if</span>(<span class="kw"><a href="../reference/PCMParamType.html">is.Global</a></span>(model<span class="op">$</span>Sigmae_x)){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigmae_x)}</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">        <span class="cf">else</span>{<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(model<span class="op">$</span>Sigmae_x[,,r])}</a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">    Sigmae &lt;-<span class="st"> </span>Sigmae_x <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(Sigmae_x)</a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">    Sigmae &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb4-15" data-line-number="15">  }</a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb4-17" data-line-number="17">  <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(model<span class="op">$</span>h_drift)) { </a>
+<a class="sourceLine" id="cb4-18" data-line-number="18">    h_drift &lt;-<span class="st"> </span><span class="cf">if</span>(<span class="kw"><a href="../reference/PCMParamType.html">is.Global</a></span>(model<span class="op">$</span>h_drift)) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/vector">as.vector</a></span>(model<span class="op">$</span>h_drift) <span class="cf">else</span> model<span class="op">$</span>h_drift[, r]</a>
+<a class="sourceLine" id="cb4-19" data-line-number="19">  }<span class="cf">else</span>{</a>
+<a class="sourceLine" id="cb4-20" data-line-number="20">    h_drift &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(Sigma_x))</a>
+<a class="sourceLine" id="cb4-21" data-line-number="21">  }</a>
+<a class="sourceLine" id="cb4-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb4-23" data-line-number="23">  V &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCondVOU.html">PCMCondVOU</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">0</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(Sigma), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(Sigma)), Sigma, Sigmae)</a>
+<a class="sourceLine" id="cb4-24" data-line-number="24">  omega &lt;-<span class="st"> </span><span class="cf">function</span>(t, edgeIndex, metaI) {</a>
+<a class="sourceLine" id="cb4-25" data-line-number="25">    t<span class="op">*</span>h_drift</a>
+<a class="sourceLine" id="cb4-26" data-line-number="26">  }</a>
+<a class="sourceLine" id="cb4-27" data-line-number="27">  Phi &lt;-<span class="st"> </span><span class="cf">function</span>(t, edgeIndex, metaI, <span class="dt">e_Ht =</span> <span class="ot">NULL</span>) {</a>
+<a class="sourceLine" id="cb4-28" data-line-number="28">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/diag">diag</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(Sigma))</a>
+<a class="sourceLine" id="cb4-29" data-line-number="29">  }</a>
+<a class="sourceLine" id="cb4-30" data-line-number="30">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">omega =</span> omega, <span class="dt">Phi =</span> Phi, <span class="dt">V =</span> V)</a>
+<a class="sourceLine" id="cb4-31" data-line-number="31">}</a></code></pre></div>
 <ul>
 <li>
 <code>PCMDescribeParameters.BM_drift</code> : a function that returns a list with a custom description of each model parameter.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PCMDescribeParameters.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-    <span class="dt">X0 =</span> <span class="st">"trait values at the root"</span>,
-    <span class="dt">h_drift =</span> <span class="st">"drift vector modifying the expectation"</span>,
-    <span class="dt">Sigma_x =</span> <span class="st">"Cholesky factor of the unit-time variance rate"</span>,
-    <span class="dt">Sigmae_x =</span> <span class="st">"Cholesky factor of the non-heritable variance </span>
-<span class="st">        or the variance of the measurement error"</span>)
-}</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">PCMDescribeParameters.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">    <span class="dt">X0 =</span> <span class="st">"trait values at the root"</span>,</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">    <span class="dt">h_drift =</span> <span class="st">"drift vector modifying the expectation"</span>,</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">    <span class="dt">Sigma_x =</span> <span class="st">"Cholesky factor of the unit-time variance rate"</span>,</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">    <span class="dt">Sigmae_x =</span> <span class="st">"Cholesky factor of the non-heritable variance </span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="st">        or the variance of the measurement error"</span>)</a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">}</a></code></pre></div>
 <ul>
 <li>
-<code>PCMListParameterizations.BM_drift</code> : a function that returns all possible parametrizations for the implemented model class. These parametrizations correspond to how each parameter defining the model can be parametrized. For a detailed description of how matrices can be parametrized please see Bartoszek (2011), Bartoszek et. al. (2012) or the matrixparametrizations.R file in the mvSLOUCH or PCMBase R packages. Probably from the perspective of just calculating the likelihood given some parameters this function does not seem that useful. However, one should not forget that PCMBase is designed to be a computational engine providing the likelihood that will be optimized over some other code. Here, <span class="math inline">\(\vec{X}(0)\)</span> and <span class="math inline">\(\vec{h}\)</span> are vectors (i.e. “VectorParameter”). The “_AllEqual" parametrization means all the entries of the vector should be equal. “_Global" means that it is the same for all regimes (notice that <span class="math inline">\(\vec{X}(0)\)</span> is the value at the root, so it has to be common for all), “_Omitted" means not present (for <span class="math inline">\(\vec{h}\)</span> this means that the model will correspond to a Brownian motion with <span class="math inline">\(0\)</span> drift). Finally “_Fixed" means that the parameter is “known”, i.e. it is not to be optimized over. Matrix parametrizations are more involved. For example one will not optimize over a covariance matrix but e.g. over its Cholesky decomposition. Here we just have the <span class="math inline">\(\Sigma_{x}\)</span> and <span class="math inline">\(\Sigma_{e}\)</span> matrices (however see the “OU” class for more involved cases with the <span class="math inline">\(H\)</span> matrix). Here, these two matrices can be either upper triangular, diagonal or diagonal with a constant value on the diagonal. Both of them enter the likelihood (through <span class="math inline">\(\mathbf{V}\)</span>) as a product of themselves and their transposition i.e. <span class="math inline">\(SS^{T}\)</span> so decomposition into a triangular matrix (with non-negative diagonal) suffices for unique identification of the matrix. Notice that if <span class="math inline">\(S\)</span> is of dimension <span class="math inline">\(k\times k\)</span>, then <span class="math inline">\(SS^{T}\)</span> has <span class="math inline">\(k^{2}\)</span> potentially non-zero elements while its triangular decomposition only <span class="math inline">\(k(k+1)/2\)</span> A detailed description of the different possible parametrizations is given in the help file for PCMParam.</li>
+<code>PCMListParameterizations.BM_drift</code> : a function that returns all possible parametrizations for the implemented model class. These parametrizations correspond to how each parameter defining the model can be parametrized. For a detailed description of how matrices can be parametrized please see Bartoszek (2011), Bartoszek et. al. (2012) or the matrixparametrizations.R file in the mvSLOUCH or PCMBase R packages. Probably from the perspective of just calculating the likelihood given some parameters this function does not seem that useful. However, one should not forget that PCMBase is designed to be a computational engine providing the likelihood that will be optimized over some other code. Here, <span class="math inline">\(\vec{X}(0)\)</span> and <span class="math inline">\(\vec{h}\)</span> are vectors (i.e. “VectorParameter”). The "_AllEqual" parametrization means all the entries of the vector should be equal. "_Global" means that it is the same for all regimes (notice that <span class="math inline">\(\vec{X}(0)\)</span> is the value at the root, so it has to be common for all), "_Omitted" means not present (for <span class="math inline">\(\vec{h}\)</span> this means that the model will correspond to a Brownian motion with <span class="math inline">\(0\)</span> drift). Finally "_Fixed" means that the parameter is “known”, i.e. it is not to be optimized over. Matrix parametrizations are more involved. For example one will not optimize over a covariance matrix but e.g. over its Cholesky decomposition. Here we just have the <span class="math inline">\(\Sigma_{x}\)</span> and <span class="math inline">\(\Sigma_{e}\)</span> matrices (however see the “OU” class for more involved cases with the <span class="math inline">\(H\)</span> matrix). Here, these two matrices can be either upper triangular, diagonal or diagonal with a constant value on the diagonal. Both of them enter the likelihood (through <span class="math inline">\(\mathbf{V}\)</span>) as a product of themselves and their transposition i.e. <span class="math inline">\(SS^{T}\)</span> so decomposition into a triangular matrix (with non-negative diagonal) suffices for unique identification of the matrix. Notice that if <span class="math inline">\(S\)</span> is of dimension <span class="math inline">\(k\times k\)</span>, then <span class="math inline">\(SS^{T}\)</span> has <span class="math inline">\(k^{2}\)</span> potentially non-zero elements while its triangular decomposition only <span class="math inline">\(k(k+1)/2\)</span> A detailed description of the different possible parametrizations is given in the help file for PCMParam.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PCMListParameterizations.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-    <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Global"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Fixed"</span>, <span class="st">"_Global"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_AllEqual"</span>, <span class="st">"_Global"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Omitted"</span>)),
-    <span class="dt">h_drift =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(     
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Fixed"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_AllEqual"</span>),
-       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Omitted"</span>)),
-       
-    <span class="dt">Sigma_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>)),
-
-    <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Global"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Global"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Global"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>))
-  )
-}</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">PCMListParameterizations.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Fixed"</span>, <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_AllEqual"</span>, <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Omitted"</span>)),</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="dt">h_drift =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(     </a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>),</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Fixed"</span>),</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_AllEqual"</span>),</a>
+<a class="sourceLine" id="cb6-12" data-line-number="12">       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Omitted"</span>)),</a>
+<a class="sourceLine" id="cb6-13" data-line-number="13">       </a>
+<a class="sourceLine" id="cb6-14" data-line-number="14">    <span class="dt">Sigma_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb6-15" data-line-number="15">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),</a>
+<a class="sourceLine" id="cb6-16" data-line-number="16">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),</a>
+<a class="sourceLine" id="cb6-17" data-line-number="17">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>)),</a>
+<a class="sourceLine" id="cb6-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb6-19" data-line-number="19">    <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb6-20" data-line-number="20">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),</a>
+<a class="sourceLine" id="cb6-21" data-line-number="21">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),</a>
+<a class="sourceLine" id="cb6-22" data-line-number="22">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),</a>
+<a class="sourceLine" id="cb6-23" data-line-number="23">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb6-24" data-line-number="24">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb6-25" data-line-number="25">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb6-26" data-line-number="26">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>))</a>
+<a class="sourceLine" id="cb6-27" data-line-number="27">  )</a>
+<a class="sourceLine" id="cb6-28" data-line-number="28">}</a></code></pre></div>
 <ul>
 <li>
 <code>PCMListDefaultParameterizations.BM_drift</code> : this function is optional to define but can be useful if only a subset of the parametrizations defined in the PCMListParametrizations function will actually be used in practise.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PCMListDefaultParameterizations.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-    <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Global"</span>),
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Omitted"</span>)
-    ),
-    <span class="dt">h_drift =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(     
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>)),
-       
-    <span class="dt">Sigma_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),
-        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),
-        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>)
-      ),
-
-    <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>))
-  )
-}</code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">PCMListDefaultParameterizations.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">    <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Omitted"</span>)</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">    ),</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">    <span class="dt">h_drift =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(     </a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>)),</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9">       </a>
+<a class="sourceLine" id="cb7-10" data-line-number="10">    <span class="dt">Sigma_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb7-11" data-line-number="11">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),</a>
+<a class="sourceLine" id="cb7-12" data-line-number="12">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Diagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>),</a>
+<a class="sourceLine" id="cb7-13" data-line-number="13">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_ScalarDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>)</a>
+<a class="sourceLine" id="cb7-14" data-line-number="14">      ),</a>
+<a class="sourceLine" id="cb7-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16">    <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb7-17" data-line-number="17">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>))</a>
+<a class="sourceLine" id="cb7-18" data-line-number="18">  )</a>
+<a class="sourceLine" id="cb7-19" data-line-number="19">}</a></code></pre></div>
 <ul>
 <li>
 <code>PCMSpecify.BM_drift</code> : generate default model parameters. Notice that here we obtain a singular model with 0 mean and 0 variance.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PCMSpecify.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {
-  spec &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-    <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'VectorParameter'</span>, <span class="st">'_Global'</span>),
-                   <span class="dt">description =</span> <span class="st">'trait values at the root'</span>),
-    <span class="dt">h_drift =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'VectorParameter'</span>),
-                   <span class="dt">description =</span> <span class="st">'drift vector modifying the expectation'</span>),
-    <span class="dt">Sigma_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'MatrixParameter'</span>, <span class="st">'_UpperTriangularWithDiagonal'</span>, 
-                    <span class="st">'_WithNonNegativeDiagonal'</span>),
-                        <span class="dt">description =</span> <span class="st">'Cholesky factor of the unit-time variance rate'</span>),
-    <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'MatrixParameter'</span>, <span class="st">'_UpperTriangularWithDiagonal'</span>,
-                    <span class="st">'_WithNonNegativeDiagonal'</span>),
-                         <span class="dt">description =</span> <span class="st">'Cholesky factor of the non-heritable variance </span>
-<span class="st">                                or the variance of the measurement error'</span>))
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attributes">attributes</a></span>(spec) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attributes">attributes</a></span>(model)
-  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(spec))) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(spec) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'X0'</span>, <span class="st">'h_drift'</span>, <span class="st">'Sigma_x'</span>, <span class="st">'Sigmae_x'</span>)
-  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/any">any</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(spec, is.Transformable))) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(spec) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(spec), <span class="st">'_Transformable'</span>)
-  spec
-}</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">PCMSpecify.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">  spec &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'VectorParameter'</span>, <span class="st">'_Global'</span>),</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">                   <span class="dt">description =</span> <span class="st">'trait values at the root'</span>),</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">    <span class="dt">h_drift =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'VectorParameter'</span>),</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">                   <span class="dt">description =</span> <span class="st">'drift vector modifying the expectation'</span>),</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">    <span class="dt">Sigma_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'MatrixParameter'</span>, <span class="st">'_UpperTriangularWithDiagonal'</span>, </a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">                    <span class="st">'_WithNonNegativeDiagonal'</span>),</a>
+<a class="sourceLine" id="cb8-9" data-line-number="9">                        <span class="dt">description =</span> <span class="st">'Cholesky factor of the unit-time variance rate'</span>),</a>
+<a class="sourceLine" id="cb8-10" data-line-number="10">    <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'MatrixParameter'</span>, <span class="st">'_UpperTriangularWithDiagonal'</span>,</a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">                    <span class="st">'_WithNonNegativeDiagonal'</span>),</a>
+<a class="sourceLine" id="cb8-12" data-line-number="12">                         <span class="dt">description =</span> <span class="st">'Cholesky factor of the non-heritable variance </span></a>
+<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="st">                                or the variance of the measurement error'</span>))</a>
+<a class="sourceLine" id="cb8-14" data-line-number="14">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attributes">attributes</a></span>(spec) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attributes">attributes</a></span>(model)</a>
+<a class="sourceLine" id="cb8-15" data-line-number="15">  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(spec))) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(spec) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'X0'</span>, <span class="st">'h_drift'</span>, <span class="st">'Sigma_x'</span>, <span class="st">'Sigmae_x'</span>)</a>
+<a class="sourceLine" id="cb8-16" data-line-number="16">  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/any">any</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(spec, is.Transformable))) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(spec) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(spec), <span class="st">'_Transformable'</span>)</a>
+<a class="sourceLine" id="cb8-17" data-line-number="17">  spec</a>
+<a class="sourceLine" id="cb8-18" data-line-number="18">}</a></code></pre></div>
 </div>
 <div id="example-run" class="section level1">
 <h1 class="hasAnchor">
 <a href="#example-run" class="anchor"></a>Example run</h1>
 <p>Now that we have defined all the code necessary for the class let us demonstrate it. After running all the above code defining the “BM_drift” class we create a model instance. We do this for a two regimes model.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">X0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">1</span>) ## root state
-  
-## in regime a traits evolve independently
-a.Sigma_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">2.4</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">2.0</span>))
-## no jumps at the end of a branch
-a.Sigmae_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>))
-a.h_drift&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)
-
-## in regime b evolution is correlated
-b.Sigma_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span>), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">2.0</span>))
-## no jumps at the end of a branch
-b.Sigmae_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>))
-b.h_drift&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)
-
-Sigma_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/abind/topics/abind">abind</a></span>(a.Sigma_x, b.Sigma_x, <span class="dt">along=</span><span class="dv">3</span>, <span class="dt">new.names=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">x=</span><span class="ot">NULL</span>,<span class="dt">y=</span><span class="ot">NULL</span>,<span class="dt">regime=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'a'</span>,<span class="st">'b'</span>)))
-Sigmae_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/abind/topics/abind">abind</a></span>(a.Sigmae_x,b.Sigmae_x,<span class="dt">along=</span><span class="dv">3</span>,<span class="dt">new.names=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">x=</span><span class="ot">NULL</span>,<span class="dt">y=</span><span class="ot">NULL</span>,<span class="dt">regime=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'a'</span>,<span class="st">'b'</span>)))
-h_drift &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/abind/topics/abind">abind</a></span>(a.h_drift, b.h_drift, <span class="dt">along=</span><span class="dv">2</span>, <span class="dt">new.names=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">xy=</span><span class="ot">NULL</span>, <span class="dt">regime=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'a'</span>,<span class="st">'b'</span>)))
-
-PCMBase_model_BM_drift &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM_drift"</span>, <span class="dt">k =</span> <span class="dv">3</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>),
-<span class="dt">params =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">X0 =</span> X0,<span class="dt">h_drift =</span> h_drift[,,<span class="dt">drop=</span><span class="ot">FALSE</span>],
-<span class="dt">Sigma_x =</span> Sigma_x[,,,<span class="dt">drop=</span><span class="ot">FALSE</span>],<span class="dt">Sigmae_x =</span> Sigmae_x[,,,<span class="dt">drop=</span><span class="ot">FALSE</span>]))</code></pre></div>
-<p>Now we simulate a random phylogeny (here pure birth tree with unit speciation rate conditioned on <span class="math inline">\(30\)</span> tips). Furthermore, we randomly paint the two regimes, “a” and “b” on the tips of the tree. Then, we use mvSLOUCH’s (modified from slouch, Hansen et. al. 2008, to work with phylo format trees) Fitch algorithm to paint the regimes on the internal branches of the tree. It is worth pointing out that the Fitch algorithm is only one option and the user should explore other possibilities depending on the problem.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">12345</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>) ## set a random seed
-N&lt;-<span class="dv">30</span> ## number or tip species
-phyltree&lt;-ape<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/ape/topics/rtree">rcoal</a></span>(<span class="dt">n=</span>N)
-
-v_current_regimes&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>,<span class="st">"b"</span>),<span class="dv">30</span>,<span class="dt">replace=</span><span class="ot">TRUE</span>)
-v_branch_regimes&lt;-mvSLOUCH<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/mvSLOUCH/topics/fitch.mvsl">fitch.mvsl</a></span>(phyltree,v_current_regimes)<span class="op">$</span>branch_regimes</code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">X0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">1</span>) <span class="co">## root state</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">  </a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">## in regime a traits evolve independently</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">a.Sigma_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">2.4</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">2.0</span>))</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">## no jumps at the end of a branch</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">a.Sigmae_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>))</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">a.h_drift&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co">## in regime b evolution is correlated</span></a>
+<a class="sourceLine" id="cb9-10" data-line-number="10">b.Sigma_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.6</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span>), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">2.0</span>))</a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">## no jumps at the end of a branch</span></a>
+<a class="sourceLine" id="cb9-12" data-line-number="12">b.Sigmae_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>))</a>
+<a class="sourceLine" id="cb9-13" data-line-number="13">b.h_drift&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb9-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15">Sigma_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/abind/topics/abind">abind</a></span>(a.Sigma_x, b.Sigma_x, <span class="dt">along=</span><span class="dv">3</span>, <span class="dt">new.names=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">x=</span><span class="ot">NULL</span>,<span class="dt">y=</span><span class="ot">NULL</span>,<span class="dt">regime=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'a'</span>,<span class="st">'b'</span>)))</a>
+<a class="sourceLine" id="cb9-16" data-line-number="16">Sigmae_x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/abind/topics/abind">abind</a></span>(a.Sigmae_x,b.Sigmae_x,<span class="dt">along=</span><span class="dv">3</span>,<span class="dt">new.names=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">x=</span><span class="ot">NULL</span>,<span class="dt">y=</span><span class="ot">NULL</span>,<span class="dt">regime=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'a'</span>,<span class="st">'b'</span>)))</a>
+<a class="sourceLine" id="cb9-17" data-line-number="17">h_drift &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/abind/topics/abind">abind</a></span>(a.h_drift, b.h_drift, <span class="dt">along=</span><span class="dv">2</span>, <span class="dt">new.names=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">xy=</span><span class="ot">NULL</span>, <span class="dt">regime=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'a'</span>,<span class="st">'b'</span>)))</a>
+<a class="sourceLine" id="cb9-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb9-19" data-line-number="19">PCMBase_model_BM_drift &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM_drift"</span>, <span class="dt">k =</span> <span class="dv">3</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>),</a>
+<a class="sourceLine" id="cb9-20" data-line-number="20"><span class="dt">params =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">X0 =</span> X0,<span class="dt">h_drift =</span> h_drift[,,<span class="dt">drop=</span><span class="ot">FALSE</span>],</a>
+<a class="sourceLine" id="cb9-21" data-line-number="21"><span class="dt">Sigma_x =</span> Sigma_x[,,,<span class="dt">drop=</span><span class="ot">FALSE</span>],<span class="dt">Sigmae_x =</span> Sigmae_x[,,,<span class="dt">drop=</span><span class="ot">FALSE</span>]))</a></code></pre></div>
+<p>Now we simulate a random phylogeny (here pure birth tree with unit speciation rate conditioned on <span class="math inline">\(30\)</span> tips). Furthermore, we randomly paint the two regimes, “a” and “b” on the tips of the tree. Then, we use mvSLOUCH’s (modified from slouch, Hansen et. al. 2008, to work with phylo format trees) Fitch algorithm to paint the regimes on the internal branches of the tree. It is worth pointing out that the Fitch algorithm is only one option and the user should explore other possibilities depending on the problem.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">12345</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>) <span class="co">## set a random seed</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">N&lt;-<span class="dv">30</span> <span class="co">## number or tip species</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">phyltree&lt;-ape<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/ape/topics/rtree">rcoal</a></span>(<span class="dt">n=</span>N)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5">v_current_regimes&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>,<span class="st">"b"</span>),<span class="dv">30</span>,<span class="dt">replace=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb10-6" data-line-number="6">v_branch_regimes&lt;-mvSLOUCH<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/mvSLOUCH/topics/fitch.mvsl">fitch.mvsl</a></span>(phyltree,v_current_regimes)<span class="op">$</span>branch_regimes</a></code></pre></div>
 <pre><code>## There is an ambiguity at the root node, as given below</code></pre>
-<pre><code>## [1] "b" "a"</code></pre>
+<pre><code>## [1] "a" "b"</code></pre>
 <pre><code>## Set this to one of the ambiguous states using root = state (state needs to be in quotation marks) in the function call before attempting the deltran or acctran reconstructions</code></pre>
 <pre><code>## The number of ambiguous nodes are:</code></pre>
-<pre><code>## [1] 5</code></pre>
+<pre><code>## [1] 11</code></pre>
 <pre><code>##  and they are at nodes:</code></pre>
-<pre><code>## [1]  1  2  5 22 23</code></pre>
+<pre><code>##  [1]  1  2  3  4  6  7  9 12 17 21 25</code></pre>
 <pre><code>## Try deltran OR acctran = TRUE in the function call in order to implement a delayed or accelerated character transformation</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v_ambiguous&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(v_branch_regimes<span class="op">==</span><span class="st">"ambiguous"</span>)
-<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(v_ambiguous)<span class="op">&gt;</span><span class="dv">0</span>){
-    v_branch_regimes[v_ambiguous]&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which.min">which.max</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/table">table</a></span>(v_branch_regimes[<span class="op">-</span>v_ambiguous]))))
-}
-## some branches may have "ambiguous" assigned to them due to how the implementation of 
-## Fitch's algorithm works. These branches need to have the regimes set manually. 
-## We do this according to the maximum rule but in a real analysis this would have to be 
-## done based on a careful analysis of the biological system under study.
-phyltree&lt;-<span class="kw"><a href="../reference/PCMTreeSetRegimesForEdges.html">PCMTreeSetRegimesForEdges</a></span>(phyltree, v_branch_regimes,<span class="ot">FALSE</span>) </code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">v_ambiguous&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(v_branch_regimes<span class="op">==</span><span class="st">"ambiguous"</span>)</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(v_ambiguous)<span class="op">&gt;</span><span class="dv">0</span>){</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">    v_branch_regimes[v_ambiguous]&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which.min">which.max</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/table">table</a></span>(v_branch_regimes[<span class="op">-</span>v_ambiguous]))))</a>
+<a class="sourceLine" id="cb19-4" data-line-number="4">}</a>
+<a class="sourceLine" id="cb19-5" data-line-number="5"><span class="co">## some branches may have "ambiguous" assigned to them due to how the implementation of </span></a>
+<a class="sourceLine" id="cb19-6" data-line-number="6"><span class="co">## Fitch's algorithm works. These branches need to have the regimes set manually. </span></a>
+<a class="sourceLine" id="cb19-7" data-line-number="7"><span class="co">## We do this according to the maximum rule but in a real analysis this would have to be </span></a>
+<a class="sourceLine" id="cb19-8" data-line-number="8"><span class="co">## done based on a careful analysis of the biological system under study.</span></a>
+<a class="sourceLine" id="cb19-9" data-line-number="9">phyltree&lt;-<span class="kw"><a href="../reference/PCMTreeSetRegimesForEdges.html">PCMTreeSetRegimesForEdges</a></span>(phyltree, v_branch_regimes,<span class="ot">FALSE</span>) </a></code></pre></div>
 <p>We simulate the traits using PCMBase’s functionality.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mData&lt;-<span class="kw"><a href="../reference/PCMSim.html">PCMSim</a></span>(phyltree, PCMBase_model_BM_drift, X0)[,<span class="dv">1</span><span class="op">:</span>N] ## we only want the tip data
-## <span class="al">NOTE</span> that observations from different species are in the columns NOT in the rows as 
-## in other software</code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">mData&lt;-<span class="kw"><a href="../reference/PCMSim.html">PCMSim</a></span>(phyltree, PCMBase_model_BM_drift, X0)[,<span class="dv">1</span><span class="op">:</span>N] <span class="co">## we only want the tip data</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="co">## </span><span class="al">NOTE</span><span class="co"> that observations from different species are in the columns NOT in the rows as </span></a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="co">## in other software</span></a></code></pre></div>
 <p>Finally we calculate the likelihood under the BM with drift model.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">log_lik&lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(mData, phyltree, PCMBase_model_BM_drift)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik[<span class="dv">1</span>]) ## we just want to print the log-likelihood without the attributes</code></pre></div>
-<pre><code>## [1] -47.15921</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">log_lik&lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(mData, phyltree, PCMBase_model_BM_drift)</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik[<span class="dv">1</span>]) <span class="co">## we just want to print the log-likelihood without the attributes</span></a></code></pre></div>
+<pre><code>## [1] -64.85134</code></pre>
 <p>If PCMBase is used as a computational engine for some inference package, then the above code can be one way of obtaining the likelihood under a “GaussianPCM” model object. However, in such a setup it is more recommended to use the mechanism of creating a likelihood function for a particular dataset through PCMCreateLikelihood. This will speed up the calculations as it avoids traversing the tree every time the likelihood value is required. One just needs to update the parameters to obtain a new likelihood value.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## create an vector of appropriate length to store the vectorized model parameters
-v_param &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">double</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(PCMBase_model_BM_drift))
-
-<span class="co"># load the current model parameters into param</span>
-<span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(PCMBase_model_BM_drift, v_param, <span class="dt">offset=</span><span class="dv">0</span>, <span class="dt">load=</span><span class="ot">FALSE</span>)</code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co">## create an vector of appropriate length to store the vectorized model parameters</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">v_param &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">double</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(PCMBase_model_BM_drift))</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="co"># load the current model parameters into param</span></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(PCMBase_model_BM_drift, v_param, <span class="dt">offset=</span><span class="dv">0</span>, <span class="dt">load=</span><span class="ot">FALSE</span>)</a></code></pre></div>
 <pre><code>## [1] 33</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(v_param)</code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(v_param)</a></code></pre></div>
 <pre><code>##  [1] 5.0 2.0 1.0 4.0 5.0 6.0 1.0 2.0 3.0 1.6 0.0 2.4 0.0 0.0 2.0 1.6 0.3
 ## [18] 0.3 0.3 0.4 2.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## now create a likelihood function for the particular model and observed data
-likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(mData, phyltree, PCMBase_model_BM_drift)
-
-log_lik_from_likFun&lt;-<span class="kw">likFun</span>(v_param)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik_from_likFun[<span class="dv">1</span>])</code></pre></div>
-<pre><code>## [1] -47.15921</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik_from_likFun[<span class="dv">1</span>]<span class="op">==</span>log_lik[<span class="dv">1</span>])</code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="co">## now create a likelihood function for the particular model and observed data</span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2">likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(mData, phyltree, PCMBase_model_BM_drift)</a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4">log_lik_from_likFun&lt;-<span class="kw">likFun</span>(v_param)</a>
+<a class="sourceLine" id="cb27-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik_from_likFun[<span class="dv">1</span>])</a></code></pre></div>
+<pre><code>## [1] -64.85134</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik_from_likFun[<span class="dv">1</span>]<span class="op">==</span>log_lik[<span class="dv">1</span>])</a></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># modify slightly the model parameters</span>
-v_param_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(v_param)
-
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(v_param_<span class="dv">2</span>)</code></pre></div>
-<pre><code>##  [1]  4.988561454  1.989858580  0.984932882  4.011415487  5.010456952
-##  [6]  5.987847998  1.015901196  2.003816074  2.997723418  1.591956812
-## [11] -0.007869344  2.402948928  0.017237933  0.012381977  1.997416842
-## [16]  1.594240731  0.300665389  0.306091374  0.307418652  0.412927392
-## [21]  1.984758993  0.016614318 -0.009860736 -0.003755057 -0.009486864
-## [26] -0.007199297 -0.010345956  0.001497908  0.008719189  0.001515699
-## [31] -0.019308122  0.004918108  0.004116757</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set the new parameter vector</span>
-PCMBase_model_BM_drift_<span class="dv">2</span>&lt;-PCMBase_model_BM_drift
-<span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(PCMBase_model_BM_drift_<span class="dv">2</span>, v_param_<span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co"># modify slightly the model parameters</span></a>
+<a class="sourceLine" id="cb31-2" data-line-number="2">v_param_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(v_param)</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(v_param_<span class="dv">2</span>)</a></code></pre></div>
+<pre><code>##  [1]  5.0049181081  2.0041167566  1.0105691637  4.0149734190  4.9977382803
+##  [6]  6.0002360638  1.0156336272  1.9951047741  2.9903121092  1.5867794634
+## [11] -0.0165433768  2.4072816398 -0.0056521626 -0.0173987937  1.9827159961
+## [16]  1.6026098010  0.3072832362  0.2876765552  0.2906253260  0.4177782720
+## [21]  2.0007851090  0.0096421509 -0.0111377634  0.0055836987  0.0050521937
+## [26]  0.0016311062 -0.0103642580 -0.0100098748 -0.0012902593  0.0133798351
+## [31] -0.0106431867  0.0110054564  0.0008645194</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co"># set the new parameter vector</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2">PCMBase_model_BM_drift_<span class="dv">2</span>&lt;-PCMBase_model_BM_drift</a>
+<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(PCMBase_model_BM_drift_<span class="dv">2</span>, v_param_<span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>## [1] 33</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(PCMBase_model_BM_drift_<span class="dv">2</span>)</code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(PCMBase_model_BM_drift_<span class="dv">2</span>)</a></code></pre></div>
 <pre><code>## Brownian motion model with drift
 ## S3 class: BM_drift, GaussianPCM, PCM; k=3; p=33; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 4.9885615 1.9898586 0.9849329
+## [1] 5.004918 2.004117 1.010569
 ## h_drift (VectorParameter, matrix; drift vector modyfing the expectation):
 ##             a        b
-## [1,] 4.011415 1.015901
-## [2,] 5.010457 2.003816
-## [3,] 5.987848 2.997723
+## [1,] 4.014973 1.015634
+## [2,] 4.997738 1.995105
+## [3,] 6.000236 2.990312
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Cholesky factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]         [,2]       [,3]
-## [1,] 1.591957 -0.007869344 0.01723793
-## [2,] 0.000000  2.402948928 0.01238198
-## [3,] 0.000000  0.000000000 1.99741684
+##          [,1]        [,2]         [,3]
+## [1,] 1.586779 -0.01654338 -0.005652163
+## [2,] 0.000000  2.40728164 -0.017398794
+## [3,] 0.000000  0.00000000  1.982715996
 ## 
 ## , , b
 ## 
-##          [,1]      [,2]      [,3]
-## [1,] 1.594241 0.3006654 0.3074187
-## [2,] 0.000000 0.3060914 0.4129274
-## [3,] 0.000000 0.0000000 1.9847590
+##         [,1]      [,2]      [,3]
+## [1,] 1.60261 0.3072832 0.2906253
+## [2,] 0.00000 0.2876766 0.4177783
+## [3,] 0.00000 0.0000000 2.0007851
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Cholesky factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##            [,1]         [,2]         [,3]
-## [1,] 0.01661432 -0.009860736 -0.009486864
-## [2,] 0.00000000 -0.003755057 -0.007199297
-## [3,] 0.00000000  0.000000000 -0.010345956
+##             [,1]         [,2]         [,3]
+## [1,] 0.009642151 -0.011137763  0.005052194
+## [2,] 0.000000000  0.005583699  0.001631106
+## [3,] 0.000000000  0.000000000 -0.010364258
 ## 
 ## , , b
 ## 
-##             [,1]        [,2]         [,3]
-## [1,] 0.001497908 0.008719189 -0.019308122
-## [2,] 0.000000000 0.001515699  0.004918108
-## [3,] 0.000000000 0.000000000  0.004116757
+##             [,1]         [,2]          [,3]
+## [1,] -0.01000987 -0.001290259 -0.0106431867
+## [2,]  0.00000000  0.013379835  0.0110054564
+## [3,]  0.00000000  0.000000000  0.0008645194
 ## 
 ## </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">log_lik_from_likFun_<span class="dv">2</span>&lt;-<span class="kw">likFun</span>(v_param_<span class="dv">2</span>)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik_from_likFun_<span class="dv">2</span>[<span class="dv">1</span>])</code></pre></div>
-<pre><code>## [1] -47.9567</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">log_lik_from_likFun_<span class="dv">2</span>&lt;-<span class="kw">likFun</span>(v_param_<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik_from_likFun_<span class="dv">2</span>[<span class="dv">1</span>])</a></code></pre></div>
+<pre><code>## [1] -64.99126</code></pre>
 </div>
   </div>
 

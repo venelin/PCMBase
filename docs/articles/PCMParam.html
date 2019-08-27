@@ -62,10 +62,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -91,7 +91,7 @@
       <h1>The PCMBase Parametrization API</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-07-10</h4>
+            <h4 class="date">2019-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMParam.Rmd"><code>vignettes/PCMParam.Rmd</code></a></small>
       <div class="hidden name"><code>PCMParam.Rmd</code></div>
@@ -118,9 +118,9 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(abind)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(abind)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</a></code></pre></div>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
@@ -128,75 +128,321 @@
 <p>In PCMBase, every model is an object of an S3 class, such as “OU”, inheriting from the base S3-class “PCM”. A PCM object represents a named list. Each element of that list can be one of the following:</p>
 <ul>
 <li>a global parameter shared by all regimes in the model. For example, this would be the case for a non-heritable variance-covariance parameter <span class="math inline">\(\Sigma_{e}\)</span> if it is assumed to be the same for every observed species (i.e. tip) in the tree.</li>
-<li>a local stacked parameter that has a different value for each regime in the model. For example, in an OU model, the selection strength matrix <span class="math inline">\(H\)</span> has a diffent value for each of the <span class="math inline">\(R\)</span> regimes in the model. Therefore, an OU model contains a <span class="math inline">\(k\times k\times R\)</span> array member called “H”. The element <code>H[,,1]</code> would correspond to regime 1, <code>H[,,2]</code> to regime 2, etc. As a second example, the long-term optimum parameter of an OU process is a <span class="math inline">\(k\)</span>-dimensional vector <span class="math inline">\(\vec{\theta}_{r}\)</span> for each regime in the model. In an OU model with <span class="math inline">\(R\)</span> regimes, this would be represented by a <span class="math inline">\(k\times R\)</span> array (matrix) called “theta”, such that the vector <code>theta[, 1]</code> corresponds to regime 1. Finally, a local scalar parameter (i.e. a number), would be represented by an <span class="math inline">\(R\)</span>-vector.</li>
+<li>a local stacked parameter that has a different value for each regime in the model. For example, in an OU model, the selection strength matrix <span class="math inline">\(H\)</span> has a diffent value for each of the <span class="math inline">\(R\)</span> regimes in the model. Therefore, an OU model contains a <span class="math inline">\(k\times k\times R\)</span> array member called “H”. The element <code>H[,,1]</code> would correspond to regime 1, <code>H[,,2]</code> to regime 2, etc. As a second example, the long-term optimum parameter of an OU process is a <span class="math inline">\(k\)</span>-dimensional vector <span class="math inline">\(\vec{\theta}_{r}\)</span> for each regime in the model. In an OU model with <span class="math inline">\(R\)</span> regimes, this would be represented by a <span class="math inline">\(k\times R\)</span> array (matrix) called “Theta”, such that the vector <code>Theta[, 1]</code> corresponds to regime 1. Finally, a local scalar parameter (i.e. a number), would be represented by an <span class="math inline">\(R\)</span>-vector.</li>
 <li>a nested PCM object corresponding to a regime. This is the case for a mixed Gaussian phylogenetic model, where different types of Gaussian processes can be acting on different parts of the tree, represented by different regimes.</li>
 </ul>
-<p>So let us create</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelObject &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, <span class="fl">0.2</span>),
-                      <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>, <span class="st">"_Global"</span>, <span class="st">"numeric"</span>)),
-       <span class="dt">Sigma =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/abind/topics/abind">abind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>), <span class="dv">2</span>, <span class="dv">2</span>),
-                               <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">2</span>), <span class="dv">2</span>, <span class="dv">2</span>), <span class="dt">along =</span> <span class="dv">3</span>),
-                         <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"matrix"</span>))),
-  <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"PCM"</span>),
-  <span class="dt">k =</span> <span class="dv">2</span>,
-  <span class="dt">regimes =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)
-
-<span class="kw"><a href="../reference/PCMRegimes.html">PCMRegimes</a></span>(modelObject)</code></pre></div>
-<pre><code>## [1] 1 2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject)</code></pre></div>
-<pre><code>## [1] 8</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelObject)</code></pre></div>
-<pre><code>## [1] 0.0 0.2 1.0 0.0 1.0 2.0 0.0 2.0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vec &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">double</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject))
-<span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObject, vec, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">FALSE</span>)</code></pre></div>
-<pre><code>## [1] 8</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vec</code></pre></div>
-<pre><code>## [1] 0.0 0.2 1.0 0.0 1.0 2.0 0.0 2.0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelObjectLowerLimit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMParamLowerLimit.html">PCMParamLowerLimit</a></span>(modelObject)
-<span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObjectLowerLimit, vec, <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">FALSE</span>)</code></pre></div>
-<pre><code>## [1] 8</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vec</code></pre></div>
-<pre><code>## [1] -10 -10   0 -10   0   0 -10   0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">matParams &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMParamRandomVecParams.html">PCMParamRandomVecParams</a></span>(modelObject, <span class="dt">n =</span> <span class="dv">10</span>)
-
-matParamsX0 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMParamRandomVecParams.html">PCMParamRandomVecParams</a></span>(modelObject<span class="op">$</span>X0, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dt">n =</span> <span class="dv">10</span>)
-
-matParamsSigma &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMParamRandomVecParams.html">PCMParamRandomVecParams</a></span>(modelObject<span class="op">$</span>Sigma, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dt">n =</span> <span class="dv">10</span>)</code></pre></div>
-<div id="specifying-a-model-type" class="section level2">
-<h2 class="hasAnchor">
-<a href="#specifying-a-model-type" class="anchor"></a>Specifying a model type</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
-OUModelDummy &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OUModelDummy) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"OU"</span>)
-
-listParameterizationsOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(OUModelDummy)
-dtParameterizations &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTableParameterizations.html">PCMTableParameterizations</a></span>(OUModelDummy)
-
-<span class="kw"><a href="../reference/PCMGenerateParameterizations.html">PCMGenerateParameterizations</a></span>(OUModelDummy, <span class="dt">tableParameterizations =</span> dtParameterizations[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>])
-
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(OUModelDummy, <span class="st">"k"</span>) &lt;-<span class="st"> </span><span class="dv">2</span>
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(OUModelDummy, <span class="st">"regimes"</span>) &lt;-<span class="st"> </span>letters[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]
-OUObject &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"OU"</span>, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> letters[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])
-
-
-OUObject2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigmae_x"</span>, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> letters[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
-OUModelDummy &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OUModelDummy) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"OU"</span>)
-
-listParameterizationsOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(OUModelDummy)
-dtParameterizations &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTableParameterizations.html">PCMTableParameterizations</a></span>(OUModelDummy)
-
-<span class="kw"><a href="../reference/PCMGenerateParameterizations.html">PCMGenerateParameterizations</a></span>(OUModelDummy, <span class="dt">tableParameterizations =</span> dtParameterizations[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>])
-
-MGObject &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(<span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">modelTypes =</span>  <span class="kw"><a href="../reference/PCMModels.html">PCMModels</a></span>(), <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>))
-
-ul &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMParamUpperLimit.html">PCMParamUpperLimit</a></span>(MGObject)
-rv &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMParamRandomVecParams.html">PCMParamRandomVecParams</a></span>(MGObject)
-<span class="kw"><a href="../reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(ul)</code></pre></div>
-<pre><code>##  [1] 10 10 10 10 10 10 10 10 10 10 10 10 10 10</code></pre>
 </div>
+<div id="example-a-3-regime-bm-model" class="section level1">
+<h1 class="hasAnchor">
+<a href="#example-a-3-regime-bm-model" class="anchor"></a>Example: a 3-regime BM model</h1>
+<p>It can be helpful to examine the structure of a 3-regime bivariate BM model:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">modelObject &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM"</span>, <span class="dt">k =</span> 2L, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>))</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># let's assign some values to the model parameters:</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">vec &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject))</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObject, vec, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>## [1] 20</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(modelObject)</a></code></pre></div>
+<pre><code>## List of 3
+##  $ X0      : 'VectorParameter' num [1:2] 1 2
+##   ..- attr(*, "description")= chr "trait values at the root"
+##  $ Sigma_x : 'MatrixParameter' num [1:2, 1:2, 1:3] 3 0 4 5 6 0 7 8 9 0 ...
+##   ..- attr(*, "dimnames")=List of 3
+##   .. ..$ : NULL
+##   .. ..$ : NULL
+##   .. ..$ : chr [1:3] "a" "b" "c"
+##   ..- attr(*, "description")= chr "factor of the unit-time variance rate"
+##  $ Sigmae_x: 'MatrixParameter' num [1:2, 1:2, 1:3] 12 0 13 14 15 0 16 17 18 0 ...
+##   ..- attr(*, "dimnames")=List of 3
+##   .. ..$ : NULL
+##   .. ..$ : NULL
+##   .. ..$ : chr [1:3] "a" "b" "c"
+##   ..- attr(*, "description")= chr "factor of the non-heritable variance or the variance of the measurement error"
+##  - attr(*, "class")= chr [1:3] "BM" "GaussianPCM" "PCM"
+##  - attr(*, "k")= int 2
+##  - attr(*, "regimes")= chr [1:3] "a" "b" "c"
+##  - attr(*, "spec")=List of 3
+##   ..$ X0      : 'VectorParameter' num 0
+##   .. ..- attr(*, "description")= chr "trait values at the root"
+##   ..$ Sigma_x : 'MatrixParameter' num 0
+##   .. ..- attr(*, "description")= chr "factor of the unit-time variance rate"
+##   ..$ Sigmae_x: 'MatrixParameter' num 0
+##   .. ..- attr(*, "description")= chr "factor of the non-heritable variance or the variance of the measurement error"
+##   ..- attr(*, "class")= chr [1:3] "BM" "GaussianPCM" "PCM"
+##   ..- attr(*, "k")= int 2
+##   ..- attr(*, "regimes")= chr [1:3] "a" "b" "c"
+##  - attr(*, "p")= int 20
+##  - attr(*, "modelTypes")= chr "BM"
+##  - attr(*, "mapping")= int 1</code></pre>
+<p>Now let’s print the model parameters as a table:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(modelObject, <span class="dt">addTransformed =</span> <span class="ot">FALSE</span>, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), </a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">'html'</span>)</a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+regime
+</th>
+<th>
+<span class="math inline">\(X0\)</span>
+</th>
+<th>
+<span class="math inline">\(\Sigma_{x}\)</span>
+</th>
+<th>
+<span class="math inline">\(\Sigma_{e,x}\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+:global:
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+</tr>
+<br><tr>
+<td align="right">
+a
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 3 &amp; 4 \\ 0 &amp; 5 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 12 &amp; 13 \\ 0 &amp; 14 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+b
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 6 &amp; 7 \\ 0 &amp; 8 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 15 &amp; 16 \\ 0 &amp; 17 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+c
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 9 &amp; 10 \\ 0 &amp; 11 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 18 &amp; 19 \\ 0 &amp; 20 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+</table>
+<p>We notice that the parameter <span class="math inline">\(\Sigma_{e,u}\)</span> is local for each regime in the model. In the context of a biological application, it can be more appropriate to assume that this parameter is shared by all regimes. Moreover, in many cases, it can be necessary to assume that the matrix <span class="math inline">\(\Sigma_{e,u}\)</span> is diagonal, meaning that the non-heritable component for any of the traits is is uncorrelated with the non-heritable components for the other traits. To specify this, first, we look at the list of available BM model types.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="../reference/PCMModels.html">PCMModels</a></span>(<span class="dt">parentClass =</span> <span class="st">"BM"</span>)</a></code></pre></div>
+<pre><code>## [1] "BM"                                                                                           
+## [2] "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                    
+## [3] "BM__Global_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"              
+## [4] "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" 
+## [5] "BM__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                   
+## [6] "BM__Omitted_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"             
+## [7] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</code></pre>
+<p>We notice that the above list does not contain a BM model type with a global parameter <code>Sigmae_x</code>. This means that the S3 methods for such a model parametrization have not yet been generated and loaded in the memory. The function <code>PCMListParameterizations</code> returns a named list, where each named element is a list of the possible S3 class assignments for the corresponding parameter. So, let’s see what are the available S3 classes for the parameter <code>Sigmae_x</code> of a BM model:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>))<span class="op">$</span>Sigmae_x</a></code></pre></div>
+<pre><code>## [[1]]
+## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
+## [3] "_WithNonNegativeDiagonal"    
+## 
+## [[2]]
+## [1] "MatrixParameter"          "_Diagonal"               
+## [3] "_WithNonNegativeDiagonal"
+## 
+## [[3]]
+## [1] "MatrixParameter"          "_ScalarDiagonal"         
+## [3] "_WithNonNegativeDiagonal"
+## 
+## [[4]]
+## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
+## [3] "_WithNonNegativeDiagonal"     "_Global"                     
+## 
+## [[5]]
+## [1] "MatrixParameter"          "_Diagonal"               
+## [3] "_WithNonNegativeDiagonal" "_Global"                 
+## 
+## [[6]]
+## [1] "MatrixParameter"          "_ScalarDiagonal"         
+## [3] "_WithNonNegativeDiagonal" "_Global"                 
+## 
+## [[7]]
+## [1] "MatrixParameter" "_Omitted"</code></pre>
+<p>We notice that the 5th element above contains "_Diagonal" and "_Global" in the list of S3-classes. We proceed to generate all BM parametrizations with this S3-class assignment for the parameter <code>Sigmae_x</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># 1. Filter the list of parametrizations to avoid generating too many S3 methods.</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="co"># (note that we could do the same type of filtering for the other parameters).</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">listParameterizationsBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>))</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">listParameterizationsBM<span class="op">$</span>Sigmae_x &lt;-<span class="st"> </span>listParameterizationsBM<span class="op">$</span>Sigmae_x[<span class="dv">5</span>]</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">  </a>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co"># 2. Generate a table of parametrizations for this list:</span></a>
+<a class="sourceLine" id="cb11-7" data-line-number="7">dtParameterizations &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTableParameterizations.html">PCMTableParameterizations</a></span>(</a>
+<a class="sourceLine" id="cb11-8" data-line-number="8">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>), <span class="dt">listParameterizations =</span> listParameterizationsBM)</a>
+<a class="sourceLine" id="cb11-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(dtParameterizations)</a></code></pre></div>
+<pre><code>##                                    X0
+##  1:           VectorParameter,_Global
+##  2:    VectorParameter,_Fixed,_Global
+##  3: VectorParameter,_AllEqual,_Global
+##  4:          VectorParameter,_Omitted
+##  5:           VectorParameter,_Global
+##  6:    VectorParameter,_Fixed,_Global
+##  7: VectorParameter,_AllEqual,_Global
+##  8:          VectorParameter,_Omitted
+##  9:           VectorParameter,_Global
+## 10:    VectorParameter,_Fixed,_Global
+## 11: VectorParameter,_AllEqual,_Global
+## 12:          VectorParameter,_Omitted
+##                                                                   Sigma_x
+##  1: MatrixParameter,_UpperTriangularWithDiagonal,_WithNonNegativeDiagonal
+##  2: MatrixParameter,_UpperTriangularWithDiagonal,_WithNonNegativeDiagonal
+##  3: MatrixParameter,_UpperTriangularWithDiagonal,_WithNonNegativeDiagonal
+##  4: MatrixParameter,_UpperTriangularWithDiagonal,_WithNonNegativeDiagonal
+##  5:                    MatrixParameter,_Diagonal,_WithNonNegativeDiagonal
+##  6:                    MatrixParameter,_Diagonal,_WithNonNegativeDiagonal
+##  7:                    MatrixParameter,_Diagonal,_WithNonNegativeDiagonal
+##  8:                    MatrixParameter,_Diagonal,_WithNonNegativeDiagonal
+##  9:              MatrixParameter,_ScalarDiagonal,_WithNonNegativeDiagonal
+## 10:              MatrixParameter,_ScalarDiagonal,_WithNonNegativeDiagonal
+## 11:              MatrixParameter,_ScalarDiagonal,_WithNonNegativeDiagonal
+## 12:              MatrixParameter,_ScalarDiagonal,_WithNonNegativeDiagonal
+##                                                       Sigmae_x
+##  1: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  2: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  3: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  4: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  5: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  6: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  7: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  8: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+##  9: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+## 10: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+## 11: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
+## 12: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># 3. Generate the parametrizations (optionally, we could select a subset of the</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co"># rows in the data.table)</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="kw"><a href="../reference/PCMGenerateParameterizations.html">PCMGenerateParameterizations</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>), </a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">                             <span class="dt">tableParameterizations =</span> dtParameterizations[])</a></code></pre></div>
+<p>Now the list of BM-models contains the generated model types with global diagonal <code>Sigmae_x</code>:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="../reference/PCMModels.html">PCMModels</a></span>(<span class="st">"BM"</span>)</a></code></pre></div>
+<pre><code>##  [1] "BM"                                                                                                                                   
+##  [2] "BM__AllEqual_Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                   
+##  [3] "BM__AllEqual_Global_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"             
+##  [4] "BM__AllEqual_Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"
+##  [5] "BM__Fixed_Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                      
+##  [6] "BM__Fixed_Global_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                
+##  [7] "BM__Fixed_Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"   
+##  [8] "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                            
+##  [9] "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                            
+## [10] "BM__Global_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                      
+## [11] "BM__Global_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                      
+## [12] "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"         
+## [13] "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                         
+## [14] "BM__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                           
+## [15] "BM__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                           
+## [16] "BM__Omitted_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                     
+## [17] "BM__Omitted_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                     
+## [18] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"        
+## [19] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                        
+## [20] "BM_drift"                                                                                                                             
+## [21] "BM_drift__Global_X0__h_drift__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                             
+## [22] "BM_drift__Global_X0__h_drift__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                       
+## [23] "BM_drift__Global_X0__h_drift__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                          
+## [24] "BM_drift__Omitted_X0__h_drift__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                            
+## [25] "BM_drift__Omitted_X0__h_drift__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                      
+## [26] "BM_drift__Omitted_X0__h_drift__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">BMModelGlobalSigmae &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">  <span class="st">"BM"</span> , </a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">  <span class="st">"__Global_X0"</span>, </a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">  <span class="st">"__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x"</span>, </a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">  <span class="st">"__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"</span>)</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7">modelObject2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(BMModelGlobalSigmae, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>))</a>
+<a class="sourceLine" id="cb16-8" data-line-number="8">vec &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject2))</a>
+<a class="sourceLine" id="cb16-9" data-line-number="9"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObject2, vec, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<p>[1] 13</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2">  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(modelObject2, <span class="dt">addTransformed =</span> <span class="ot">FALSE</span>, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), </a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">'html'</span>)                 </a></code></pre></div>
+<table class="table">
+<tr>
+<th>
+regime
+</th>
+<th>
+<span class="math inline">\(X0\)</span>
+</th>
+<th>
+<span class="math inline">\(\Sigma_{e,x}\)</span>
+</th>
+<th>
+<span class="math inline">\(\Sigma_{x}\)</span>
+</th>
+</tr>
+<tr>
+<td align="right">
+:global:
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 12 &amp; 0 \\ 0 &amp; 13 \\ \end{bmatrix}\)</span>
+</td>
+<td align="right">
+</td>
+</tr>
+<br><tr>
+<td align="right">
+a
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 3 &amp; 4 \\ 0 &amp; 5 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+b
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 6 &amp; 7 \\ 0 &amp; 8 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+<br><tr>
+<td align="right">
+c
+</td>
+<td align="right">
+</td>
+<td align="right">
+</td>
+<td align="right">
+<span class="math inline">\(\begin{bmatrix}{} 9 &amp; 10 \\ 0 &amp; 11 \\ \end{bmatrix}\)</span>
+</td>
+</tr>
+</table>
 </div>
   </div>
 
@@ -205,11 +451,8 @@ rv &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMParam
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li>
-<a href="#introduction">Introduction</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#specifying-a-model-type">Specifying a model type</a></li>
-      </ul>
-</li>
+<li><a href="#introduction">Introduction</a></li>
+      <li><a href="#example-a-3-regime-bm-model">Example: a 3-regime BM model</a></li>
       </ul>
 </div>
       </div>

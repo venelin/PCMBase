@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -182,8 +182,8 @@ edge.part member.</p>
 <span class='fu'><a href='PCMTreeGetPartition.html'>PCMTreeGetPartition</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt; x9 
 #&gt;  9 </div><div class='input'><span class='fu'><a href='PCMTreeGetPartNames.html'>PCMTreeGetPartNames</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt; [1] "x9"</div><div class='input'><span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt; x9 
 #&gt;  1 </div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>tree</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>() + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>()</div><div class='img'><img src='PCMTreeSetPartition-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeSetPartition</span>(<span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>12</span>, <span class='fl'>14</span>), <span class='kw'>inplace</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='fu'><a href='PCMTreeGetPartition.html'>PCMTreeGetPartition</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt;  x9 x12 x14 
-#&gt;   9  12  14 </div><div class='input'><span class='fu'><a href='PCMTreeGetPartNames.html'>PCMTreeGetPartNames</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt; [1] "x9"  "x12" "x14"</div><div class='input'><span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt;  x9 x12 x14 
+<span class='fu'><a href='PCMTreeGetPartition.html'>PCMTreeGetPartition</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt;  x9 x14 x12 
+#&gt;   9  14  12 </div><div class='input'><span class='fu'><a href='PCMTreeGetPartNames.html'>PCMTreeGetPartNames</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt; [1] "x9"  "x14" "x12"</div><div class='input'><span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>tree</span>)</div><div class='output co'>#&gt;  x9 x14 x12 
 #&gt;   1   2   3 </div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>tree</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>() + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>()</div><div class='img'><img src='PCMTreeSetPartition-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># reset the partition to a default one, where there is only one part:</span>
 <span class='fu'>PCMTreeSetPartition</span>(<span class='no'>tree</span>)

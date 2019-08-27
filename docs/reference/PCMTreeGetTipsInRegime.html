@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -168,7 +168,7 @@
 <span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>10</span>)
 <span class='no'>regimes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sample'>sample</a></span>(<span class='no'>letters</span>[<span class='fl'>1</span>:<span class='fl'>3</span>], <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>tree</span>$<span class='no'>edge</span>), <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 <span class='fu'><a href='PCMTreeSetRegimesForEdges.html'>PCMTreeSetRegimesForEdges</a></span>(<span class='no'>tree</span>, <span class='no'>regimes</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>tree</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>() + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>()</div><div class='img'><img src='PCMTreeGetTipsInRegime-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='no'>regime</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMRegimes.html'>PCMRegimes</a></span>(<span class='no'>tree</span>)[<span class='fl'>1</span>]
-<span class='fu'>PCMTreeGetTipsInRegime</span>(<span class='no'>tree</span>, <span class='no'>regime</span>)</div><div class='output co'>#&gt; [1]  1  3  4  6  8 10</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>regime</span>)</div><div class='output co'>#&gt; [1] "c"</div><div class='input'>
+<span class='fu'>PCMTreeGetTipsInRegime</span>(<span class='no'>tree</span>, <span class='no'>regime</span>)</div><div class='output co'>#&gt; [1] 2 8 9</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>regime</span>)</div><div class='output co'>#&gt; [1] "c"</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

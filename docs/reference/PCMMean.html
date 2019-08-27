@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -209,17 +209,17 @@ at tip i, conditioned on <code>X0</code> and the tree. Otherwise, a k x M matrix
 <span class='co'># We do this in two steps:</span>
 <span class='co'># 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)</span>
 <span class='no'>randomParams</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>))
-<span class='no'>randomParams</span></div><div class='output co'>#&gt;          [,1]        [,2]    [,3]    [,4]     [,5]     [,6]     [,7]     [,8]
-#&gt; [1,] 9.926938 0.003830018 3.58967 5.49826 5.844753 6.339764 7.173323 5.668943</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
+<span class='no'>randomParams</span></div><div class='output co'>#&gt;          [,1]     [,2]     [,3]     [,4]    [,5]     [,6]     [,7]     [,8]
+#&gt; [1,] 1.689505 2.679527 8.586662 1.337887 2.52997 9.188032 7.347004 2.485387</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
 <span class='fu'><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM</span>, <span class='no'>randomParams</span>, <span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>), <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
 <span class='co'># create a random tree of 10 tips</span>
 <span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>10</span>)
-<span class='fu'>PCMMean</span>(<span class='no'>tree</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt;             [,1]        [,2]        [,3]        [,4]        [,5]        [,6]
-#&gt; [1,] 9.926938377 9.926938377 9.926938377 9.926938377 9.926938377 9.926938377
-#&gt; [2,] 0.003830018 0.003830018 0.003830018 0.003830018 0.003830018 0.003830018
-#&gt;             [,7]        [,8]        [,9]       [,10]
-#&gt; [1,] 9.926938377 9.926938377 9.926938377 9.926938377
-#&gt; [2,] 0.003830018 0.003830018 0.003830018 0.003830018</div></pre>
+<span class='fu'>PCMMean</span>(<span class='no'>tree</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]
+#&gt; [1,] 1.689505 1.689505 1.689505 1.689505 1.689505 1.689505 1.689505 1.689505
+#&gt; [2,] 2.679527 2.679527 2.679527 2.679527 2.679527 2.679527 2.679527 2.679527
+#&gt;          [,9]    [,10]
+#&gt; [1,] 1.689505 1.689505
+#&gt; [2,] 2.679527 2.679527</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

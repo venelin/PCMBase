@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -178,7 +178,10 @@ the console.</p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a list of integer <code>nNodes</code>-vectors.</p>
+    <p>a list of integer <code>nNodes</code>-vectors. By default a full traversal
+of all partitions is done. It is possible to truncate the search to a limited
+number of partitions by setting the option PCMBase.MaxLengthListCladePartitions
+to a finite positive integer.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -188,6 +191,10 @@ This function generates partitions in which <code>nNode</code> of the blocks
 are monophyletic complete groups (clades), while the <code>(nNodes+1)</code>'th block
 is a subtree originating at the root with tips ending at the rooting nodes of
 the <code>nNode</code> clades, eventually containing a clade of tips.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='PCMOptions.html'>PCMOptions</a></code></p></div>
     
 
   </div>
@@ -199,6 +206,8 @@ the <code>nNode</code> clades, eventually containing a clade of tips.</p>
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

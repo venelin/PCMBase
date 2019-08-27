@@ -202,6 +202,66 @@ PCMParamLoadOrStore(modelBM.ab, param2, offset = 0, load=TRUE)
 print(modelBM.ab)
 ```
 
+## Printing models in the form of a table
+It can be handy to print the parameters of a model in the form of a table with rows corresponding to the different regimes. For that purpose we use the `PCMTable()` function, which generates a `PCMTable` object for a given `PCM` object. The `PCMTable` S3 class inherits from `data.table` and implements a print method that allows for beautiful formatting of matrix and vector parameters. Here is an example:
+
+```{r, results='asis'}
+options(digits = 2)
+print(PCMTable(modelBM.ab), xtable = TRUE, type="html")
+```
+
+Check the help-page for the `PCMTable`-function for more details.
+
+## Mixed Gaussian models
+One of the features of the package is the possibility to specify models in which different types of processes are associated with different regimes. We call these "mixed Gaussian" models. To create a mixed Gaussian model, we use the constructor function `MixedGaussian`:
+
+```{r}
+model.OU.BM <- MixedGaussian(
+  k = 3, 
+  modelTypes = c(
+    BM = paste0("BM",
+    "__Omitted_X0",
+    "__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x",
+    "__Omitted_Sigmae_x"),
+    OU = paste0("OU",
+    "__Omitted_X0",
+    "__H",
+    "__Theta",
+    "__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x",
+    "__Omitted_Sigmae_x")), 
+  mapping = c(a = 2, b = 1), 
+  Sigmae_x = structure(
+    0, 
+    class = c("MatrixParameter", "_Omitted"), 
+    description = "upper triangular factor of the non-phylogenetic variance-covariance"))
+```
+
+In the above, snippet, notice the long names for the BM and the OU model types. These are the model types that can be mapped to regimes. It is important to notice that both of these model types omit the parameter `X0`, which is a global parameter shared by all regimes. Similarly the two model types omit the parameter `Sigmae_x`. However, in this example, we specify that the whole mixed Gaussian model does not have a `Sigmae_x` paramter, i.e. the model assumes that the trait variation is completely explainable by the mixed Gaussian phylogenetic process and there is no non-heritable component. For more information on model parametrizations, see the [PCMBase parameterizations](https://venelin.github.io/PCMBase/articles/PCMParam.html) guide. For further information on mixed Gaussian models, see the `?MixedGaussian` help page.
+
+We can set the parameters of the model manually as follows:
+```{r}
+model.OU.BM$X0[] <- c(NA, NA, NA)
+model.OU.BM$`a`$H[,,1] <- cbind(
+  c(.1, -.7, .6), 
+  c(1.3, 2.2, -1.4), 
+  c(0.8, 0.2, 0.9))
+model.OU.BM$`a`$Theta[] <- c(1.3, -.5, .2)
+model.OU.BM$`a`$Sigma_x[,,1] <- cbind(
+  c(1, 0, 0), 
+  c(1.0, 0.5, 0), 
+  c(0.3, -.8, 1))
+
+model.OU.BM$`b`$Sigma_x[,,1] <- cbind(
+  c(0.8, 0, 0), 
+  c(1, 0.3, 0), 
+  c(0.4, 0.5, 0.3))
+```
+
+We can print the mixed Gaussian model as a table:
+
+```{r, results='asis'}
+print(PCMTable(model.OU.BM), xtable = TRUE, type="html")
+```
 
 # Simulating data on a phylogenetic tree
 The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM. 

@@ -62,6 +62,8 @@ should be used instead of multi-dimensional ones. This can speed-up computations
 in the case of a single trait. Currently, this feature is implemented only in
 the PCMBaseCpp R-package and only for some model types, such as OU and BM.
 Default: FALSE}
+\item{\code{PCMBase.PrintSubscript_u} }{Logical indicating if a subscript 'u'
+should be printed instead of a subscript 'x'. Used in \code{PCMTable}. Default: FALSE.}
 }
 }
 \description{

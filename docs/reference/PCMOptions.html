@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -151,6 +151,11 @@ during likelihood calculation. By default, this is set to <code><a href='https:/
 <li><p><code>PCMBase.Errors.As.Warnings </code>a logical flag indicating if errors
 (occuring, e.g. during likelihood calculation) should be treated as warnings
 and added as an attribute "error" to returne likelihood values. Default TRUE.</p></li>
+<li><p>PCMBase.Raise.Lik.Errors Should numerical and other sort of
+errors occurring during likelihood calculation be raised either as errors or
+as warnings, depending on the option <code>PCMBase.Errors.As.Warnings</code>.
+Default TRUE. This option can be useful if too frequent warnings get raised
+during a model fit procedure.</p></li>
 <li><p><code>PCMBase.Threshold.Lambda_ij </code>a 0-threshold for abs(Lambda_i + Lambda_j),
 where Lambda_i and Lambda_j are eigenvalues of the parameter matrix H of an OU or
 other model. Default 1e-8. See <code><a href='PCMPExpxMeanExp.html'>PCMPExpxMeanExp</a></code>.</p></li>
@@ -183,8 +188,17 @@ for symmetric matrices. Default 1e-8; see also <code><a href='https://www.rdocum
 <li><p><code>PCMBase.Lmr.mode </code>An integer code specifying the parallel likelihood calculation mode.</p></li>
 <li><p><code>PCMBase.ParamValue.LowerLimit</code>Default lower limit value for parameters, default setting is -10.0.</p></li>
 <li><p><code>PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal</code>Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.</p></li>
-<li><p><code>PCMBase.ParamValue.UpperLimit</code>Default upper limit value for parameters, default setting is 10.0.</p></li>
-<li><p><code>PCMBase.Transpose.Sigma_x</code>Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also <code><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></code>. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.</p></li>
+<li><p><code>PCMBase.ParamValue.UpperLimit</code> Default upper limit value for parameters, default setting is 10.0.</p></li>
+<li><p><code>PCMBase.Transpose.Sigma_x</code> Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also <code><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></code>. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.</p></li>
+<li><p><code>PCMBase.MaxLengthListCladePartitions</code> Maximum number of tree partitions returned by <code><a href='PCMTreeListCladePartitions.html'>PCMTreeListCladePartitions</a></code>. This option has the goal to interrupt the recursive search for new partitions in the case of calling PCMTreeListCladePartitions on a big tree with a small value of the maxCladeSize argument. By default this is set to Inf.</p></li>
+<li><p><code>PCMBase.PCMPresentCoordinatesFun</code> A function with the same synopsis as <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code> that can be specified in case of custom setting for the present coordinates for specific nodes of the tree. See <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>, and <code><a href='PCMInfo.html'>PCMInfo</a></code>.</p></li>
+<li><p><code>PCMBase.Use1DClasses</code> Logical indicating if 1D arithmetic operations
+should be used instead of multi-dimensional ones. This can speed-up computations
+in the case of a single trait. Currently, this feature is implemented only in
+the PCMBaseCpp R-package and only for some model types, such as OU and BM.
+Default: FALSE</p></li>
+<li><p><code>PCMBase.PrintSubscript_u</code> Logical indicating if a subscript 'u'
+should be printed instead of a subscript 'x'. Used in <code>PCMTable</code>. Default: FALSE.</p></li>
 </ul>
 
     
@@ -227,6 +241,71 @@ for symmetric matrices. Default 1e-8; see also <code><a href='https://www.rdocum
 #&gt; [1] 10
 #&gt; 
 #&gt; $PCMBase.Transpose.Sigma_x
+#&gt; [1] FALSE
+#&gt; 
+#&gt; $PCMBase.MaxLengthListCladePartitions
+#&gt; [1] Inf
+#&gt; 
+#&gt; $PCMBase.PCMPresentCoordinatesFun
+#&gt; function(X, tree, metaI) {
+#&gt; 
+#&gt;   if(is.null(metaI)) {
+#&gt;     N &lt;- PCMTreeNumTips(tree)
+#&gt;     M &lt;- PCMTreeNumNodes(tree)
+#&gt;     k &lt;- nrow(X)
+#&gt;     postorder &lt;- PCMTreePostorder(tree)
+#&gt;   } else {
+#&gt;     N &lt;- metaI$N
+#&gt;     M &lt;- metaI$M
+#&gt;     k &lt;- metaI$k
+#&gt;     postorder &lt;- rev(metaI$preorder)
+#&gt;   }
+#&gt; 
+#&gt;   edge &lt;- tree$edge
+#&gt; 
+#&gt;   if(is.null(X)) {
+#&gt;     pc &lt;- matrix(TRUE, k, M)
+#&gt;   } else {
+#&gt;     pc &lt;- matrix(FALSE, k, M)
+#&gt;     for(ei in postorder) {
+#&gt;       i &lt;- edge[ei, 2]
+#&gt;       j &lt;- edge[ei, 1]
+#&gt; 
+#&gt;       if(i &lt;= N) {
+#&gt;         # all es pointing to tips
+#&gt;         # here we count NAs as present because they are integrated out at the
+#&gt;         # parent nodes.
+#&gt;         pc[, i] &lt;- !is.nan(X[, i])
+#&gt;       } else {
+#&gt;         # edges pointing to internal nodes, for which all children nodes have
+#&gt;         # been visited here we do nothing.
+#&gt;       }
+#&gt; 
+#&gt;       #update parent pc
+#&gt;       pc[, j] &lt;- pc[, j] | pc[, i]
+#&gt;     }
+#&gt;     # at the end correct the present coordinates for the traits at the tips which
+#&gt;     # are NA but not NaN: Both NAs and NaNs result in FALSE at a tip;
+#&gt;     # only coordinates for which all descending tips have NaN are FALSE at
+#&gt;     # internal nodes.
+#&gt;     pc[, seq_len(N)] &lt;- !is.na(X[, seq_len(N)])
+#&gt; 
+#&gt;     if(any(rowSums(pc) == 0)) {
+#&gt;       stop("PCMPresentCoordinates:: Some tips have 0 present coordinates.
+#&gt;            Consider removing these tips.")
+#&gt;     }
+#&gt;   }
+#&gt;   pc
+#&gt; }
+#&gt; &lt;environment: namespace:PCMBase&gt;
+#&gt; 
+#&gt; $PCMBase.Use1DClasses
+#&gt; [1] FALSE
+#&gt; 
+#&gt; $PCMBase.Raise.Lik.Errors
+#&gt; [1] TRUE
+#&gt; 
+#&gt; $PCMBase.PrintSuffix_u
 #&gt; [1] FALSE
 #&gt; </div></pre>
   </div>

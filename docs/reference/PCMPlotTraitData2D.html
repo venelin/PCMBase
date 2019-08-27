@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -139,9 +139,12 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMPlotTraitData2D</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='kw'>labeledTips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sizeLabeledTips</span> <span class='kw'>=</span> <span class='fl'>8</span>,
+    <pre class="usage"><span class='fu'>PCMPlotTraitData2D</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='kw'>sizePoints</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>alphaPoints</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>labeledTips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sizeLabels</span> <span class='kw'>=</span> <span class='fl'>8</span>, <span class='kw'>nudgeLabels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>),
   <span class='kw'>palette</span> <span class='kw'>=</span> <span class='fu'><a href='PCMColorPalette.html'>PCMColorPalette</a></span>(<span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>tree</span>), <span class='fu'><a href='PCMRegimes.html'>PCMRegimes</a></span>(<span class='no'>tree</span>)),
-  <span class='kw'>scaleSizeWithTime</span> <span class='kw'>=</span> !<span class='fu'>is.ultrametric</span>(<span class='no'>tree</span>))</pre>
+  <span class='kw'>scaleSizeWithTime</span> <span class='kw'>=</span> !<span class='fu'>is.ultrametric</span>(<span class='no'>tree</span>), <span class='kw'>numTimeFacets</span> <span class='kw'>=</span> <span class='kw'>if</span>
+  (<span class='fu'>is.ultrametric</span>(<span class='no'>tree</span>) <span class='kw'>||</span> <span class='no'>scaleSizeWithTime</span>) <span class='fl'>1L</span> <span class='kw'>else</span> <span class='fl'>3L</span>,
+  <span class='kw'>nrowTimeFacets</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>ncolTimeFacets</span> <span class='kw'>=</span> <span class='no'>numTimeFacets</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -155,12 +158,22 @@
       <td><p>a phylo object</p></td>
     </tr>
     <tr>
+      <th>sizePoints, alphaPoints</th>
+      <td><p>numeric parameters passed as arguments size and alpha to <code>geom_point</code>.
+Default: sizePoints = 2, alphaPoints = 1.</p></td>
+    </tr>
+    <tr>
       <th>labeledTips</th>
       <td><p>a vector of tip-numbers to label (NULL by default)</p></td>
     </tr>
     <tr>
-      <th>sizeLabeledTips</th>
-      <td><p>passed geom_text to specify the size of tip-labels for the trait-points.</p></td>
+      <th>sizeLabels</th>
+      <td><p>passed to <code>geom_text</code> to specify the size of tip-labels for the trait-points.</p></td>
+    </tr>
+    <tr>
+      <th>nudgeLabels</th>
+      <td><p>a numeric vector of two elements (default: c(0,0)), passed as
+arguments nudge_x and nudge_y of <code>geom_text</code>.</p></td>
     </tr>
     <tr>
       <th>palette</th>
@@ -172,6 +185,19 @@
 should reflect the distance from the present (points that are farther away in time with
 respect to the present moment, i.e. closer to the root of the tree, are displayed smaller
 and more transparent.). By default this is set to <code>!is.ultrametric(tree)</code>.</p></td>
+    </tr>
+    <tr>
+      <th>numTimeFacets</th>
+      <td><p>a number or a numeric vector controlling the creation of different facets
+corresponding to different time intervals when the tree is non-ultrametric. If a single number,
+it will be interpreted as an integer specifying the number of facets, each facets corresponding to
+an equal interval of time. If a numeric vector, it will be used to specify the cut-points for
+each interval. Default: <code>if(is.ultrametric(tree) || scaleSizeWithTime) 1L else 3</code>.</p></td>
+    </tr>
+    <tr>
+      <th>nrowTimeFacets, ncolTimeFacets</th>
+      <td><p>integers specifying how the time facets should
+be layed out. Default: <code>nrowTimeFacets = 1L, ncolTimeFacets = numTimeFacets</code>.</p></td>
     </tr>
     </table>
     

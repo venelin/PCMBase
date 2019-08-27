@@ -103,10 +103,10 @@ use the MixedGaussian function." />
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -338,24 +338,16 @@ found. When called this constructor raises an error message.</p></li>
 <span class='no'>traitValues</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMSim.html'>PCMSim</a></span>(<span class='no'>tree</span>, <span class='no'>modelBM</span>, <span class='kw'>X0</span> <span class='kw'>=</span> <span class='no'>modelBM</span>$<span class='no'>X0</span>)
 
 <span class='co'># calculate the likelihood for the model parameters, given the tree and the trait values</span>
-<span class='fu'><a href='PCMLik.html'>PCMLik</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] -64.16157
+<span class='fu'><a href='PCMLik.html'>PCMLik</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] -63.06549
 #&gt; attr(,"X0")
-#&gt; [1] -8.384997  6.686661
-#&gt; attr(,"class")
-#&gt; [1] "VectorParameter" "_Global"         "numeric"        
-#&gt; attr(,"description")
-#&gt; [1] "trait values at the root"</div><div class='input'>
+#&gt; [1] -8.384997  6.686661</div><div class='input'>
 <span class='co'># create a likelihood function for faster processing for this specific model.</span>
 <span class='co'># This function is convenient for calling in optim because it recieves and parameter</span>
 <span class='co'># vector instead of a model object.</span>
 <span class='no'>likFun</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMCreateLikelihood.html'>PCMCreateLikelihood</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)
-<span class='fu'>likFun</span>(<span class='no'>randomParams</span>)</div><div class='output co'>#&gt; [1] -64.16157
+<span class='fu'>likFun</span>(<span class='no'>randomParams</span>)</div><div class='output co'>#&gt; [1] -63.06549
 #&gt; attr(,"X0")
-#&gt; [1] -8.384997  6.686661
-#&gt; attr(,"class")
-#&gt; [1] "VectorParameter" "_Global"         "numeric"        
-#&gt; attr(,"description")
-#&gt; [1] "trait values at the root"</div></pre>
+#&gt; [1] -8.384997  6.686661</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

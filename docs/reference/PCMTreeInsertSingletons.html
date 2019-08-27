@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -202,55 +202,55 @@ that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.</p></td
   <span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>`26`</span><span class='kw'>=</span><span class='st'>"a"</span>, <span class='kw'>`28`</span><span class='kw'>=</span><span class='st'>"b"</span>, <span class='kw'>`45`</span><span class='kw'>=</span><span class='st'>"c"</span>, <span class='kw'>`47`</span><span class='kw'>=</span><span class='st'>"d"</span>), <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
   <span class='no'>tree</span>,
   <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>cbind</a></span>(<span class='no'>tree</span>$<span class='no'>edge</span>, <span class='fu'><a href='PCMTreeEdgeTimes.html'>PCMTreeEdgeTimes</a></span>(<span class='no'>tree</span>))</div><div class='output co'>#&gt;       [,1] [,2]       [,3]       [,4]
-#&gt;  [1,]   26   27 0.00000000 0.64706019
-#&gt;  [2,]   27   28 0.64706019 1.42999296
-#&gt;  [3,]   28   29 1.42999296 1.98302927
-#&gt;  [4,]   29    1 1.98302927 2.51274885
-#&gt;  [5,]   29    2 1.98302927 2.77238550
-#&gt;  [6,]   28    3 1.42999296 1.45332416
-#&gt;  [7,]   27   30 0.64706019 1.12429026
-#&gt;  [8,]   30   31 1.12429026 1.85660400
-#&gt;  [9,]   31    4 1.85660400 2.54933555
-#&gt; [10,]   31   32 1.85660400 2.33422362
-#&gt; [11,]   32    5 2.33422362 3.19543310
-#&gt; [12,]   32    6 2.33422362 2.77232073
-#&gt; [13,]   30    7 1.12429026 1.36908754
-#&gt; [14,]   26   33 0.00000000 0.07067905
-#&gt; [15,]   33   34 0.07067905 0.17014521
-#&gt; [16,]   34   35 0.17014521 0.48641691
-#&gt; [17,]   35   36 0.48641691 1.00505118
-#&gt; [18,]   36   37 1.00505118 1.66705625
-#&gt; [19,]   37    8 1.66705625 2.07388644
-#&gt; [20,]   37   38 1.66705625 2.57993218
-#&gt; [21,]   38    9 2.57993218 2.87353555
-#&gt; [22,]   38   39 2.57993218 3.03899790
-#&gt; [23,]   39   10 3.03899790 3.37139258
-#&gt; [24,]   39   40 3.03899790 3.68986837
-#&gt; [25,]   40   41 3.68986837 3.94788515
-#&gt; [26,]   41   11 3.94788515 4.42643040
-#&gt; [27,]   41   12 3.94788515 4.71419582
-#&gt; [28,]   40   13 3.68986837 3.77411529
-#&gt; [29,]   36   42 1.00505118 1.88037251
-#&gt; [30,]   42   43 1.88037251 2.21944545
-#&gt; [31,]   43   14 2.21944545 3.05888580
-#&gt; [32,]   43   15 2.21944545 2.56612893
-#&gt; [33,]   42   44 1.88037251 2.21414744
-#&gt; [34,]   44   16 2.21414744 2.69049868
-#&gt; [35,]   44   17 2.21414744 3.10634577
-#&gt; [36,]   35   45 0.48641691 1.35075639
-#&gt; [37,]   45   46 1.35075639 1.74074593
-#&gt; [38,]   46   47 1.74074593 2.51806663
-#&gt; [39,]   47   18 2.51806663 3.47868462
-#&gt; [40,]   47   19 2.51806663 2.95272611
-#&gt; [41,]   46   48 1.74074593 2.45326061
-#&gt; [42,]   48   20 2.45326061 2.85325498
-#&gt; [43,]   48   21 2.45326061 2.77861276
-#&gt; [44,]   45   22 1.35075639 2.10784353
-#&gt; [45,]   34   23 0.17014521 0.37283746
-#&gt; [46,]   33   49 0.07067905 0.78180027
-#&gt; [47,]   49   24 0.78180027 0.90349219
-#&gt; [48,]   49   25 0.78180027 1.02728878</div><div class='input'>
+  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>cbind</a></span>(<span class='no'>tree</span>$<span class='no'>edge</span>, <span class='fu'><a href='PCMTreeEdgeTimes.html'>PCMTreeEdgeTimes</a></span>(<span class='no'>tree</span>))</div><div class='output co'>#&gt;       [,1] [,2]      [,3]      [,4]
+#&gt;  [1,]   26   27 0.0000000 0.8612095
+#&gt;  [2,]   27   28 0.8612095 1.2993066
+#&gt;  [3,]   28    1 1.2993066 1.5441039
+#&gt;  [4,]   28   29 1.2993066 1.3699856
+#&gt;  [5,]   29    2 1.3699856 1.4694518
+#&gt;  [6,]   29    3 1.3699856 1.6862573
+#&gt;  [7,]   27    4 0.8612095 1.3798437
+#&gt;  [8,]   26   30 0.0000000 0.6620051
+#&gt;  [9,]   30   31 0.6620051 1.0688353
+#&gt; [10,]   31    5 1.0688353 1.9817112
+#&gt; [11,]   31    6 1.0688353 1.3624386
+#&gt; [12,]   30   32 0.6620051 1.1210708
+#&gt; [13,]   32   33 1.1210708 1.4534655
+#&gt; [14,]   33   34 1.4534655 2.1043359
+#&gt; [15,]   34    7 2.1043359 2.3623527
+#&gt; [16,]   34    8 2.1043359 2.5828812
+#&gt; [17,]   33   35 1.4534655 2.2197761
+#&gt; [18,]   35   36 2.2197761 2.3040231
+#&gt; [19,]   36    9 2.3040231 3.1793444
+#&gt; [20,]   36   37 2.3040231 2.6430960
+#&gt; [21,]   37   10 2.6430960 3.4825363
+#&gt; [22,]   37   11 2.6430960 2.9897795
+#&gt; [23,]   35   38 2.2197761 2.5535511
+#&gt; [24,]   38   12 2.5535511 3.0299023
+#&gt; [25,]   38   39 2.5535511 3.4457494
+#&gt; [26,]   39   13 3.4457494 4.3100889
+#&gt; [27,]   39   40 3.4457494 3.8357390
+#&gt; [28,]   40   14 3.8357390 4.6130597
+#&gt; [29,]   40   41 3.8357390 4.7963570
+#&gt; [30,]   41   42 4.7963570 5.2310164
+#&gt; [31,]   42   15 5.2310164 5.9435311
+#&gt; [32,]   42   16 5.2310164 5.6310108
+#&gt; [33,]   41   17 4.7963570 5.1217091
+#&gt; [34,]   32   43 1.1210708 1.8781580
+#&gt; [35,]   43   44 1.8781580 2.0808502
+#&gt; [36,]   44   45 2.0808502 2.7919714
+#&gt; [37,]   45   18 2.7919714 2.9136633
+#&gt; [38,]   45   19 2.7919714 3.0374599
+#&gt; [39,]   44   46 2.0808502 2.2241546
+#&gt; [40,]   46   47 2.2241546 2.4637840
+#&gt; [41,]   47   20 2.4637840 2.5227184
+#&gt; [42,]   47   48 2.4637840 3.1060723
+#&gt; [43,]   48   21 3.1060723 3.9823415
+#&gt; [44,]   48   22 3.1060723 3.8849869
+#&gt; [45,]   46   23 2.2241546 3.0214634
+#&gt; [46,]   43   49 1.8781580 2.3334324
+#&gt; [47,]   49   24 2.3334324 2.7435165
+#&gt; [48,]   49   25 2.3334324 3.1443026</div><div class='input'>
 <span class='no'>id47</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeMatchLabels.html'>PCMTreeMatchLabels</a></span>(<span class='no'>tree</span>, <span class='st'>"47"</span>)
 <span class='no'>length47</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeGetBranchLength.html'>PCMTreeGetBranchLength</a></span>(<span class='no'>tree</span>, <span class='no'>id47</span>)
 

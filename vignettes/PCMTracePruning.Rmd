@@ -58,6 +58,9 @@ options(digits = 2)
 tableOutputType <- 'html' # 'latex' is used for generating the S-tables in the ms.
 ```
 
+In this tutorial shows how the pruning likelihood calculation algorithm works for $\mathcal{G}_{LInv}$ models. This is an advanced topic, which can be helpful in case you wish to validate another implementation of the algorithm, e.g. in a different programming language, such as Java. 
+
+# Example tree and data
 ```{r treeAndData}
 library(ape); 
 library(PCMBase);
@@ -120,6 +123,7 @@ dev.off()
 
 ![A tree with five tips and two evolutionary regimes](Fig1.pdf){height="500px" width="100%"}
 
+# A mixed Gaussian model
 ```{r, results='asis'}
 model.OU.BM <- MixedGaussian(
   k = nrow(X), 

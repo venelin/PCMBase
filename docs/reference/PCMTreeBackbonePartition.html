@@ -99,10 +99,10 @@
       <a href="../articles/PCMParam.html">The PCMBase Parametrization API</a>
     </li>
     <li>
-      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
+      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
     </li>
     <li>
-      <a href="../articles/PCMTracePruning.html">Tracing the likelihood calculation of a Gaussian model</a>
+      <a href="../articles/PCMCreateModel.html">Creating a Custom Model in the PCMBase Framework</a>
     </li>
   </ul>
 </li>
@@ -184,15 +184,15 @@ kept. Defaults to `PCMTreeGetPartNames(tree)`.</p></td>
   <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeBackbonePartition-7.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='no'>backbMoreNodes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeInsertSingletons.html'>PCMTreeInsertSingletonsAtEpoch</a></span>(
    <span class='no'>backb</span>, <span class='kw'>epoch</span> <span class='kw'>=</span> <span class='fl'>3.7</span>, <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)
-<span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>backbMoreNodes</span>)</div><div class='output co'>#&gt;         26         28 i_3.7_x_41 
-#&gt;        "a"        "b"        "c" </div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>backbMoreNodes</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>) +
+<span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>backbMoreNodes</span>)</div><div class='output co'>#&gt;  26  28  41 
+#&gt; "a" "b" "c" </div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>backbMoreNodes</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>) +
   <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeBackbonePartition-8.png' alt='' width='700' height='433' /></div><div class='input'><span class='no'>backbMoreNodes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeInsertSingletons.html'>PCMTreeInsertSingletonsAtEpoch</a></span>(
    <span class='no'>backbMoreNodes</span>, <span class='kw'>epoch</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)
-<span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>backbMoreNodes</span>)</div><div class='output co'>#&gt;         26         28 i_3.7_x_41 
-#&gt;        "a"        "b"        "c" </div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>backbMoreNodes</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>) +
+<span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>backbMoreNodes</span>)</div><div class='output co'>#&gt;  26  28  41 
+#&gt; "a" "b" "c" </div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>backbMoreNodes</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>) +
   <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeBackbonePartition-9.png' alt='' width='700' height='433' /></div><div class='input'><span class='no'>backbMoreNodes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeInsertSingletons.html'>PCMTreeInsertSingletonsAtEpoch</a></span>(
    <span class='no'>backbMoreNodes</span>, <span class='kw'>epoch</span> <span class='kw'>=</span> <span class='fl'>1.2</span>, <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)
-<span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>backbMoreNodes</span>)</div><div class='output co'>#&gt;         26 i_1.2_x_28 i_3.7_x_41 
+<span class='fu'><a href='PCMTreeGetPartRegimes.html'>PCMTreeGetPartRegimes</a></span>(<span class='no'>backbMoreNodes</span>)</div><div class='output co'>#&gt;         26 i_1.2_x_28         41 
 #&gt;        "a"        "b"        "c" </div><div class='input'>
 </div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(<span class='no'>backbMoreNodes</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>) +
   <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span><span class='kw'>=</span><span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeBackbonePartition-10.png' alt='' width='700' height='433' /></div></pre>

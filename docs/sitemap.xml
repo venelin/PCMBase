@@ -70,6 +70,12 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMDescribeParameters.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMExtractDimensions.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMExtractRegimes.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMFindMethod.html</loc>
   </url>
   <url>
@@ -350,6 +356,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/White.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/dataFig3.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/is.MixedGaussian.html</loc>
