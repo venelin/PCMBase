@@ -1,6 +1,6 @@
 ---
 title: "Creating a Custom Model in the PCMBase Framework"
-author: "Krzysztof Bartoszek"
+author: "Krzysztof Bartoszek, Venelin Mitov"
 date: '`r Sys.Date()`'
 output: 
   rmarkdown::html_vignette:
@@ -54,19 +54,22 @@ parametrizations, etc.).
 
 PCMBase's interface is based on the S3 object system (an excellent introduction 
 by Hadley Wickham is available at http://adv-r.had.co.nz/S3.html).
-Each implemented model will be an S3 object and below we will describe how a user
-can implement a new model class by themselves.
+Each implemented model will be an S3 object and below we will describe how users
+can implement new model classes by themselves.
 
 # Brownian motion with drift
 We will show how to create one's own model class with the example
 of Brownian motion with drift. The model is a simple generalization
 of the Brownian motion model by including a deterministic drift.
 It is defined by the stochastic differential equation (SDE)
-$$d\vec{X}(t) = \vec{h} dt + \Sigma_{x} d W(t),$$
-where $W(t)$ is the standard Wiener process. Setting $\vec{h}=\vec{0}$
-reduces the model to the Brownian motion process. 
-The expectation of the process is $E[\vec{X}(t)] = \vec{X}(0)+t\vec{h}$
-and the variance $Var[\vec{X}(t)] = t\Sigma_{x}\Sigma_{x}^{T}$.
+$$d\vec{X}(t) = \vec{h} dt + \mathbf{\Sigma}_{x} d W(t),$$
+where $W(t)$ is the standard Wiener process, $\vec{h}$ is a constant $k$-dimensional
+vector and $\mathbf{\Sigma}_{x}$ is a an upper-triangular matrix with positive
+diagonal elements. . Setting $\vec{h}=\vec{0}$
+reduces the model to a Brownian motion process. 
+The expectation of the process at any time $t$, given initial value at $t=0$ is
+$E[\vec{X}(t)] = \vec{X}(0)+t\vec{h}$ and the variance is 
+$Var[\vec{X}(t)] = t\mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}$. Here, 
 Based on this we can calculate the the compound
 parameters $\vec{\omega}$, $\mathbf{\Phi}$ and $\mathbf{V}$
 defining the model in the GLInv family (Eq. 30, Mitov et. al. 2018)
@@ -77,15 +80,15 @@ $$
 \mathbf{\Phi} = \mathbf{I},
 $$
 $$
-\mathbf{V} = \Sigma_{x}\Sigma_{x}^{T}t.
+\mathbf{V} = \mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}t.
 $$ 
 In the context of the PCM class setup we will actually have
 $$
-\mathbf{V} = \Sigma_{x}\Sigma_{x}^{T}t +  \Sigma_{e}\Sigma_{e}^{T}
+\mathbf{V} = \mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}t +  \mathbf{\Sigma}_{e}\mathbf{\Sigma}_{e}^{T}
 $$ 
 as these compound parameters are calculated at the end of branches.
 The package allows for normally distributed $\vec{0}$ mean,
-\Sigma_{e}\Sigma_{e}^{T} variance jumps at the end of a branch.
+\mathbf{\Sigma}_{e}\mathbf{\Sigma}_{e}^{T} variance of jumps at the end of a branch.
 
 # A PCMBase class for Brownian motion with drift
 We will now show how to implement the Brownian motion with
@@ -201,7 +204,7 @@ correspond to a Brownian motion with $0$ drift). Finally "_Fixed" means that
 the parameter is "known", i.e. it is not to be optimized over.
 Matrix parametrizations are more involved. For example one will not optimize
 over a covariance matrix but e.g. over its Cholesky decomposition.
-Here we just have the $\Sigma_{x}$ and $\Sigma_{e}$ matrices
+Here we just have the $\mathbf{\Sigma}_{x}$ and $\mathbf{\Sigma}_{e}$ matrices
 (however see the "OU" class for more involved cases with the $H$ 
 matrix). Here, these two matrices can be either upper triangular,
 diagonal or diagonal with a constant value on the diagonal. Both

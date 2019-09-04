@@ -64,6 +64,18 @@ the PCMBaseCpp R-package and only for some model types, such as OU and BM.
 Default: FALSE}
 \item{\code{PCMBase.PrintSubscript_u} }{Logical indicating if a subscript 'u'
 should be printed instead of a subscript 'x'. Used in \code{PCMTable}. Default: FALSE.}
+\item{\code{PCMBase.MaxNForGuessSigma_x} }{Integer indicating the maximum
+number of tips to use for analytical calculation of the evolutionary rate
+matrix under a BM assumption. This option is used in the suggested PCMFit
+R-package. Default: 1000.}
+\item{\code{PCMBase.UsePCMVarForVCV} }{Logical (default: FALSE) indicating
+if the function \code{\link{PCMTreeVCV}} should use \code{\link{PCMVar}}
+instead of ape's function \code{\link{vcv}} to calculate the phylogenetic
+variance covariance matrix under BM assumption. Note that setting this option
+to TRUE would slow down the function PCMTreeVCV considerably but may be more
+stable, particularly in the case of very big and deep trees, where previous
+ape's versions of the \code{\link{vcv}} function have thrown stack-overflow
+errors.}
 }
 }
 \description{

@@ -12,7 +12,7 @@ PCMTreeGetTipsInRegime(tree, regime)
 \item{regime}{a character or integer denoting a regime in the tree.}
 }
 \value{
-an integer vector with the ids of the tips belonging to part
+an integer vector with the ids of the tips belonging to regime.
 }
 \description{
 Get the tips belonging to a regime in a tree

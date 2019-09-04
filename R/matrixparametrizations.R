@@ -28,6 +28,40 @@
   stop(...)
 }
 
+#' Upper triangular factor of a symmetric positive definite matrix
+#'
+#' @description This function is an analog to the Cholesky decomposition.
+#'
+#' @param Sigma A symmetric positive definite k x k matrix that can be
+#' passed as argument to \code{\link{chol}}.
+#'
+#' @return an upper triangular matrix Sigma_x, such that
+#' Sigma = Sigma_x %*% t(Sigma_x)
+#' @examples
+#' # S is a symmetric positive definite matrix
+#' M<-matrix(rexp(9),3,3); S <- M %*% t(M)
+#'
+#' # This should return a zero matrix:
+#' UpperChol(S) %*% t(UpperChol(S)) - S
+#'
+#' # This should return a zero matrix too:
+#' t(chol(S)) %*% chol(S) - S
+#'
+#' # Unless S is diagonal, in the general case, this will return a
+#' # non-zero matrix:
+#' chol(S) %*% t(chol(S)) - S
+#' @seealso \code{\link{chol}}
+#' @export
+UpperChol <- function(Sigma) {
+  k <- nrow(Sigma)
+  P <- matrix(0, nrow = k, ncol = k)
+  ## create permutation matrix with 1s on the anti-diagonal
+  for(i in seq_len(k)){
+    P[k-i+1, i] <- 1
+  }
+  P %*% t(chol(P %*% Sigma %*% P)) %*% P
+}
+
 ## ------------- parametrization of symmetric positive definite matrix ------------------------------
 .sym.par <- function (x,nchar) {
 ## function taken from ouch package

@@ -8,6 +8,8 @@ output: html_document
 # PCMBase 1.2.10
 - Speedup of PCMApplyTransformation in the case of mixed Gaussian models. 
 - Added functions PCMExtractDimensions and PCMExtractRegimes
+- Added two new vignettes.
+- Added a new model BMdrift
 - Finished parametrization vignette. 
 - Added functions for printing a PCM object as a table - see corresponding 
 section in the Getting started guide.

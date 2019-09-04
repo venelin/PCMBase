@@ -705,7 +705,7 @@ PCMTreeGetTipsInPart <- function(tree, part) {
 #' Get the tips belonging to a regime in a tree
 #' @param tree a phylo object with an edge.regime member or a PCMTree object
 #' @param regime a character or integer denoting a regime in the tree.
-#' @return an integer vector with the ids of the tips belonging to part
+#' @return an integer vector with the ids of the tips belonging to regime.
 #' @examples
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- ape::rtree(10)
@@ -2406,6 +2406,36 @@ PCMTreePlot <- function(
     plotTree + aes(color = regime) +
       scale_color_manual(name = "regime", values = palette)
   } else {
-    stop("ERR:026i0:PCMBase:PCMTree.R:PCMTreePlot:: Calling PCMTreePlot needs ggtree package to be installed from Bioconductor. Check the instructions at https://bioconductor.org/packages/release/bioc/html/ggtree.html. Ggtree was not on CRAN at the time of releasing PCMBase and is not declared as dependency in the PCMBase-description.")
+    stop("PCMTree.R:PCMTreePlot:: Calling PCMTreePlot needs ggtree package to be installed from Bioconductor. Check the instructions at https://bioconductor.org/packages/release/bioc/html/ggtree.html. Ggtree was not on CRAN at the time of releasing PCMBase and is not declared as dependency in the PCMBase-description.")
+  }
+}
+
+#' Phylogenetic Variance-covariance matrix
+#'
+#' This is a simplified wrapper for ape's \code{\link{vcv}} function. Setting
+#' the runtime option PCMBase.UsePCMVarForVCV to TRUE will switch to a
+#' computation of the matrix using the function \code{\link{PCMVar}}.
+#'
+#' @param tree a phylo object
+#' @return a N x N matrix. Assuming a BM model of evolution, this is a matrix
+#' in which element (i,j) is equal to the shared root-distance of the nodes i
+#' and j.
+#' @seealso \code{\link{vcv}} \code{\link{PCMVar}} \code{\link{PCMOptions}}
+#' @importFrom ape vcv
+#' @export
+PCMTreeVCV <- function(tree) {
+  if(getOption("PCMBase.UsePCMVarForVCV", FALSE)) {
+    # We use this model to build a phylogenetic variance covariance matrix of
+    # the tree. This is a matrix in which element (i,j) is equal to the shared
+    # root-distance of the nodes i and j.
+    modelCov <- PCM(
+      model = PCMDefaultModelTypes()["A"], regimes = PCMRegimes(tree), k = 1L)
+
+    modelCov$Sigma_x[] <- 1.0
+
+    # Phylogenetic variance covariance matrix
+    PCMVar(tree, modelCov, internal = FALSE)
+  } else {
+    vcv(tree)
   }
 }
