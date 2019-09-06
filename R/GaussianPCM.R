@@ -199,10 +199,14 @@ PCMVar.GaussianPCM <- function(
     if(is.na(min(svdV)/max(svdV)) ||
        min(svdV)/max(svdV) < threshold_SV ||
        eigval[k] < threshold_eigval) {
-      if( !skip_singular || i <= metaI$N || t > threshold_skip_singular ) {
+      if( !skip_singular ||
+          # We try to support singular branches leading to tips, but we don't
+          # support such during a likelihood calculation (Function PCMAbCdEf).
+          # i <= metaI$N ||
+          t > threshold_skip_singular ) {
         err <- paste0(
           "PCMVar.GaussianPCM:",i,":",
-          " The matrix V for node ", i, "(branch length=", t, ")",
+          " The matrix V for node ", i, " (branch length=", t, ")",
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
           ". smallest eigenvalue: ", eigval[k],
           "; Check PCMOptions()$PCMBase.Threshold.EV, ", "
@@ -927,14 +931,12 @@ PCMAbCdEf.default <- function(
        min(svdV)/max(svdV) < threshold_SV ||
        eigval[sum(ki)] < threshold_eigval) {
       singular[edgeIndex] <- TRUE
-      if(!skip_singular || ti > threshold_skip_singular ) {
+      if(!skip_singular || i <= N || ti > threshold_skip_singular ) {
         err <- paste0(
           "GaussianPCM.R:PCMAbCdEf.default:",i,":",
-          " The matrix V for node ", i,
+          " The matrix V for node ", i, " (branch length=", ti, ")",
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-          "; eigval[sum(ki)] = ", eigval[sum(ki)],
-          " Check the model parameters and the length of the branch",
-          " leading to the node. For details on this error, read the User Guide.")
+          "; smallest eigenvalue = ", eigval[sum(ki)])
         stop(err)
       }
     }
