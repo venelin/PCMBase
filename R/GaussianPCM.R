@@ -199,12 +199,12 @@ PCMVar.GaussianPCM <- function(
     if(is.na(min(svdV)/max(svdV)) ||
        min(svdV)/max(svdV) < threshold_SV ||
        eigval[k] < threshold_eigval) {
-      if( !skip_singular || t > threshold_skip_singular ) {
+      if( !skip_singular || i <= metaI$N || t > threshold_skip_singular ) {
         err <- paste0(
           "PCMVar.GaussianPCM:",i,":",
-          " The matrix V for node ", i,
+          " The matrix V for node ", i, "(branch length=", t, ")",
           " is nearly singular: min(svdV)/max(svdV)=", min(svdV)/max(svdV),
-          ". eigval[k] = ", eigval[k],
+          ". smallest eigenvalue: ", eigval[k],
           "; Check PCMOptions()$PCMBase.Threshold.EV, ", "
           PCMOptions()$PCMBase.Threshold.SV, ",
           "PCMOptions()$PCMBase.Threshold.Skip.Singular ",
