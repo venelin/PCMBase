@@ -4,15 +4,15 @@
 \alias{PCMPlotMath}
 \title{Beautiful model description based on plotmath}
 \usage{
-PCMPlotMath(o, roundDigits = 2, transformChol = FALSE)
+PCMPlotMath(o, roundDigits = 2, transformSigma_x = FALSE)
 }
 \arguments{
 \item{o}{a PCM or a parameter object.}
 
 \item{roundDigits}{an integer, default: 2.}
 
-\item{transformChol}{a logical indicating if Choleski transformation should be
-applied to Choleski-factor parameters prior to generating the plotmath expression.}
+\item{transformSigma_x}{a logical indicating if Cholesky transformation should be
+applied to Cholesky-factor parameters prior to generating the plotmath expression.}
 }
 \value{
 a character string.

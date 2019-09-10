@@ -1392,10 +1392,10 @@ PCMApplyTransformation._CholeskyFactor <- function(o, ...) {
   # when assigning to o, we use o[] <-  instead of just o <- , in order to
   # preserve the attributes
   if(is.Global(o)) {
-    o[] <- as.matrix(o) %*% t(as.matrix(o))
+    o[] <- t(as.matrix(o)) %*% as.matrix(o)
   } else {
     for(r in 1:dim(o)[3]) {
-      o[,,r] <- as.matrix(o[,,r]) %*% t(as.matrix(o[,,r]))
+      o[,,r] <- t(as.matrix(o[,,r])) %*% as.matrix(o[,,r])
     }
   }
   classes <- class(o)

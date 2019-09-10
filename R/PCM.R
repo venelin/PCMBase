@@ -91,7 +91,7 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.ParamValue.LowerLimit}}{Default lower limit value for parameters, default setting is -10.0.}
 #' \item{\code{PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal}}{Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.}
 #' \item{\code{PCMBase.ParamValue.UpperLimit} }{Default upper limit value for parameters, default setting is 10.0.}
-#' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}}. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.}
+#' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}} and \code{\link{UpperChol}}. This option applies to parameters Sigma_x, Sigmae_x, Sigmaj_x and the measurement errors \code{SE[,,i]} for each measurement i when the argument \code{SE} is specified as a cube.}
 #' \item{\code{PCMBase.MaxLengthListCladePartitions} }{Maximum number of tree partitions returned by \code{\link{PCMTreeListCladePartitions}}. This option has the goal to interrupt the recursive search for new partitions in the case of calling PCMTreeListCladePartitions on a big tree with a small value of the maxCladeSize argument. By default this is set to Inf.}
 #' \item{\code{PCMBase.PCMPresentCoordinatesFun} }{A function with the same synopsis as \code{\link{PCMPresentCoordinates}} that can be specified in case of custom setting for the present coordinates for specific nodes of the tree. See \code{\link{PCMPresentCoordinates}}, and \code{\link{PCMInfo}}.}
 #' \item{\code{PCMBase.Use1DClasses} }{Logical indicating if 1D arithmetic operations
@@ -865,7 +865,7 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
 PCMApplyTransformation <- function(o, ...) {
   if(is.Transformable(o)) {
     # this if-statement prevents a transformation when it is not needed, e.g.
-    # in the case of a parameter, which is a CholeskyFactor but should not be
+    # in the case of a parameter, which is a _CholeskyFactor but should not be
     # converted into a positive definite matrix, either, because this is not needed,
     # i.e. the parameter is defined as an upper triangular matrix with a non-negative
     # diagonal, or because the conversion is done at a lower level.
@@ -1043,9 +1043,9 @@ PCMVar <- function(
 #' @param model a PCM model object
 #' @param W0 a numeric matrix denoting the initial k x k variance covariance matrix at the
 #'  root (default is the k x k zero matrix).
-#' @param SE a k x k matrix specifying the upper triangular Cholesky factor of
+#' @param SE a k x k matrix specifying the upper triangular factor of
 #' the measurement error variance-covariance matrix. The product
-#' t(SE) %*% SE is added to the variance calculated from the model.
+#' SE %*% t(SE) is added to the variance calculated from the model.
 #' Default: SE = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)).
 #' @param regime an integer or a character denoting the regime in model for
 #' which to do the calculation; Defaults to PCMRegimes(model)[1L], meaning the
@@ -1298,7 +1298,7 @@ PCMLikDmvNorm <- function(
 #' @param model an S3 object specifying the model (see Details).
 #' @param SE a k x N matrix specifying the standard error for each measurement in
 #' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-#' Cholesky factor of the variance covariance matrix for the measurement error
+#' factor of the variance covariance matrix for the measurement error
 #' for each node i=1, ..., N.
 #' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a named list containg meta-information about the data and the
@@ -1386,7 +1386,7 @@ PCMSim <- function(
 #'   calculated (see also Details).
 #' @param SE a k x N matrix specifying the standard error for each measurement in
 #' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-#' Cholesky factor of the variance covariance matrix for the measurement error
+#' factor of the variance covariance matrix for the measurement error
 #' for each node i=1, ..., N.
 #' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model, SE)},

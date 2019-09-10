@@ -84,16 +84,16 @@ PCMBaseIsADevRelease <- function() {
 #' its argument.
 #' @param o a PCM or a parameter object.
 #' @param roundDigits an integer, default: 2.
-#' @param transformChol a logical indicating if Choleski transformation should be
-#' applied to Choleski-factor parameters prior to generating the plotmath expression.
+#' @param transformSigma_x a logical indicating if Cholesky transformation should be
+#' applied to Cholesky-factor parameters prior to generating the plotmath expression.
 #' @return a character string.
 #' @export
-PCMPlotMath <- function(o, roundDigits = 2, transformChol = FALSE) {
+PCMPlotMath <- function(o, roundDigits = 2, transformSigma_x = FALSE) {
   UseMethod("PCMPlotMath", o)
 }
 
 #' @export
-PCMPlotMath.default <- function(o, roundDigits = 2, transformChol = FALSE) {
+PCMPlotMath.default <- function(o, roundDigits = 2, transformSigma_x = FALSE) {
   if(is.numeric(o)) {
     format(round(o, roundDigits), nsmall = roundDigits)
   } else {
@@ -102,7 +102,7 @@ PCMPlotMath.default <- function(o, roundDigits = 2, transformChol = FALSE) {
 }
 
 #' @export
-PCMPlotMath.VectorParameter <- function(o, roundDigits = 2, transformChol = FALSE) {
+PCMPlotMath.VectorParameter <- function(o, roundDigits = 2, transformSigma_x = FALSE) {
   if(is.Global(o)) {
     k <- length(o)
     R <- 1
@@ -154,18 +154,26 @@ PCMPlotMath.VectorParameter <- function(o, roundDigits = 2, transformChol = FALS
 }
 
 #' @export
-PCMPlotMath.MatrixParameter <- function(o, roundDigits = 2, transformChol = FALSE) {
+PCMPlotMath.MatrixParameter <- function(o, roundDigits = 2, transformSigma_x = FALSE) {
   k <- dim(o)[1]
   if(is.Global(o)) {
     R <- 1
-    if(transformChol) {
-      o <- o %*% t(o)
+    if(transformSigma_x) {
+      if(getOption("PCMBase.Transpose.Sigma_x", FALSE)) {
+        o <- t(o) %*% o
+      } else {
+        o <- o %*% t(o)
+      }
     }
   } else {
     R <- dim(o)[3]
-    if(transformChol) {
+    if(transformSigma_x) {
       for(r in seq_len(R)) {
-        o[,,r] <- o[,,r] %*% t(o[,,r])
+        if(getOption("PCMBase.Transpose.Sigma_x", FALSE)) {
+          o[,,r] <- t(o[,,r]) %*% o[,,r]
+        } else {
+          o[,,r] <- o[,,r] %*% t(o[,,r])
+        }
       }
     }
   }
@@ -221,19 +229,19 @@ PCMPlotMath.MatrixParameter <- function(o, roundDigits = 2, transformChol = FALS
 }
 
 #' @export
-PCMPlotMath.PCM <- function(o, roundDigits = 2, transformChol = FALSE) {
+PCMPlotMath.PCM <- function(o, roundDigits = 2, transformSigma_x = FALSE) {
   res <- 'bgroup("{", list('
   for(i in seq_along(o)) {
     name <- names(o)[i]
-    transformChol <- FALSE
+    transformSigma_x <- FALSE
     if(name == "Sigma_x") {
       name <- "Sigma"
-      transformChol <- TRUE
+      transformSigma_x <- TRUE
     }
     res <- paste0(
       res, name, "==", PCMPlotMath(
         o[[i]], roundDigits = roundDigits,
-        transformChol = transformChol))
+        transformSigma_x = transformSigma_x))
     if(i < length(o)) {
       res <- paste0(res, ", ")
     }

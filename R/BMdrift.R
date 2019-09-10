@@ -61,8 +61,8 @@ PCMDescribeParameters.BM_drift <- function(model, ...) {
   list(
     X0 = "trait values at the root",
     h_drift = "drift vector modyfing the expectation",
-    Sigma_x = "Cholesky factor of the unit-time variance rate",
-    Sigmae_x = "Cholesky factor of the non-heritable variance or the variance of the measurement error")
+    Sigma_x = "Upper triangular factor of the unit-time variance rate",
+    Sigmae_x = "Upper triangular factor of the non-heritable variance or the variance of the measurement error")
 }
 
 #' @export
@@ -124,9 +124,9 @@ PCMSpecify.BM_drift <- function(model, ...) {
     h_drift = structure(0.0, class = c('VectorParameter'),
                    description = 'drift vector modyfing the expectation'),
     Sigma_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                        description = 'Cholesky factor of the unit-time variance rate'),
+                        description = 'Upper triangular factor of the unit-time variance rate'),
     Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal', '_WithNonNegativeDiagonal'),
-                         description = 'Cholesky factor of the non-heritable variance or the variance of the measurement error'))
+                         description = 'Upper triangular factor of the non-heritable variance or the variance of the measurement error'))
   attributes(spec) <- attributes(model)
   if(is.null(names(spec))) names(spec) <- c('X0', 'h_drift', 'Sigma_x', 'Sigmae_x')
   if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')
