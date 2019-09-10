@@ -1648,9 +1648,12 @@ PCMInfo.PCM <- function(
     }
   } else if(is.array(SE) && identical(unname(dim(SE)), c(k, k, N)) ) {
     # SE is k x k x N array
-    for(i in seq_len(N)) {
-      VE[, , i] <- t(SE[, , i]) %*% SE[, , i]
+    if(getOption("PCMBase.Transpose.Sigma_x", FALSE)) {
+      for(i in seq_len(N)) VE[, , i] <- t(SE[, , i]) %*% SE[, , i]
+    } else {
+      for(i in seq_len(N)) VE[, , i] <- SE[, , i] %*% t(SE[, , i])
     }
+
   } else {
     stop("SE should be a k x N matrix or a k x k x N array.")
   }
