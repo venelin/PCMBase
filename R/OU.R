@@ -143,6 +143,7 @@ PCMListDefaultParameterizations.OU <- function(model, ...) {
       c("MatrixParameter", "_Schur", "_Diagonal", "_WithNonNegativeDiagonal", "_Transformable"),
       c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable"),
 
+      c("MatrixParameter", "_Global"),
       c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
       c("MatrixParameter", "_Schur", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
       c("MatrixParameter", "_Schur", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
@@ -164,7 +165,10 @@ PCMListDefaultParameterizations.OU <- function(model, ...) {
     ),
 
     Sigmae_x = list(
-      c("MatrixParameter", "_Omitted"))
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
+      c("MatrixParameter", "_Omitted")
+    )
   )
 }
 

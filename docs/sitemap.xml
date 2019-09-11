@@ -343,6 +343,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeToString.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeVCV.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMUnfixParameter.html</loc>
   </url>
   <url>
@@ -353,6 +356,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/TruePositiveRate.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/UpperChol.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/White.html</loc>

@@ -21,6 +21,26 @@ citEntry(entry = "Article",
 )
 
 citEntry(entry = "Article",
+  title        = "Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models",
+  author       = personList(as.person("Venelin Mitov"),
+                   as.person("Krzysztof Bartoszek"),
+                   as.person("Tanja Stadler")),
+  journal      = "Proceedings of the National Academy of Sciences of the United States of America",
+  year         = "2019",
+  month        = "aug",
+  volume       = "35",
+  number       = "",
+  pages        = "201813823",
+  url          = "https://doi.org/10.1073/pnas.1813823116",
+
+  textVersion  =
+  paste("Venelin Mitov, Krzysztof Bartoszek, Tanja Stadler (2019).",
+        "Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models",
+        "PNAS",
+        "URL https://doi.org/10.1073/pnas.1813823116")
+)
+
+citEntry(entry = "Article",
   title        = "Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library",
   author       = personList(as.person("Venelin Mitov"),
                    as.person("Tanja Stadler")),

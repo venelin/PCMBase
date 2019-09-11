@@ -11,6 +11,7 @@ vignette: >
   %\VignetteIndexEntry{The PCMBase Parametrization API}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: REFERENCES.bib
 ---
 
 <!--
@@ -45,10 +46,169 @@ In PCMBase, every model is an object of an S3 class, such as "OU", inheriting fr
 
 - a global parameter shared by all regimes in the model. For example, this would
 be the case for a non-heritable variance-covariance parameter $\Sigma_{e}$ if it is assumed to be the same for every observed species (i.e. tip) in the tree. 
-- a local stacked parameter that has a different value for each regime in the model. For example, in an OU model, the selection strength matrix $H$ has a diffent value for each of the $R$ regimes in the model. Therefore, an OU model contains a $k\times k\times R$ array member called "H". The element `H[,,1]` would correspond to regime 1, `H[,,2]` to regime 2, etc. As a second example, the long-term optimum parameter of an OU process is a $k$-dimensional vector $\vec{\theta}_{r}$ for each regime in the model. In an OU model with $R$ regimes, this would be represented by a $k\times R$ array (matrix) called "Theta", such that the vector `Theta[, 1]` corresponds to regime 1. Finally, a local scalar parameter (i.e. a number), would be represented by an $R$-vector.
+- a local stacked parameter that has a different value for each regime in the model. For example, in an OU model, the selection strength matrix $H$ has a different value for each of the $R$ regimes in the model. Therefore, an OU model contains a $k\times k\times R$ array member called "H". The element `H[,,1]` would correspond to regime 1, `H[,,2]` to regime 2, etc. As a second example, the long-term optimum parameter of an OU process is a $k$-dimensional vector $\vec{\theta}_{r}$ for each regime in the model. In an OU model with $R$ regimes, this would be represented by a $k\times R$ array (matrix) called "Theta", such that the vector `Theta[, 1]` corresponds to regime 1. Finally, a local scalar parameter (i.e. a number), would be represented by an $R$-vector.
 - a nested PCM object corresponding to a regime. This is the case for a mixed Gaussian phylogenetic model, where different types of Gaussian processes can be acting on different parts of the tree, represented by different regimes. 
 
-# Example: a 3-regime BM model
+# Generic functions for PCM parameters
+The parametrization API provides the following S3 generic functions:
+
+* [`PCMParamLoadOrStore`](https://venelin.github.io/PCMBase/reference/PCMParamLoadOrStore.html): Loading the parameters of a model from a numerical vector or storing them into a vector. 
+* [`PCMParamCount`](https://venelin.github.io/PCMBase/reference/PCMParamCount.html): counting the parameters of a model;
+* [`PCMParamGetShortVector`](https://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html): Getting all values of the model parameters as a numeric vector;
+* [`PCMParamLowerLimit`](https://venelin.github.io/PCMBase/reference/PCMParamLowerLimit.html), [`PCMParamUpperLimit`](https://venelin.github.io/PCMBase/reference/PCMParamUpperLimit.html): Upper and lower limit for the parameters of a model;
+* [`PCMApplyTransformation`](https://venelin.github.io/PCMBase/reference/PCMApplyTransformatin.html): transforming a parameter.
+
+All of the above generic functions can be called both on individual parameters, as well as on PCM objects. When called on a PCM object, the function will be called recursively on each parameter within the object. The behaviour of the above generic functions is specified by the parameter's S3 class attribute described in the following section.
+
+# Parameter S3 class
+Parameters can be numeric vectors, matrices or cubes (i.e. 3-dimensional arrays) with a "class" attribute specifying a set of S3 classes. The S3 classes of a parameter control the parameter's:
+
+## Main type
+The main type specifies the mathematical character of the parameter, i.e. as what does the parameter enter in the equations defining the model. The main type S3 class is mandatory and can be one of the following: "ScalarParameter", "VectorParameter" and "MatrixParameter". Here's an example:
+```{r}
+OU <- PCM("OU", k = 3, regimes = c("a", "b"))
+class(OU$X0)
+class(OU$H)
+class(OU$Theta)
+class(OU$Sigma_x)
+class(OU$Sigmae_x)
+```
+## Scope
+Every parameter can be global, i.e. having the same value for each regime in a model, or local, i.e. having a different value for each regime. A parameter is assumed to be local scope, unless its class attribute includes the class "_Global". For instance, in the above code example, the root trait value `X0` has a global scope. Another example would be an OU model with a global selection strength, drift and non-heritable variance matrices:
+```{r}
+OU2 <- PCM(
+  paste0(
+    "OU_", 
+    "_Global_X0_",
+    "_Global_H_",
+    "_Theta_",
+    "_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x_",
+    "_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigmae_x"), 
+  k = 3, regimes = c("a", "b"))
+class(OU2$X0)
+class(OU2$H)
+class(OU2$Theta)
+class(OU2$Sigma_x)
+class(OU2$Sigmae_x)
+```
+
+## Omission
+In some cases, a parameter has to be omitted, i.e. not present in a model. For example, if a mixed Gaussian model has a global parameter $\Sigma_{e}$, then having a local scope parameter $\Sigma_{e}$ for each regime represents a non-identifiable case, i.e. infinitely many different combinations of values for the global and local scope $\Sigma_{e}$ parameters would fit equally well to the data. To prevent this, it is possible to specify that the local parameter $\Sigma_{e}$ should be omitted from each regime. This is done by including "_Omitted" in the class attribute of the parameter. Here is an example:
+```{r}
+BMOU <- MixedGaussian(
+  k = 3, 
+  modelTypes = c(
+    "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x",
+    "OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"),
+  mapping = c(a = 1, b = 2))
+
+class(BMOU$X0)
+class(BMOU$Sigmae_x)
+
+# There are no X0 and Sigmae_x parameters for the regimes because they are omitted:
+names(BMOU$a)
+names(BMOU$b)
+```
+
+## Constancy
+In some cases, a parameter will have a known and fixed value. Constant classes include: "_Fixed", "_Ones", "_Zeros", "_Identity". For example, in a mixed Gaussian model, we can specify a fixed value for the global parameter `Sigmae_x`:
+```{r}
+BMOU2 <- MixedGaussian(
+  k = 3, 
+  modelTypes = c(
+    "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x",
+    "OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"),
+  mapping = c(a = 1, b = 2), 
+  Sigmae_x = structure(0, 
+    class = c("MatrixParameter",
+              "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Fixed", "_Global"),
+    description =
+      "A fixed upper triangular factor of the non-phylogenetic variance-covariance"))
+
+BMOU2$Sigmae_x[] <- rbind(
+    c(0.5, 0.02, 0),
+    c(0, 0.2, 0.01),
+    c(0, 0, 0.1))
+
+class(BMOU2$X0)
+class(BMOU2$Sigmae_x)
+
+# There are no X0 and Sigmae_x parameters for the regimes because they are omitted:
+names(BMOU2$a)
+names(BMOU2$b)
+
+# Notice that the BMOU model created in the previous example has more parameters than BMOU2:
+PCMParamCount(BMOU)
+PCMParamCount(BMOU2)
+```
+## Transformation
+Due to constraints arising from their mathematical formulation or to facilitate the biological interpretation, the parameters of Gaussian models are often subject to restrictions. For example, the $k\times k$ matrix parameter $\mathbf{\Sigma}$ of a BM or an OU process should always be a symmetric positive-definite matrix; the selection strength matrix $\mathbf{H}$ of an OU process is usually restricted to be at least semi-positive-definite (but not necessarily symmetric), in order to limit the interpretation to cases of stabilizing selection rather than (usually unidentifiable) cases of repulsion. Such parameter restrictions can pose a challenge, during a parameter inference procedure, since many of the proposed parameter values may violate some of the imposed restrictions. For most of the [$\mathcal{G}_{LInv}$ models](https://venelin.github.io/PCMBase/articles/PCMBase.html) known to us, the common restrictions can be handled using an appropriate parametrization with a transformation applied to the parameters before calculating the functions $\vec{\omega}$, $\mathbf{\Phi}$ and $\mathbf{V}$ and the model likelihood. 
+
+By default, the parameters named `Sigma_x`, `Sigmae_x` and `Sigmaj_x` are always transformed using the formula $\mathbf{\Sigma} = \mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^T$ (see also the runtim option "PCMBase.Transpose.Sigma_x" in `?PCMOptions` for changing the above default behavior). 
+
+For other parameters, to specify that a parameter should be transformed, its class and the class of the encompassing PCM object(s) must include "_Transformable". A further S3 class for the parameter specifies the type of transformation. Once a parameter is transformed via a call to the generic function `PCMApplyTransformation`, the "_Transformable" class is removed, i.e. the returned parameter is not transformable. For convenience, the name of the transformed parameter is kept the same as the name of the untransformed one. Currently the following transformations are defined: 
+
+### _CholeskyFactor
+
+If a matrix parameter $\mathbf{S}$ has the classes "_CholeskyFactor" and "_Transformable", it will be transformed as $\mathbf{S}^{T}\mathbf{S}$. Note that this is analogical but not equivalent to the transformation $\mathbf{S}\mathbf{S}^T$, which is the default for the parameters `Sigma_x` (see above). The transformed parameter will have classes "_SemiPositiveDefinite" and "_Transformed":
+```{r}
+M <- structure(
+  rbind(c(0.2, 0.5, 1.2),
+        c(0, 0.1, 0.02),
+        c(0, 0, 1.02)),
+  class = c("MatrixParameter", "_CholeskyFactor", "_Transformable", "_Global"))
+
+Mtransf <- PCMApplyTransformation(M)
+Mtransf
+```
+### _Schur
+
+If both, the positive-definiteness and the symmetry of a matrix parameter are optional, e.g. the matrix $\mathbf{H}$ of an OU process, such restrictions can be imposed through a Schur decomposition as shown previously by [@Clavel:2015hc]. Specifically, we define a $k\times k$-dimensional matrix $\mathbf{H}_{S}$ as follows: 
+
+- the upper triangle of $\mathbf{H}_{S}$, excluding the diagonal, specifies $k(k-1)/2$ rotation angles for Givens rotations [@Golub:2013mc] to obtain a $k\times k$-dimensional orthoganal matrix $\mathbf{Q}$;
+- the lower triangle of $\mathbf{H}_{S}$ including the diagonal defines a $k\times k$ triangular matrix $\mathbf{T}$. 
+
+Then, $\mathbf{H}$ is obtained from $\mathbf{Q}$ and $\mathbf{T}$ as follows [@Clavel:2015hc]:
+$$
+\mathbf{H}=\mathbf{Q}\mathbf{T}^{T}\mathbf{Q}^{T}
+$$
+The matrix $\mathbf{H}$ calculated in this way has all of its eigenvalues equal to the elements on the diagonal of $\mathbf{H}_{S}$ [@Clavel:2015hc]. Thus, by restricting the diagonal of $\mathbf{H}_{S}$ to non-negative or strictly positive values, we guarantee that $\mathbf{H}$ will have all of its eigenvalues non-negative or strictly positive (hence, guaranteeing semi- or strict positive definiteness). Further, if $\mathbf{H}_{S}$ is diagonal, then so is the matrix $\mathbf{H}$; if $\mathbf{H}_{S}$ is upper triangular, then $\mathbf{T}$ is diagonal and the resulting matrix $\mathbf{H}$ is symmetric. Finally, if $\mathbf{H}_{S}$ is neither diagonal nor triangular, then the resulting matrix $\mathbf{H}$ is asymmetric. Here is an example:
+```{r}
+# Diagonal
+Hs1 <- structure(
+  rbind(c(0.2, 0, 0),
+        c(0, 0, 0),
+        c(0, 0, 1.02)),
+  class = c("MatrixParameter", "_Schur", "_Transformable", "_Global"))
+
+PCMApplyTransformation(Hs1)
+
+# Symmetric positive definite with eigenvalues 1.02, 0.1 and 0.02
+Hs2 <- structure(
+  rbind(c(1.02, 0.5, 1.2),
+        c(0, 0.1, 0.02),
+        c(0, 0, 0.02)),
+  class = c("MatrixParameter", "_Schur", "_Transformable", "_Global"))
+
+PCMApplyTransformation(Hs2)
+eigen(PCMApplyTransformation(Hs2))$values
+
+# Asymmetric positive definite with eigenvalues 1.02, 0.1 and 0.02
+Hs3 <- structure(
+  rbind(c(1.02, 0.5, 1.2),
+        c(0.2, 0.1, 0.02),
+        c(0.8, 0.1, 0.02)),
+  class = c("MatrixParameter", "_Schur", "_Transformable", "_Global"))
+
+PCMApplyTransformation(Hs3)
+eigen(PCMApplyTransformation(Hs3))$values
+
+```
+
+## Other restrictions
+We may need to specify other restrictions for a parameter. For example, by definition the matrix parameters `Sigma_x` and `Sigmae_x` are required to be upper triangular with non-negative diagonal elements [@Mitov:2018fl]. Restriction classes include: '_AllEqual', '_NonNegative', '_WithNonNegativeDiagonal', '_LowerTriangular', '_LowerTriangularWithDiagonal', '_UpperTriangular', '_UpperTriangularWithDiagonal', '_Symmetric' and '_ScalarDiagonal'.
+
+# Generating model parametrizations
 
 It can be helpful to examine the structure of a 3-regime bivariate BM model:
 
@@ -71,19 +231,19 @@ print(
   xtable = TRUE, type='html')
 ```
 
-We notice that the parameter $\Sigma_{e,u}$ is local for each regime in the model. In the context of a biological application, it can be more appropriate to assume that this parameter is shared by all regimes. Moreover, in many cases, it can be necessary to assume that the matrix $\Sigma_{e,u}$ is diagonal, meaning that the non-heritable component for any of the traits is is uncorrelated with the non-heritable components for the other traits. To specify this, first, we look at the list of available BM model types. 
+We notice that the parameter $\Sigma_{e,x}$ is local for each regime in the model. In the context of a biological application, it can be more appropriate to assume that this parameter is shared by all regimes. Moreover, in many cases, e.g. when testing hypotheses about the presence of correlation between the traits, it can be necessary to assume that the matrices $\Sigma_{x}$ and $\Sigma_{e,x}$ are diagonal, meaning that the model assumes trait independence. Biologically, that would mean that any correlation between the traits originates from genetic (not environmental) factors. To specify such a scenario, first, we look at the list of available BM model types. 
 
 ```{r}
 PCMModels(parentClass = "BM")
 ```
 
-We notice that the above list does not contain a BM model type with a global parameter `Sigmae_x`. This means that the S3 methods for such a model parametrization have not yet been generated and loaded in the memory. The function `PCMListParameterizations` returns a named list, where each named element is a list of the possible S3 class assignments for the corresponding parameter. So, let's see what are the available S3 classes for the parameter `Sigmae_x` of a BM model:
+We notice that the above list does not contain a BM model type with a global diagonal parameter `Sigmae_x`. This means that the S3 methods for such a model parametrization have not yet been generated and loaded. The function `PCMListParameterizations` returns a named list, where each named element is a list of the possible S3 class assignments for the corresponding parameter. So, let's see what are the available S3 classes for the parameter `Sigmae_x` of a BM model:
 
 ```{r}
 PCMListParameterizations(structure(0.0, class="BM"))$Sigmae_x
 ```
 
-We notice that the 5th element above contains "_Diagonal" and "_Global" in the list of S3-classes. We proceed to generate all BM parametrizations with this S3-class assignment for the parameter `Sigmae_x`.
+We notice that, for `Sigmae_x`, the 5th element above contains "_Diagonal" and "_Global" in the list of S3-classes. We proceed to generate all BM parametrizations with this S3-class assignment for the parameter `Sigmae_x`.
 
 ```{r}
 # 1. Filter the list of parametrizations to avoid generating too many S3 methods.
@@ -103,7 +263,7 @@ PCMGenerateParameterizations(structure(0.0, class="BM"),
                              tableParameterizations = dtParameterizations[])
 ```
 
-Now the list of BM-models contains the generated model types with global diagonal  `Sigmae_x`:
+Now the list of BM-models contains the generated model types with a diagonal `Sigma_x` and a global diagonal  `Sigmae_x`:
 
 ```{r}
 PCMModels("BM")
@@ -113,7 +273,7 @@ PCMModels("BM")
 BMModelGlobalSigmae <- paste0(
   "BM" , 
   "__Global_X0", 
-  "__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x", 
+  "__Diagonal_WithNonNegativeDiagonal_Sigma_x", 
   "__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x")
 
 modelObject2 <- PCM(BMModelGlobalSigmae, k = 2, regimes = c("a", "b", "c"))
@@ -126,3 +286,4 @@ print(
 ```
 
 
+# References

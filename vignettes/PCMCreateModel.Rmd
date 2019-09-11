@@ -11,6 +11,7 @@ vignette: >
   %\VignetteIndexEntry{Creating a Custom Model in the PCMBase Framework}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: REFERENCES.bib
 ---
 
 <!--
@@ -32,18 +33,34 @@ vignette: >
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-```{r setup}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(abind)
+library(ape)
 library(PCMBase)
+
+if(!requireNamespace("ggtree")) {
+  message("Building the vignette requires ggtree R-package. Trying to install.")
+  status.ggtree <- try({
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+      install.packages("BiocManager")
+    BiocManager::install("ggtree", version = "3.9")
+  }, silent = TRUE)
+  if(class(status.ggtree == "try-error")) {
+    stop(
+      "The ggtree installation did not succeed. The vignette cannot be built.")
+  }
+}
 ```
+
+
 # Introduction
 The PCMBase package is designed as a computational engine to calculate the likelihood for 
 a user specified model evolving on a phylogenetic tree. The package comes
 with some pre-implemented models, e.g. Brownian Motion or Ornstein-Uhlenbeck, both allowing
 for multivariate correlated evolution.
 However, the mathematical theory behind the method for calculating the likelihood 
-(Mitov et. al. 2018) is not limited to these two models. In fact any 
+[@Mitov:2018fl] is not limited to these two models. In fact any 
 stochastic process that belongs to the so-called GLInv family of models
 is implementable in PCMBase. From a mathematical perspective one needs 
 to be able to implement functions that calculate the compound
@@ -65,14 +82,14 @@ It is defined by the stochastic differential equation (SDE)
 $$d\vec{X}(t) = \vec{h} dt + \mathbf{\Sigma}_{x} d W(t),$$
 where $W(t)$ is the standard Wiener process, $\vec{h}$ is a constant $k$-dimensional
 vector and $\mathbf{\Sigma}_{x}$ is a an upper-triangular matrix with positive
-diagonal elements. . Setting $\vec{h}=\vec{0}$
+diagonal elements. Setting $\vec{h}=\vec{0}$
 reduces the model to a Brownian motion process. 
 The expectation of the process at any time $t$, given initial value at $t=0$ is
 $E[\vec{X}(t)] = \vec{X}(0)+t\vec{h}$ and the variance is 
 $Var[\vec{X}(t)] = t\mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}$. Here, 
 Based on this we can calculate the the compound
 parameters $\vec{\omega}$, $\mathbf{\Phi}$ and $\mathbf{V}$
-defining the model in the GLInv family (Eq. 30, Mitov et. al. 2018)
+defining the model in the GLInv family (Eq. 30, [@Mitov:2018fl])
 $$
 \vec{\omega} = \vec{h}t,
 $$
@@ -82,13 +99,18 @@ $$
 $$
 \mathbf{V} = \mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}t.
 $$ 
-In the context of the PCM class setup we will actually have
+The above equations hold for any internal node without measured trait data. For 
+any tip or internal node with available trait values the variance is given 
+by 
 $$
-\mathbf{V} = \mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}t +  \mathbf{\Sigma}_{e}\mathbf{\Sigma}_{e}^{T}
+\mathbf{V} = \mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}t +  \mathbf{\Sigma}_{e,x}\mathbf{\Sigma}_{e,x}^{T} + \mathbf{S}_{e,i}\mathbf{S}_{e,i}^{T},
 $$ 
-as these compound parameters are calculated at the end of branches.
-The package allows for normally distributed $\vec{0}$ mean,
-\mathbf{\Sigma}_{e}\mathbf{\Sigma}_{e}^{T} variance of jumps at the end of a branch.
+where $\mathbf{\Sigma}_{e,x}$ is a regime-specific or global upper triangular 
+matrix parameter with a non-negative diagonal specifying an unknown non-phylogenetic 
+component of the trait variance covariance matrix (e.g. an unknown measurement error), 
+and $\mathbf{S}_{e,i}$ is a species-specific upper triangular matrix with a 
+non-negative diagonal specifying a known standard error of the measured trait 
+data for each species. 
 
 # A PCMBase class for Brownian motion with drift
 We will now show how to implement the Brownian motion with
@@ -126,7 +148,7 @@ PCMDescribe.BM_drift <- function(model, ...) {
 This function returns a list with functions for calculating the $\vec{\omega}$,
 $\mathbf{\Phi}$ and $\mathbf{V}$ compound parameters that define the 
 conditional distribution of the daughter node given the value
-of the trait at its parent node ($\vec{x}_{parent}$. Following Mitov et. al. (2018) we know 
+of the trait at its parent node ($\vec{x}_{parent}$. Following [@Mitov:2018fl] we know 
 that in the GLInv family a daughter node conditional on its parent is normally
 distributed with expectation $\vec{\omega}+\mathbf{\Phi}\vec{x}_{parent}$ and
 variance-covariance matrix $\mathbf{V}$. In particular the $\vec{\omega}$,
@@ -179,18 +201,16 @@ PCMDescribeParameters.BM_drift <- function(model, ...) {
   list(
     X0 = "trait values at the root",
     h_drift = "drift vector modifying the expectation",
-    Sigma_x = "Cholesky factor of the unit-time variance rate",
-    Sigmae_x = "Cholesky factor of the non-heritable variance 
+    Sigma_x = "Upper triangular factor of the unit-time variance rate",
+    Sigmae_x = "Upper triangular factor of the non-heritable variance 
 		or the variance of the measurement error")
 }
 ```
 
 - `PCMListParameterizations.BM_drift` : a function that returns all possible 
 parametrizations for the implemented model class. These parametrizations 
-correspond to how each parameter defining the model can be parametrized.
-For a detailed description of how matrices can be parametrized please see
-Bartoszek (2011), Bartoszek et. al. (2012) or the matrixparametrizations.R file
-in the mvSLOUCH or PCMBase R packages. Probably from the perspective of just
+correspond to how each parameter defining the model can be parametrized. 
+Probably from the perspective of just
 calculating the likelihood given some parameters this function does not seem
 that useful. However, one should not forget that PCMBase is designed
 to be a computational engine providing the likelihood that will be optimized
@@ -203,19 +223,22 @@ vector should be equal. "_Global" means that it is the same for all regimes
 correspond to a Brownian motion with $0$ drift). Finally "_Fixed" means that
 the parameter is "known", i.e. it is not to be optimized over.
 Matrix parametrizations are more involved. For example one will not optimize
-over a covariance matrix but e.g. over its Cholesky decomposition.
-Here we just have the $\mathbf{\Sigma}_{x}$ and $\mathbf{\Sigma}_{e}$ matrices
+over a covariance matrix but e.g. over its decomposition as a product of an
+upper triangular matrix with its transpose.
+Here we just have the $\mathbf{\Sigma}_{x}$ and $\mathbf{\Sigma}_{e,x}$ matrices
 (however see the "OU" class for more involved cases with the $H$ 
-matrix). Here, these two matrices can be either upper triangular,
-diagonal or diagonal with a constant value on the diagonal. Both
-of them enter the likelihood (through $\mathbf{V}$) as a product
-of themselves and their transposition i.e. $SS^{T}$ so decomposition
+matrix). Both of them enter the likelihood (through $\mathbf{V}$) as a product
+of themselves and their transposition i.e. 
+$\mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}$ so decomposition
 into a triangular matrix (with non-negative diagonal) suffices for
-unique identification of the matrix. Notice that if $S$ is of 
-dimension $k\times k$, then $SS^{T}$ has $k^{2}$ potentially non-zero
-elements while its triangular decomposition only $k(k+1)/2$
-A detailed description of the different possible parametrizations is
-given in the help file for PCMParam.
+unique identification of the matrix. Note that this parametrization guarantees 
+that the matrix $\mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}$ is a symmetric semi-
+positive-definite matrix. If the diagonal elements of $\mathbf{\Sigma}_{x}$ are strictly
+non-zero $\mathbf{\Sigma}_{x}\mathbf{\Sigma}_{x}^{T}$ will be positive-definite.
+A detailed description of the different possible 
+parametrizations is given in the 
+[The PCMBase Parametrization API](https://venelin.github.io/PCMBase/articles/PCMParam.html)
+guide.
 
 ```{r}
 PCMListParameterizations.BM_drift <- function(model, ...) {
@@ -289,7 +312,7 @@ PCMSpecify.BM_drift <- function(model, ...) {
                         description = 'Cholesky factor of the unit-time variance rate'),
     Sigmae_x = structure(0.0, class = c('MatrixParameter', '_UpperTriangularWithDiagonal',
 					'_WithNonNegativeDiagonal'),
-                         description = 'Cholesky factor of the non-heritable variance 
+                         description = 'Upper triangular factor of the non-heritable variance 
                         		or the variance of the measurement error'))
   attributes(spec) <- attributes(model)
   if(is.null(names(spec))) names(spec) <- c('X0', 'h_drift', 'Sigma_x', 'Sigmae_x')
@@ -328,37 +351,46 @@ Sigma_x = Sigma_x[,,,drop=FALSE],Sigmae_x = Sigmae_x[,,,drop=FALSE]))
 ```
 
 
-Now we simulate a random phylogeny (here pure birth tree with unit speciation rate 
-conditioned on $30$ tips). Furthermore, we randomly paint the two regimes, "a" and
-"b" on the tips of the tree. Then, we use mvSLOUCH's (modified from slouch, Hansen et. al. 2008,
-to work with phylo format trees) Fitch algorithm to paint the regimes on the internal 
-branches of the tree. It is worth pointing out that the Fitch algorithm is only
-one option and the user should explore other possibilities depending on the
-problem.
+Now we simulate a random phylogeny using the same example code as in the
+[Getting started](https://venelin.github.io/PCMBase/articles/PCMBase.html) guide.
 
 ```{r}
-set.seed(12345, kind = "Mersenne-Twister", normal.kind = "Inversion") ## set a random seed
-N<-30 ## number or tip species
-phyltree<-ape::rcoal(n=N)
+# make results reproducible
+set.seed(2, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
-v_current_regimes<-sample(c("a","b"),30,replace=TRUE)
-v_branch_regimes<-mvSLOUCH::fitch.mvsl(phyltree,v_current_regimes)$branch_regimes
-v_ambiguous<-which(v_branch_regimes=="ambiguous")
-if (length(v_ambiguous)>0){
-    v_branch_regimes[v_ambiguous]<-names(which.max((table(v_branch_regimes[-v_ambiguous]))))
-}
-## some branches may have "ambiguous" assigned to them due to how the implementation of 
-## Fitch's algorithm works. These branches need to have the regimes set manually. 
-## We do this according to the maximum rule but in a real analysis this would have to be 
-## done based on a careful analysis of the biological system under study.
-phyltree<-PCMTreeSetRegimesForEdges(phyltree, v_branch_regimes,FALSE) 
+# number of regimes
+R <- 2
 
+# number of extant tips
+N <- 100
+
+tree.a <- PCMTree(rtree(n=N))
+PCMTreeSetLabels(tree.a)
+PCMTreeSetPartRegimes(tree.a, part.regime = c(`101` = "a"), setPartition = TRUE)
+
+lstDesc <- PCMTreeListDescendants(tree.a)
+splitNode <- names(lstDesc)[which(sapply(lstDesc, length) > N/2 & sapply(lstDesc, length) < 2*N/3)][1]
+
+tree.ab <- PCMTreeInsertSingletons(
+  tree.a, nodes = as.integer(splitNode), 
+  positions = PCMTreeGetBranchLength(tree.a, as.integer(splitNode))/2)
+PCMTreeSetPartRegimes(
+  tree.ab,
+  part.regime = structure(c("a", "b"), names = as.character(c(N+1, splitNode))), 
+  setPartition = TRUE)
+
+palette <- PCMColorPalette(2, c("a", "b"))
+
+# Plot the tree with branches colored according to the regimes.
+# The following function call works only if the ggtree package is installed, 
+# which is not on CRAN:
+PCMTreePlot(tree.ab) + ggtree::geom_nodelab(size = 2)
 ```
 
 We simulate the traits using PCMBase's functionality.
 
 ```{r}
-mData<-PCMSim(phyltree, PCMBase_model_BM_drift, X0)[,1:N] ## we only want the tip data
+mData<-PCMSim(tree.ab, PCMBase_model_BM_drift, X0)[,1:N] ## we only want the tip data
 ## NOTE that observations from different species are in the columns NOT in the rows as 
 ## in other software
 ```
@@ -366,16 +398,16 @@ mData<-PCMSim(phyltree, PCMBase_model_BM_drift, X0)[,1:N] ## we only want the ti
 Finally we calculate the likelihood under the BM with drift model.
 
 ```{r}
-log_lik<- PCMLik(mData, phyltree, PCMBase_model_BM_drift)
+log_lik<- PCMLik(mData, tree.ab, PCMBase_model_BM_drift)
 print(log_lik[1]) ## we just want to print the log-likelihood without the attributes
 ```
 
 If PCMBase is used as a computational engine for some inference package, then the 
 above code can be one way of obtaining the likelihood under a "GaussianPCM" model object. 
-However, in such a setup it is more recommended to use the mechanism of creating a likelihood
+However, in such a setup it is recommended to use the mechanism of creating a likelihood
 function for a particular dataset through PCMCreateLikelihood. This will speed up the calculations
-as it avoids traversing the tree every time the likelihood value is required. One just
-needs to update the parameters to obtain a new likelihood value.
+as it avoids re-creating some internal data objects for the tree everytime the likelihood 
+value is required. One just needs to update the parameters to obtain a new likelihood value.
 
 ```{r}
 ## create an vector of appropriate length to store the vectorized model parameters
@@ -387,7 +419,7 @@ PCMParamLoadOrStore(PCMBase_model_BM_drift, v_param, offset=0, load=FALSE)
 print(v_param)
 
 ## now create a likelihood function for the particular model and observed data
-likFun <- PCMCreateLikelihood(mData, phyltree, PCMBase_model_BM_drift)
+likFun <- PCMCreateLikelihood(mData, tree.ab, PCMBase_model_BM_drift)
 
 log_lik_from_likFun<-likFun(v_param)
 print(log_lik_from_likFun[1])
@@ -408,3 +440,4 @@ print(log_lik_from_likFun_2[1])
 
 ```
 
+# References

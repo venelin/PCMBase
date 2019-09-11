@@ -266,7 +266,7 @@ print(PCMTable(model.OU.BM), xtable = TRUE, type="html")
 # Simulating data on a phylogenetic tree
 The first functionality of the PCMBase package is to provide an easy way to simulate multiple trait data on a tree under a given (possibly multiple regime) PCM. 
 
-For this example, first we simulate a birth death tree with two parts "a" and "b" using the `phytools` R-package:
+For this example, first we simulate a birth death tree with two parts "a" and "b" using the `ape` R-package:
 
 ```{r}
 # make results reproducible
@@ -294,10 +294,11 @@ PCMTreeSetPartRegimes(
   setPartition = TRUE)
 
 palette <- PCMColorPalette(2, c("a", "b"))
-PCMTreePlot(tree.ab) + ggtree::geom_nodelab(size = 2)
 
-# plot(tree.ab, show.tip.label=FALSE, 
-#      edge.color = palette[PCMTreeGetRegimesForEdges(tree.ab)])
+# Plot the tree with branches colored according to the regimes.
+# The following function call works only if the ggtree package is installed, 
+# which is not on CRAN:
+PCMTreePlot(tree.ab) + ggtree::geom_nodelab(size = 2)
 ```
 
 Now we can simulate data on the tree using the modelBM.ab$X0 as a starting value:

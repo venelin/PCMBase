@@ -58,7 +58,7 @@ options(digits = 2)
 tableOutputType <- 'html' # 'latex' is used for generating the S-tables in the ms.
 ```
 
-In this tutorial shows how the pruning likelihood calculation algorithm works for $\mathcal{G}_{LInv}$ models. This is an advanced topic, which can be helpful in case you wish to validate another implementation of the algorithm, e.g. in a different programming language, such as Java. 
+This tutorial shows how the pruning likelihood calculation algorithm works for $\mathcal{G}_{LInv}$ models. This is an advanced topic, which can be helpful in case you wish to validate another implementation of the algorithm, e.g. in a different programming language, such as Java. For details about the mathematical terms and equations involved in the following calculations, refer to [@Mitov:2018fl].
 
 # Example tree and data
 ```{r treeAndData}
@@ -480,3 +480,4 @@ print(t(x0Hat <- -0.5*solve(L0) %*% m0))
 print(ll0 <- t(x0Hat) %*% L0 %*% x0Hat + t(x0Hat) %*% m0 + r0)
 ```
 
+# References

@@ -33,7 +33,8 @@ methods, this functionality is delegated to other packages that, taking
 advantage of PCMBase’s fast likelihood calculation, can implement
 maximum likelihood (ML) or Bayesian inference methods. For example, the
 [PCMFit package](https://venelin.github.io/PCMFit/) provides
-heuristic-based ML fit of (mixed) Gaussian phylogenetic models.
+heuristic-based ML fit of (mixed) Gaussian phylogenetic models (Mitov,
+Bartoszek, and Stadler 2019).
 
 ## Installation
 
@@ -172,6 +173,15 @@ Shapira, and Michael Stadelmann. 2018. *Expm: Matrix Exponential, Log,
 
 Hester, Jim. 2018. *Covr: Test Coverage for Packages*.
 <https://CRAN.R-project.org/package=covr>.
+
+</div>
+
+<div id="ref-Mitov:2019ci">
+
+Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “Automatic
+generation of evolutionary hypotheses using mixed Gaussian phylogenetic
+models.” *Proceedings of the National Academy of Sciences of the United
+States of America* 35 (August): 201813823.
 
 </div>
 

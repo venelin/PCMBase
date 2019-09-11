@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Beautiful model description based on plotmath — PCMPlotMath • PCMBase</title>
+<title>Upper triangular factor of a symmetric positive definite matrix — UpperChol • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,10 +30,9 @@
 
 
 
-<meta property="og:title" content="Beautiful model description based on plotmath — PCMPlotMath" />
+<meta property="og:title" content="Upper triangular factor of a symmetric positive definite matrix — UpperChol" />
 
-<meta property="og:description" content="This is an S3 generic that produces a plotmath expression for
-its argument." />
+<meta property="og:description" content="This function is an analog to the Cholesky decomposition." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -129,43 +128,59 @@ its argument." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Beautiful model description based on plotmath</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/Utilities.R'><code>R/Utilities.R</code></a></small>
-    <div class="hidden name"><code>PCMPlotMath.Rd</code></div>
+    <h1>Upper triangular factor of a symmetric positive definite matrix</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/matrixparametrizations.R'><code>R/matrixparametrizations.R</code></a></small>
+    <div class="hidden name"><code>UpperChol.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This is an S3 generic that produces a plotmath expression for
-its argument.</p>
+    <p>This function is an analog to the Cholesky decomposition.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMPlotMath</span>(<span class='no'>o</span>, <span class='kw'>roundDigits</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>transformSigma_x</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>UpperChol</span>(<span class='no'>Sigma</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>o</th>
-      <td><p>a PCM or a parameter object.</p></td>
-    </tr>
-    <tr>
-      <th>roundDigits</th>
-      <td><p>an integer, default: 2.</p></td>
-    </tr>
-    <tr>
-      <th>transformSigma_x</th>
-      <td><p>a logical indicating if Cholesky transformation should be
-applied to Cholesky-factor parameters prior to generating the plotmath expression.</p></td>
+      <th>Sigma</th>
+      <td><p>A symmetric positive definite k x k matrix that can be
+passed as argument to <code><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></code>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a character string.</p>
+    <p>an upper triangular matrix Sigma_x, such that
+Sigma = Sigma_x <!-- %*% t(Sigma_x) --></p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># S is a symmetric positive definite matrix</span>
+<span class='no'>M</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/Exponential'>rexp</a></span>(<span class='fl'>9</span>),<span class='fl'>3</span>,<span class='fl'>3</span>); <span class='no'>S</span> <span class='kw'>&lt;-</span> <span class='no'>M</span> <span class='kw'>%*%</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/t'>t</a></span>(<span class='no'>M</span>)
+
+<span class='co'># This should return a zero matrix:</span>
+<span class='fu'>UpperChol</span>(<span class='no'>S</span>) <span class='kw'>%*%</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/t'>t</a></span>(<span class='fu'>UpperChol</span>(<span class='no'>S</span>)) - <span class='no'>S</span></div><div class='output co'>#&gt;      [,1] [,2] [,3]
+#&gt; [1,]    0    0    0
+#&gt; [2,]    0    0    0
+#&gt; [3,]    0    0    0</div><div class='input'>
+<span class='co'># This should return a zero matrix too:</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/t'>t</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></span>(<span class='no'>S</span>)) <span class='kw'>%*%</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></span>(<span class='no'>S</span>) - <span class='no'>S</span></div><div class='output co'>#&gt;               [,1] [,2] [,3]
+#&gt; [1,] -4.440892e-16    0    0
+#&gt; [2,]  0.000000e+00    0    0
+#&gt; [3,]  0.000000e+00    0    0</div><div class='input'>
+<span class='co'># Unless S is diagonal, in the general case, this will return a</span>
+<span class='co'># non-zero matrix:</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></span>(<span class='no'>S</span>) <span class='kw'>%*%</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/t'>t</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></span>(<span class='no'>S</span>)) - <span class='no'>S</span></div><div class='output co'>#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 10.202674 -3.055276 -1.745188
+#&gt; [2,] -3.055276 -7.784033 -4.275878
+#&gt; [3,] -1.745188 -4.275878 -2.418641</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -173,7 +188,11 @@ applied to Cholesky-factor parameters prior to generating the plotmath expressio
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+
+      <li><a href="#see-also">See also</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

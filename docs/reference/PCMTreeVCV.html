@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Beautiful model description based on plotmath — PCMPlotMath • PCMBase</title>
+<title>Phylogenetic Variance-covariance matrix — PCMTreeVCV • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,10 +30,11 @@
 
 
 
-<meta property="og:title" content="Beautiful model description based on plotmath — PCMPlotMath" />
+<meta property="og:title" content="Phylogenetic Variance-covariance matrix — PCMTreeVCV" />
 
-<meta property="og:description" content="This is an S3 generic that produces a plotmath expression for
-its argument." />
+<meta property="og:description" content="This is a simplified wrapper for ape's vcv function. Setting
+the runtime option PCMBase.UsePCMVarForVCV to TRUE will switch to a
+computation of the matrix using the function PCMVar." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -129,41 +130,39 @@ its argument." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Beautiful model description based on plotmath</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/Utilities.R'><code>R/Utilities.R</code></a></small>
-    <div class="hidden name"><code>PCMPlotMath.Rd</code></div>
+    <h1>Phylogenetic Variance-covariance matrix</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTree.R'><code>R/PCMTree.R</code></a></small>
+    <div class="hidden name"><code>PCMTreeVCV.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This is an S3 generic that produces a plotmath expression for
-its argument.</p>
+    <p>This is a simplified wrapper for ape's <code>vcv</code> function. Setting
+the runtime option PCMBase.UsePCMVarForVCV to TRUE will switch to a
+computation of the matrix using the function <code><a href='PCMVar.html'>PCMVar</a></code>.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMPlotMath</span>(<span class='no'>o</span>, <span class='kw'>roundDigits</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>transformSigma_x</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMTreeVCV</span>(<span class='no'>tree</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>o</th>
-      <td><p>a PCM or a parameter object.</p></td>
-    </tr>
-    <tr>
-      <th>roundDigits</th>
-      <td><p>an integer, default: 2.</p></td>
-    </tr>
-    <tr>
-      <th>transformSigma_x</th>
-      <td><p>a logical indicating if Cholesky transformation should be
-applied to Cholesky-factor parameters prior to generating the plotmath expression.</p></td>
+      <th>tree</th>
+      <td><p>a phylo object</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a character string.</p>
+    <p>a N x N matrix. Assuming a BM model of evolution, this is a matrix
+in which element (i,j) is equal to the shared root-distance of the nodes i
+and j.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code>vcv</code> <code><a href='PCMVar.html'>PCMVar</a></code> <code><a href='PCMOptions.html'>PCMOptions</a></code></p></div>
     
 
   </div>
@@ -173,6 +172,8 @@ applied to Cholesky-factor parameters prior to generating the plotmath expressio
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

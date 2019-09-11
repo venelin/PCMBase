@@ -95,6 +95,8 @@ PCMListDefaultParameterizations.BM <- function(model, ...) {
       ),
 
     Sigmae_x = list(
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal"),
+      c("MatrixParameter", "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
       c("MatrixParameter", "_Omitted"))
   )
 }

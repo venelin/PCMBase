@@ -162,9 +162,9 @@ root (default is the k x k zero matrix).</p></td>
     </tr>
     <tr>
       <th>SE</th>
-      <td><p>a k x k matrix specifying the upper triangular Cholesky factor of
+      <td><p>a k x k matrix specifying the upper triangular factor of
 the measurement error variance-covariance matrix. The product
-t(SE) <!-- %*% SE is added to the variance calculated from the model. -->
+SE <!-- %*% t(SE) is added to the variance calculated from the model. -->
 Default: SE = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)).</p></td>
     </tr>
     <tr>

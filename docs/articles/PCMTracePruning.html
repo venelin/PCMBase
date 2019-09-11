@@ -91,9 +91,9 @@
       <h1>Tracing the likelihood calculation of a Gaussian model</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-08-27</h4>
+            <h4 class="date">2019-09-11</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/vignettes/PCMTracePruning.Rmd"><code>vignettes/PCMTracePruning.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/R/vignettes/PCMTracePruning.Rmd"><code>R/vignettes/PCMTracePruning.Rmd</code></a></small>
       <div class="hidden name"><code>PCMTracePruning.Rmd</code></div>
 
     </div>
@@ -118,7 +118,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<p>In this tutorial shows how the pruning likelihood calculation algorithm works for <span class="math inline">\(\mathcal{G}_{LInv}\)</span> models. This is an advanced topic, which can be helpful in case you wish to validate another implementation of the algorithm, e.g. in a different programming language, such as Java.</p>
+<p>This tutorial shows how the pruning likelihood calculation algorithm works for <span class="math inline">\(\mathcal{G}_{LInv}\)</span> models. This is an advanced topic, which can be helpful in case you wish to validate another implementation of the algorithm, e.g. in a different programming language, such as Java. For details about the mathematical terms and equations involved in the following calculations, refer to <span class="citation">(Mitov et al. 2018)</span>.</p>
 <div id="example-tree-and-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#example-tree-and-data" class="anchor"></a>Example tree and data</h1>
@@ -3556,6 +3556,15 @@ ND
 ## [1,] -10.71</code></pre>
 </div>
 </div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="hasAnchor">
+<a href="#references" class="anchor"></a>References</h1>
+<div id="refs" class="references">
+<div id="ref-Mitov:2018fl">
+<p>Mitov, Venelin, Krzysztof Bartoszek, Georgios Asimomitis, and Tanja Stadler. 2018. “Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package.” <em>arXiv.org</em>, September, arXiv:1809.09014. <a href="http://arxiv.org/abs/1809.09014">http://arxiv.org/abs/1809.09014</a>.</p>
+</div>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -3581,6 +3590,7 @@ ND
       <li><a href="#step-4-calculating-the-log-likelihood-value-using-mathbfl_0-vecm_0-and-r_0-">Step 4: Calculating the log-likelihood value using <span class="math inline">\(\mathbf{L}_{0}\)</span>, <span class="math inline">\(\vec{m}_{0}\)</span>, and <span class="math inline">\(r_{0}\)</span>.</a></li>
       </ul>
 </li>
+      <li><a href="#references">References</a></li>
       </ul>
 </div>
       </div>

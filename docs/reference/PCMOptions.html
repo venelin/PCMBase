@@ -189,7 +189,7 @@ for symmetric matrices. Default 1e-8; see also <code><a href='https://www.rdocum
 <li><p><code>PCMBase.ParamValue.LowerLimit</code>Default lower limit value for parameters, default setting is -10.0.</p></li>
 <li><p><code>PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal</code>Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.</p></li>
 <li><p><code>PCMBase.ParamValue.UpperLimit</code> Default upper limit value for parameters, default setting is 10.0.</p></li>
-<li><p><code>PCMBase.Transpose.Sigma_x</code> Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also <code><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></code>. This option applies to parameters Sigma_x, Sigmae_x and Sigmaj_x.</p></li>
+<li><p><code>PCMBase.Transpose.Sigma_x</code> Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, though Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also <code><a href='https://www.rdocumentation.org/packages/base/topics/chol'>chol</a></code> and <code><a href='UpperChol.html'>UpperChol</a></code>. This option applies to parameters Sigma_x, Sigmae_x, Sigmaj_x and the measurement errors <code>SE[,,i]</code> for each measurement i when the argument <code>SE</code> is specified as a cube.</p></li>
 <li><p><code>PCMBase.MaxLengthListCladePartitions</code> Maximum number of tree partitions returned by <code><a href='PCMTreeListCladePartitions.html'>PCMTreeListCladePartitions</a></code>. This option has the goal to interrupt the recursive search for new partitions in the case of calling PCMTreeListCladePartitions on a big tree with a small value of the maxCladeSize argument. By default this is set to Inf.</p></li>
 <li><p><code>PCMBase.PCMPresentCoordinatesFun</code> A function with the same synopsis as <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code> that can be specified in case of custom setting for the present coordinates for specific nodes of the tree. See <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>, and <code><a href='PCMInfo.html'>PCMInfo</a></code>.</p></li>
 <li><p><code>PCMBase.Use1DClasses</code> Logical indicating if 1D arithmetic operations
@@ -199,6 +199,19 @@ the PCMBaseCpp R-package and only for some model types, such as OU and BM.
 Default: FALSE</p></li>
 <li><p><code>PCMBase.PrintSubscript_u</code> Logical indicating if a subscript 'u'
 should be printed instead of a subscript 'x'. Used in <code>PCMTable</code>. Default: FALSE.</p></li>
+<li><p><code>PCMBase.MaxNForGuessSigma_x</code> A real fraction number in the
+iterval (0, 1) or an integer bigger than 1 controlling the
+number of tips to use for analytical calculation of the evolutionary rate
+matrix under a BM assumption. This option is used in the suggested PCMFit
+R-package. Default: 0.25.</p></li>
+<li><p><code>PCMBase.UsePCMVarForVCV</code> Logical (default: FALSE) indicating
+if the function <code><a href='PCMTreeVCV.html'>PCMTreeVCV</a></code> should use <code><a href='PCMVar.html'>PCMVar</a></code>
+instead of ape's function <code>vcv</code> to calculate the phylogenetic
+variance covariance matrix under BM assumption. Note that setting this option
+to TRUE would slow down the function PCMTreeVCV considerably but may be more
+stable, particularly in the case of very big and deep trees, where previous
+ape's versions of the <code>vcv</code> function have thrown stack-overflow
+errors.</p></li>
 </ul>
 
     
@@ -306,6 +319,12 @@ should be printed instead of a subscript 'x'. Used in <code>PCMTable</code>. Def
 #&gt; [1] TRUE
 #&gt; 
 #&gt; $PCMBase.PrintSuffix_u
+#&gt; [1] FALSE
+#&gt; 
+#&gt; $PCMBase.MaxNForGuessSigma_x
+#&gt; [1] 0.25
+#&gt; 
+#&gt; $PCMBase.UsePCMVarForVCV
 #&gt; [1] FALSE
 #&gt; </div></pre>
   </div>
