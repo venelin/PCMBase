@@ -56,7 +56,7 @@ The parametrization API provides the following S3 generic functions:
 * [`PCMParamCount`](https://venelin.github.io/PCMBase/reference/PCMParamCount.html): counting the parameters of a model;
 * [`PCMParamGetShortVector`](https://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html): Getting all values of the model parameters as a numeric vector;
 * [`PCMParamLowerLimit`](https://venelin.github.io/PCMBase/reference/PCMParamLowerLimit.html), [`PCMParamUpperLimit`](https://venelin.github.io/PCMBase/reference/PCMParamUpperLimit.html): Upper and lower limit for the parameters of a model;
-* [`PCMApplyTransformation`](https://venelin.github.io/PCMBase/reference/PCMApplyTransformatin.html): transforming a parameter.
+* [`PCMApplyTransformation`](https://venelin.github.io/PCMBase/reference/PCMApplyTransformation.html): transforming a parameter.
 
 All of the above generic functions can be called both on individual parameters, as well as on PCM objects. When called on a PCM object, the function will be called recursively on each parameter within the object. The behaviour of the above generic functions is specified by the parameter's S3 class attribute described in the following section.
 
