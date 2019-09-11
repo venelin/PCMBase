@@ -991,7 +991,7 @@ PCMAbCdEf.default <- function(
 #' Quadratic polynomial parameters L, m, r
 #'
 #' @inheritParams PCMLik
-#' @param root.only logical indicatin whether to return the calculated values of L,m,r
+#' @param root.only logical indicating whether to return the calculated values of L,m,r
 #'  only for the root or for all nodes in the tree.
 #' @return A list with the members A,b,C,d,E,f,L,m,r for all nodes in the tree or
 #'   only for the root if root.only=TRUE.

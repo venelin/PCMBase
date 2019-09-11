@@ -14,7 +14,7 @@ used, but its class is used for method-dispatch.}
 default object of class specified in \code{class(spec)}, such as the number of
 traits (k) or the regimes and the number of regimes;}
 
-\item{...}{additional arguments that can be used by methdos.}
+\item{...}{additional arguments that can be used by methods.}
 }
 \value{
 a parameter or a PCM object.

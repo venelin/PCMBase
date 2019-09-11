@@ -1,7 +1,7 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "27 August, 2019"
+date: "11 September, 2019"
 output: html_document
 ---
 
@@ -9,7 +9,7 @@ output: html_document
 - Speedup of PCMApplyTransformation in the case of mixed Gaussian models. 
 - Added functions PCMExtractDimensions and PCMExtractRegimes
 - Added two new vignettes: PCMCreateModel.Rmd and PCMTracePruning.Rmd.
-- Added a new model BMdrift
+- Added a new model 'BMdrift'.
 - Finished parametrization vignette. 
 - Added functions for printing a PCM object as a table - see corresponding 
 section in the Getting started guide.

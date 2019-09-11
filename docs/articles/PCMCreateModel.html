@@ -236,7 +236,7 @@
 <a class="sourceLine" id="cb5-28" data-line-number="28">}</a></code></pre></div>
 <ul>
 <li>
-<code>PCMListDefaultParameterizations.BM_drift</code> : this function is optional to define but can be useful if only a subset of the parametrizations defined in the PCMListParametrizations function will actually be used in practise.</li>
+<code>PCMListDefaultParameterizations.BM_drift</code> : this function is optional to define but can be useful if only a subset of the parametrizations defined in the <code>PCMListParametrizations</code> function will actually be used in practice.</li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">PCMListDefaultParameterizations.BM_drift &lt;-<span class="st"> </span><span class="cf">function</span>(model, ...) {</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
@@ -345,7 +345,7 @@
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">log_lik&lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(mData, tree.ab, PCMBase_model_BM_drift)</a>
 <a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(log_lik[<span class="dv">1</span>]) <span class="co">## we just want to print the log-likelihood without the attributes</span></a></code></pre></div>
 <pre><code>## [1] -564.1958</code></pre>
-<p>If PCMBase is used as a computational engine for some inference package, then the above code can be one way of obtaining the likelihood under a “GaussianPCM” model object. However, in such a setup it is recommended to use the mechanism of creating a likelihood function for a particular dataset through PCMCreateLikelihood. This will speed up the calculations as it avoids re-creating some internal data objects for the tree everytime the likelihood value is required. One just needs to update the parameters to obtain a new likelihood value.</p>
+<p>If PCMBase is used as a computational engine for some inference package, then the above code can be one way of obtaining the likelihood under a “GaussianPCM” model object. However, in such a setup it is recommended to use the mechanism of creating a likelihood function for a particular dataset through PCMCreateLikelihood. This will speed up the calculations as it avoids re-creating some internal data objects for the tree every time the likelihood value is required. One just needs to update the parameters to obtain a new likelihood value.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co">## create an vector of appropriate length to store the vectorized model parameters</span></a>
 <a class="sourceLine" id="cb13-2" data-line-number="2">v_param &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">double</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(PCMBase_model_BM_drift))</a>
 <a class="sourceLine" id="cb13-3" data-line-number="3"></a>

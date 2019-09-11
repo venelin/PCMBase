@@ -21,7 +21,7 @@ with the clade should be returned. Defaults to \code{!is.null(X)}}
 }
 \value{
 If returnList is FALSE, a phylo object associated with the clade,
- otherise, a list with two named members :
+ otherwise, a list with two named members :
 \itemize{
 \item{tree}{the phylo object associated with the clade}
 \item{X}{the submatrix of X with columns corresponding to the tips in the clade}

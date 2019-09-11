@@ -48,11 +48,11 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' options:
 #' \itemize{
 #' \item{\code{PCMBase.Value.NA }}{NA value for the likelihood; used in GaussianPCM to
-#' return this value in case of an error occuring
+#' return this value in case of an error occurring
 #' during likelihood calculation. By default, this is set to \code{as.double(NA)}.}
 #' \item{\code{PCMBase.Errors.As.Warnings }}{a logical flag indicating if errors
 #' (occuring, e.g. during likelihood calculation) should be treated as warnings
-#' and added as an attribute "error" to returne likelihood values. Default TRUE.}
+#' and added as an attribute "error" to attach to the likelihood values. Default TRUE.}
 #' \item{\item{PCMBase.Raise.Lik.Errors} }{Should numerical and other sort of
 #' errors occurring during likelihood calculation be raised either as errors or
 #' as warnings, depending on the option \code{PCMBase.Errors.As.Warnings}.
@@ -102,7 +102,7 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.PrintSubscript_u} }{Logical indicating if a subscript 'u'
 #' should be printed instead of a subscript 'x'. Used in \code{PCMTable}. Default: FALSE.}
 #' \item{\code{PCMBase.MaxNForGuessSigma_x} }{A real fraction number in the
-#' iterval (0, 1) or an integer bigger than 1 controlling the
+#' interval (0, 1) or an integer bigger than 1 controlling the
 #' number of tips to use for analytical calculation of the evolutionary rate
 #' matrix under a BM assumption. This option is used in the suggested PCMFit
 #' R-package. Default: 0.25. }
@@ -342,7 +342,7 @@ is.PCM <- function(x) inherits(x, "PCM")
 #' @param model a PCM object used to extract attributes needed for creating a
 #' default object of class specified in \code{class(spec)}, such as the number of
 #' traits (k) or the regimes and the number of regimes;
-#' @param ... additional arguments that can be used by methdos.
+#' @param ... additional arguments that can be used by methods.
 #'
 #' @description This is an S3 generic. See, e.g. `PCMDefaultObject.MatrixParameter`.
 #' @return a parameter or a PCM object.
@@ -456,7 +456,7 @@ PCMDescribe.PCM <- function(model, ...) {
 #' a structure defining the S3 class of the parameter and its verbal description.
 #' This is an S3 generic. See `PCMSpecify.OU` for an example method.
 #'
-#' @return a list specifying the paramters of a PCM.
+#' @return a list specifying the parameters of a PCM.
 #' @export
 PCMSpecify <- function(model, ...) {
   UseMethod("PCMSpecify", model)
@@ -523,8 +523,8 @@ PCMListDefaultParameterizations.default <- function(model, ...) {
 #' @description This function generates a data.table in which each column corresponds to
 #' one parameter of model and each row corresponds to one combination of parameterizations
 #' for the model parameters, such that the whole table corresponds to the Cartesian product
-#' of the lists found in `listParameterizations`. Usually, subsets of this table shold be
-#' passed to `PCMGenerateParameterizations`
+#' of the lists found in `listParameterizations`. Usually, subsets of this table
+#' should be passed to `PCMGenerateParameterizations`
 #' @return a data.table object.
 #'
 #' @importFrom data.table data.table as.data.table
@@ -820,7 +820,7 @@ PCMMapModelTypesToRegimes.PCM <- function(model, tree, ...) {
 
 #' Get a vector of all parameters (real and discrete) describing a model on a
 #' tree including the numerical parameters of each model regime, the integer ids
-#' of the spliting nodes defining the regimes on the tree and the integer ids of
+#' of the splitting nodes defining the regimes on the tree and the integer ids of
 #' the model classes associated with each regime.
 #'
 #' @details This is an S3 generic.
@@ -1301,12 +1301,12 @@ PCMLikDmvNorm <- function(
 #' factor of the variance covariance matrix for the measurement error
 #' for each node i=1, ..., N.
 #' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
-#' @param metaI a named list containg meta-information about the data and the
+#' @param metaI a named list containing meta-information about the data and the
 #' model.
 #' @param verbose a logical indicating if informative messages should be written
 #' during execution.
 #'
-#' @details Internally, this function uses the \code{\link{PCMCond}} iimplementation
+#' @details Internally, this function uses the \code{\link{PCMCond}} implementation
 #'  for the given model class.
 #'
 #' @return numeric M x k matrix of values at all nodes of the tree, i.e. root,
@@ -1363,7 +1363,7 @@ PCMSim <- function(
 
 #' Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages
 #'
-#' @description The likelihood of a PCM represets the probability density function
+#' @description The likelihood of a PCM represents the probability density function
 #'   of observed trait values (data) at the tips of a tree given the tree and
 #'   the model parameters. Seen as a function of the model parameters, the
 #'   likelihood is used to fit the model to the observed trait data and the
@@ -1378,7 +1378,7 @@ PCMSim <- function(
 #' @param X a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
 #'   column of X contains the measured trait values for one species (tip in tree).
 #'   Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
-#'   Thse two values have are treated differently when calculating
+#'   These two values have are treated differently when calculating
 #'   likelihoods: see \code{\link{PCMPresentCoordinates}}.
 #' @param tree a phylo object with N tips.
 #' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
@@ -1393,7 +1393,7 @@ PCMSim <- function(
 #'   containing meta-data such as N, M and k. Alternatively, this can be a
 #'   function object that returns such a list, e.g. the function\code{PCMInfo}
 #'   or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.
-#' @param log logical indicating whether a log-liklehood should be calculated. Default
+#' @param log logical indicating whether a log-likelehood should be calculated. Default
 #'  is TRUE.
 #' @param verbose logical indicating if some debug-messages should printed.
 #'
@@ -1405,12 +1405,12 @@ PCMSim <- function(
 #' model parameters is calculated by maximizing the quadratic polynomial
 #' 'X0 * L_root * X0 + m_root * X0 + r_root'.}
 #' \item{error}{A named list containing error information if a numerical or other
-#' logical error occured during likelihood calculation (this is a list returned by
+#' logical error occurred during likelihood calculation (this is a list returned by
 #'  \code{\link{PCMParseErrorMessage}}.}
 #'  If an error occured during likelihood calculation, the default behavior is to
 #'  return NA with a non-NULL error attribute. This behavior can be changed in
 #'  using global options:
-#'  \item{"PCMBase.Value.NA"}{Allows to specify a different NA value such as \code{-Inf} or \code{-1e20} which can be used in compbination with \code{log = TRUE} when
+#'  \item{"PCMBase.Value.NA"}{Allows to specify a different NA value such as \code{-Inf} or \code{-1e20} which can be used in combination with \code{log = TRUE} when
 #'   using \code{optim} to maximize the log-likelihood;}
 #'  \item{"PCMBase.Errors.As.Warnings"}{Setting this option to FALSE will cause any
 #'  error to result in calling the \code{\link{stop}} R-base function. If not caught
@@ -1583,7 +1583,7 @@ PCMPresentCoordinates <- function(X, tree, metaI) {
 #' Meta-information about a tree and trait data associated with a PCM
 #'
 #' @description This function pre-processes the given tree and data in order to
-#' create meta-information used during likelihood calculaiton.
+#' create meta-information used during likelihood calculation.
 #' @inheritParams PCMLik
 #' @param preorder an integer vector of row-indices in tree$edge matrix as returned
 #' by PCMTreePreorder. This can be given for performance speed-up when several
@@ -1691,7 +1691,7 @@ PCMInfo.PCM <- function(
   res
 }
 
-#' Create a likelhood function of a numerical vector parameter
+#' Create a likelihood function of a numerical vector parameter
 #' @inheritParams PCMLik
 #' @param positiveValueGuard positive numerical value (default Inf), which
 #' serves as a guard for numerical error. Values exceeding

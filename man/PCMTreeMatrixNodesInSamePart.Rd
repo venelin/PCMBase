@@ -20,7 +20,7 @@ PCMTreeMatrixNodesInSameRegime(tree,
 the tree.}
 
 \item{upperTriangle}{logical indicating if all duplicated entries and
-diagonal entries sould be set to NA (by default TRUE).}
+diagonal entries should be set to NA (by default TRUE).}
 
 \item{returnVector}{logical indicating if a vector instead of a matrix
  should be returned (corresponding to calling as.vector on the resulting

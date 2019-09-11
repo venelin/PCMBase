@@ -20,7 +20,7 @@
 #'
 #' @description PCMTree is class that inherits from the class 'phylo' in the
 #' R-package 'ape'. Thus, all the functions working on a phylo object would work
-#' in the same way if they recieve as argument an object of class 'PCMTree'. A
+#' in the same way if they receive as argument an object of class 'PCMTree'. A
 #' PCMTree object has the following members in addition to the regular members
 #' ('tip.label', 'node.label', 'edge', 'edge.length') found in a regular phylo
 #' object:
@@ -40,7 +40,7 @@
 #' can be reached without traversing another partition node. We name
 #' each part by the label of its most ancestral node, that is, the node in it,
 #' which is closest to the root fo the tree. The value of edge.part for an edge
-#' in the tree is the name of the part that contsin the node ot which the edge
+#' in the tree is the name of the part that contains the node to which the edge
 #' is pointing.}
 #' \item{part.regime }{a named vector of size the number of parts in the tree.
 #' The names correspond to part-names whereas the values denote the ids or
@@ -744,7 +744,7 @@ PCMTreeGetRegimesForEdges <- function(tree) {
 #' @param regimes a vector of the length equal to `nrow(tree$edge)`.
 #' @param inplace a logical indicating if the change should be done within the
 #' tree in the calling environment or a copy of the tree with modified regime
-#' assignment should be retrned.
+#' assignment should be returned.
 #' @return if inplace is TRUE, nothing, otherwise a modified copy of tree.
 #' @examples
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
@@ -1323,7 +1323,7 @@ PCMTreeBackbonePartition <- function(tree, partsToKeep = PCMTreeGetPartNames(tre
 #' @param nodes an integer vector of length L >= 2 denoting a set of nodes in
 #'  the tree.
 #' @param upperTriangle logical indicating if all duplicated entries and
-#'  diagonal entries sould be set to NA (by default TRUE).
+#'  diagonal entries should be set to NA (by default TRUE).
 #' @param returnVector logical indicating if a vector instead of a matrix
 #'  should be returned (corresponding to calling as.vector on the resulting
 #'  matrix and removing
@@ -1434,7 +1434,7 @@ PCMTreeMatrixNodesInSameRegime <- function(
 
 #' Jumps in modeled traits associated with branches in a tree
 #' @inheritParams PCMTreeNumTips
-#' @return an integer vector of 0's and 1's with entries correspondin to the
+#' @return an integer vector of 0's and 1's with entries corresponding to the
 #' denoting if a jump took place at the beginning of a branch.
 #' @export
 PCMTreeJumps <- function(tree) {
@@ -1813,7 +1813,7 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
 #' @param returnList logical indicating if only the phylo object associated
 #'  with the clade should be returned. Defaults to \code{!is.null(X)}
 #' @return If returnList is FALSE, a phylo object associated with the clade,
-#'  otherise, a list with two named members :
+#'  otherwise, a list with two named members :
 #' \itemize{
 #' \item{tree}{the phylo object associated with the clade}
 #' \item{X}{the submatrix of X with columns corresponding to the tips in the clade}
@@ -1895,7 +1895,7 @@ PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NU
 #' @param returnList logical indicating if a list of the phylo object
 #' associated with the tree after dropping the clade and the corresponding
 #' entries in X should be returned. Defaults to \code{!is.null(X)}
-#' @param errorOnMissing logical indicating if an error should be rased if
+#' @param errorOnMissing logical indicating if an error should be raised if
 #' cladeRootNode is not among the nodes in tree. Default FALSE, meaning that if
 #' cladeRootNode is not a node in tree the tree (and X if
 #' returnList is TRUE) is/are returned unchanged.
@@ -2057,7 +2057,7 @@ PCMTreeEdgeTimes <- function(tree) {
 
 #' Find the crossing points of an epoch-time with each lineage of a tree
 #' @param tree a phylo
-#' @param epoch a positive numeric ing tip-ward distance from the root
+#' @param epoch a positive numeric indicating tip-ward distance from the root
 #' @return a named list with an integer vector element "nodes" denoting the ending nodes for each
 #' branch crossing epoch and numeric vector element "positions" denoting the root-ward offset
 #' from each node in nodes.

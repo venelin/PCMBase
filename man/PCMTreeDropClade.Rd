@@ -20,7 +20,7 @@ PCMTreeDropClade(tree, cladeRootNode, tableAncestors = NULL, X = NULL,
 associated with the tree after dropping the clade and the corresponding
 entries in X should be returned. Defaults to \code{!is.null(X)}}
 
-\item{errorOnMissing}{logical indicating if an error should be rased if
+\item{errorOnMissing}{logical indicating if an error should be raised if
 cladeRootNode is not among the nodes in tree. Default FALSE, meaning that if
 cladeRootNode is not a node in tree the tree (and X if
 returnList is TRUE) is/are returned unchanged.}

@@ -126,7 +126,7 @@
 <div id="models" class="section level1">
 <h1 class="hasAnchor">
 <a href="#models" class="anchor"></a>Models</h1>
-<p>Given a number of traits <span class="math inline">\(k\)</span>, a <em>model</em> is defined as a set of parameters with dimiensionality possibly depending on <span class="math inline">\(k\)</span> and a rule stating how these parameters are used to calculate the model likelihood for an observed tree and data and/or to simulate data along a tree. Often, we use the term <em>model type</em> to denote a family of models sharing the same rule.</p>
+<p>Given a number of traits <span class="math inline">\(k\)</span>, a <em>model</em> is defined as a set of parameters with dimensionality possibly depending on <span class="math inline">\(k\)</span> and a rule stating how these parameters are used to calculate the model likelihood for an observed tree and data and/or to simulate data along a tree. Often, we use the term <em>model type</em> to denote a family of models sharing the same rule.</p>
 <div id="the-mathcalg_linv-family-of-models" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-mathcalg_linv-family-of-models" class="anchor"></a>The <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family of models</h2>
@@ -144,7 +144,7 @@
 <div id="example-ornstein-uhlenbeck-model-types" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example-ornstein-uhlenbeck-model-types" class="anchor"></a>Example: Ornstein-Uhlenbeck model types</h2>
-<p>As an example, let’s consider a model representing a <span class="math inline">\(k\)</span>-variate Ornstein-Uhlenbec branching stochastic process. This is defined by the following stochastic differential equation: <span class="math display">\[\begin{equation}\label{eq:mammals:OUprocess}
+<p>As an example, let’s consider a model representing a <span class="math inline">\(k\)</span>-variate Ornstein-Uhlenbeck branching stochastic process. This is defined by the following stochastic differential equation: <span class="math display">\[\begin{equation}\label{eq:mammals:OUprocess}
 d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma}}_{\chi} dW(t). 
 \end{equation}\]</span> In the above equation, <span class="math inline">\(\vec{X}(t)\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{H}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional eigen-decomposable real matrix, <span class="math inline">\(\vec{\theta}\)</span> is a <span class="math inline">\(k\)</span>-dimensional real vector, <span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> is a <span class="math inline">\(k\times k\)</span>-dimensional real positive definite matrix and <span class="math inline">\(W(t)\)</span> denotes the <span class="math inline">\(k\)</span>-dimensional standard Wiener process.</p>
 <p>Biologically, <span class="math inline">\(\vec{X}(t)\)</span> denotes the mean values of <span class="math inline">\(k\)</span> continuous traits in a species at a time <span class="math inline">\(t\)</span> from the root, the parameter <span class="math inline">\(\mathbf{\Sigma}=\mathbf{\Sigma}_{\chi}\mathbf{\Sigma}_{\chi}^T\)</span> defines the magnitude and shape of the momentary fluctuations in the mean vector due to genetic drift, the matrix <span class="math inline">\(\mathbf{H}\)</span> and the vector <span class="math inline">\(\vec{\theta}\)</span> specify the trajectory of the population mean through time. When <span class="math inline">\(\mathbf{H}\)</span> is the zero matrix, the process is equivalent to a Brownian motion process and the parameter <span class="math inline">\(\vec{\theta}\)</span> is irrelevant. When <span class="math inline">\(\mathbf{H}\)</span> has strictly positive eigenvalues, the population mean converges in the long term towards <span class="math inline">\(\vec{\theta}\)</span>, although the trajectory of this convergence can be complex.</p>
@@ -157,7 +157,7 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <li>
 <span class="math inline">\(\vec{\theta}\)</span> (coded <code>Theta</code>) : a <span class="math inline">\(k\)</span>-vector of long-term optimal trait values;</li>
 <li>
-<span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> : (coded <code>Sigma_x</code>) : a <span class="math inline">\(k\times k\)</span> matrix denoting the Choleski factor or the stochastic drift variance-covariances; <!-- - $\mathbf{\Sigma}_{e,\chi}$ (coded `Sigmae_x`) : a $k\times k$ matrix denoting the Choleski factor of the non-genetic (non-heritable) variance covariance; -->
+<span class="math inline">\(\mathbf{\Sigma}_{\chi}\)</span> : (coded <code>Sigma_x</code>) : a <span class="math inline">\(k\times k\)</span> matrix denoting the an upper triangular factor or the stochastic drift variance-covariances; <!-- - $\mathbf{\Sigma}_{e,\chi}$ (coded `Sigmae_x`) : a $k\times k$ matrix denoting the Choleski factor of the non-genetic (non-heritable) variance covariance; -->
 </li>
 </ul>
 <p>The rule defining how the parameters of the OU-model are used to calculate the model likelihood and to simulate data consists in the definition of the functions <span class="math inline">\(\vec{\omega}\)</span> and matrices <span class="math inline">\(\mathbf{\Phi}\)</span>, <span class="math inline">\(\mathbf{V}\)</span> <span class="citation">(Mitov et al. 2018)</span>: <span class="math display">\[\begin{equation}\label{eq:mammals:omegaPhiVOU}
@@ -228,7 +228,7 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 ##     }
 ##     list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x7fa58f8cd828&gt;
+## &lt;bytecode: 0x7fb72bf0ddc0&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># R-code by typing :</span></a>
@@ -329,9 +329,9 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <a class="sourceLine" id="cb21-2" data-line-number="2">param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)</a>
 <a class="sourceLine" id="cb21-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</a></code></pre></div>
-<pre><code>##  [1] 4.995140238 2.007377431 1.584685545 0.011568288 2.413808332
-##  [6] 1.580948211 0.805335636 2.394225314 0.092104103 0.001926628
-## [11] 0.380995511 0.118955911 0.001774073 0.389592163</code></pre>
+<pre><code>##  [1]  4.995597417  1.986827577  1.591357246  0.001311026  2.413146923
+##  [6]  1.596152418  0.808878646  2.411715047  0.099726824 -0.007522508
+## [11]  0.398882290  0.099175151 -0.003336698  0.404764046</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># set the new parameter vector</span></a>
 <a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -339,32 +339,32 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 4.995140 2.007377
+## [1] 4.995597 1.986828
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
-##          [,1]       [,2]
-## [1,] 1.584686 0.01156829
-## [2,] 0.000000 2.41380833
+##          [,1]        [,2]
+## [1,] 1.591357 0.001311026
+## [2,] 0.000000 2.413146923
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.580948 0.8053356
-## [2,] 0.800000 2.3942253
+## [1,] 1.596152 0.8088786
+## [2,] 0.800000 2.4117150
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]        [,2]
-## [1,] 0.0921041 0.001926628
-## [2,] 0.0000000 0.380995511
+##            [,1]         [,2]
+## [1,] 0.09972682 -0.007522508
+## [2,] 0.00000000  0.398882290
 ## 
 ## , , b
 ## 
-##           [,1]        [,2]
-## [1,] 0.1189559 0.001774073
-## [2,] 0.0000000 0.389592163
+##            [,1]         [,2]
+## [1,] 0.09917515 -0.003336698
+## [2,] 0.00000000  0.404764046
 ## 
 ## </code></pre>
 </div>
@@ -394,7 +394,7 @@ regime
 :global:
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 5.00 \\ 2.01 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 5.00 \\ 1.99 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 </td>
@@ -408,10 +408,10 @@ a
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.51 &amp; 0.03 \\ 0.03 &amp; 5.83 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.53 &amp; 0.00 \\ 0.00 &amp; 5.82 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.00 \\ 0.00 &amp; 0.15 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.00 \\ -0.00 &amp; 0.16 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -421,10 +421,10 @@ b
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 3.15 &amp; 3.19 \\ 3.19 &amp; 6.37 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 3.20 &amp; 3.23 \\ 3.23 &amp; 6.46 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.00 \\ 0.00 &amp; 0.15 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.00 \\ -0.00 &amp; 0.16 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 </table>
@@ -452,7 +452,7 @@ b
 <a class="sourceLine" id="cb28-16" data-line-number="16">    <span class="dv">0</span>, </a>
 <a class="sourceLine" id="cb28-17" data-line-number="17">    <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>), </a>
 <a class="sourceLine" id="cb28-18" data-line-number="18">    <span class="dt">description =</span> <span class="st">"upper triangular factor of the non-phylogenetic variance-covariance"</span>))</a></code></pre></div>
-<p>In the above, snippet, notice the long names for the BM and the OU model types. These are the model types that can be mapped to regimes. It is important to notice that both of these model types omit the parameter <code>X0</code>, which is a global parameter shared by all regimes. Similarly the two model types omit the parameter <code>Sigmae_x</code>. However, in this example, we specify that the whole mixed Gaussian model does not have a <code>Sigmae_x</code> paramter, i.e. the model assumes that the trait variation is completely explainable by the mixed Gaussian phylogenetic process and there is no non-heritable component. For more information on model parametrizations, see the <a href="https://venelin.github.io/PCMBase/articles/PCMParam.html">PCMBase parameterizations</a> guide. For further information on mixed Gaussian models, see the <code><a href="../reference/MixedGaussian.html">?MixedGaussian</a></code> help page.</p>
+<p>In the above, snippet, notice the long names for the BM and the OU model types. These are the model types that can be mapped to regimes. It is important to notice that both of these model types omit the parameter <code>X0</code>, which is a global parameter shared by all regimes. Similarly the two model types omit the parameter <code>Sigmae_x</code>. However, in this example, we specify that the whole mixed Gaussian model does not have a <code>Sigmae_x</code> parameter, i.e. the model assumes that the trait variation is completely explainable by the mixed Gaussian phylogenetic process and there is no non-heritable component. For more information on model parametrizations, see the <a href="https://venelin.github.io/PCMBase/articles/PCMParam.html">PCMBase parameterizations</a> guide. For further information on mixed Gaussian models, see the <code><a href="../reference/MixedGaussian.html">?MixedGaussian</a></code> help page.</p>
 <p>We can set the parameters of the model manually as follows:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">model.OU.BM<span class="op">$</span>X0[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</a>
 <a class="sourceLine" id="cb29-2" data-line-number="2">model.OU.BM<span class="op">$</span><span class="st">`</span><span class="dt">a</span><span class="st">`</span><span class="op">$</span>H[,,<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
@@ -592,7 +592,7 @@ BM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</a></code></pre></div>
-<pre><code>## [1] -413
+<pre><code>## [1] -414
 ## attr(,"X0")
 ## [1] 5 2</code></pre>
 <p>For faster and repeated likelihood evaluation, I recommend creating a likelihood function for a given data, tree and model object. Passing this function object to <code>optim</code> would save the need for pre-processing the data and tree at every likelihood evaluation.</p>
@@ -600,7 +600,7 @@ BM
 <a class="sourceLine" id="cb35-2" data-line-number="2">likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)</a>
 <a class="sourceLine" id="cb35-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb35-4" data-line-number="4"><span class="kw">likFun</span>(param2)</a></code></pre></div>
-<pre><code>## [1] -413
+<pre><code>## [1] -414
 ## attr(,"X0")
 ## [1] 5 2</code></pre>
 </div>

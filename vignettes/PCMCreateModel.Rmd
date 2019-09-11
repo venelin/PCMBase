@@ -271,9 +271,7 @@ PCMListParameterizations.BM_drift <- function(model, ...) {
 }
 ```
 
-- `PCMListDefaultParameterizations.BM_drift` : this function is optional to define but can
-be useful if only a subset of the parametrizations defined in the PCMListParametrizations
-function will actually be used in practise. 
+- `PCMListDefaultParameterizations.BM_drift` : this function is optional to define but can be useful if only a subset of the parametrizations defined in the `PCMListParametrizations` function will actually be used in practice. 
 
 ```{r}
 PCMListDefaultParameterizations.BM_drift <- function(model, ...) {
@@ -406,7 +404,7 @@ If PCMBase is used as a computational engine for some inference package, then th
 above code can be one way of obtaining the likelihood under a "GaussianPCM" model object. 
 However, in such a setup it is recommended to use the mechanism of creating a likelihood
 function for a particular dataset through PCMCreateLikelihood. This will speed up the calculations
-as it avoids re-creating some internal data objects for the tree everytime the likelihood 
+as it avoids re-creating some internal data objects for the tree every time the likelihood 
 value is required. One just needs to update the parameters to obtain a new likelihood value.
 
 ```{r}

@@ -146,11 +146,11 @@
     <p>a named list with the currently set values of the following global
 options:</p><ul>
 <li><p><code>PCMBase.Value.NA </code>NA value for the likelihood; used in GaussianPCM to
-return this value in case of an error occuring
+return this value in case of an error occurring
 during likelihood calculation. By default, this is set to <code><a href='https://www.rdocumentation.org/packages/base/topics/double'>as.double(NA)</a></code>.</p></li>
 <li><p><code>PCMBase.Errors.As.Warnings </code>a logical flag indicating if errors
 (occuring, e.g. during likelihood calculation) should be treated as warnings
-and added as an attribute "error" to returne likelihood values. Default TRUE.</p></li>
+and added as an attribute "error" to attach to the likelihood values. Default TRUE.</p></li>
 <li><p>PCMBase.Raise.Lik.Errors Should numerical and other sort of
 errors occurring during likelihood calculation be raised either as errors or
 as warnings, depending on the option <code>PCMBase.Errors.As.Warnings</code>.
@@ -200,7 +200,7 @@ Default: FALSE</p></li>
 <li><p><code>PCMBase.PrintSubscript_u</code> Logical indicating if a subscript 'u'
 should be printed instead of a subscript 'x'. Used in <code>PCMTable</code>. Default: FALSE.</p></li>
 <li><p><code>PCMBase.MaxNForGuessSigma_x</code> A real fraction number in the
-iterval (0, 1) or an integer bigger than 1 controlling the
+interval (0, 1) or an integer bigger than 1 controlling the
 number of tips to use for analytical calculation of the evolutionary rate
 matrix under a BM assumption. This option is used in the suggested PCMFit
 R-package. Default: 0.25.</p></li>

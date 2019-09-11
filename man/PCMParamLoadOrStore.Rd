@@ -24,7 +24,7 @@ or stored to vecParams from o (FALSE).}
 \item{parentModel}{NULL or a PCM object. Default: NULL.}
 }
 \value{
-an integer equaling the number of elemnents read from vecParams.
+an integer equaling the number of elements read from vecParams.
 In the case of type=="custom", the number of indices bigger than offset returned by the function indices(offset, k).
 }
 \description{

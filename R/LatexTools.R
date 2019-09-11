@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' Latex represenataion of a model parameter or other found in a data.table object
+#' Latex representation of a model parameter or other found in a data.table object
 #' @param x an R object. Currently, character vectors of length 1,
 #' numeric vectors and matrices are supported.
 #'

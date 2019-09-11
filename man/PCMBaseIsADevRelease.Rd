@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{PCMBaseIsADevRelease}
 \alias{PCMBaseIsADevRelease}
-\title{Check if the PCMBase version correpsonds to a dev release}
+\title{Check if the PCMBase version corresponds to a dev release}
 \usage{
 PCMBaseIsADevRelease()
 }
@@ -10,5 +10,5 @@ PCMBaseIsADevRelease()
 a logical
 }
 \description{
-Check if the PCMBase version correpsonds to a dev release
+Check if the PCMBase version corresponds to a dev release
 }

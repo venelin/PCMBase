@@ -12,7 +12,7 @@ PCMSpecify(model, ...)
 \item{...}{additional arguments used by implementing methods.}
 }
 \value{
-a list specifying the paramters of a PCM.
+a list specifying the parameters of a PCM.
 }
 \description{
 The parameter specification of a PCM model represents a named

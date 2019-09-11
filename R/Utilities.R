@@ -71,7 +71,7 @@ FalsePositiveRate <- function(pred, true) {
 }
 
 
-#' Check if the PCMBase version correpsonds to a dev release
+#' Check if the PCMBase version corresponds to a dev release
 #' @importFrom utils packageDescription
 #' @return a logical
 #' @export

@@ -13,7 +13,7 @@ PCMTreeSetRegimesForEdges(tree, regimes, inplace = TRUE)
 
 \item{inplace}{a logical indicating if the change should be done within the
 tree in the calling environment or a copy of the tree with modified regime
-assignment should be retrned.}
+assignment should be returned.}
 }
 \value{
 if inplace is TRUE, nothing, otherwise a modified copy of tree.

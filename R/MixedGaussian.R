@@ -142,7 +142,7 @@ PCMExtractRegimes.MixedGaussian <- function(obj, regimes = seq_len(PCMNumRegimes
 #' should be a character vector). If it is not a named vector then the positions
 #' of the elements correspond to the regimes in their order given by the
 #' function \code{\link{PCMTreeGetPartNames}} called on a tree object.
-#' @param className a character string definingn a valid S3 class name for the
+#' @param className a character string defining a valid S3 class name for the
 #' resulting MixedGaussian object. If not specified, a className is generated
 #' using the expression
 #' \code{ paste0("MixedGaussian_", do.call(paste0, as.list(mapping)))}.
@@ -159,7 +159,7 @@ PCMExtractRegimes.MixedGaussian <- function(obj, regimes = seq_len(PCMNumRegimes
 #' GaussianPCM and PCM.
 #'
 #' @details If X0 is not NULL it has no sense to use model-types including X0 as
-#' a parameter (e.g. use BM1 or BM3 insted of BM or BM2). Similarly if Sigmae_x
+#' a parameter (e.g. use BM1 or BM3 instead of BM or BM2). Similarly if Sigmae_x
 #' is not NULL there is no meaning in using model-types including Sigmae_x as a
 #' parameter, (e.g. use OU2 or OU3 instead of OU or OU1).
 #' @seealso \code{\link{PCMTreeGetPartNames}}

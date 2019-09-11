@@ -59,7 +59,7 @@ The input data for the phylogenetic comparative methods covered in the PCMBase p
 
 # Models
 
-Given a number of traits $k$, a *model* is defined as a set of parameters with dimiensionality possibly depending on $k$ and a rule stating how these parameters are used to calculate the model likelihood for an observed tree and data and/or to simulate data along a tree. Often, we use the term *model type* to denote a family of models sharing the same rule. 
+Given a number of traits $k$, a *model* is defined as a set of parameters with dimensionality possibly depending on $k$ and a rule stating how these parameters are used to calculate the model likelihood for an observed tree and data and/or to simulate data along a tree. Often, we use the term *model type* to denote a family of models sharing the same rule. 
 
 ## The $\mathcal{G}_{LInv}$-family of models
 Currently, PCMBase supports Gaussian model types from the so called $\mathcal{G}_{LInv}$-family [@Mitov:2018fl]. Specifically, these are models representing branching stochastic processes and satisfying the following two conditions [@Mitov:2018fl]:
@@ -75,7 +75,7 @@ Currently, PCMBase supports Gaussian model types from the so called $\mathcal{G}
 
 ## Example: Ornstein-Uhlenbeck model types
 
-As an example, let's consider a model representing a $k$-variate Ornstein-Uhlenbec branching stochastic process. This is defined by the following stochastic differential equation:
+As an example, let's consider a model representing a $k$-variate Ornstein-Uhlenbeck branching stochastic process. This is defined by the following stochastic differential equation:
 \begin{equation}\label{eq:mammals:OUprocess}
 d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma}}_{\chi} dW(t). 
 \end{equation}
@@ -88,7 +88,7 @@ So, the OU-model defines the following set of parameters:
 - $\vec{X}_{0}$ (coded `X0`) : a $k$-vector of initial values;
 - $\mathbf{H}$ (coded `H`) : a $k\times k$ matrix denoting the selection strength of the process;
 - $\vec{\theta}$ (coded `Theta`) : a $k$-vector of long-term optimal trait values;
-- $\mathbf{\Sigma}_{\chi}$ : (coded `Sigma_x`) : a $k\times k$ matrix denoting the Choleski factor or the stochastic drift variance-covariances;
+- $\mathbf{\Sigma}_{\chi}$ : (coded `Sigma_x`) : a $k\times k$ matrix denoting the an upper triangular factor or the stochastic drift variance-covariances;
 <!-- - $\mathbf{\Sigma}_{e,\chi}$ (coded `Sigmae_x`) : a $k\times k$ matrix denoting the Choleski factor of the non-genetic (non-heritable) variance covariance; -->
 
 The rule defining how the parameters of the OU-model are used to calculate the model likelihood and to simulate data consists in the definition of the functions $\vec{\omega}$ and matrices $\mathbf{\Phi}$, $\mathbf{V}$ [@Mitov:2018fl]:
@@ -236,7 +236,7 @@ model.OU.BM <- MixedGaussian(
     description = "upper triangular factor of the non-phylogenetic variance-covariance"))
 ```
 
-In the above, snippet, notice the long names for the BM and the OU model types. These are the model types that can be mapped to regimes. It is important to notice that both of these model types omit the parameter `X0`, which is a global parameter shared by all regimes. Similarly the two model types omit the parameter `Sigmae_x`. However, in this example, we specify that the whole mixed Gaussian model does not have a `Sigmae_x` paramter, i.e. the model assumes that the trait variation is completely explainable by the mixed Gaussian phylogenetic process and there is no non-heritable component. For more information on model parametrizations, see the [PCMBase parameterizations](https://venelin.github.io/PCMBase/articles/PCMParam.html) guide. For further information on mixed Gaussian models, see the `?MixedGaussian` help page.
+In the above, snippet, notice the long names for the BM and the OU model types. These are the model types that can be mapped to regimes. It is important to notice that both of these model types omit the parameter `X0`, which is a global parameter shared by all regimes. Similarly the two model types omit the parameter `Sigmae_x`. However, in this example, we specify that the whole mixed Gaussian model does not have a `Sigmae_x` parameter, i.e. the model assumes that the trait variation is completely explainable by the mixed Gaussian phylogenetic process and there is no non-heritable component. For more information on model parametrizations, see the [PCMBase parameterizations](https://venelin.github.io/PCMBase/articles/PCMParam.html) guide. For further information on mixed Gaussian models, see the `?MixedGaussian` help page.
 
 We can set the parameters of the model manually as follows:
 ```{r}

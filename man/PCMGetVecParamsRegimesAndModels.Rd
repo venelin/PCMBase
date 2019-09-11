@@ -4,7 +4,7 @@
 \alias{PCMGetVecParamsRegimesAndModels}
 \title{Get a vector of all parameters (real and discrete) describing a model on a
 tree including the numerical parameters of each model regime, the integer ids
-of the spliting nodes defining the regimes on the tree and the integer ids of
+of the splitting nodes defining the regimes on the tree and the integer ids of
 the model classes associated with each regime.}
 \usage{
 PCMGetVecParamsRegimesAndModels(model, tree, ...)
@@ -22,7 +22,7 @@ a numeric vector concatenating the result
 \description{
 Get a vector of all parameters (real and discrete) describing a model on a
 tree including the numerical parameters of each model regime, the integer ids
-of the spliting nodes defining the regimes on the tree and the integer ids of
+of the splitting nodes defining the regimes on the tree and the integer ids of
 the model classes associated with each regime.
 }
 \details{

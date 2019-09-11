@@ -12,7 +12,7 @@ PCMLik(X, tree, model, SE = matrix(0, PCMNumTraits(model),
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
 column of X contains the measured trait values for one species (tip in tree).
 Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
-Thse two values have are treated differently when calculating
+These two values have are treated differently when calculating
 likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 
 \item{tree}{a phylo object with N tips.}
@@ -32,7 +32,7 @@ containing meta-data such as N, M and k. Alternatively, this can be a
 function object that returns such a list, e.g. the function\code{PCMInfo}
 or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.}
 
-\item{log}{logical indicating whether a log-liklehood should be calculated. Default
+\item{log}{logical indicating whether a log-likelehood should be calculated. Default
 is TRUE.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
@@ -46,12 +46,12 @@ vector is used; otherwise the value of X0 maximizing the likelihood for the give
 model parameters is calculated by maximizing the quadratic polynomial
 'X0 * L_root * X0 + m_root * X0 + r_root'.}
 \item{error}{A named list containing error information if a numerical or other
-logical error occured during likelihood calculation (this is a list returned by
+logical error occurred during likelihood calculation (this is a list returned by
  \code{\link{PCMParseErrorMessage}}.}
  If an error occured during likelihood calculation, the default behavior is to
  return NA with a non-NULL error attribute. This behavior can be changed in
  using global options:
- \item{"PCMBase.Value.NA"}{Allows to specify a different NA value such as \code{-Inf} or \code{-1e20} which can be used in compbination with \code{log = TRUE} when
+ \item{"PCMBase.Value.NA"}{Allows to specify a different NA value such as \code{-Inf} or \code{-1e20} which can be used in combination with \code{log = TRUE} when
   using \code{optim} to maximize the log-likelihood;}
  \item{"PCMBase.Errors.As.Warnings"}{Setting this option to FALSE will cause any
  error to result in calling the \code{\link{stop}} R-base function. If not caught
@@ -61,7 +61,7 @@ logical error occured during likelihood calculation (this is a list returned by
 }
 }
 \description{
-The likelihood of a PCM represets the probability density function
+The likelihood of a PCM represents the probability density function
   of observed trait values (data) at the tips of a tree given the tree and
   the model parameters. Seen as a function of the model parameters, the
   likelihood is used to fit the model to the observed trait data and the

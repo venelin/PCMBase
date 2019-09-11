@@ -2,7 +2,7 @@
 % Please edit documentation in R/LatexTools.R
 \name{FormatCellAsLatex}
 \alias{FormatCellAsLatex}
-\title{Latex represenataion of a model parameter or other found in a data.table object}
+\title{Latex representation of a model parameter or other found in a data.table object}
 \usage{
 FormatCellAsLatex(x)
 }
@@ -14,5 +14,5 @@ numeric vectors and matrices are supported.}
 a character string
 }
 \description{
-Latex represenataion of a model parameter or other found in a data.table object
+Latex representation of a model parameter or other found in a data.table object
 }

@@ -22,7 +22,7 @@ factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
-\item{metaI}{a named list containg meta-information about the data and the
+\item{metaI}{a named list containing meta-information about the data and the
 model.}
 
 \item{verbose}{a logical indicating if informative messages should be written
@@ -42,7 +42,7 @@ Generate trait data on a tree according to a multivariate stochastic
 model with one or several regimes
 }
 \details{
-Internally, this function uses the \code{\link{PCMCond}} iimplementation
+Internally, this function uses the \code{\link{PCMCond}} implementation
  for the given model class.
 }
 \examples{

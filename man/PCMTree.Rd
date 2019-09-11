@@ -18,7 +18,7 @@ entries set.
 \description{
 PCMTree is class that inherits from the class 'phylo' in the
 R-package 'ape'. Thus, all the functions working on a phylo object would work
-in the same way if they recieve as argument an object of class 'PCMTree'. A
+in the same way if they receive as argument an object of class 'PCMTree'. A
 PCMTree object has the following members in addition to the regular members
 ('tip.label', 'node.label', 'edge', 'edge.length') found in a regular phylo
 object:
@@ -38,7 +38,7 @@ Each node in this set defines a part as the set of its descendant nodes that
 can be reached without traversing another partition node. We name
 each part by the label of its most ancestral node, that is, the node in it,
 which is closest to the root fo the tree. The value of edge.part for an edge
-in the tree is the name of the part that contsin the node ot which the edge
+in the tree is the name of the part that contains the node to which the edge
 is pointing.}
 \item{part.regime }{a named vector of size the number of parts in the tree.
 The names correspond to part-names whereas the values denote the ids or

@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages — PCMLik" />
 
-<meta property="og:description" content="The likelihood of a PCM represets the probability density function
+<meta property="og:description" content="The likelihood of a PCM represents the probability density function
   of observed trait values (data) at the tips of a tree given the tree and
   the model parameters. Seen as a function of the model parameters, the
   likelihood is used to fit the model to the observed trait data and the
@@ -145,7 +145,7 @@
 
     <div class="ref-description">
     
-    <p>The likelihood of a PCM represets the probability density function
+    <p>The likelihood of a PCM represents the probability density function
   of observed trait values (data) at the tips of a tree given the tree and
   the model parameters. Seen as a function of the model parameters, the
   likelihood is used to fit the model to the observed trait data and the
@@ -171,7 +171,7 @@
       <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
 column of X contains the measured trait values for one species (tip in tree).
 Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-Thse two values have are treated differently when calculating
+These two values have are treated differently when calculating
 likelihoods: see <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>.</p></td>
     </tr>
     <tr>
@@ -201,7 +201,7 @@ or the function <code>PCMInfoCpp</code> from the <code>PCMBaseCpp</code> package
     </tr>
     <tr>
       <th>log</th>
-      <td><p>logical indicating whether a log-liklehood should be calculated. Default
+      <td><p>logical indicating whether a log-likelehood should be calculated. Default
 is TRUE.</p></td>
     </tr>
     <tr>
@@ -219,12 +219,12 @@ vector is used; otherwise the value of X0 maximizing the likelihood for the give
 model parameters is calculated by maximizing the quadratic polynomial
 'X0 * L_root * X0 + m_root * X0 + r_root'.</p></dd>
 <dt>error</dt><dd><p>A named list containing error information if a numerical or other
-logical error occured during likelihood calculation (this is a list returned by
+logical error occurred during likelihood calculation (this is a list returned by
  <code><a href='PCMParseErrorMessage.html'>PCMParseErrorMessage</a></code>.</p></dd>
  If an error occured during likelihood calculation, the default behavior is to
  return NA with a non-NULL error attribute. This behavior can be changed in
  using global options:
- <dt>"PCMBase.Value.NA"</dt><dd><p>Allows to specify a different NA value such as <code>-Inf</code> or <code>-1e20</code> which can be used in compbination with <code>log = TRUE</code> when
+ <dt>"PCMBase.Value.NA"</dt><dd><p>Allows to specify a different NA value such as <code>-Inf</code> or <code>-1e20</code> which can be used in combination with <code>log = TRUE</code> when
   using <code>optim</code> to maximize the log-likelihood;</p></dd>
  <dt>"PCMBase.Errors.As.Warnings"</dt><dd><p>Setting this option to FALSE will cause any
  error to result in calling the <code><a href='https://www.rdocumentation.org/packages/base/topics/stop'>stop</a></code> R-base function. If not caught

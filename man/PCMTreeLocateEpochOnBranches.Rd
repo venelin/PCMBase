@@ -9,7 +9,7 @@ PCMTreeLocateEpochOnBranches(tree, epoch)
 \arguments{
 \item{tree}{a phylo}
 
-\item{epoch}{a positive numeric ing tip-ward distance from the root}
+\item{epoch}{a positive numeric indicating tip-ward distance from the root}
 }
 \value{
 a named list with an integer vector element "nodes" denoting the ending nodes for each

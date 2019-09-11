@@ -10,7 +10,7 @@ PCMTreeJumps(tree)
 \item{tree}{a phylo object}
 }
 \value{
-an integer vector of 0's and 1's with entries correspondin to the
+an integer vector of 0's and 1's with entries corresponding to the
 denoting if a jump took place at the beginning of a branch.
 }
 \description{

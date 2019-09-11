@@ -22,6 +22,6 @@ a data.table object.
 This function generates a data.table in which each column corresponds to
 one parameter of model and each row corresponds to one combination of parameterizations
 for the model parameters, such that the whole table corresponds to the Cartesian product
-of the lists found in `listParameterizations`. Usually, subsets of this table shold be
-passed to `PCMGenerateParameterizations`
+of the lists found in `listParameterizations`. Usually, subsets of this table
+should be passed to `PCMGenerateParameterizations`
 }

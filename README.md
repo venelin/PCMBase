@@ -41,7 +41,7 @@ Bartoszek, and Stadler 2019).
 The function `PCMTreePlot` in the package is implemented based on the
 R-package ggtree, which is not on CRAN. It is highly recommended to
 install this package in order to visualize trees with colored parts
-corresponding to defferent evolutionary regimes. If ggtree is not
+corresponding to different evolutionary regimes. If ggtree is not
 installed, the package will fail to run examples and generate the
 vignettes. At the time of writing this documentation, ggtree can be
 installed from bioconductor through the following code (if that does not

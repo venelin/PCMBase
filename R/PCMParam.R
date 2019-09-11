@@ -402,7 +402,7 @@ is.SemiPositiveDefinite <- function(o) { inherits(o, "_SemiPositiveDefinite") }
 #' or stored to vecParams from o (FALSE).
 #'
 #' @details This S3 generic function has both, a returned value and side effects.
-#' @return an integer equaling the number of elemnents read from vecParams.
+#' @return an integer equaling the number of elements read from vecParams.
 #' In the case of type=="custom", the number of indices bigger than offset returned by the function indices(offset, k).
 #' @export
 PCMParamLoadOrStore <- function(o, vecParams, offset, k, R, load, parentModel = NULL) {
