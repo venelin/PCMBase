@@ -8,7 +8,7 @@ output: html_document
 # PCMBase 1.2.10
 - Speedup of PCMApplyTransformation in the case of mixed Gaussian models. 
 - Added functions PCMExtractDimensions and PCMExtractRegimes
-- Added two new vignettes.
+- Added two new vignettes: PCMCreateModel.Rmd and PCMTracePruning.Rmd.
 - Added a new model BMdrift
 - Finished parametrization vignette. 
 - Added functions for printing a PCM object as a table - see corresponding 
@@ -16,6 +16,7 @@ section in the Getting started guide.
 - Added functions for tracing a likelihood calculation - see ?PCMLikTrace.
 - Some new runtime options were added - see ?PCMOptions.
 - Updated documentation pages.
+- Several bugs were found and fixed.
 
 
 # PCMBase 1.2.9
