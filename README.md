@@ -7,8 +7,6 @@ status](https://travis-ci.org/venelin/PCMBase.svg?branch=master)](https://travis
 status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMBase?branch=master)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
 [![Downloads](http://cranlogs.r-pkg.org/badges/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
-[![Latest release
-DOI](https://zenodo.org/badge/144310133.svg)](https://zenodo.org/badge/latestdoi/144310133)
 
 # PCMBase : Simulation and likelihood calculation of phylogenetic comparative methods
 
