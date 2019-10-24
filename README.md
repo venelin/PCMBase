@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![Travis build
-status](https://travis-ci.org/venelin/PCMBase.svg?branch=master)](https://travis-ci.org/venelin/PCMBase)
+status](https://travis-ci.com/venelin/PCMBase.svg?branch=master)](https://travis-ci.com/venelin/PCMBase)
 [![Coverage
 status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMBase?branch=master)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
@@ -120,7 +120,7 @@ The PCMBase R-package uses the following 3rd party R-packages:
     v1.12.2 (Dowle and Srinivasan 2019);
   - For algebraic manipulation: expm v0.999.4 (Goulet et al. 2018),
     mvtnorm v1.0.11 (Genz et al. 2018);
-  - For plotting: ggtree v1.15.3 (Yu and Lam 2019), ggplot2 v3.2.0
+  - For plotting: ggtree v1.15.3 (Yu and Lam 2019), ggplot2 v3.2.1
     (Wickham et al. 2018);
   - For unit-testing: testthat v2.1.1 (Wickham 2018), covr v3.2.1
     (Hester 2018);
