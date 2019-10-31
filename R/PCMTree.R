@@ -837,6 +837,8 @@ PCMTreeGetRegimesForNodes <- function(
 #' empty character vector.
 #' @param tableAncestors NULL (default) or an integer matrix returned by a previous call
 #' to \code{PCMTreeTableAncestors(tree)}.
+#' @param countOnly logical indicating if the only the number of partitions should
+#' be returned.
 #' @param verbose a logical indicating if informative messages should be printed to
 #' the console.
 #'
@@ -851,7 +853,7 @@ PCMTreeGetRegimesForNodes <- function(
 #' @export
 PCMTreeListCladePartitions <- function(
   tree, nNodes, minCladeSize = 0, skipNodes = character(0),
-  tableAncestors = NULL, verbose = FALSE) {
+  tableAncestors = NULL, countOnly = FALSE, verbose = FALSE) {
 
   if(is.character(skipNodes)) {
     skipNodes <- as.integer(na.omit(
@@ -873,64 +875,62 @@ PCMTreeListCladePartitions <- function(
     envir$tableAncestors <- PCMTreeTableAncestors(tree)
   }
   envir$listDesc <- PCMTreeListDescendants(tree, envir$tableAncestors)
-  envir$listRootPaths <- PCMTreeListRootPaths(tree, envir$tableAncestors)
+  envir$listDescTips <- lapply(envir$listDesc, function(d) d[d <= envir$N])
 
-
-  envir$nodesInUse <- rep(FALSE, envir$M)
-  envir$nodesInUse[skipNodes] <- TRUE
-  envir$nodesInUse[envir$N+1] <- TRUE
-  envir$numNodesInUse <- sum(envir$nodesInUse)
+  envir$nodesToSkip <- rep(FALSE, envir$M)
+  envir$nodesToSkip[skipNodes] <- TRUE
+  envir$nodesParts <- rep(envir$N+1, envir$M)
+  envir$numsTipsInParts <- rep(0, envir$M)
+  envir$numsTipsInParts[envir$N + 1] <- envir$N
 
   envir$listPartitions <- list()
   envir$nextPartition <- 1L
   envir$numTries <- 0L
-  envir$numRemainingTips <- envir$N
 
   addToPartition <- function(partition, i, envir) {
-    numTips <- sum(envir$listDesc[[i]] <= envir$N)
-    if(envir$nodesInUse[i] ||
-       numTips < envir$minCladeSize ||
-       (envir$numRemainingTips - numTips) < envir$minCladeSize) {
+    numTips <- sum(envir$listDescTips[[i]])
+    parentPart <- envir$nodesParts[i]
+    numTipsInParentPart <- envir$numsTipsInParts[parentPart]
+    numTipsInNewPart <- sum(envir$nodesParts[envir$listDescTips[[i]]] == parentPart)
+
+    if(envir$nodesToSkip[i] ||
+       numTipsInParentPart - numTipsInNewPart < envir$minCladeSize ||
+       numTipsInNewPart < envir$minCladeSize) {
       envir$numTries <- envir$numTries + 1L
       return(NULL)
     } else {
       partition <- c(partition, i)
 
-      # ATTENTION! some of the elements of envir$listRootPaths[[i]] might
-      # already be in use.
-      newNodesInUse <- c(
-        envir$listRootPaths[[i]][ !envir$nodesInUse[envir$listRootPaths[[i]]] ],
-        i,
-        envir$listDesc[[i]][ !envir$nodesInUse[envir$listDesc[[i]]] ])
-
-      numNewNodesInUse <- length(newNodesInUse)
-
-      envir$nodesInUse[newNodesInUse] <- TRUE
-      envir$numNodesInUse <- envir$numNodesInUse + numNewNodesInUse
-      envir$numRemainingTips <- envir$numRemainingTips - numTips
+      envir$numsTipsInParts[parentPart] <- numTipsInParentPart - numTipsInNewPart
+      envir$numsTipsInParts[i] <- numTipsInNewPart
+      nodesNewPart <- c(
+        i, envir$listDesc[[i]][envir$nodesParts[envir$listDesc[[i]]] == parentPart])
+      envir$nodesParts[nodesNewPart] <- i
 
       if(length(partition) == envir$nNodes) {
         envir$numTries <- envir$numTries + 1L
 
-        envir$listPartitions[[envir$nextPartition]] <- partition
+        if(!countOnly) {
+          envir$listPartitions[[envir$nextPartition]] <- partition
+        }
         if(verbose && envir$nextPartition %% 1000 == 0) {
           cat("Generated ", envir$nextPartition, " partitions out of ",
               envir$numTries, "tries ...\n")
         }
-
         envir$nextPartition <- envir$nextPartition + 1L
       } else {
-        if(envir$numNodesInUse < envir$M) {
-          for(iNext in (i+1):envir$M) {
+        if(length(partition) < nNodes) {
+          for(iNext in i + seq_len(envir$M - i)) {
             if(length(envir$listPartitions) < getOption("PCMBase.MaxLengthListCladePartitions", Inf)) {
               addToPartition(partition, iNext, envir)
             }
           }
         }
       }
-      envir$nodesInUse[newNodesInUse] <- FALSE
-      envir$numNodesInUse <- envir$numNodesInUse - numNewNodesInUse
-      envir$numRemainingTips <- envir$numRemainingTips + numTips
+
+      envir$numsTipsInParts[parentPart] <- numTipsInParentPart
+      envir$numsTipsInParts[i] <- 0
+      envir$nodesParts[nodesNewPart] <- parentPart
     }
   }
 
@@ -946,7 +946,11 @@ PCMTreeListCladePartitions <- function(
     }
   }
 
-  envir$listPartitions
+  if(countOnly) {
+    envir$nextPartition - 1L
+  } else {
+    envir$listPartitions
+  }
 }
 
 #' A list of all possible (including recursive) partitions of a tree
