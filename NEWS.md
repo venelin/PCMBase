@@ -1,9 +1,20 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "11 September, 2019"
+date: "15 November, 2019"
 output: html_document
 ---
+
+# PCMBase 1.2.11
+- Fixed a bug in PCMTreeListCladePartitions for nNodes > 1. 
+- Added argument countOnly to PCMTreeListCladePartitions.
+- Added new functions PCMListMembers, MatchListMembers, PCMGetAttribute, 
+PCMSetAttribute.
+- Minor enhancement in the MixedGaussian constructor allowing to provide
+a list of PCM objects as modelTypes argument.
+- Added an argument diagOnly to PCMVar. 
+- Added an argument enclos in PCMParamLocateInShortVector.
+- Additions to the documentation.
 
 # PCMBase 1.2.10
 - Speedup of PCMApplyTransformation in the case of mixed Gaussian models. 

@@ -133,4 +133,6 @@ if(PCMBaseIsADevRelease()) {
   test_that("PCMTreeListAllClades returns 12 partitions",
             expect_equal(length(r), 12L)
             )
+
+
 }

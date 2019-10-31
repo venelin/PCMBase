@@ -4,13 +4,17 @@
 \alias{PCMParamLocateInShortVector}
 \title{Locate a named parameter in the short vector representation of a model}
 \usage{
-PCMParamLocateInShortVector(o, accessExpr)
+PCMParamLocateInShortVector(o, accessExpr, enclos = "?")
 }
 \arguments{
 \item{o}{a PCM model object.}
 
 \item{accessExpr}{a character string used to access the parameter, e.g.
 \code{"$Theta[,,1]"} or \code{"[['Theta']][,,1]"}.}
+
+\item{enclos}{a character string containing the symbol '?', e.g.
+\code{'diag(?)'}. The meaning of this symbol is to be replaced by the matching
+accessExpr (see examples). Default value : \code{'?'}.}
 }
 \value{
 an integer vector of length \code{PCMParamCount(o)} with NAs
@@ -21,8 +25,7 @@ question.
 Locate a named parameter in the short vector representation of a model
 }
 \examples{
-
-model <- PCM(PCMDefaultModelTypes()["C"], k = 3, regimes = c("a", "b"))
+model <- PCM(PCMDefaultModelTypes()["D"], k = 3, regimes = c("a", "b"))
 # The parameter H is a diagonal 3x3 matrix. If this matrix is considered as
 # a vector the indices of its diagonal elements are 1, 5 and 9. These indices
 # are indicated as the non-NA entries in the returned vector.
@@ -30,4 +33,6 @@ model <- PCM(PCMDefaultModelTypes()["C"], k = 3, regimes = c("a", "b"))
 PCMParamLocateInShortVector(model, "$H[,,1]")
 PCMParamLocateInShortVector(model, "$H[,,'a']")
 PCMParamLocateInShortVector(model, "$H[,,'b']")
+PCMParamLocateInShortVector(model, "$Sigma_x[,,'b']", enclos = 'diag(?)')
+PCMParamLocateInShortVector(model, "$Sigma_x[,,'b']", enclos = '?[upper.tri(?)]')
 }

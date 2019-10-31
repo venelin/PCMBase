@@ -127,21 +127,34 @@ PCMExtractRegimes.MixedGaussian <- function(obj, regimes = seq_len(PCMNumRegimes
 }
 
 #' Create a multi-regime Gaussian model (MixedGaussian)
-#' @param k integer defining the number of traits.
-#' @param modelTypes a character string vector with the class names of the
-#' model-types that can possibly be included (assigned to regimes) in the
-#' MixedGaussian, e.g. c("BM", "OU") (see also \code{\link{PCMModels}}).
-#' @param mapping a character string vector with elements from modelTypes or an
-#' integer vector with elements between 1 and length(modelTypes)
-#' mapping modelTypes to regimes, e.g. if \code{modelTypes = c("BM", "OU")} and
+#' @param k integer specifying the number of traits.
+#' @param modelTypes,mapping These two arguments define the mapping between the
+#' regimes in the model and actual types of models. For convenience, different
+#' combinations are possible as explained below:
+#' \itemize{
+#' \item \code{modelTypes} is a (possibly named) character string vector. Each
+#' such string denotes a MGPM model class, e.g. the result of calling
+#' \code{MGPMDefaultModelTypes()}. In that case \code{mapping} can be either
+#' an integer vector with values corresponding to indices in \code{modelTypes}
+#' or a character string vector. If \code{mapping} is a character string vector,
+#' first it is matched against \code{names(modelTypes)} and if the match fails
+#' either because of \code{names(modelTypes)} being \code{NULL} or because some
+#' of the entries in \code{mapping} are not present in \code{names(modelTypes)},
+#' then an attempt is made to match \code{mapping} against \code{modelTypes},
+#' i.e. it is assumed that \code{mapping} contains actual class names.
+#' \item \code{modelTypes} is a (possibly named) list of PCM models of
+#' \code{k} traits. In this case \code{mapping} can again be an integer vector
+#' denoting indices in \code{modelTypes} or a character string vector denoting
+#' names in \code{modelTypes}.
+#' }
+#' As a final note, \code{mapping} can also be named. In this case the names are
+#' assumed to be the names of the different regimes in the model. If
+#' \code{mapping} is not named, the regimes are named automatically as
+#' \code{as.character(seq_len(mapping))}.  For example, if
+#' \code{modelTypes = c("BM", "OU")} and
 #' \code{mapping = c(a = 1, b = 1, c = 2, d = 1)} defines an MixedGaussian with
-#' four different regimes with model-types BM3, BM3, OU3 and BM3, corresponding
-#' to each regime. \code{mapping} does not have to be a named vector. If it is a
-#' named vector, then all the names must correspond to valid regime names in a
-#' tree to which the model will be fit or simulated (member tree$edge.part
-#' should be a character vector). If it is not a named vector then the positions
-#' of the elements correspond to the regimes in their order given by the
-#' function \code{\link{PCMTreeGetPartNames}} called on a tree object.
+#' four different regimes named 'a', 'b', 'c', 'd', and  model-types
+#' BM, BM, OU and BM, corresponding to each regime.
 #' @param className a character string defining a valid S3 class name for the
 #' resulting MixedGaussian object. If not specified, a className is generated
 #' using the expression
@@ -180,16 +193,18 @@ MixedGaussian <- function(
     description = "Upper triangular factor of the non-phylogenetic variance-covariance")) {
 
   regimes <- if(is.null(names(mapping))) {
-    seq_len(length(mapping))
+    as.character(seq_along(mapping))
   } else {
     names(mapping)
   }
   if(is.character(mapping)) {
-    mapping2 <- match(mapping, modelTypes)
+    if(is.null(names(modelTypes)) || any(is.na(mapping2 <- match(mapping, names(modelTypes)))) ) {
+      mapping2 <- match(mapping, modelTypes)
+    }
     if(any(is.na(mapping2))) {
       stop(
         paste0(
-          "MixedGaussian.R:MixedGaussian:: some of the models in mapping not found in modelTypes: ",
+          "MixedGaussian:: some of the models in mapping not found in modelTypes: ",
           "modelTypes = ", toString(modelTypes),
           ", mapping =", toString(mapping)))
     } else {
@@ -198,28 +213,43 @@ MixedGaussian <- function(
   }
 
   mappingModelRegime <- modelTypes[mapping]
+  names(mappingModelRegime) <-regimes
 
+  modelTypesAreStrings <- FALSE
   spec <- list(X0 = X0, ...)
-
   for(m in seq_along(mapping)) {
-    subModel <- structure(0.0, class = mappingModelRegime[m])
-    class(subModel) <- c(class(subModel), PCMParentClasses(subModel))
-    spec[[as.character(regimes[m])]] <- PCMSpecify(subModel)
-    attr(spec[[as.character(regimes[m])]], "k") <- as.integer(k)
-    attr(spec[[as.character(regimes[m])]], "regimes") <- 1L
+    subModel <- mappingModelRegime[[m]]
+    if(is.character(subModel)) {
+      modelTypesAreStrings <- TRUE
+      subModel <- structure(0.0, class = subModel)
+      class(subModel) <- c(class(subModel), PCMParentClasses(subModel))
+    }
+    spec[[regimes[m]]] <- PCMSpecify(subModel)
+    attr(spec[[regimes[m]]], "k") <- as.integer(k)
+    attr(spec[[regimes[m]]], "regimes") <- 1L
   }
-
   spec[["Sigmae_x"]] <- Sigmae_x
 
   attr(spec, "k") <- as.integer(k)
-
   class(spec) <- c(className, "MixedGaussian", "GaussianPCM", "PCM")
 
   if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')
 
-  res <- PCM(model = class(spec), modelTypes, k = k, regimes = regimes, spec = spec)
+  if(!modelTypesAreStrings) {
+    res <- PCM(
+      model = class(spec), modelTypes, k = k, regimes = regimes, spec = spec, params = mappingModelRegime)
+  } else {
+    res <- PCM(model = class(spec), modelTypes, k = k, regimes = regimes, spec = spec)
+  }
+
   attr(res, "mapping") <- mapping
-  attr(res, "modelTypes") <- modelTypes
+  attr(res, "modelTypes") <- if(modelTypesAreStrings) {
+    modelTypes
+  } else if(is.list(modelTypes)) {
+    sapply(modelTypes, function(mt) class(mt)[1])
+  } else {
+    stop("MixedGaussian:: Model types should either be a character vector or a list of PCM objects.")
+  }
   attr(res, "spec") <- spec
   res
 }

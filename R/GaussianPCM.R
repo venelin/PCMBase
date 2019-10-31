@@ -92,7 +92,7 @@ PCMVar.GaussianPCM <- function(
   SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
   metaI = PCMInfo(
     X = NULL, tree = tree, model = model, SE = SE, verbose = verbose),
-  internal = FALSE, verbose = FALSE)  {
+  internal = FALSE, diagOnly = FALSE, verbose = FALSE)  {
 
   threshold_SV <- metaI$PCMBase.Threshold.SV
   skip_singular <- metaI$PCMBase.Skip.Singular
@@ -245,7 +245,7 @@ PCMVar.GaussianPCM <- function(
 
   if(N > 1) {
     for(i in seq_len(N)) {
-      for(j in seq_len(N)) {
+      for(j in if(diagOnly) i else seq(i, N)) {
         mrca_ij <- MRCA(i, j)
 
         if(mrca_ij == i) {
@@ -261,7 +261,7 @@ PCMVar.GaussianPCM <- function(
         }
 
         W[BlockI(i), BlockI(j)] <- # W[BlockI(j), BlockI(i)] <-
-           ProdPhi_i %*% Wii[, BlockI(mrca_ij)] %*% t(ProdPhi_j)
+          ProdPhi_i %*% Wii[, BlockI(mrca_ij)] %*% t(ProdPhi_j)
 
         # assign mirror block and
         # force symmetry for W[BlockI(i), BlockI(j)] and W[BlockI(j), BlockI(i)]

@@ -14,23 +14,35 @@ MixedGaussian(k, modelTypes, mapping,
   "Upper triangular factor of the non-phylogenetic variance-covariance"))
 }
 \arguments{
-\item{k}{integer defining the number of traits.}
+\item{k}{integer specifying the number of traits.}
 
-\item{modelTypes}{a character string vector with the class names of the
-model-types that can possibly be included (assigned to regimes) in the
-MixedGaussian, e.g. c("BM", "OU") (see also \code{\link{PCMModels}}).}
-
-\item{mapping}{a character string vector with elements from modelTypes or an
-integer vector with elements between 1 and length(modelTypes)
-mapping modelTypes to regimes, e.g. if \code{modelTypes = c("BM", "OU")} and
+\item{modelTypes, mapping}{These two arguments define the mapping between the
+regimes in the model and actual types of models. For convenience, different
+combinations are possible as explained below:
+\itemize{
+\item \code{modelTypes} is a (possibly named) character string vector. Each
+such string denotes a MGPM model class, e.g. the result of calling
+\code{MGPMDefaultModelTypes()}. In that case \code{mapping} can be either
+an integer vector with values corresponding to indices in \code{modelTypes}
+or a character string vector. If \code{mapping} is a character string vector,
+first it is matched against \code{names(modelTypes)} and if the match fails
+either because of \code{names(modelTypes)} being \code{NULL} or because some
+of the entries in \code{mapping} are not present in \code{names(modelTypes)},
+then an attempt is made to match \code{mapping} against \code{modelTypes},
+i.e. it is assumed that \code{mapping} contains actual class names.
+\item \code{modelTypes} is a (possibly named) list of PCM models of
+\code{k} traits. In this case \code{mapping} can again be an integer vector
+denoting indices in \code{modelTypes} or a character string vector denoting
+names in \code{modelTypes}.
+}
+As a final note, \code{mapping} can also be named. In this case the names are
+assumed to be the names of the different regimes in the model. If
+\code{mapping} is not named, the regimes are named automatically as
+\code{as.character(seq_len(mapping))}.  For example, if
+\code{modelTypes = c("BM", "OU")} and
 \code{mapping = c(a = 1, b = 1, c = 2, d = 1)} defines an MixedGaussian with
-four different regimes with model-types BM3, BM3, OU3 and BM3, corresponding
-to each regime. \code{mapping} does not have to be a named vector. If it is a
-named vector, then all the names must correspond to valid regime names in a
-tree to which the model will be fit or simulated (member tree$edge.part
-should be a character vector). If it is not a named vector then the positions
-of the elements correspond to the regimes in their order given by the
-function \code{\link{PCMTreeGetPartNames}} called on a tree object.}
+four different regimes named 'a', 'b', 'c', 'd', and  model-types
+BM, BM, OU and BM, corresponding to each regime.}
 
 \item{className}{a character string defining a valid S3 class name for the
 resulting MixedGaussian object. If not specified, a className is generated

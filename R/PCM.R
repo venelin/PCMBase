@@ -374,7 +374,7 @@ format.PCM <- function(x, ...) {
   spec <- attr(x, "spec", exact = TRUE)
 
   res <- paste0(
-    PCMDescribe(x, ...),
+    PCMDescribe(x, ...)[[1L]],
     "\nS3 class: ", toString(class(x)), "; ",
     "k=", attr(x, "k", exact = TRUE), "; p=", PCMParamCount(x, ...), "; ",
     "regimes: ", toString(attr(x, "regimes")), ". Parameters/sub-models:\n")
@@ -410,7 +410,7 @@ format.PCM <- function(x, ...) {
       strList <- list(sep = "\n")
     }
     res <- paste0(res, name, " (", toString(type),
-                  if(!is.null(description)) paste0("; ", description) else "", "):\n",
+                  if(!is.null(description)) paste0("; ", description[[1L]]) else "", "):\n",
                   do.call(paste, strList))
     res <- paste0(res, "\n")
   }
@@ -443,7 +443,11 @@ PCMDescribe <- function(model, ...) {
 
 #' @export
 PCMDescribe.PCM <- function(model, ...) {
-  "PCM base class model with no parameters; serves as a basis for PCM model classes"
+  if(!is.null(attr(model, "description", exact = TRUE))) {
+    attr(model, "description", exact = TRUE)
+  } else {
+    "PCM base class model with no parameters; serves as a basis for PCM model classes"
+  }
 }
 
 
@@ -612,7 +616,7 @@ PCMGenerateParameterizations <- function(
 
     sourcePCMParentClasses <- paste0(
       nameFunPCMParentClasses, " <- function(model) ",
-      PCMCharacterVectorToRExpression(parentClasses))
+      AsRExpression(parentClasses))
 
     sourcePCMSpecify <- paste0(
       nameFunPCMSpecify, " <- function(model, ...) {\n",
@@ -621,9 +625,9 @@ PCMGenerateParameterizations <- function(
       sourcePCMSpecify <- paste0(
         sourcePCMSpecify,
         paramNames[j], " = structure(0.0, class = ",
-        PCMCharacterVectorToRExpression(tableParameterizations[i][[paramNames[j]]][[1]]),
+        AsRExpression(tableParameterizations[i][[paramNames[j]]][[1]]),
         ",\n",
-        "description = '", paramDescriptions[j], "')")
+        "description = ", AsRExpression(paramDescriptions[[j]]), ")")
       if(j < length(paramNames)) {
         sourcePCMSpecify <- paste0(
           sourcePCMSpecify, ",\n")
@@ -636,7 +640,7 @@ PCMGenerateParameterizations <- function(
       sourcePCMSpecify,
       "attributes(spec) <- attributes(model)\n",
       "if(is.null(names(spec))) names(spec) <- ",
-      PCMCharacterVectorToRExpression(paramNames), "\n",
+      as.character(list(paramNames)), "\n",
       "if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')\n",
       "spec\n",
       "}")
@@ -698,6 +702,222 @@ PCMGenerateModelTypes <- function(
         PCMListDefaultParameterizations(o)
       },
       sourceFile = sourceFile)
+  }
+}
+
+#' A vector of access-code strings to all members of a named list
+#' @param l a named list object.
+#' @param recursive logical indicating if list members should be gone through
+#'  recursively. TRUE by default.
+#' @param format a character string indicating the format for accessing a member.
+#' Acceptable values are \code{c("$", "$'", '$"', '$`', "[['", '[["', '[[`')} of which
+#' the first one is taken as default.
+#' @return a vector of character strings denoting each named member of the list.
+#' @examples
+#' PCMListMembers(PCMBaseTestObjects$model_MixedGaussian_ab)
+#' PCMListMembers(PCMBaseTestObjects$model_MixedGaussian_ab, format = '$`')
+#' PCMListMembers(PCMBaseTestObjects$tree.ab, format = '$`')
+#' @export
+PCMListMembers <- function(
+  l, recursive = TRUE, format = c("$", "$'", '$"', '$`', "[['", '[["', '[[`')) {
+
+  openers = c("$", "$'", '$"', '$`', "[['", '[["', '[[`')
+  closers <- structure(c("", "'", '"', '`', "']]", '"]]', '`]]'), names = openers)
+  if(!format[[1L]] %in% openers) {
+    stop("PCMListMembers::The argument format should be one of ",
+         toString(openers), ".\n")
+  }
+  op <- format[[1L]]
+  cl <- closers[format[[1]]]
+
+  ListMembersInternal <- function(ll) {
+    res <- character(0L)
+
+    if(is.list(ll)) {
+      for(n in names(ll)) {
+        res <- c(res, paste0(op, n, cl))
+        if(recursive && is.list(ll[[n]])) {
+          res <- c(res, paste0(op, n, cl, ListMembersInternal(ll[[n]])))
+        }
+      }
+    }
+    res
+  }
+
+  ListMembersInternal(l)
+}
+
+#' Find the members in a list matching a member expression
+#'
+#' @param object a list containing named elements.
+#' @param member a member expression. Member expressions are character strings
+#' denoting named elements in a list object (see examples).
+#' @param enclos a character string containing the special symbol '?'. This
+#' symbol is to be replaced by matching expressions. The result of this
+#' substitution can be anything but, usually would be a valid R expression.
+#' Default: "?".
+#' @param q a quote symbol, Default: \code{"'"}.
+#' @param ... additional arguments passed to \code{\link{grep}}. For example,
+#' these could be \code{ignore.case=TRUE} or \code{perl=TRUE}.
+#' @return a named character vector, with names corresponding to the matched
+#' member quoted expressions (using the argument \code{q} as a quote symbol),
+#' and values corresponding to the '\code{enclos}-ed' expressions after
+#' substituting the '?'.
+#' @seealso \code{\link{PCMListMembers}}
+#' @examples
+#' model <- PCMBaseTestObjects$model_MixedGaussian_ab
+#' MatchListMembers(model, "Sigma_x", "diag(model?[,,1L])")
+#' MatchListMembers(model, "Sigma_x", "model?[,,1L][upper.tri(model?[,,1L])]")
+#'
+#' @export
+MatchListMembers <- function(object, member, enclos = "?", q = "'", ...) {
+  if(member != "") {
+    member <- gsub('[[', '$', member, fixed = TRUE)
+    member <- gsub(']]', '', member, fixed = TRUE)
+    member <- gsub("'", "", member, fixed = TRUE)
+    member <- gsub('`', "", member, fixed = TRUE)
+    member <- gsub('"', "", member, fixed = TRUE)
+    while(member !=
+          (e2 <- gsub(paste0("\\$([^\\$", q, "]+)"),
+                      paste0("$", q, "\\1", q), member, perl = TRUE)) ) {
+      member <- e2
+    }
+    member <- gsub('$', '\\$', member, fixed = TRUE)
+    ms <- grep(member, x = PCMListMembers(object, format = paste0("$", q)), value = TRUE, ...)
+    sapply(ms, function(m) gsub('?', m, enclos, fixed = TRUE))
+  } else {
+    character(0L)
+  }
+}
+
+#' Value of an attribute of an object or values for an attribute found in its members
+#' @param name attribute name.
+#' @param object a PCM model object or a PCMTree object.
+#' @param member a member expression. Member expressions are character strings
+#' denoting named elements in a list object (see examples). Default: "".
+#' @param ... additional arguments passed to \code{\link{MatchListMembers}}.
+#' @return if member is an empty string, \code{attr(object, name)}. Otherwise, a named list
+#' containing the value for the attribute for each member in \code{object}
+#' matched by \code{member}.
+#' @examples
+#' PCMGetAttribute("class", PCMBaseTestObjects$model_MixedGaussian_ab)
+#' PCMGetAttribute(
+#'   "dim", PCMBaseTestObjects$model_MixedGaussian_ab,
+#'   member = "$Sigmae_x")
+#' @export
+PCMGetAttribute <- function(name, object, member = "", ...) {
+  if(member == "") {
+    attr(object, name)
+  } else {
+    members <- MatchListMembers(object, member, ...)
+    if(length(members) == 0L) {
+      stop("PCMGetAttribute::Could not match the member expression.")
+    } else {
+      res <- list()
+      for(m in members) {
+        res[[m]] <- eval(parse(text = paste0("attr(object", m, ", '", name, "')")))
+      }
+      res
+    }
+  }
+}
+
+#' Set an attribute of a named member in a PCM or other named list object
+#' @param name a character string denoting the attribute name.
+#' @param value the value for the attribute.
+#' @param object a PCM or a list object.
+#' @param member a member expression. Member expressions are character strings
+#' denoting named elements in a list object (see examples). Default: "".
+#' @param spec a logical (TRUE by default) indicating if the attribute should
+#' also be set in the corresponding member of the spec attribute (this is for
+#' PCM objects only).
+#' @param inplace logical (TRUE by default) indicating if the attribute should
+#'  be set to the object in the current environment, or a modified object should
+#'  be returned.
+#' @param ... additional arguments passed to \code{\link{MatchListMembers}}.
+#' @return if inplace is TRUE (default) nothing is returned. Otherwise, a
+#' modified version of object is returned.
+#' @details Calling this function can affect the attributes of multiple members
+#' matched by the \code{member} argument.
+#' @examples
+#' model <- PCMBaseTestObjects$model_MixedGaussian_ab
+#' PCMSetAttribute("class", c("MatrixParameter", "_Fixed"), model, "H")
+#' @export
+PCMSetAttribute <- function(
+  name, value, object, member = "", spec = TRUE, inplace = TRUE, ...) {
+
+  if(member == "") {
+    if(inplace) {
+      eval(substitute(attr(object, name) <- value), parent.frame())
+      if(is.PCM(object) && spec) {
+        eval(substitute(
+          attr(attr(object, "spec"), name) <- value),
+          parent.frame())
+      }
+    } else {
+      attr(object, name) <- value
+      if(is.PCM(object) && spec) {
+        attr(attr(object, "spec"), name) <- value
+      }
+      object
+    }
+  } else {
+    members <- MatchListMembers(object, member, q = "", ...)
+    if(length(members) == 0L) {
+      warning("PCMSetAttribute::Could not match the member expression.")
+    } else {
+      if(inplace) {
+          for(m in members) {
+            ms <- strsplit(m, split = "$", fixed = TRUE)[[1L]][-1L]
+            if(length(ms) == 1L) {
+              eval(substitute(
+                attr(object[[ms[1]]], name) <- value),
+                parent.frame())
+              if(is.PCM(object) && spec) {
+                eval(substitute(
+                  attr(attr(object, "spec")[[ms[1]]], name) <- value),
+                  parent.frame())
+              }
+            } else if(length(ms) == 2L) {
+              eval(substitute(
+                attr(object[[ms[1]]][[ms[2]]], name) <- value),
+                parent.frame())
+              if(is.PCM(object) && spec) {
+                eval(substitute(
+                  attr(attr(object, "spec")[[ms[1]]][[ms[2]]], name) <- value),
+                  parent.frame())
+              }
+            } else if(length(ms) == 3L) {
+              eval(substitute(
+                attr(object[[ms[1L]]][[ms[2L]]][[ms[3L]]], name) <- value),
+                parent.frame())
+              if(is.PCM(object) && spec) {
+                eval(substitute(
+                  attr(attr(object, "spec")[[ms[1]]][[ms[2]]][[ms[3L]]], name) <- value),
+                  parent.frame())
+              }
+            } else {
+              stop("PCMSetAttribute::Nested levels beyond 3 are not supported")
+            }
+          }
+      } else {
+        for(m in members) {
+          for(m in members) {
+            ms <- strsplit(m, split = "$", fixed = TRUE)[[1L]][-1L]
+            if(length(ms) == 1L) {
+              attr(object[[ms[1]]], name) <- value
+            } else if(length(ms) == 2L) {
+              attr(object[[ms[1]]][[ms[2]]], name) <- value
+            } else if(length(ms) == 3L) {
+              attr(object[[ms[1L]]][[ms[2L]]][[ms[3L]]], name) <- value
+            } else {
+              stop("PCMSetAttribute::Nested levels beyond 3 are not supported")
+            }
+          }
+        }
+        object
+      }
+    }
   }
 }
 
@@ -821,7 +1041,7 @@ PCMMapModelTypesToRegimes.PCM <- function(model, tree, ...) {
 #' Get a vector of all parameters (real and discrete) describing a model on a
 #' tree including the numerical parameters of each model regime, the integer ids
 #' of the splitting nodes defining the regimes on the tree and the integer ids of
-#' the model classes associated with each regime.
+#' the model types associated with each regime.
 #'
 #' @details This is an S3 generic.
 #' In the default implementation, the last entry in the returned vector is the
@@ -1006,6 +1226,9 @@ PCMMeanAtTime <- function(
 #'  root (default is the k x k zero matrix).
 #' @param internal a logical indicating if the per-node variance-covariances matrices for
 #' the internal nodes should be returned (see Value). Default FALSE.
+#' @param diagOnly a logical indicating if only the variance
+#' blocks for the nodes should be calculated. By default this is set to FALSE,
+#' meaning that the co-variances are calculated for all couples of nodes.
 #' @return If internal is FALSE, a (k x N) x (k x N) matrix W, such that k x k block
 #' \code{W[((i-1)*k)+(1:k), ((j-1)*k)+(1:k)]} equals the expected
 #' covariance matrix between tips i and j. Otherwise, a list with an element 'W' as described above and
@@ -1034,7 +1257,7 @@ PCMVar <- function(
   W0 = matrix(0.0, PCMNumTraits(model), PCMNumTraits(model)),
   SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
   metaI=PCMInfo(NULL, tree, model, verbose = verbose),
-  internal = FALSE, verbose = FALSE)  {
+  internal = FALSE, diagOnly = FALSE, verbose = FALSE)  {
   UseMethod("PCMVar", model)
 }
 

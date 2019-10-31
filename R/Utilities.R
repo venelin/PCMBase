@@ -473,15 +473,10 @@ PCMParseErrorMessage <- function(x) {
   }
 }
 
-PCMCharacterVectorToRExpression <- function(v) {
-  expr <- "c("
-  for(i in 1:length(v)) {
-    if(i < length(v)) {
-      expr <- paste0(expr, "'", v[i], "', ")
-    } else {
-      # last element
-      expr <- paste0(expr, "'", v[i], "')")
-    }
+AsRExpression <- function(v) {
+  if(is.list(v)) {
+    toString(list(v))
+  } else if(is.vector(v)) {
+    gsub('^list', 'c', toString(list(as.list(v))), perl=TRUE)
   }
-  expr
 }

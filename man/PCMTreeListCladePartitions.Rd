@@ -5,7 +5,8 @@
 \title{A list of all possible clade partitions of a tree with a number of splitting nodes}
 \usage{
 PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0,
-  skipNodes = character(0), tableAncestors = NULL, verbose = FALSE)
+  skipNodes = character(0), tableAncestors = NULL, countOnly = FALSE,
+  verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object}
@@ -21,6 +22,9 @@ empty character vector.}
 
 \item{tableAncestors}{NULL (default) or an integer matrix returned by a previous call
 to \code{PCMTreeTableAncestors(tree)}.}
+
+\item{countOnly}{logical indicating if the only the number of partitions should
+be returned.}
 
 \item{verbose}{a logical indicating if informative messages should be printed to
 the console.}

@@ -432,7 +432,7 @@ PCMParamLoadOrStore.ScalarParameter <- function(o, vecParams, offset, k, R, load
         }
       }
     } else {
-      stop("ERR:02701:PCMBase:PCMParam.R:PCMParamLoadOrStore.ScalarParameter:: indices should be a function(offset, k) returning an integer.")
+      stop("PCMParamLoadOrStore.ScalarParameter:: indices should be a function(offset, k) returning an integer.")
     }
   } else {
     if(is.Global(o)) {
@@ -470,7 +470,7 @@ PCMParamLoadOrStore.VectorParameter <- function(o, vecParams, offset, k, R, load
         }
       }
     } else {
-      stop("ERR:02711:PCMBase:PCMParam.R:PCMParamLoadOrStore.VectorParameter:: indices should be a function(offset, k) returning an integer vector.")
+      stop("PCMParamLoadOrStore.VectorParameter:: indices should be a function(offset, k) returning an integer vector.")
     }
   } else if(is.AllEqual(o)) {
     if(load) {
@@ -532,7 +532,7 @@ PCMParamLoadOrStore.MatrixParameter <- function(o, vecParams, offset, k, R, load
         }
       }
     } else {
-      stop("ERR:02721:PCMBase:PCMParam.R:PCMParamLoadOrStore.MatrixParameter:: indices should be a function(offset, k) returning an integer vector.")
+      stop("PCMParamLoadOrStore.MatrixParameter:: indices should be a function(offset, k) returning an integer vector.")
     }
   } else if(is.ScalarDiagonal(o)) {
     if(load) {
@@ -956,14 +956,16 @@ PCMParamGetShortVector.default <- function(o, k, R, ...) {
 #' @param o a PCM model object.
 #' @param accessExpr a character string used to access the parameter, e.g.
 #' \code{"$Theta[,,1]"} or \code{"[['Theta']][,,1]"}.
+#' @param enclos a character string containing the symbol '?', e.g.
+#' \code{'diag(?)'}. The meaning of this symbol is to be replaced by the matching
+#' accessExpr (see examples). Default value : \code{'?'}.
 #'
 #' @return an integer vector of length \code{PCMParamCount(o)} with NAs
 #' everywhere except at the coordinates corresponding to the parameter in
 #' question.
 #'
 #' @examples
-#'
-#' model <- PCM(PCMDefaultModelTypes()["C"], k = 3, regimes = c("a", "b"))
+#' model <- PCM(PCMDefaultModelTypes()["D"], k = 3, regimes = c("a", "b"))
 #' # The parameter H is a diagonal 3x3 matrix. If this matrix is considered as
 #' # a vector the indices of its diagonal elements are 1, 5 and 9. These indices
 #' # are indicated as the non-NA entries in the returned vector.
@@ -971,10 +973,13 @@ PCMParamGetShortVector.default <- function(o, k, R, ...) {
 #' PCMParamLocateInShortVector(model, "$H[,,1]")
 #' PCMParamLocateInShortVector(model, "$H[,,'a']")
 #' PCMParamLocateInShortVector(model, "$H[,,'b']")
+#' PCMParamLocateInShortVector(model, "$Sigma_x[,,'b']", enclos = 'diag(?)')
+#' PCMParamLocateInShortVector(model, "$Sigma_x[,,'b']", enclos = '?[upper.tri(?)]')
 #' @export
-PCMParamLocateInShortVector <- function(o, accessExpr) {
+PCMParamLocateInShortVector <- function(o, accessExpr, enclos = "?") {
   v <- PCMParamGetShortVector(o)
-  mask <- seq_len(length(eval(parse(text=paste0("o", accessExpr)))))
+  mask <- seq_len(length(eval(parse(
+    text = gsub("?", paste0("o", accessExpr), enclos, fixed = TRUE)))))
   v[] <- NA
   oNAs <- o
 
@@ -982,7 +987,8 @@ PCMParamLocateInShortVector <- function(o, accessExpr) {
     oNAs, vecParams = v, offset = 0, k = PCMNumTraits(o), R = PCMNumRegimes(o),
     load = TRUE)
 
-  eval(parse(text = paste0("oNAs", accessExpr, "[] <- mask")))
+  eval(parse(text = paste0(
+    gsub("?", paste0("oNAs", accessExpr), enclos, fixed = TRUE), "[] <- mask")))
   as.integer(PCMParamGetShortVector(oNAs))
 }
 
@@ -1033,7 +1039,7 @@ PCMParamSetByName.PCM <- function(
   for(name in names(params)) {
     if(! (name %in% names(model)) ) {
       if(failIfNamesInParamsDontExist) {
-        stop(paste0("ERR:02751:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: ", name,
+        stop(paste0("PCMParamSetByName.PCM:: ", name,
                     " is not a settable parameter of the model."))
       } else {
         next
@@ -1042,9 +1048,9 @@ PCMParamSetByName.PCM <- function(
 
     if(is.PCM(model[[name]])) {
       if(! is.PCM(params[[name]]) ) {
-        stop(paste0("ERR:02752:PCMBase:PCMParam.R:PCMParamSetByName.PCM::model[['", name, "']] is a nested PCM object but params[['", name, "']] is not."))
+        stop(paste0("PCMParamSetByName.PCM::model[['", name, "']] is a nested PCM object but params[['", name, "']] is not."))
       } else if(!identical(PCMNumTraits(model), PCMNumTraits(params[[name]])) ) {
-        stop(paste0("ERR:02753:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: model[['", name, "']] has a different number of traits (k) from params[['", name, "']]."))
+        stop(paste0("PCMParamSetByName.PCM:: model[['", name, "']] has a different number of traits (k) from params[['", name, "']]."))
       } else {
         if(deepCopySubPCMs) {
           for(subName in names(params[[name]])) {
@@ -1076,13 +1082,13 @@ PCMParamSetByName.PCM <- function(
       }
     } else {
       if( !identical(length(model[[name]]), length(params[[name]])) && !replaceWholeParameters ) {
-        stop(paste0("ERR:02754:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: params[[", name,
+        stop(paste0("PCMParamSetByName.PCM:: params[[", name,
                     "]] is not the same length as model[[", name, "]]; ",
                     "length(params[[", name, "]])=", length(params[[name]]),
                     ", length(model[[", name, "]])=", length(model[[name]]), "."))
       }
       if( !identical(dim(model[[name]]), dim(params[[name]])) && !replaceWholeParameters ) {
-        stop(paste0("ERR:02755:PCMBase:PCMParam.R:PCMParamSetByName.PCM:: params[[", name,
+        stop(paste0("PCMParamSetByName.PCM:: params[[", name,
                     "]] is not the same dimension as model[[", name, "]]; ",
                     "dim(params[[", name, "]])=", str(dim(params[[name]])),
                     ", length(model[[", name, "]])=", str(dim(model[[name]])), "."))
@@ -1377,7 +1383,7 @@ PCMDefaultObject.MatrixParameter <- function(spec, model, ...) {
     if(is.Global(spec)) {
       diag(o) <- 1.0
     } else {
-      for(r in 1:R) {
+      for(r in seq_len(R)) {
         diag(o[,,r]) <- 1.0
       }
     }

@@ -7,7 +7,7 @@
 PCMVar(tree, model, W0 = matrix(0, PCMNumTraits(model),
   PCMNumTraits(model)), SE = matrix(0, PCMNumTraits(model),
   PCMTreeNumTips(tree)), metaI = PCMInfo(NULL, tree, model, verbose =
-  verbose), internal = FALSE, verbose = FALSE)
+  verbose), internal = FALSE, diagOnly = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}
@@ -32,6 +32,10 @@ or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.}
 
 \item{internal}{a logical indicating if the per-node variance-covariances matrices for
 the internal nodes should be returned (see Value). Default FALSE.}
+
+\item{diagOnly}{a logical indicating if only the variance
+blocks for the nodes should be calculated. By default this is set to FALSE,
+meaning that the co-variances are calculated for all couples of nodes.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
 }
