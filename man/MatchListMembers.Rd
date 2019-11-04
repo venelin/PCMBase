@@ -34,7 +34,9 @@ Find the members in a list matching a member expression
 \examples{
 model <- PCMBaseTestObjects$model_MixedGaussian_ab
 MatchListMembers(model, "Sigma_x", "diag(model?[,,1L])")
+MatchListMembers(model, "S.*_x", "diag(model?[,,1L])")
 MatchListMembers(model, "Sigma_x", "model?[,,1L][upper.tri(model?[,,1L])]")
+MatchListMembers(model, "a$Sigma_x", "model?[,,1L][upper.tri(model?[,,1L])]")
 
 }
 \seealso{

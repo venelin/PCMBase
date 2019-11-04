@@ -767,7 +767,9 @@ PCMListMembers <- function(
 #' @examples
 #' model <- PCMBaseTestObjects$model_MixedGaussian_ab
 #' MatchListMembers(model, "Sigma_x", "diag(model?[,,1L])")
+#' MatchListMembers(model, "S.*_x", "diag(model?[,,1L])")
 #' MatchListMembers(model, "Sigma_x", "model?[,,1L][upper.tri(model?[,,1L])]")
+#' MatchListMembers(model, "a$Sigma_x", "model?[,,1L][upper.tri(model?[,,1L])]")
 #'
 #' @export
 MatchListMembers <- function(object, member, enclos = "?", q = "'", ...) {
@@ -777,12 +779,17 @@ MatchListMembers <- function(object, member, enclos = "?", q = "'", ...) {
     member <- gsub("'", "", member, fixed = TRUE)
     member <- gsub('`', "", member, fixed = TRUE)
     member <- gsub('"', "", member, fixed = TRUE)
-    while(member !=
-          (e2 <- gsub(paste0("\\$([^\\$", q, "]+)"),
-                      paste0("$", q, "\\1", q), member, perl = TRUE)) ) {
-      member <- e2
-    }
-    member <- gsub('$', '\\$', member, fixed = TRUE)
+    ms <- lapply(
+      strsplit(member, split = "$", fixed = TRUE)[[1L]],
+      function(s) if(!s=="") paste0(q, s, q) else "")
+    ms$sep <- "\\$"
+    member <- do.call(paste, ms)
+    # while(member !=
+    #       (e2 <- gsub(paste0("\\$([^\\$", q, "]+)"),
+    #                   paste0("$", q, "\\1", q), member, perl = TRUE)) ) {
+    #   member <- e2
+    # }
+    # member <- gsub('$', '\\$', member, fixed = TRUE)
     ms <- grep(member, x = PCMListMembers(object, format = paste0("$", q)), value = TRUE, ...)
     sapply(ms, function(m) gsub('?', m, enclos, fixed = TRUE))
   } else {
@@ -916,6 +923,67 @@ PCMSetAttribute <- function(
           }
         }
         object
+      }
+    }
+  }
+}
+
+#' Add a value to a list-valued attribute of a member or members matching a pattern
+#' @inheritParams PCMSetAttribute
+#' @param enclos a character string containing the special symbol '?'. This
+#' symbol is to be replaced by matching expressions. The result of this
+#' substitution can be anything but, usually would be a valid R expression.
+#' Default: "?".
+#' @return if \code{inplace} is \code{TRUE} no value is returned. Otherwise, a
+#' modified version of \code{object} is returned.
+#' @export
+PCMAddToListAttribute <- function(
+  name, value, object, member = "", enclos = "?", spec = TRUE, inplace = TRUE, ...) {
+
+  value$enclos <- enclos
+  if(is.null(member) || member == "") {
+    values <- PCMGetAttribute(name, object)
+    if(!is.list(values)) {
+      values <- list(value)
+    } else {
+      values <- c(values, list(value))
+    }
+    if(inplace) {
+      eval(substitute(PCMSetAttribute(
+        name = name, value = values, object = object)),
+        parent.frame())
+    } else {
+      PCMSetAttribute(
+        name = name, value = values, object = object)
+      object
+    }
+  } else {
+    membersEnclos <- MatchListMembers(object, member, enclos = enclos, ...)
+
+    if(length(membersEnclos) == 0L) {
+      warning(
+        "PCMAddAttribute:: no members matched by member argument (",
+        member, "), so nothing to do.")
+    } else {
+      for(i in seq_along(membersEnclos)) {
+        m <- names(membersEnclos)[i]
+        mE <- unname(membersEnclos[i])
+
+        values <- PCMGetAttribute(name, object, m)
+        if(!is.list(values)) {
+          values <- list(value)
+        } else {
+          values <- c(values, list(value))
+        }
+        if(inplace) {
+          eval(substitute(PCMSetAttribute(
+            name = name, value = values, object = object, member = m)),
+            parent.frame())
+        } else {
+          PCMSetAttribute(
+            name = name, value = values, object = object, member = m)
+          object
+        }
       }
     }
   }

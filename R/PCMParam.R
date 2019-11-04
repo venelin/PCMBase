@@ -977,19 +977,23 @@ PCMParamGetShortVector.default <- function(o, k, R, ...) {
 #' PCMParamLocateInShortVector(model, "$Sigma_x[,,'b']", enclos = '?[upper.tri(?)]')
 #' @export
 PCMParamLocateInShortVector <- function(o, accessExpr, enclos = "?") {
-  v <- PCMParamGetShortVector(o)
-  mask <- seq_len(length(eval(parse(
-    text = gsub("?", paste0("o", accessExpr), enclos, fixed = TRUE)))))
-  v[] <- NA
-  oNAs <- o
+  if(is.null(accessExpr) || accessExpr == "") {
+    seq_len(PCMParamCount(o))
+  } else {
+    v <- PCMParamGetShortVector(o)
+    mask <- seq_len(length(eval(parse(
+      text = gsub("?", paste0("o", accessExpr), enclos, fixed = TRUE)))))
+    v[] <- NA
+    oNAs <- o
 
-  PCMParamLoadOrStore(
-    oNAs, vecParams = v, offset = 0, k = PCMNumTraits(o), R = PCMNumRegimes(o),
-    load = TRUE)
+    PCMParamLoadOrStore(
+      oNAs, vecParams = v, offset = 0, k = PCMNumTraits(o), R = PCMNumRegimes(o),
+      load = TRUE)
 
-  eval(parse(text = paste0(
-    gsub("?", paste0("oNAs", accessExpr), enclos, fixed = TRUE), "[] <- mask")))
-  as.integer(PCMParamGetShortVector(oNAs))
+    eval(parse(text = paste0(
+      gsub("?", paste0("oNAs", accessExpr), enclos, fixed = TRUE), "[] <- mask")))
+    as.integer(PCMParamGetShortVector(oNAs))
+  }
 }
 
 #' Set model parameters from a named list
