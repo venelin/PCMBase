@@ -904,7 +904,7 @@ PCMSetAttribute <- function(
                   parent.frame())
               }
             } else {
-              stop("PCMSetAttribute::Nested levels beyond 3 are not supported")
+              stop("PCMSetAttribute:: Nested levels beyond 3 are not supported")
             }
           }
       } else {
@@ -918,7 +918,7 @@ PCMSetAttribute <- function(
             } else if(length(ms) == 3L) {
               attr(object[[ms[1L]]][[ms[2L]]][[ms[3L]]], name) <- value
             } else {
-              stop("PCMSetAttribute::Nested levels beyond 3 are not supported")
+              stop("PCMSetAttribute:: Nested levels beyond 3 are not supported")
             }
           }
         }
@@ -987,6 +987,41 @@ PCMAddToListAttribute <- function(
       }
     }
   }
+}
+
+#' Combine all member attributes of a given name into a list
+#' @param object a named list object.
+#' @param name a character string denoting the name of the attribute.
+#' @return a list of attribute values
+#' @export
+PCMCombineListAttribute <- function(object, name) {
+  attrs <- list()
+  if(is.list(attr(object, name, exact = TRUE))) {
+    attrs <- attr(object, name, exact = TRUE)
+    for(i in seq_along(attrs)) {
+      if(!is.null(attrs[[i]]$enclos)) {
+        attrs[[i]]$pos <- which(!is.na(
+          PCMParamLocateInShortVector(object, "", attrs[[i]]$enclos)))
+      }
+      attrs[[i]]$member <- ""
+    }
+  }
+  members <- PCMListMembers(object, recursive = TRUE, format = "$`")
+  for(m in members) {
+    memberAttrs <- eval(parse(text = paste0(
+      "attr(object", m, ", '", name, "', exact = TRUE)")))
+
+    if(is.list(memberAttrs)) {
+      # update 'pos' fields in memberAttrs based on m and their 'enclos' fields.
+      for(i in seq_along(memberAttrs)) {
+        memberAttrs[[i]]$pos <- which(!is.na(
+          PCMParamLocateInShortVector(object, m, memberAttrs[[i]]$enclos)))
+        memberAttrs[[i]]$member <- m
+      }
+      attrs <- c(attrs, memberAttrs)
+    }
+  }
+  attrs
 }
 
 #' Fix a parameter in a PCM model
@@ -1099,7 +1134,7 @@ PCMMapModelTypesToRegimes <- function(model, tree, ...) {
 
 #' @export
 PCMMapModelTypesToRegimes.PCM <- function(model, tree, ...) {
-  uniqueRegimes <- PCMTreeGetPartNames(tree)
+  uniqueRegimes <- PCMRegimes(tree)
   res <- rep(1, length(uniqueRegimes))
   names(res) <- as.character(uniqueRegimes)
   res

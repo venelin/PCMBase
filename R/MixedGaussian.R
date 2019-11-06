@@ -257,7 +257,7 @@ MixedGaussian <- function(
 
 #' @export
 PCMMapModelTypesToRegimes.MixedGaussian <- function(model, tree, ...) {
-  uniqueRegimes <- PCMTreeGetPartNames(tree)
+  uniqueRegimes <- unique(PCMRegimes(tree))
   res <- attr(model, "mapping", exact=TRUE)
   if(!is.null(names(res))) {
     res <- res[as.character(uniqueRegimes)]
