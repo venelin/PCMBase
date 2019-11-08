@@ -1646,7 +1646,6 @@ PCMLikDmvNorm <- function(
 #' @importFrom mvtnorm rmvnorm
 #' @seealso \code{\link{PCMLik}} \code{\link{PCMInfo}} \code{\link{PCMCond}}
 #' @examples
-#' library(data.table)
 #' N <- 10
 #' L <- 100.0
 #' tr <- ape::stree(N)
@@ -1662,19 +1661,6 @@ PCMLikDmvNorm <- function(
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' X <- PCMSim(tr, model, X0 = rep(0, 3))
 #'
-#' dt <- NULL
-#' for(epoch in seq(0, L, by = 1)) {
-#'   nodes <- PCMTreeLocateEpochOnBranches(tr, epoch)$nodes
-#'   dtEpoch <- as.data.table(t(X[, nodes]))
-#'   dtEpoch[, t:=epoch]
-#'   if(epoch == 0) {
-#'     dtEpoch[, lineage:="root"]
-#'   } else {
-#'     dtEpoch[, lineage:=gsub("i.*x", "x", PCMTreeGetLabels(tr)[nodes], perl = TRUE)]
-#'   }
-#'
-#'   dt <- rbindlist(list(dt, dtEpoch))
-#' }
 #'
 #' @export
 PCMSim <- function(
@@ -1751,72 +1737,22 @@ PCMSim <- function(
 #'
 #' @seealso \code{\link{PCMInfo}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}}
 #' @examples
-#' # Comparing the likelihood values with package mvMORPH:
-#' library(mvMORPH)
-#' library(PCMBase)
-#' library(ape)
+#' N <- 10
+#' L <- 100.0
+#' tr <- ape::stree(N)
+#' tr$edge.length <- rep(L, N)
+#' for(epoch in seq(1, L, by = 1.0)) {
+#'   tr <- PCMTreeInsertSingletonsAtEpoch(tr, epoch)
+#' }
+#'
+#' model <- PCMBaseTestObjects$model_MixedGaussian_ab
+#'
+#' PCMTreeSetPartRegimes(tr, c(`11` = 'a'), setPartition = TRUE)
 #'
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#' X <- PCMSim(tr, model, X0 = rep(0, 3))
 #'
-#' # Generating a random tree
-#' tree <- rtree(50)
-#'
-#' # Providing a tree whith the shift mapped on
-#' tot<-max(nodeHeights(tree))
-#' age=tot-3    # The shift occured 3 Ma ago
-#' tree<-make.era.map(tree,c(0,age))
-#'
-#' # Convert the tree with mapped regimes to a PCMTree object
-#' pcmTree <- PCMTree(map.to.singleton(tree))
-#' PCMTreeSetRegimesForEdges(pcmTree, names(pcmTree[["edge.length"]]))
-#'
-#' # Plot of the phylogenies for illustration that they are the same and have
-#' # the same regime assignment (uncomment the two lines below to see the plots).
-#' #plotSimmap(tree,fsize=0.6,node.numbers=FALSE,lwd=3, pts=FALSE)
-#' #PCMTreePlot(pcmTree)
-#'
-#' # Simulating trait evolution using the mvMORPH package
-#' alpha<-matrix(c(1,0.1,0,2),2)
-#' sigma<-matrix(c(.1,.1,0,.1),2)
-#' theta<-c(2,3)
-#'
-#' data<-mvSIM(tree, param=list(
-#'   sigma=sigma, alpha=alpha, ntraits=2, theta=theta,
-#'   names_traits=c("head.size","mouth.size")), model="OUBM", nsim=1)
-#'
-#' # Create a log-likelihood calculation function for an OUBM model using mvMORPH:
-#' llmvMORPH <- mvSHIFT(
-#'    tree, data, model = "OUBM", optimization = "fixed")[["llik"]]
-#'
-#' # Calculating the log-likelihood value of the parameters using mvMORPH:
-#' llmvMORPH(vecParams <- c(alpha[lower.tri(alpha, diag = TRUE)],
-#'                          sigma[lower.tri(sigma, diag = TRUE)],
-#'                          theta = theta), root.mle = FALSE)
-#'
-#' # Create a PCM model object using PCMBase. For simplicity, we use here a 2-regime
-#' # OU model. Alternatively, we could have used a mixed Gaussian model with an OU
-#' # and a BM regime.
-#' pcmOUBM <- PCM("OU", k = 2, regimes = c("1", "2"))
-#'
-#' # Specify the parameter values for the model
-#' pcmOUBM[["H"]][,,1] <- alpha %*% t(alpha)
-#' pcmOUBM[["Sigma_x"]][,,1] <- pcmOUBM[["Sigma_x"]][,,2] <- UpperChol(sigma %*% t(sigma))
-#' pcmOUBM[["Theta"]][,1] <- theta
-#' pcmOUBM[["X0"]][] <- theta
-#'
-#' # Calculate the log-likelihood value using PCMBase:
-#' PCMLik(t(data), pcmTree, pcmOUBM)
-#' # The two values are matching up to numerical error.
-#' all.equal(target = llmvMORPH(vecParams, root.mle = FALSE),
-#'           current = PCMLik(t(data), pcmTree, pcmOUBM), check.attributes = FALSE)
-#'
-#' # For speed-up, use the package PCMBaseCpp as follows:
-#' library(PCMBaseCpp)
-#' # create a cache object once:
-#' metaICpp <- PCMInfoCpp(t(data), pcmTree, pcmOUBM)
-#'
-#' # calculate the likelihood
-#' PCMLik(t(data), pcmTree, pcmOUBM, metaI = metaICpp)
+#' PCMLik(X, tr, model)
 #' @export
 PCMLik <- function(
   X, tree, model,

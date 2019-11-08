@@ -51,8 +51,6 @@ Suggests:
   cowplot, 
   covr,
   mvSLOUCH,
-  mvMORPH,
-  PCMBaseCpp,
   BiocManager
 RoxygenNote: 6.1.1
 ByteCompile: yes
