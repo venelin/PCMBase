@@ -12,7 +12,7 @@ passed as argument to \code{\link{chol}}.}
 }
 \value{
 an upper triangular matrix Sigma_x, such that
-Sigma = Sigma_x %*% t(Sigma_x)
+Sigma = Sigma_x \%*\% t(Sigma_x)
 }
 \description{
 This function is an analog to the Cholesky decomposition.

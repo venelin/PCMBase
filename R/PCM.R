@@ -1729,13 +1729,14 @@ PCMSim <- function(
 #' the likelihood value was calculated. If the model contains a member called X0, this
 #' vector is used; otherwise the value of X0 maximizing the likelihood for the given
 #' model parameters is calculated by maximizing the quadratic polynomial
-#' 'X0 * L_root * X0 + m_root * X0 + r_root'.}
-#' \item{error}{A named list containing error information if a numerical or other
-#' logical error occurred during likelihood calculation (this is a list returned by
-#'  \code{\link{PCMParseErrorMessage}}.}
-#'  If an error occured during likelihood calculation, the default behavior is to
+#' 'X0 * L_root * X0 + m_root * X0 + r_root';}
+#' \item{error}{A character string with information if a numerical or other
+#' logical error occurred during likelihood calculation.}
+#' }
+#' If an error occured during likelihood calculation, the default behavior is to
 #'  return NA with a non-NULL error attribute. This behavior can be changed in
 #'  using global options:
+#'\describe{
 #'  \item{"PCMBase.Value.NA"}{Allows to specify a different NA value such as \code{-Inf} or \code{-1e20} which can be used in combination with \code{log = TRUE} when
 #'   using \code{optim} to maximize the log-likelihood;}
 #'  \item{"PCMBase.Errors.As.Warnings"}{Setting this option to FALSE will cause any
@@ -1748,7 +1749,74 @@ PCMSim <- function(
 #'   can be provided explicitly, because this is not supposed to change during a
 #'   model inference procedure such as likelihood maximization.
 #'
-#' @seealso \code{\link{PCMInfo}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}} \code{\link{PCMParseErrorMessage}}
+#' @seealso \code{\link{PCMInfo}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}}
+#' @examples
+#' # Comparing the likelihood values with package mvMORPH:
+#' library(mvMORPH)
+#' library(PCMBase)
+#' library(ape)
+#'
+#' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#'
+#' # Generating a random tree
+#' tree <- rtree(50)
+#'
+#' # Providing a tree whith the shift mapped on
+#' tot<-max(nodeHeights(tree))
+#' age=tot-3    # The shift occured 3 Ma ago
+#' tree<-make.era.map(tree,c(0,age))
+#'
+#' # Convert the tree with mapped regimes to a PCMTree object
+#' pcmTree <- PCMTree(map.to.singleton(tree))
+#' PCMTreeSetRegimesForEdges(pcmTree, names(pcmTree[["edge.length"]]))
+#'
+#' # Plot of the phylogenies for illustration that they are the same and have
+#' # the same regime assignment (uncomment the two lines below to see the plots).
+#' #plotSimmap(tree,fsize=0.6,node.numbers=FALSE,lwd=3, pts=FALSE)
+#' #PCMTreePlot(pcmTree)
+#'
+#' # Simulating trait evolution using the mvMORPH package
+#' alpha<-matrix(c(1,0.1,0,2),2)
+#' sigma<-matrix(c(.1,.1,0,.1),2)
+#' theta<-c(2,3)
+#'
+#' data<-mvSIM(tree, param=list(
+#'   sigma=sigma, alpha=alpha, ntraits=2, theta=theta,
+#'   names_traits=c("head.size","mouth.size")), model="OUBM", nsim=1)
+#'
+#' # Create a log-likelihood calculation function for an OUBM model using mvMORPH:
+#' llmvMORPH <- mvSHIFT(
+#'    tree, data, model = "OUBM", optimization = "fixed")[["llik"]]
+#'
+#' # Calculating the log-likelihood value of the parameters using mvMORPH:
+#' llmvMORPH(vecParams <- c(alpha[lower.tri(alpha, diag = TRUE)],
+#'                          sigma[lower.tri(sigma, diag = TRUE)],
+#'                          theta = theta), root.mle = FALSE)
+#'
+#' # Create a PCM model object using PCMBase. For simplicity, we use here a 2-regime
+#' # OU model. Alternatively, we could have used a mixed Gaussian model with an OU
+#' # and a BM regime.
+#' pcmOUBM <- PCM("OU", k = 2, regimes = c("1", "2"))
+#'
+#' # Specify the parameter values for the model
+#' pcmOUBM[["H"]][,,1] <- alpha %*% t(alpha)
+#' pcmOUBM[["Sigma_x"]][,,1] <- pcmOUBM[["Sigma_x"]][,,2] <- UpperChol(sigma %*% t(sigma))
+#' pcmOUBM[["Theta"]][,1] <- theta
+#' pcmOUBM[["X0"]][] <- theta
+#'
+#' # Calculate the log-likelihood value using PCMBase:
+#' PCMLik(t(data), pcmTree, pcmOUBM)
+#' # The two values are matching up to numerical error.
+#' all.equal(target = llmvMORPH(vecParams, root.mle = FALSE),
+#'           current = PCMLik(t(data), pcmTree, pcmOUBM), check.attributes = FALSE)
+#'
+#' # For speed-up, use the package PCMBaseCpp as follows:
+#' library(PCMBaseCpp)
+#' # create a cache object once:
+#' metaICpp <- PCMInfoCpp(t(data), pcmTree, pcmOUBM)
+#'
+#' # calculate the likelihood
+#' PCMLik(t(data), pcmTree, pcmOUBM, metaI = metaICpp)
 #' @export
 PCMLik <- function(
   X, tree, model,

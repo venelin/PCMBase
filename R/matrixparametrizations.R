@@ -36,7 +36,7 @@
 #' passed as argument to \code{\link{chol}}.
 #'
 #' @return an upper triangular matrix Sigma_x, such that
-#' Sigma = Sigma_x %*% t(Sigma_x)
+#' Sigma = Sigma_x \%*\% t(Sigma_x)
 #' @examples
 #' # S is a symmetric positive definite matrix
 #' M<-matrix(rexp(9),3,3); S <- M %*% t(M)

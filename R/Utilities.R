@@ -426,51 +426,10 @@ PCMPlotGaussianSample2D <- function(mu, Sigma, numPoints = 1000, ...) {
 
 #' Extract error information from a formatted error message.
 #' @param x character string representing the error message.
-#' @description The function searches x for a pattern matching the format
-#' 'ERR:5-alphanumeric-character-code:project-name:source-file:error-specifics:'.
-#' Specifically it
-#' searches for a regular expression pattern "ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:".
-#' @return a named list with the parsed error information or NULL, if no match
-#' was found. The elements of this list are named as follows:
-#' \item{type}{The type of the error message. Usually this is ERROR, but could be
-#' WARNING or anything else.}
-#' \item{icode}{An an alphanumeric code of the error.}
-#' \item{project}{The name of the project locating the code that raised the error.}
-#' \item{file}{The name of the source-file containing the code that raised the error.}
-#' \item{fun}{The name of the function raising the error}
-#' \item{info}{A character string containing additional error-specific information}
-#' \item{msg}{A verbal description of the error.}
+#' @return Currently the function returns \code{x} unchanged.
 #' @export
 PCMParseErrorMessage <- function(x) {
-  res <- try({
-    if(is.character(x)) {
-      code <- regmatches(x, regexpr("ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:", x))
-      if(length(code) > 0) {
-        code <- code[1]
-        codeL <- strsplit(code, split=":")[[1]]
-        list(
-          type = codeL[1],
-          icode = codeL[2],
-          project = codeL[3],
-          file = codeL[4],
-          fun = codeL[5],
-          info = codeL[6],
-          code = code,
-          msg = x
-        )
-      } else {
-        NULL
-      }
-    } else {
-      NULL
-    }
-  }, silent = TRUE)
-
-  if(class(res)=="try-error") {
-    NULL
-  } else {
-    res
-  }
+  x
 }
 
 AsRExpression <- function(v) {

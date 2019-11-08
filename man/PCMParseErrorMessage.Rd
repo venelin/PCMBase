@@ -10,20 +10,8 @@ PCMParseErrorMessage(x)
 \item{x}{character string representing the error message.}
 }
 \value{
-a named list with the parsed error information or NULL, if no match
-was found. The elements of this list are named as follows:
-\item{type}{The type of the error message. Usually this is ERROR, but could be
-WARNING or anything else.}
-\item{icode}{An an alphanumeric code of the error.}
-\item{project}{The name of the project locating the code that raised the error.}
-\item{file}{The name of the source-file containing the code that raised the error.}
-\item{fun}{The name of the function raising the error}
-\item{info}{A character string containing additional error-specific information}
-\item{msg}{A verbal description of the error.}
+Currently the function returns \code{x} unchanged.
 }
 \description{
-The function searches x for a pattern matching the format
-'ERR:5-alphanumeric-character-code:project-name:source-file:error-specifics:'.
-Specifically it
-searches for a regular expression pattern "ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:".
+Extract error information from a formatted error message.
 }

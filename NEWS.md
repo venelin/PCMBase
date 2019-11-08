@@ -6,6 +6,12 @@ output: html_document
 ---
 
 # PCMBase 1.2.11
+- Added functions PCMListMembers, MatchListMembers, PCMSetAttribute, PCMGetAttribute.
+- Added examples and improved documentation of the functions PCMLik and UpperChol. 
+The examples include calls to the companion package PCMBaseCpp, which was added 
+in Suggests.
+- Fixed a bug in the parsing of error messages (attribute error of the result
+from calling PCMLik).
 - Fixed a bug in PCMTreeListCladePartitions for nNodes > 1. 
 - Added argument countOnly to PCMTreeListCladePartitions.
 - Added new functions PCMListMembers, MatchListMembers, PCMGetAttribute, 

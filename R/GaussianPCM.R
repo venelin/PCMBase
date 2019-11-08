@@ -377,14 +377,8 @@ PCMLik.GaussianPCM <- function(
     silent = TRUE)
 
   if(class(PCMLmr) == "try-error") {
-    errL <- PCMParseErrorMessage(PCMLmr)
-    if(is.null(errL)) {
-      err <- paste0("GaussianPCM.R:PCMLik:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr, "; print(model):",
-                    do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
-      errL <- PCMParseErrorMessage(err)
-    } else {
-      err <- PCMLmr
-    }
+    err <- paste0("PCMLik.GaussianPCM:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr, ".")
+    errL <- PCMParseErrorMessage(err)
 
     if(getOption("PCMBase.Raise.Lik.Errors", TRUE)) {
       if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
@@ -393,7 +387,6 @@ PCMLik.GaussianPCM <- function(
         stop(err)
       }
     }
-
 
     k0 <- metaI$pc[, metaI$N + 1L]
     X0 <- rep(NaN, metaI$k)
@@ -411,7 +404,7 @@ PCMLik.GaussianPCM <- function(
     k0 <- metaI$pc[, metaI$N + 1L]
 
     if(is.null(L0) | is.null(m0) | is.null(r0)) {
-      err <- paste0("GaussianPCM.R:PCMLik:: The list returned by PCMLmr did not contain elements 'L', 'm' and 'r'.")
+      err <- paste0("PCMLik.GaussianPCM:: The list returned by PCMLmr did not contain elements 'L', 'm' and 'r'.")
 
       if(!getOption("PCMBase.Ignore.Lmr.Errors", FALSE)) {
         if(getOption("PCMBase.Errors.As.Warnings", TRUE)) {
@@ -443,7 +436,7 @@ PCMLik.GaussianPCM <- function(
         b = -m0[k0]), silent = TRUE)
       if(class(X0[[1]]) == "try-error") {
         err <- paste0(
-          "GaussianPCM.R:PCMLik:: There was a problem calculating X0 from L0,m0,r0. ",
+          "PCMLik.GaussianPCM:: There was a problem calculating X0 from L0,m0,r0. ",
           "L0=", toString(L0), "; m0=", toString(m0),
           "; r0=", r0, ". Error message:", X0[[1]], "\n")
 
@@ -472,7 +465,7 @@ PCMLik.GaussianPCM <- function(
     loglik <- try(X0[k0] %*% L0[k0,k0,drop=FALSE] %*% X0[k0] + m0[k0] %*% X0[k0] + r0, silent = TRUE)
     if(class(loglik) == "try-error") {
       err <- paste0(
-        "GaussianPCM.R:PCMLik:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L0=", toString(L0), "; m0=", toString(m0), "; r0=", r0,
+        "PCMLik.GaussianPCM:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L0=", toString(L0), "; m0=", toString(m0), "; r0=", r0,
         ". Error message from call to X0 %*% L0 %*% X0 + m0 %*% X0 + r0:", loglik, "\n")
 
       errL <- PCMParseErrorMessage(err)
@@ -495,7 +488,7 @@ PCMLik.GaussianPCM <- function(
 
     if(class(value) == "try-error") {
       err <- paste0(
-        "GaussianPCM.R:PCMLik:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value, "; print(model):",
+        "PCMLik.GaussianPCM:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value, "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
       errL <- PCMParseErrorMessage(err)
@@ -515,7 +508,7 @@ PCMLik.GaussianPCM <- function(
 
     } else if(is.na(value)) {
       err <- paste0(
-        "GaussianPCM.R:PCMLik:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), "; print(model):",
+        "PCMLik.GaussianPCM:: There was a possible numerical problem, e.g. division of 0 by 0 when calculating the likelihood. value=", toString(value), "; calculated loglik=", toString(loglik), "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))), ". No error message was returned from the call to PCMLmr. Check for runtime warnings.")
 
       errL <- PCMParseErrorMessage(err)
