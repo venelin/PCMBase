@@ -46,7 +46,6 @@ Internally, this function uses the \code{\link{PCMCond}} implementation
  for the given model class.
 }
 \examples{
-library(data.table)
 N <- 10
 L <- 100.0
 tr <- ape::stree(N)
@@ -62,19 +61,6 @@ PCMTreeSetPartRegimes(tr, c(`11` = 'a'), setPartition = TRUE)
 set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 X <- PCMSim(tr, model, X0 = rep(0, 3))
 
-dt <- NULL
-for(epoch in seq(0, L, by = 1)) {
-  nodes <- PCMTreeLocateEpochOnBranches(tr, epoch)$nodes
-  dtEpoch <- as.data.table(t(X[, nodes]))
-  dtEpoch[, t:=epoch]
-  if(epoch == 0) {
-    dtEpoch[, lineage:="root"]
-  } else {
-    dtEpoch[, lineage:=gsub("i.*x", "x", PCMTreeGetLabels(tr)[nodes], perl = TRUE)]
-  }
-
-  dt <- rbindlist(list(dt, dtEpoch))
-}
 
 }
 \seealso{

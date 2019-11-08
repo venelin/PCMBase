@@ -42,7 +42,7 @@
 #' M<-matrix(rexp(9),3,3); S <- M %*% t(M)
 #'
 #' # This should return a zero matrix:
-#' UpperChol(S) %*% t(UpperChol(S)) - S
+#' UpperTriFactor(S) %*% t(UpperTriFactor(S)) - S
 #'
 #' # This should return a zero matrix too:
 #' t(chol(S)) %*% chol(S) - S
@@ -52,7 +52,7 @@
 #' chol(S) %*% t(chol(S)) - S
 #' @seealso \code{\link{chol}}
 #' @export
-UpperChol <- function(Sigma) {
+UpperTriFactor <- function(Sigma) {
   k <- nrow(Sigma)
   P <- matrix(0, nrow = k, ncol = k)
   ## create permutation matrix with 1s on the anti-diagonal
