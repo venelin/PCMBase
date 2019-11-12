@@ -235,21 +235,17 @@ MixedGaussian <- function(
 
   if(any(sapply(spec, is.Transformable))) class(spec) <- c(class(spec), '_Transformable')
 
-  if(!modelTypesAreStrings) {
+  if(is.list(modelTypes)) {
     res <- PCM(
-      model = class(spec), modelTypes, k = k, regimes = regimes, spec = spec, params = mappingModelRegime)
-  } else {
+      model = class(spec), modelTypes = sapply(modelTypes, function(m) class(m)[1L]),
+      k = k, regimes = regimes, spec = spec, params = mappingModelRegime)
+  } else if(modelTypesAreStrings) {
     res <- PCM(model = class(spec), modelTypes, k = k, regimes = regimes, spec = spec)
-  }
-
-  attr(res, "mapping") <- mapping
-  attr(res, "modelTypes") <- if(modelTypesAreStrings) {
-    modelTypes
-  } else if(is.list(modelTypes)) {
-    sapply(modelTypes, function(mt) class(mt)[1])
   } else {
     stop("MixedGaussian:: Model types should either be a character vector or a list of PCM objects.")
   }
+
+  attr(res, "mapping") <- mapping
   attr(res, "spec") <- spec
   res
 }

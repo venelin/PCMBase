@@ -276,6 +276,9 @@ PCM.PCM <- function(
   }
 
   obj <- PCMDefaultObject(spec, model, ...)
+  if(!is.null(params)) {
+    PCMParamSetByName(obj, params, ...)
+  }
 
   if(is.null(attr(obj, "k", exact = TRUE))) {
     attr(obj, "k") <- as.integer(k)
@@ -300,10 +303,6 @@ PCM.PCM <- function(
 
   if(is.null(attr(obj, "spec", exact = TRUE))) {
     attr(obj, "spec") <- spec
-  }
-
-  if(!is.null(params)) {
-    PCMParamSetByName(obj, params, ...)
   }
 
   if(!is.null(vecParams)) {
