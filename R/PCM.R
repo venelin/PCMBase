@@ -91,7 +91,7 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.ParamValue.LowerLimit}}{Default lower limit value for parameters, default setting is -10.0.}
 #' \item{\code{PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal}}{Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.}
 #' \item{\code{PCMBase.ParamValue.UpperLimit} }{Default upper limit value for parameters, default setting is 10.0.}
-#' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, Sigma_x is not the upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}} and \code{\link{UpperTriFactor}}. This option applies to parameters Sigma_x, Sigmae_x, Sigmaj_x and the measurement errors \code{SE[,,i]} for each measurement i when the argument \code{SE} is specified as a cube.}
+#' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}} and \code{\link{UpperTriFactor}}. This option applies to parameters Sigma_x, Sigmae_x, Sigmaj_x and the measurement errors \code{SE[,,i]} for each measurement i when the argument \code{SE} is specified as a cube.}
 #' \item{\code{PCMBase.MaxLengthListCladePartitions} }{Maximum number of tree partitions returned by \code{\link{PCMTreeListCladePartitions}}. This option has the goal to interrupt the recursive search for new partitions in the case of calling PCMTreeListCladePartitions on a big tree with a small value of the maxCladeSize argument. By default this is set to Inf.}
 #' \item{\code{PCMBase.PCMPresentCoordinatesFun} }{A function with the same synopsis as \code{\link{PCMPresentCoordinates}} that can be specified in case of custom setting for the present coordinates for specific nodes of the tree. See \code{\link{PCMPresentCoordinates}}, and \code{\link{PCMInfo}}.}
 #' \item{\code{PCMBase.Use1DClasses} }{Logical indicating if 1D arithmetic operations
@@ -942,18 +942,20 @@ PCMAddToListAttribute <- function(
   value$enclos <- enclos
   if(is.null(member) || member == "") {
     values <- PCMGetAttribute(name, object)
-    if(!is.list(values)) {
-      values <- list(value)
+    if(is.null(values)) {
+      values <- list()
     } else {
-      values <- c(values, list(value))
+      values <- list(values)
     }
+    values[[length(values) + 1L]] <- value
+
     if(inplace) {
       eval(substitute(PCMSetAttribute(
-        name = name, value = values, object = object)),
+        name = name, value = values, object = object, spec = spec)),
         parent.frame())
     } else {
       PCMSetAttribute(
-        name = name, value = values, object = object)
+        name = name, value = values, object = object, spec = spec)
       object
     }
   } else {
@@ -968,19 +970,24 @@ PCMAddToListAttribute <- function(
         m <- names(membersEnclos)[i]
         mE <- unname(membersEnclos[i])
 
+        # PCMGetAttribute returns an empty list or a named list with 1 element
+        # corresponding to the list attribute for member m.
         values <- PCMGetAttribute(name, object, m)
-        if(!is.list(values)) {
+        if(length(values) == 0L) {
+          # empty list
           values <- list(value)
         } else {
-          values <- c(values, list(value))
+          # a list with 1 element
+          values <- c(values[[1L]], list(value))
         }
+
         if(inplace) {
           eval(substitute(PCMSetAttribute(
-            name = name, value = values, object = object, member = m)),
+            name = name, value = values, object = object, member = m, spec = spec)),
             parent.frame())
         } else {
           PCMSetAttribute(
-            name = name, value = values, object = object, member = m)
+            name = name, value = values, object = object, member = m, spec = spec)
           object
         }
       }
@@ -1176,7 +1183,8 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
 #'
 #' @return a transformed version of o.
 #'
-#' @description This is an S3 generic.
+#' @description This is an S3 generic. See `PCMApplyTransformation._CholeskyFactor`
+#' for an example.
 #'
 #' @details This function returns the same object if it is not transformable.
 #'

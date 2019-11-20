@@ -1313,20 +1313,16 @@ PCMDefaultObject.ScalarParameter <- function(spec, model, ...) {
   if(is.Omitted(spec)) {
     o <- NULL
   } else if(is.Global(spec)) {
-    o <- structure(
-      0.0,
-      class = c(class(spec), "numeric"),
-      description = attr(spec, "description", exact = TRUE),
-      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
-      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
+    o <- 0.0
+    attrToCopy <- setdiff(names(attributes(spec)), names(attributes(o)))
+    attributes(o)[attrToCopy] <- attributes(spec)[attrToCopy]
+    class(o) <- unique(c(class(spec), "numeric"))
   } else {
-    o <- structure(
-      double(R),
-      names = regimes,
-      class = c(class(spec), "numeric"),
-      description = attr(spec, "description", exact = TRUE),
-      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
-      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
+    o <- double(R)
+    attrToCopy <- setdiff(names(attributes(spec)), names(attributes(o)))
+    attributes(o)[attrToCopy] <- attributes(spec)[attrToCopy]
+    class(o) <- unique(c(class(spec), "numeric"))
+    names(o) <- regimes
   }
   o
 }
@@ -1340,19 +1336,15 @@ PCMDefaultObject.VectorParameter <- function(spec, model, ...) {
   if(is.Omitted(spec)) {
     o <- NULL
   } else if(is.Global(spec)) {
-    o <- structure(
-      double(k),
-      class = c(class(spec), "numeric"),
-      description = attr(spec, "description", exact = TRUE),
-      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
-      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
+    o <- double(k)
+    attrToCopy <- setdiff(names(attributes(spec)), names(attributes(o)))
+    attributes(o)[attrToCopy] <- attributes(spec)[attrToCopy]
+    class(o) <- unique(c(class(spec), "numeric"))
   } else {
-    o <- structure(
-      array(0.0, dim = c(k, R), dimnames = list(NULL, regimes)),
-      class = c(class(spec), "matrix"),
-      description = attr(spec, "description", exact = TRUE),
-      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
-      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
+    o <- array(0.0, dim = c(k, R), dimnames = list(NULL, regimes))
+    attrToCopy <- setdiff(names(attributes(spec)), names(attributes(o)))
+    attributes(o)[attrToCopy] <- attributes(spec)[attrToCopy]
+    class(o) <- unique(c(class(spec), "matrix"))
   }
   if(is.Ones(spec)) {
     o[] <- 1.0
@@ -1369,19 +1361,14 @@ PCMDefaultObject.MatrixParameter <- function(spec, model, ...) {
   if(is.Omitted(spec)) {
     o <- NULL
   } else if(is.Global(spec)) {
-    o <- structure(
-      matrix(0.0, k, k),
-      class = c(class(spec), "matrix"),
-      description = attr(spec, "description", exact = TRUE),
-      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
-      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
+    o <- matrix(0.0, k, k)
+    attrToCopy <- setdiff(names(attributes(spec)), names(attributes(o)))
+    attributes(o)[attrToCopy] <- attributes(spec)[attrToCopy]
+    class(o) <- unique(c(class(spec), "matrix"))
   } else {
-    o <- structure(
-      array(0.0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes)),
-      class = class(spec),
-      description = attr(spec, "description", exact = TRUE),
-      vecParamsLowerLimit = attr(spec, "vecParamsLowerLimit", exact = TRUE),
-      vecParamsUpperLimit = attr(spec, "vecParamsUpperLimit", exact = TRUE))
+    o <- array(0.0, dim = c(k, k, R), dimnames = list(NULL, NULL, regimes))
+    attrToCopy <- setdiff(names(attributes(spec)), names(attributes(o)))
+    attributes(o)[attrToCopy] <- attributes(spec)[attrToCopy]
   }
   if(is.Identity(spec)) {
     if(is.Global(spec)) {
