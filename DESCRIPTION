@@ -3,6 +3,7 @@ Type: Package
 Title: Simulation and Likelihood Calculation of Phylogenetic Comparative Models
 Version: 1.2.11
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
+                    comment = '<a href="https://venelin.github.io">venelin.github.io</a>',
                     role = c("aut", "cre", "cph")),
              person("Krzysztof", "Bartoszek",
                     role = c("ctb")),
@@ -55,7 +56,7 @@ Suggests:
 RoxygenNote: 6.1.1
 ByteCompile: yes
 VignetteBuilder: knitr, rmarkdown
-URL: https://venelin.github.io/PCMBase/, https://github.com/venelin/PCMBase
+URL: https://venelin.github.io/PCMBase/, https://venelin.github.io
 BugReports: https://github.com/venelin/PCMBase/issues
 NeedsCompilation: no
 Repository: CRAN

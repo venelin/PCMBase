@@ -32,5 +32,7 @@ t(chol(S)) \%*\% chol(S) - S
 chol(S) \%*\% t(chol(S)) - S
 }
 \seealso{
-\code{\link{chol}}
+\code{\link{chol}};
+
+the option \code{PCMBase.Transpose.Sigma_x} in \code{\link{PCMOptions}}.
 }

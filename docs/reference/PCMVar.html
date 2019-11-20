@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -129,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Expected variance-covariance matrix for each couple of tips (i,j)</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCM.R'><code>R/PCM.R</code></a></small>
+    
     <div class="hidden name"><code>PCMVar.Rd</code></div>
     </div>
 
@@ -142,7 +142,7 @@
     <pre class="usage"><span class='fu'>PCMVar</span>(<span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>W0</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
   <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>)), <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
   <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>metaI</span> <span class='kw'>=</span> <span class='fu'><a href='PCMInfo.html'>PCMInfo</a></span>(<span class='kw'>NULL</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>verbose</span> <span class='kw'>=</span>
-  <span class='no'>verbose</span>), <span class='kw'>internal</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='no'>verbose</span>), <span class='kw'>internal</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>diagOnly</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,6 +181,12 @@ or the function <code>PCMInfoCpp</code> from the <code>PCMBaseCpp</code> package
       <th>internal</th>
       <td><p>a logical indicating if the per-node variance-covariances matrices for
 the internal nodes should be returned (see Value). Default FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>diagOnly</th>
+      <td><p>a logical indicating if only the variance
+blocks for the nodes should be calculated. By default this is set to FALSE,
+meaning that the co-variances are calculated for all couples of nodes.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

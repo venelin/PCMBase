@@ -25,10 +25,10 @@ S3 class) will be replaced as well (dangerous).}
 'deep'-copied, meaning element by element, eventually preserving the
 attributes as in \code{model}. By default this is set to FALSE, meaning
 that sub-PCMs found in \code{params} will completely overwrite the
-sub-PCMs of with the same name in \code{model}.}
+sub-PCMs with the same name in \code{model}.}
 
 \item{failIfNamesInParamsDontExist}{logical indicating if an error should be
-raised if \code{params} contains elements not existing in model.}
+raised if \code{params} contains elements not existing in model. Default: TRUE.}
 
 \item{...}{other arguments that can be used by implementing methods.}
 }

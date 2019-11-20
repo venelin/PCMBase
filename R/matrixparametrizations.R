@@ -50,7 +50,8 @@
 #' # Unless S is diagonal, in the general case, this will return a
 #' # non-zero matrix:
 #' chol(S) %*% t(chol(S)) - S
-#' @seealso \code{\link{chol}}
+#' @seealso \code{\link{chol}};
+#' @seealso the option \code{PCMBase.Transpose.Sigma_x} in \code{\link{PCMOptions}}.
 #' @export
 UpperTriFactor <- function(Sigma) {
   k <- nrow(Sigma)

@@ -25,6 +25,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/MGPMSurfaceOUType.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MatchListMembers.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/MixedGaussian.html</loc>
   </url>
   <url>
@@ -32,6 +35,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMAbCdEf.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMAddToListAttribute.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMApplyTransformation.html</loc>
@@ -44,6 +50,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMColorPalette.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMCombineListAttribute.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMCond.GaussianPCM.html</loc>
@@ -88,6 +97,9 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMGenerateParameterizations.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMGetAttribute.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMGetVecParamsRegimesAndModels.html</loc>
   </url>
   <url>
@@ -101,6 +113,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMLikTrace.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMListMembers.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMListParameterizations.html</loc>
@@ -194,6 +209,9 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMRegimes.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMSetAttribute.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMSim.html</loc>
@@ -358,7 +376,7 @@
     <loc>http://venelin.github.io/PCMBase/reference/TruePositiveRate.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/UpperChol.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/UpperTriFactor.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/White.html</loc>

@@ -70,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -126,12 +126,29 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1>Changelog <small></small></h1>
-      <small>Source: <a href='https://github.com/venelin/PCMBase/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
+      
     </div>
 
+    <div id="pcmbase-1-2-11" class="section level1">
+<h1 class="page-header">
+<a href="#pcmbase-1-2-11" class="anchor"></a>PCMBase 1.2.11<small> Unreleased </small>
+</h1>
+<ul>
+<li>Added functions PCMListMembers, MatchListMembers, PCMSetAttribute, PCMGetAttribute.</li>
+<li>Added examples and improved documentation of the functions PCMLik and UpperChol. The examples include calls to the companion package PCMBaseCpp, which was added in Suggests.</li>
+<li>Fixed a bug in the parsing of error messages (attribute error of the result from calling PCMLik).</li>
+<li>Fixed a bug in PCMTreeListCladePartitions for nNodes &gt; 1.</li>
+<li>Added argument countOnly to PCMTreeListCladePartitions.</li>
+<li>Added new functions PCMListMembers, MatchListMembers, PCMGetAttribute, PCMSetAttribute.</li>
+<li>Minor enhancement in the MixedGaussian constructor allowing to provide a list of PCM objects as modelTypes argument.</li>
+<li>Added an argument diagOnly to PCMVar.</li>
+<li>Added an argument enclos in PCMParamLocateInShortVector.</li>
+<li>Additions to the documentation.</li>
+</ul>
+</div>
     <div id="pcmbase-1-2-10" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-10" class="anchor"></a>PCMBase 1.2.10<small> Unreleased </small>
+<a href="#pcmbase-1-2-10" class="anchor"></a>PCMBase 1.2.10<small> 2019-09-11 </small>
 </h1>
 <ul>
 <li>Speedup of PCMApplyTransformation in the case of mixed Gaussian models.</li>
@@ -179,6 +196,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#pcmbase-1-2-11">1.2.11</a></li>
         <li><a href="#pcmbase-1-2-10">1.2.10</a></li>
         <li><a href="#pcmbase-1-2-9">1.2.9</a></li>
         <li><a href="#pcmbase-1-2-8">1.2.8</a></li>

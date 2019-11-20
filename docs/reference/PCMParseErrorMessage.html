@@ -32,10 +32,7 @@
 
 <meta property="og:title" content="Extract error information from a formatted error message. — PCMParseErrorMessage" />
 
-<meta property="og:description" content="The function searches x for a pattern matching the format
-'ERR:5-alphanumeric-character-code:project-name:source-file:error-specifics:'.
-Specifically it
-searches for a regular expression pattern &quot;ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:&quot;." />
+<meta property="og:description" content="Extract error information from a formatted error message." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -76,7 +73,7 @@ searches for a regular expression pattern &quot;ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -132,16 +129,13 @@ searches for a regular expression pattern &quot;ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Extract error information from a formatted error message.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/Utilities.R'><code>R/Utilities.R</code></a></small>
+    
     <div class="hidden name"><code>PCMParseErrorMessage.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The function searches x for a pattern matching the format
-'ERR:5-alphanumeric-character-code:project-name:source-file:error-specifics:'.
-Specifically it
-searches for a regular expression pattern "ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^:]*:".</p>
+    <p>Extract error information from a formatted error message.</p>
     
     </div>
 
@@ -158,17 +152,7 @@ searches for a regular expression pattern "ERR:[0-9a-zA-Z]+:[^:]+:[^:]+:[^:]+:[^
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a named list with the parsed error information or NULL, if no match
-was found. The elements of this list are named as follows:</p>
-<dt>type</dt><dd><p>The type of the error message. Usually this is ERROR, but could be
-WARNING or anything else.</p></dd>
-<dt>icode</dt><dd><p>An an alphanumeric code of the error.</p></dd>
-<dt>project</dt><dd><p>The name of the project locating the code that raised the error.</p></dd>
-<dt>file</dt><dd><p>The name of the source-file containing the code that raised the error.</p></dd>
-<dt>fun</dt><dd><p>The name of the function raising the error</p></dd>
-<dt>info</dt><dd><p>A character string containing additional error-specific information</p></dd>
-<dt>msg</dt><dd><p>A verbal description of the error.</p></dd>
-
+    <p>Currently the function returns <code>x</code> unchanged.</p>
     
 
   </div>

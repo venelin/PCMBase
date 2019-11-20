@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -129,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Locate a named parameter in the short vector representation of a model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMParam.R'><code>R/PCMParam.R</code></a></small>
+    
     <div class="hidden name"><code>PCMParamLocateInShortVector.Rd</code></div>
     </div>
 
@@ -139,7 +139,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>o</span>, <span class='no'>accessExpr</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>o</span>, <span class='no'>accessExpr</span>, <span class='kw'>enclos</span> <span class='kw'>=</span> <span class='st'>"?"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,6 +153,12 @@
       <td><p>a character string used to access the parameter, e.g.
 <code>"$Theta[,,1]"</code> or <code>"[['Theta']][,,1]"</code>.</p></td>
     </tr>
+    <tr>
+      <th>enclos</th>
+      <td><p>a character string containing the symbol '?', e.g.
+<code>'diag(?)'</code>. The meaning of this symbol is to be replaced by the matching
+accessExpr (see examples). Default value : <code>'?'</code>.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -163,13 +169,17 @@ question.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCM.html'>PCM</a></span>(<span class='fu'><a href='PCMDefaultModelTypes.html'>PCMDefaultModelTypes</a></span>()[<span class='st'>"C"</span>], <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))
+    <pre class="examples"><div class='input'><span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCM.html'>PCM</a></span>(<span class='fu'><a href='PCMDefaultModelTypes.html'>PCMDefaultModelTypes</a></span>()[<span class='st'>"D"</span>], <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))
 <span class='co'># The parameter H is a diagonal 3x3 matrix. If this matrix is considered as</span>
 <span class='co'># a vector the indices of its diagonal elements are 1, 5 and 9. These indices</span>
 <span class='co'># are indicated as the non-NA entries in the returned vector.</span>
 
-<span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$H[,,1]"</span>)</div><div class='output co'>#&gt;  [1] NA NA NA  1  5  9 NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA</div><div class='input'><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$H[,,'a']"</span>)</div><div class='output co'>#&gt;  [1] NA NA NA  1  5  9 NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA</div><div class='input'><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$H[,,'b']"</span>)</div><div class='output co'>#&gt;  [1] NA NA NA NA NA NA  1  5  9 NA NA NA NA NA NA NA NA NA NA NA NA</div></pre>
+<span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$H[,,1]"</span>)</div><div class='output co'>#&gt;  [1] NA NA NA  1  5  9 NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+#&gt; [26] NA NA</div><div class='input'><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$H[,,'a']"</span>)</div><div class='output co'>#&gt;  [1] NA NA NA  1  5  9 NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+#&gt; [26] NA NA</div><div class='input'><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$H[,,'b']"</span>)</div><div class='output co'>#&gt;  [1] NA NA NA NA NA NA  1  5  9 NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+#&gt; [26] NA NA</div><div class='input'><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$Sigma_x[,,'b']"</span>, <span class='kw'>enclos</span> <span class='kw'>=</span> <span class='st'>'diag(?)'</span>)</div><div class='output co'>#&gt;  [1] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA  1 NA  2 NA
+#&gt; [26] NA  3</div><div class='input'><span class='fu'>PCMParamLocateInShortVector</span>(<span class='no'>model</span>, <span class='st'>"$Sigma_x[,,'b']"</span>, <span class='kw'>enclos</span> <span class='kw'>=</span> <span class='st'>'?[upper.tri(?)]'</span>)</div><div class='output co'>#&gt;  [1] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA  1 NA  2
+#&gt; [26]  3 NA</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

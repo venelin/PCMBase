@@ -83,7 +83,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -139,7 +139,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Likelihood of a multivariate Gaussian phylogenetic comparative model with non-interacting lineages</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCM.R'><code>R/PCM.R</code></a></small>
+    
     <div class="hidden name"><code>PCMLik.Rd</code></div>
     </div>
 
@@ -217,13 +217,12 @@ is TRUE.</p></td>
 the likelihood value was calculated. If the model contains a member called X0, this
 vector is used; otherwise the value of X0 maximizing the likelihood for the given
 model parameters is calculated by maximizing the quadratic polynomial
-'X0 * L_root * X0 + m_root * X0 + r_root'.</p></dd>
-<dt>error</dt><dd><p>A named list containing error information if a numerical or other
-logical error occurred during likelihood calculation (this is a list returned by
- <code><a href='PCMParseErrorMessage.html'>PCMParseErrorMessage</a></code>.</p></dd>
- If an error occured during likelihood calculation, the default behavior is to
+'X0 * L_root * X0 + m_root * X0 + r_root';</p></dd>
+<dt>error</dt><dd><p>A character string with information if a numerical or other
+logical error occurred during likelihood calculation.</p></dd>
+</dl><p>If an error occured during likelihood calculation, the default behavior is to
  return NA with a non-NULL error attribute. This behavior can be changed in
- using global options:
+ using global options:</p><dl class='dl-horizontal'>
  <dt>"PCMBase.Value.NA"</dt><dd><p>Allows to specify a different NA value such as <code>-Inf</code> or <code>-1e20</code> which can be used in combination with <code>log = TRUE</code> when
   using <code>optim</code> to maximize the log-likelihood;</p></dd>
  <dt>"PCMBase.Errors.As.Warnings"</dt><dd><p>Setting this option to FALSE will cause any
@@ -242,9 +241,28 @@ logical error occurred during likelihood calculation (this is a list returned by
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='PCMInfo.html'>PCMInfo</a></code> <code><a href='PCMAbCdEf.html'>PCMAbCdEf</a></code> <code><a href='PCMLmr.html'>PCMLmr</a></code> <code><a href='PCMSim.html'>PCMSim</a></code> <code><a href='PCMCond.html'>PCMCond</a></code> <code><a href='PCMParseErrorMessage.html'>PCMParseErrorMessage</a></code></p></div>
+    <div class='dont-index'><p><code><a href='PCMInfo.html'>PCMInfo</a></code> <code><a href='PCMAbCdEf.html'>PCMAbCdEf</a></code> <code><a href='PCMLmr.html'>PCMLmr</a></code> <code><a href='PCMSim.html'>PCMSim</a></code> <code><a href='PCMCond.html'>PCMCond</a></code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>N</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span>
+<span class='no'>L</span> <span class='kw'>&lt;-</span> <span class='fl'>100.0</span>
+<span class='no'>tr</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/stree'>stree</a></span>(<span class='no'>N</span>)
+<span class='no'>tr</span>$<span class='no'>edge.length</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>L</span>, <span class='no'>N</span>)
+<span class='kw'>for</span>(<span class='no'>epoch</span> <span class='kw'>in</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>1</span>, <span class='no'>L</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1.0</span>)) {
+  <span class='no'>tr</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeInsertSingletons.html'>PCMTreeInsertSingletonsAtEpoch</a></span>(<span class='no'>tr</span>, <span class='no'>epoch</span>)
+}
+
+<span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='no'>PCMBaseTestObjects</span>$<span class='no'>model_MixedGaussian_ab</span>
+
+<span class='fu'><a href='PCMTreeSetPartRegimes.html'>PCMTreeSetPartRegimes</a></span>(<span class='no'>tr</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>`11`</span> <span class='kw'>=</span> <span class='st'>'a'</span>), <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMSim.html'>PCMSim</a></span>(<span class='no'>tr</span>, <span class='no'>model</span>, <span class='kw'>X0</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0</span>, <span class='fl'>3</span>))
+
+<span class='fu'>PCMLik</span>(<span class='no'>X</span>, <span class='no'>tr</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt; [1] -71.52891
+#&gt; attr(,"X0")
+#&gt; [1] 5 2 1</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -256,7 +274,9 @@ logical error occurred during likelihood calculation (this is a list returned by
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

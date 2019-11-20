@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -129,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>A list of all possible clade partitions of a tree with a number of splitting nodes</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMTree.R'><code>R/PCMTree.R</code></a></small>
+    
     <div class="hidden name"><code>PCMTreeListCladePartitions.Rd</code></div>
     </div>
 
@@ -140,7 +140,8 @@
     </div>
 
     <pre class="usage"><span class='fu'>PCMTreeListCladePartitions</span>(<span class='no'>tree</span>, <span class='no'>nNodes</span>, <span class='kw'>minCladeSize</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>character</a></span>(<span class='fl'>0</span>), <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>character</a></span>(<span class='fl'>0</span>), <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>countOnly</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -168,6 +169,11 @@ empty character vector.</p></td>
       <th>tableAncestors</th>
       <td><p>NULL (default) or an integer matrix returned by a previous call
 to <code><a href='PCMTreeTableAncestors.html'>PCMTreeTableAncestors(tree)</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>countOnly</th>
+      <td><p>logical indicating if the only the number of partitions should
+be returned.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

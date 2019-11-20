@@ -91,7 +91,7 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \item{\code{PCMBase.ParamValue.LowerLimit}}{Default lower limit value for parameters, default setting is -10.0.}
 #' \item{\code{PCMBase.ParamValue.LowerLimit.NonNegativeDiagonal}}{Default lower limit value for parameters corresponding to non-negative diagonal elements of matrices, default setting is 0.0.}
 #' \item{\code{PCMBase.ParamValue.UpperLimit} }{Default upper limit value for parameters, default setting is 10.0.}
-#' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, Sigma_x is not the actual upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}} and \code{\link{UpperTriFactor}}. This option applies to parameters Sigma_x, Sigmae_x, Sigmaj_x and the measurement errors \code{SE[,,i]} for each measurement i when the argument \code{SE} is specified as a cube.}
+#' \item{\code{PCMBase.Transpose.Sigma_x} }{Should upper diagonal factors for variance-covariance rate matrices be transposed, e.g. should Sigma = t(Sigma_x) Sigma_x or, rather Sigma = Sigma_x t(Sigma_x)? Note that the two variants are not equal. The default is FALSE, meaning Sigma = Sigma_x t(Sigma_x). In this case, Sigma_x is not the upper Cholesky factor of Sigma, i.e. chol(Sigma) != Sigma_x. See also \code{\link{chol}} and \code{\link{UpperTriFactor}}. This option applies to parameters Sigma_x, Sigmae_x, Sigmaj_x and the measurement errors \code{SE[,,i]} for each measurement i when the argument \code{SE} is specified as a cube.}
 #' \item{\code{PCMBase.MaxLengthListCladePartitions} }{Maximum number of tree partitions returned by \code{\link{PCMTreeListCladePartitions}}. This option has the goal to interrupt the recursive search for new partitions in the case of calling PCMTreeListCladePartitions on a big tree with a small value of the maxCladeSize argument. By default this is set to Inf.}
 #' \item{\code{PCMBase.PCMPresentCoordinatesFun} }{A function with the same synopsis as \code{\link{PCMPresentCoordinates}} that can be specified in case of custom setting for the present coordinates for specific nodes of the tree. See \code{\link{PCMPresentCoordinates}}, and \code{\link{PCMInfo}}.}
 #' \item{\code{PCMBase.Use1DClasses} }{Logical indicating if 1D arithmetic operations
@@ -1176,8 +1176,7 @@ PCMGetVecParamsRegimesAndModels.PCM <- function(model, tree, ...) {
 #'
 #' @return a transformed version of o.
 #'
-#' @description This is an S3 generic. See `PCMApplyTransformation._CholeskyFactor`
-#' for an example.
+#' @description This is an S3 generic.
 #'
 #' @details This function returns the same object if it is not transformable.
 #'

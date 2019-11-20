@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -91,9 +91,9 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-09-11</h4>
+            <h4 class="date">2019-11-20</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMBase/blob/master/R/vignettes/PCMBase.Rmd"><code>R/vignettes/PCMBase.Rmd</code></a></small>
+      
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
 
     </div>
@@ -228,7 +228,7 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 ##     }
 ##     list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x7fb72bf0ddc0&gt;
+## &lt;bytecode: 0x7faf66bc4c20&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># R-code by typing :</span></a>
@@ -329,9 +329,9 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <a class="sourceLine" id="cb21-2" data-line-number="2">param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)</a>
 <a class="sourceLine" id="cb21-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</a></code></pre></div>
-<pre><code>##  [1]  4.995597417  1.986827577  1.591357246  0.001311026  2.413146923
-##  [6]  1.596152418  0.808878646  2.411715047  0.099726824 -0.007522508
-## [11]  0.398882290  0.099175151 -0.003336698  0.404764046</code></pre>
+<pre><code>##  [1]  4.987127661  1.989289003  1.587066232  0.008650617  2.402076562
+##  [6]  1.619063155  0.783149098  2.384948286  0.115975829 -0.017942527
+## [11]  0.383984817  0.117200302 -0.007644598  0.408696224</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># set the new parameter vector</span></a>
 <a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -339,32 +339,32 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 4.995597 1.986828
+## [1] 4.987128 1.989289
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
 ##          [,1]        [,2]
-## [1,] 1.591357 0.001311026
-## [2,] 0.000000 2.413146923
+## [1,] 1.587066 0.008650617
+## [2,] 0.000000 2.402076562
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.596152 0.8088786
-## [2,] 0.800000 2.4117150
+## [1,] 1.619063 0.7831491
+## [2,] 0.800000 2.3849483
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##            [,1]         [,2]
-## [1,] 0.09972682 -0.007522508
-## [2,] 0.00000000  0.398882290
+##           [,1]        [,2]
+## [1,] 0.1159758 -0.01794253
+## [2,] 0.0000000  0.38398482
 ## 
 ## , , b
 ## 
-##            [,1]         [,2]
-## [1,] 0.09917515 -0.003336698
-## [2,] 0.00000000  0.404764046
+##           [,1]         [,2]
+## [1,] 0.1172003 -0.007644598
+## [2,] 0.0000000  0.408696224
 ## 
 ## </code></pre>
 </div>
@@ -394,7 +394,7 @@ regime
 :global:
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 5.00 \\ 1.99 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 4.99 \\ 1.99 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 </td>
@@ -408,10 +408,10 @@ a
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.53 &amp; 0.00 \\ 0.00 &amp; 5.82 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.52 &amp; 0.02 \\ 0.02 &amp; 5.77 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.00 \\ -0.00 &amp; 0.16 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.01 \\ -0.01 &amp; 0.15 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -421,10 +421,10 @@ b
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 3.20 &amp; 3.23 \\ 3.23 &amp; 6.46 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 3.23 &amp; 3.16 \\ 3.16 &amp; 6.33 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.00 \\ -0.00 &amp; 0.16 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.00 \\ -0.00 &amp; 0.17 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 </table>

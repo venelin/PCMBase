@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMBase</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.11</span>
       </span>
     </div>
 
@@ -129,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set model parameters from a named list</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMBase/blob/master/R/PCMParam.R'><code>R/PCMParam.R</code></a></small>
+    
     <div class="hidden name"><code>PCMParamSetByName.Rd</code></div>
     </div>
 
@@ -172,12 +172,12 @@ S3 class) will be replaced as well (dangerous).</p></td>
 'deep'-copied, meaning element by element, eventually preserving the
 attributes as in <code>model</code>. By default this is set to FALSE, meaning
 that sub-PCMs found in <code>params</code> will completely overwrite the
-sub-PCMs of with the same name in <code>model</code>.</p></td>
+sub-PCMs with the same name in <code>model</code>.</p></td>
     </tr>
     <tr>
       <th>failIfNamesInParamsDontExist</th>
       <td><p>logical indicating if an error should be
-raised if <code>params</code> contains elements not existing in model.</p></td>
+raised if <code>params</code> contains elements not existing in model. Default: TRUE.</p></td>
     </tr>
     <tr>
       <th>...</th>
