@@ -135,9 +135,9 @@
 </h1>
 <ul>
 <li>Added functions PCMListMembers, MatchListMembers, PCMSetAttribute, PCMGetAttribute.</li>
-<li>Added examples and improved documentation of the functions PCMLik and UpperChol. The examples include calls to the companion package PCMBaseCpp, which was added in Suggests.</li>
+<li>Added examples and improved documentation of the functions PCMLik and UpperTriFactor.</li>
 <li>Fixed a bug in the parsing of error messages (attribute error of the result from calling PCMLik).</li>
-<li>Fixed a bug in PCMTreeListCladePartitions for nNodes &gt; 1.</li>
+<li>Fixed a bug in PCMTreeListCladePartitions. This bug was manifesting only when nNodes &gt; 1. Hence, previous usages in PCMFit R-package are not affected.</li>
 <li>Added argument countOnly to PCMTreeListCladePartitions.</li>
 <li>Added new functions PCMListMembers, MatchListMembers, PCMGetAttribute, PCMSetAttribute.</li>
 <li>Minor enhancement in the MixedGaussian constructor allowing to provide a list of PCM objects as modelTypes argument.</li>
