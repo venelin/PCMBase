@@ -783,12 +783,6 @@ MatchListMembers <- function(object, member, enclos = "?", q = "'", ...) {
       function(s) if(!s=="") paste0(q, s, q) else "")
     ms$sep <- "\\$"
     member <- do.call(paste, ms)
-    # while(member !=
-    #       (e2 <- gsub(paste0("\\$([^\\$", q, "]+)"),
-    #                   paste0("$", q, "\\1", q), member, perl = TRUE)) ) {
-    #   member <- e2
-    # }
-    # member <- gsub('$', '\\$', member, fixed = TRUE)
     ms <- grep(member, x = PCMListMembers(object, format = paste0("$", q)), value = TRUE, ...)
     sapply(ms, function(m) gsub('?', m, enclos, fixed = TRUE))
   } else {
