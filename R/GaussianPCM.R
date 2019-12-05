@@ -376,7 +376,7 @@ PCMLik.GaussianPCM <- function(
     verbose = verbose, root.only = TRUE),
     silent = TRUE)
 
-  if(class(PCMLmr) == "try-error") {
+  if(inherits(PCMLmr, "try-error")) {
     err <- paste0("PCMLik.GaussianPCM:: There was a problem calculating the coefficients L,m,r. Error message from call to PCMLmr: ", PCMLmr, ".")
     errL <- PCMParseErrorMessage(err)
 
@@ -434,7 +434,7 @@ PCMLik.GaussianPCM <- function(
       X0[k0] <- try(solve(
         a=L0[k0,k0,drop=FALSE] + t(L0[k0,k0,drop=FALSE]),
         b = -m0[k0]), silent = TRUE)
-      if(class(X0[[1]]) == "try-error") {
+      if(inherits(X0[[1]], "try-error")) {
         err <- paste0(
           "PCMLik.GaussianPCM:: There was a problem calculating X0 from L0,m0,r0. ",
           "L0=", toString(L0), "; m0=", toString(m0),
@@ -463,7 +463,7 @@ PCMLik.GaussianPCM <- function(
     }
 
     loglik <- try(X0[k0] %*% L0[k0,k0,drop=FALSE] %*% X0[k0] + m0[k0] %*% X0[k0] + r0, silent = TRUE)
-    if(class(loglik) == "try-error") {
+    if(inherits(loglik, "try-error")) {
       err <- paste0(
         "PCMLik.GaussianPCM:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L0=", toString(L0), "; m0=", toString(m0), "; r0=", r0,
         ". Error message from call to X0 %*% L0 %*% X0 + m0 %*% X0 + r0:", loglik, "\n")
@@ -486,7 +486,7 @@ PCMLik.GaussianPCM <- function(
 
     value <- try(as.vector(if(log) loglik else exp(loglik)), silent = TRUE)
 
-    if(class(value) == "try-error") {
+    if(inherits(value, "try-error")) {
       err <- paste0(
         "PCMLik.GaussianPCM:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value, "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))

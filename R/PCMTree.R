@@ -1691,7 +1691,7 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
     }
   } else {
     nodeLab <- try(nodeLabels[node], silent = TRUE)
-    if(class(nodeLab) == "try-error") {
+    if(inherits(nodeLab, "try-error")) {
       stop(paste0(
         "ERR:02602:PCMBase:PCMTree.R:PCMTreeSplit:: non-character type node (",
         node, ") was not found: ", nodeLab, "."))
