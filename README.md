@@ -90,11 +90,12 @@ from the [PCMBase web-page](https://venelin.github.io/PCMBase/).
     Framework](https://venelin.github.io/PCMBase/articles/PCMCreateModel.html)
     guide
 
-The research article “Fast likelihood evaluation for multivariate
-phylogenetic comparative methods: the PCMBase R package” provides a
-general overview of PCMBase. The article is currently undergoing peer
-review for a publication and is available as a preprint from
-[arxiv](https://arxiv.org/abs/1809.09014).
+The research article “Fast likelihood calculation for multivariate
+Gaussian phylogenetic models with shifts”, published in *Theoretical
+Population Biology* provides a thorough description of the likelihood
+calculation algorithm currently implemented in PCMBase. Appendix A of
+this article gives an overview of the modular structure and the features
+of the package.
 
 The PCMBase source code is located in the [PCMBase github
 repository](https://github.com/venelin/PCMBase).
@@ -107,10 +108,10 @@ list](https://github.com/venelin/PCMBase/issues).
 To give credit to the PCMBase package in a publication, please cite the
 following article:
 
-Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2018, September
-24). Fast likelihood evaluation for multivariate phylogenetic
-comparative methods: the PCMBase R package. arXiv.org.
-<https://arxiv.org/abs/1809.09014>.
+Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2019). Fast
+likelihood calculation for multivariate Gaussian phylogenetic models
+with shifts. Theor. Popul. Biol.
+<https://doi.org/10.1016/j.tpb.2019.11.005>
 
 # Used R-packages
 

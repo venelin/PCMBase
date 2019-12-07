@@ -1,23 +1,23 @@
 citHeader("To cite PCMBase in publications use one of the following articles:")
 
 citEntry(entry = "Article",
-  title        = "Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package",
+  title        = "Fast likelihood calculation for multivariate Gaussian phylogenetic models with shifts",
   author       = personList(as.person("Venelin Mitov"),
                    as.person("Krzysztof Bartoszek"),
                    as.person("Georgios Asimomitis"),
                    as.person("Tanja Stadler")),
-  journal      = "arxiv q-bio.PE",
-  year         = "2018",
+  journal      = "Theor. Popul. Biol.",
+  year         = "2019",
   volume       = "",
   number       = "",
-  pages        = "arXiv:1809.09014",
-  url          = "https://arxiv.org/abs/1809.09014",
+  pages        = "",
+  url          = "https://doi.org/10.1016/j.tpb.2019.11.005",
 
   textVersion  =
-  paste("Venelin Mitov, Krzysztof Bartoszek, Georgios Asimomitis, Tanja Stadler (2018).",
-        "Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package",
-        "arxiv",
-        "URL https://arxiv.org/abs/1809.09014")
+  paste("Venelin Mitov, Krzysztof Bartoszek, Georgios Asimomitis, Tanja Stadler (2019).",
+        "Fast likelihood calculation for multivariate Gaussian phylogenetic models with shifts",
+        "Theor. Popul. Biol.",
+        "URL https://doi.org/10.1016/j.tpb.2019.11.005")
 )
 
 citEntry(entry = "Article",
