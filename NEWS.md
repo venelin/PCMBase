@@ -1,11 +1,13 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "15 November, 2019"
+date: "12 December, 2019"
 output: html_document
 ---
 
 # PCMBase 1.2.11
+- Updated package citation pointing to the recently published article: Mitov et al. 2019. Fast likelihood calculation for multivariate Gaussian phylogenetic models with shifts. Theoretical Population Biology. https://doi.org/10.1016/j.tpb.2019.11.005.
+- Fixed an issue causing a CRAN-check failure on one of the flavors: https://www.r-project.org/nosvn/R.check/r-devel-linux-x86_64-debian-clang/PCMBase-00check.html
 - Added functions PCMListMembers, MatchListMembers, PCMSetAttribute, PCMGetAttribute.
 - Added examples and improved documentation of the functions PCMLik and UpperTriFactor. 
 - Fixed a bug in the parsing of error messages (attribute error of the result
