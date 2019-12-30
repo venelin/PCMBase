@@ -10,13 +10,36 @@ PCMDefaultModelTypes()
 MGPMDefaultModelTypes()
 }
 \value{
-a character string vector with named elements
-(currently  A,B,C,D,E,F).
+Both, \code{PCMFDefaultModelTypes} and
+\code{MGPMDefaultModelTypes} return a character string vector with
+named elements (A,B,C,D,E,F) defined as follows
+(Mitov et al. 2019a):
+\describe{
+\item{A. }{BM (H = 0, diagonal \eqn{\Sigma}): BM, uncorrelated traits.}
+\item{B. }{BM (H = 0, symmetric \eqn{\Sigma}): BM, correlated traits.}
+\item{C. }{OU (diagonal H, diagonal \eqn{\Sigma}): OU, uncorrelated traits.}
+\item{D. }{OU (diagonal H, symmetric \eqn{\Sigma}): OU, correlated traits, but simple
+(diagonal) selection strength matrix.}
+\item{E. }{OU (symmetric H, symmetric \eqn{\Sigma}): An OU with nondiagonal symmetric H
+and nondiagonal symmetric \eqn{\Sigma}.}
+\item{F. }{OU (asymmetric H, symmetric \eqn{\Sigma}): An OU with nondiagonal asymmetric
+H and nondiagonal symmetric \eqn{\Sigma}.}
+}
+The only difference between the two functions is that the model
+types returned by \code{PCMFDefaultModelTypes} have a global
+parameter X0, while the model types returned by
+\code{MGPMFDefaultModelTypes} have an omitted parameter X0.
 }
 \description{
 Utility functions returning named character vector of the
 model class-names for the default model types used for PCM and MixedGaussian
 model construction.
+}
+\references{
+[Mitov et al. 2019a] Mitov, V., Bartoszek, K., & Stadler, T. (2019). Automatic generation of
+ evolutionary hypotheses using mixed Gaussian phylogenetic models.
+ Proceedings of the National Academy of Sciences of the United States of
+ America, 35, 201813823. http://doi.org/10.1073/pnas.1813823116
 }
 \seealso{
 Args_MixedGaussian_MGPMDefaultModelTypes

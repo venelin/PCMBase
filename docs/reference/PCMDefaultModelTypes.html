@@ -149,8 +149,30 @@ model construction.</p>
         
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a character string vector with named elements
-(currently  A,B,C,D,E,F).</p>
+    <p>Both, <code>PCMFDefaultModelTypes</code> and
+<code>MGPMDefaultModelTypes</code> return a character string vector with
+named elements (A,B,C,D,E,F) defined as follows
+(Mitov et al. 2019a):</p><dl class='dl-horizontal'>
+<dt>A. </dt><dd><p>BM (H = 0, diagonal \(\Sigma\)): BM, uncorrelated traits.</p></dd>
+<dt>B. </dt><dd><p>BM (H = 0, symmetric \(\Sigma\)): BM, correlated traits.</p></dd>
+<dt>C. </dt><dd><p>OU (diagonal H, diagonal \(\Sigma\)): OU, uncorrelated traits.</p></dd>
+<dt>D. </dt><dd><p>OU (diagonal H, symmetric \(\Sigma\)): OU, correlated traits, but simple
+(diagonal) selection strength matrix.</p></dd>
+<dt>E. </dt><dd><p>OU (symmetric H, symmetric \(\Sigma\)): An OU with nondiagonal symmetric H
+and nondiagonal symmetric \(\Sigma\).</p></dd>
+<dt>F. </dt><dd><p>OU (asymmetric H, symmetric \(\Sigma\)): An OU with nondiagonal asymmetric
+H and nondiagonal symmetric \(\Sigma\).</p></dd>
+</dl><p>The only difference between the two functions is that the model
+types returned by <code>PCMFDefaultModelTypes</code> have a global
+parameter X0, while the model types returned by
+<code>MGPMFDefaultModelTypes</code> have an omitted parameter X0.</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>[Mitov et al. 2019a] Mitov, V., Bartoszek, K., &amp; Stadler, T. (2019). Automatic generation of
+ evolutionary hypotheses using mixed Gaussian phylogenetic models.
+ Proceedings of the National Academy of Sciences of the United States of
+ America, 35, 201813823. http://doi.org/10.1073/pnas.1813823116</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -163,6 +185,8 @@ model construction.</p>
     <ul class="nav nav-pills nav-stacked">
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#references">References</a></li>
 
       <li><a href="#see-also">See also</a></li>
           </ul>

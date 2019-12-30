@@ -822,12 +822,11 @@ PCMTreeGetRegimesForNodes <- function(
 
 #' A list of all possible clade partitions of a tree with a number of splitting nodes
 #'
-#' @details Each subset of \code{nNodes} distinct internal or tip nodes
-#' defines a partitioning of the branches of the tree into \code{nNodes+1} blocks.
-#' This function generates partitions in which \code{nNode} of the blocks
-#' are monophyletic complete groups (clades), while the \code{(nNodes+1)}'th block
-#' is a subtree originating at the root with tips ending at the rooting nodes of
-#' the \code{nNode} clades, eventually containing a clade of tips.
+#' Each subset of \code{nNodes} distinct internal or tip nodes
+#' defines a partition of the branches of the tree into \code{nNodes+1} blocks
+#' called parts. This function generates partitions where each part has
+#' \code{nNodes} splitting nodes and contains at least \code{minCladeSize} tips.
+#'
 #' @param tree a phylo object
 #' @param nNodes an integer giving the number of partitioning nodes. There would be
 #' \code{nNodes+1} blocks in each partition (see details).
