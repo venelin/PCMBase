@@ -1,9 +1,13 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "12 December, 2019"
+date: "31 December, 2019"
 output: html_document
 ---
+
+# PCMBase 1.2.12 
+- Added MGPM, MGPMContext and MGPMVector S3 classes.
+- Minor documentation improvements.
 
 # PCMBase 1.2.11
 - Updated package citation pointing to the recently published article: Mitov et al. 2019. Fast likelihood calculation for multivariate Gaussian phylogenetic models with shifts. Theoretical Population Biology. https://doi.org/10.1016/j.tpb.2019.11.005.
