@@ -19,10 +19,22 @@
     <loc>http://venelin.github.io/PCMBase/reference/FormatTableAsLatex.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MGPM.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MGPMContext.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MGPMPosK.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/MGPMScalarOUType.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/MGPMSurfaceOUType.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MGPMVector.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/MatchListMembers.html</loc>
@@ -382,7 +394,19 @@
     <loc>http://venelin.github.io/PCMBase/reference/White.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/as.MGPM.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/as.MGPMVector.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/dataFig3.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/is.MGPM.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/is.MGPMVector.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/is.MixedGaussian.html</loc>

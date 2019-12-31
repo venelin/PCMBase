@@ -6,7 +6,7 @@
 \usage{
 MGPMContext(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   PCMTreeNumTips(tree)), K = 0L, n = integer(0L), l = double(0L),
-  r = N + 1L, m = 1L, v = NULL)
+  r = integer(0), m = 1L, v = NULL)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
@@ -29,7 +29,8 @@ Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 shifts, the shift nodes, the shift-offsets, the regimes, the mapped model
 types and the parameter values (see \code{\link{MGPM}}).
 By default, these are
-\code{K = 0L, n = integer(0), l = double(0), r = N+1L, m = 1L, v = double(P)}.
+\code{K = 0L, n = integer(0), l = double(0), r = integer(0),
+m = 1L, v = double(P)}.
 Here, N is the number of tips in the tree, and P is the number of numerical
 parameters in a MixedGaussian with a single regime mapped to model type 1.}
 }

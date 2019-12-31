@@ -43,7 +43,8 @@ tip-ward direction.}
 vector with elements among \eqn{(N+1,n_2,...,n_{K+1})^T}, indicating the regime
 associated with each part in the tree. The regimes are named as the shift
 nodes, with N+1 corresponding to the part (and regime) originating at the
-root. It is possible to have lumped regimes, that is, different parts
+root. The regime \eqn{r_1 = N+1} is always the same and therefore omitted.
+It is possible to have lumped regimes, that is, different parts
 of the tree having the same regime. This regime-lumping must obey the
 following rules:
 \enumerate{

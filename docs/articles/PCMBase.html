@@ -228,7 +228,7 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 ##   }
 ##   list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x7fa27ababc58&gt;
+## &lt;bytecode: 0x7f8d8bc9be40&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># R-code by typing :</span></a>
@@ -329,9 +329,9 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <a class="sourceLine" id="cb21-2" data-line-number="2">param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)</a>
 <a class="sourceLine" id="cb21-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</a></code></pre></div>
-<pre><code>##  [1]  4.990430876  2.006911130  1.604092437  0.002693018  2.399254243
-##  [6]  1.613027133  0.813550357  2.409465373  0.094506231  0.007916337
-## [11]  0.395123736  0.113091958 -0.015756236  0.415454982</code></pre>
+<pre><code>##  [1]  5.005120663  2.006305337  1.590363618  0.003854815  2.390466123
+##  [6]  1.602526675  0.796701750  2.385888554  0.118598215 -0.014325552
+## [11]  0.418799978  0.080302675 -0.013494310  0.418382919</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># set the new parameter vector</span></a>
 <a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -339,32 +339,32 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 4.990431 2.006911
+## [1] 5.005121 2.006305
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
 ##          [,1]        [,2]
-## [1,] 1.604092 0.002693018
-## [2,] 0.000000 2.399254243
+## [1,] 1.590364 0.003854815
+## [2,] 0.000000 2.390466123
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.613027 0.8135504
-## [2,] 0.800000 2.4094654
+## [1,] 1.602527 0.7967018
+## [2,] 0.800000 2.3858886
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##            [,1]        [,2]
-## [1,] 0.09450623 0.007916337
-## [2,] 0.00000000 0.395123736
+##           [,1]        [,2]
+## [1,] 0.1185982 -0.01432555
+## [2,] 0.0000000  0.41879998
 ## 
 ## , , b
 ## 
-##          [,1]        [,2]
-## [1,] 0.113092 -0.01575624
-## [2,] 0.000000  0.41545498
+##            [,1]        [,2]
+## [1,] 0.08030268 -0.01349431
+## [2,] 0.00000000  0.41838292
 ## 
 ## </code></pre>
 </div>
@@ -394,7 +394,7 @@ regime
 :global:
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 4.99 \\ 2.01 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 5.01 \\ 2.01 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 </td>
@@ -408,10 +408,10 @@ a
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.57 &amp; 0.01 \\ 0.01 &amp; 5.76 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.53 &amp; 0.01 \\ 0.01 &amp; 5.71 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.00 \\ 0.00 &amp; 0.16 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.01 \\ -0.01 &amp; 0.18 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -421,10 +421,10 @@ b
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 3.26 &amp; 3.25 \\ 3.25 &amp; 6.45 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 3.20 &amp; 3.18 \\ 3.18 &amp; 6.33 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.01 \\ -0.01 &amp; 0.17 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.01 \\ -0.01 &amp; 0.18 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 </table>

@@ -48,7 +48,8 @@
 #' vector with elements among \eqn{(N+1,n_2,...,n_{K+1})^T}, indicating the regime
 #' associated with each part in the tree. The regimes are named as the shift
 #' nodes, with N+1 corresponding to the part (and regime) originating at the
-#' root. It is possible to have lumped regimes, that is, different parts
+#' root. The regime \eqn{r_1 = N+1} is always the same and therefore omitted.
+#' It is possible to have lumped regimes, that is, different parts
 #' of the tree having the same regime. This regime-lumping must obey the
 #' following rules:
 #' \enumerate{
@@ -288,6 +289,22 @@ is.MGPMVector <- function(o) {
 }
 
 
+#' Convert a MGPM object to a MGPMVector object
+#' @param o a MGPMVector or a MGPM object
+#' @return a MGPMVector object corresponding to o.
+#' @seealso \code{\link{MGPM}} \code{\link{MGPMVector}}
+#' @export
+as.MGPMVector <- function(o) {
+  if(is.MGPMVector(o)) {
+    o
+  } else if(isMGPM(o)) {
+    MGPMVector(o$K, o$n, o$l, o$r, o$m, o$v)
+  } else {
+    stop("as.MGPMVector: o must be a MGPM object.")
+  }
+}
+
+
 #' Context of a MGPM
 #' @inheritParams PCMLik
 #' @param model a template used to build MixedGaussian model objects.
@@ -295,7 +312,8 @@ is.MGPMVector <- function(o) {
 #' shifts, the shift nodes, the shift-offsets, the regimes, the mapped model
 #' types and the parameter values (see \code{\link{MGPM}}).
 #' By default, these are
-#' \code{K = 0L, n = integer(0), l = double(0), r = N+1L, m = 1L, v = double(P)}.
+#' \code{K = 0L, n = integer(0), l = double(0), r = integer(0),
+#' m = 1L, v = double(P)}.
 #' Here, N is the number of tips in the tree, and P is the number of numerical
 #' parameters in a MixedGaussian with a single regime mapped to model type 1.
 #'
@@ -303,7 +321,8 @@ is.MGPMVector <- function(o) {
 #' @export
 MGPMContext <- function(
   X, tree, model, SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
-  K = 0L, n = integer(0L), l = double(0L), r = N+1L, m = 1L, v = NULL) {
+  K = 0L, n = integer(0L), l = double(0L), r = integer(0),
+  m = 1L, v = NULL) {
 
   ctx <- list(
     k = nrow(X),
