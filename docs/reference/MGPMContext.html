@@ -140,7 +140,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>MGPMContext</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
-  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>tipModelType</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>tipModelType</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -175,6 +175,10 @@ Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matr
       <td><p>NULL or a character string indicating a member of
 <code>model</code>. This argument allows to set a specific regime for all terminal
 branches, such as a white noise model.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>any additional objects to be included in the MGPMContext environment.</p></td>
     </tr>
     </table>
     

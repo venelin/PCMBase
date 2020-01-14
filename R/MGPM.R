@@ -446,12 +446,13 @@ as.MGPMVector <- function(o) {
 #' @param tipModelType NULL or a character string indicating a member of
 #' \code{model}. This argument allows to set a specific regime for all terminal
 #' branches, such as a white noise model.
+#' @param ... any additional objects to be included in the MGPMContext environment.
 #'
 #' @return an object of S3 class 'MGPMContext'.
 #' @export
 MGPMContext <- function(
   X, tree, model, SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
-  tipModelType = NULL) {
+  tipModelType = NULL, ...) {
 
   ctx <- list2env(list(
     k = nrow(X),
@@ -460,7 +461,8 @@ MGPMContext <- function(
     tipModelType = tipModelType,
     modelTemplate = model,
     treeOriginal = tree,
-    tree = PCMTree(tree)))
+    tree = PCMTree(tree)),
+    ...)
 
   PCMTreeSetLabels(ctx$tree)
 

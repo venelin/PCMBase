@@ -5,7 +5,7 @@
 \title{Context of a MGPM}
 \usage{
 MGPMContext(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), tipModelType = NULL)
+  PCMTreeNumTips(tree)), tipModelType = NULL, ...)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
@@ -28,6 +28,8 @@ Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 \item{tipModelType}{NULL or a character string indicating a member of
 \code{model}. This argument allows to set a specific regime for all terminal
 branches, such as a white noise model.}
+
+\item{...}{any additional objects to be included in the MGPMContext environment.}
 }
 \value{
 an object of S3 class 'MGPMContext'.
