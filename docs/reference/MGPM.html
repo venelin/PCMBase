@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Construct a MGPM object from a vector — MGPM • PCMBase</title>
+<title>Construct a MGPM object — MGPM • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,12 +30,12 @@
 
 
 
-<meta property="og:title" content="Construct a MGPM object from a vector — MGPM" />
+<meta property="og:title" content="Construct a MGPM object — MGPM" />
 
 <meta property="og:description" content="MGPM stays for Mixed Gaussian Phylogenetic Model. A MGPM object represents a
 list of all variables that are subject to change during a probabilistic
 inference of such a model for a given tree and trait data (see Details). This
-is unlike a MGPMContext object that contains the necessary
+is unlike a MGPMContext environment that contains the necessary
 data and meta-information that remains constant (e.g. model types) or changes
 rarely (e.g. metaI objects) during the inference." />
 <meta name="twitter:card" content="summary" />
@@ -133,7 +133,7 @@ rarely (e.g. metaI objects) during the inference." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Construct a MGPM object from a vector</h1>
+    <h1>Construct a MGPM object</h1>
     
     <div class="hidden name"><code>MGPM.Rd</code></div>
     </div>
@@ -143,26 +143,61 @@ rarely (e.g. metaI objects) during the inference." />
     <p>MGPM stays for Mixed Gaussian Phylogenetic Model. A MGPM object represents a
 list of all variables that are subject to change during a probabilistic
 inference of such a model for a given tree and trait data (see Details). This
-is unlike a <code><a href='MGPMContext.html'>MGPMContext</a></code> object that contains the necessary
+is unlike a <code><a href='MGPMContext.html'>MGPMContext</a></code> environment that contains the necessary
 data and meta-information that remains constant (e.g. model types) or changes
 rarely (e.g. metaI objects) during the inference.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>MGPM</span>(<span class='no'>s</span>, <span class='no'>ctx</span>)</pre>
+    <pre class="usage"><span class='fu'>MGPM</span>(<span class='no'>ctx</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>0L</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer</a></span>(<span class='fl'>0L</span>), <span class='kw'>l</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/double'>double</a></span>(<span class='fl'>0L</span>), <span class='kw'>r</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer</a></span>(<span class='fl'>0L</span>),
+  <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>v</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>s</th>
-      <td><p>a real (double) vector representing a MGPM. Some of the
-entries in this vector are coerced to integers denoting nodes in the
-tree, regimes or model types (see example and <code><a href='MGPMVector.html'>MGPMVector</a></code>).</p></td>
+      <th>ctx</th>
+      <td><p>a <code><a href='MGPMContext.html'>MGPMContext</a></code> object.</p></td>
     </tr>
     <tr>
-      <th>ctx</th>
-      <td><p>a MGPMContext object.</p></td>
+      <th>K</th>
+      <td><p>a single non-negative integer number denoting the number of shifts
+in the model. Alternatively, this can be a double vector equal to the
+concatenation of the double-converted arguments <code>K, n, l, r, m, v</code>. In
+this case, the arguments <code>n, l, r, m, v</code> will be ignored. To check that
+this is the case, the length of the argument K is checked for being bigger
+than 1. This makes sense because the shortest possible concatenation of
+<code>K, n, l, r, m, v</code> is of length 2. Default: <code>0L</code>. See also
+Details for details on the definition of <code>K, n, l, r, m, v</code>.</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>an integer vector of length <code>K</code> containing ids of nodes in
+<code>ctx$tree</code>. Ignored if <code>length(K) &gt; 1</code>. Default value:
+<code><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer(0)</a></code>. See also Details.</p></td>
+    </tr>
+    <tr>
+      <th>l</th>
+      <td><p>a non-negative double vector of length <code>K</code>. Ignored if
+<code>length(K) &gt; 1</code>. Default value: <code><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer(0)</a></code>. See also Details.</p></td>
+    </tr>
+    <tr>
+      <th>r</th>
+      <td><p>an integer vector of length <code>K</code> containing regime ids. Ignored
+if <code>length(K) &gt; 1</code>. Default value: <code><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer(0)</a></code>. See also Details.</p></td>
+    </tr>
+    <tr>
+      <th>m</th>
+      <td><p>an integer vector of length R, where R is the number of unique
+regimes, specifying model type mapping for each regime. Ignored if
+<code>length(K) &gt; 1</code>. Default: <code>1L</code>. See also Details.</p></td>
+    </tr>
+    <tr>
+      <th>v</th>
+      <td><p>a double vector of length P where P is the number of variable
+parameters of the MixedGaussian model corresponding to this MGPM object.
+Ignored if <code>length(K) &gt; 1</code>. By default this is set to
+<code>double(P))</code>. See also Details.</p></td>
     </tr>
     </table>
     
@@ -177,20 +212,20 @@ $$\vec{s}=(K, n_2,...,n_{K+1}, l_2,...,l_{K+1}, r_2,...,r_{K+1}, m_1,...,m_R, v_
 Use the constructor <code><a href='MGPMVector.html'>MGPMVector</a></code> to create such vectors. The
 vector elements are described as follows:</p><dl class='dl-horizontal'>
 <dt>\(K\): </dt><dd><p>number of shifts;</p></dd>
-<dt>\((n_2,...,n_{K+1})^T\): </dt><dd><p>shift nodes - the shifts in the model occur
-at points within the branches leading to the shift nodes in tip-ward
+<dt>\((n_2,...,n_{K+1})^T\): </dt><dd><p>shift nodes - the shifts in the model
+occur at points within the branches leading to the shift nodes in tip-ward
 direction. The corresponding locations of these points are specified by
-\((l_2,...,l_{K+1})^T\). The nodes \((n_2,...,n_{K+1})^T\) should be ordered
-according to <code><a href='PCMTreePreorder.html'>PCMTreePreorder</a>(ctx$tree)</code>.</p></dd>
-<dt>\((l_2,...,l_{K+1})^T\): </dt><dd><p>offset of the shift points measured as
+\((l_2,...,l_{K+1})^T\). The nodes \((n_2,...,n_{K+1})^T\) should be
+ordered in increasing order.</p></dd>
+<dt>\((l_2,...,l_{K+1})^T\): </dt><dd><p>offsets of the shift points measured as
 distances from the beginnings of the branches leading to shift nodes in
 tip-ward direction.</p></dd>
 <dt>\((r_2,...,r_{K+1})^T\): </dt><dd><p>regime index vector. This is an integer
-vector with elements among \((N+1,n_2,...,n_{K+1})^T\), indicating the regime
-associated with each part in the tree. The regimes are named as the shift
-nodes, with N+1 corresponding to the part (and regime) originating at the
-root. The regime \(r_1 = N+1\) is always the same and therefore omitted.
-It is possible to have lumped regimes, that is, different parts
+vector with elements among \((N+1,n_2,...,n_{K+1})^T\), indicating the
+regime associated with each part in the tree. The regimes are named as the
+shift nodes, with N+1 corresponding to the part (and regime) originating at
+the root. The regime \(r_1 = N+1\) is always present and, therefore,
+omitted. It is possible to have lumped regimes, that is, different parts
 of the tree having the same regime. This regime-lumping must obey the
 following rules:
 <ol>
@@ -199,13 +234,12 @@ nodes \(n_i\) and \(n_j\) in the tree are called neighbor parts if they
 are separated solely by \(n_i\) or by \(n_j\);</p></li>
 <li><p>to resolve the conflict between the shift nodes of the different parts
 covered by a lumped regime, it is established that the name of a lumped
-regime must equal the shift-node that appears first, according to
-<code><a href='PCMTreePreorder.html'>PCMTreePreorder</a>(ctx$tree)</code>.</p></li>
-</ol></p></dd>
+regime must equal the smallest of the lumped shift-nodes</p></li>
+</ol>.</p></dd>
 <dt>\((m_1,...,m_R)^T\): </dt><dd><p>model type assignment to the unique regimes.
 This is an integer vector with elements between 1 and M, M denoting the
 total number of model types possible. Each element corresponds to an
-element in <code>unique(c(N+1,r_2,...,r_{K+1}))</code></p></dd>
+element in <code>sort(unique(c(N+1,r_2,...,r_{K+1})))</code></p></dd>
 <dt>\((v_1,...,v_P)^T\): </dt><dd><p>real numbers passed to
 <code><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></code>. This is a vectorized form of the model
 parameters.</p></dd>
@@ -219,7 +253,7 @@ parameters.</p></dd>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># The PCMBase package comes with a collection of simulated objects, which we</span>
-<span class='co'># can use as example.</span>
+<span class='co'># can use for the example.</span>
 
 <span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='no'>PCMBaseTestObjects</span>$<span class='no'>tree.ab</span>
 <span class='no'>model</span> <span class='kw'>&lt;-</span>
@@ -235,18 +269,63 @@ parameters.</p></dd>
     <span class='kw'>mapping</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/structure'>structure</a></span>(<span class='fl'>1</span>:<span class='fl'>6</span>, <span class='kw'>names</span> <span class='kw'>=</span> <span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>]),
     <span class='kw'>Sigmae_x</span> <span class='kw'>=</span> <span class='fu'><a href='Args_MixedGaussian_MGPMDefaultModelTypes.html'>Args_MixedGaussian_MGPMDefaultModelTypes</a></span>()$<span class='no'>Sigmae_x</span>))
 
-<span class='no'>state</span> <span class='kw'>&lt;-</span> <span class='fu'>MGPM</span>(<span class='kw'>s</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(
-  <span class='fl'>3</span>,              <span class='co'># K: number of shifts</span>
-  <span class='fl'>52</span>, <span class='fl'>46</span>, <span class='fl'>73</span>,     <span class='co'># n_2, ..., n_{K+1}: shift nodes</span>
-  <span class='fl'>0.1</span>, <span class='fl'>0.4</span>, <span class='fl'>0.3</span>,  <span class='co'># l_2, ..., l_{K+1}: offsets of the shift points relative</span>
-                  <span class='co'># to the beginnings of shift branches in tip-ward direction.</span>
-  <span class='fl'>52</span>, <span class='fl'>46</span>, <span class='fl'>41</span>,     <span class='co'># r_2,...,r_{K+1}: regime indices corresponding to the shifts.</span>
-                  <span class='co'># The regime of the part starting at the root node (41) is</span>
-                  <span class='co'># set to 41 (not included in the list). The regime for the</span>
-                  <span class='co'># part 73 is again 41, meaning that this regime is lumped with</span>
-                  <span class='co'># the root regime. So the number of regimes is R=3.</span>
-  <span class='fl'>5</span>, <span class='fl'>2</span>, <span class='fl'>2</span>         <span class='co'># model type mapping for the three regimes.</span>
-  ), <span class='no'>ctx</span>)</div></pre>
+<span class='no'>mgpmDefault</span> <span class='kw'>&lt;-</span> <span class='fu'>MGPM</span>(<span class='no'>ctx</span>)
+
+<span class='no'>mgpm</span> <span class='kw'>&lt;-</span> <span class='fu'>MGPM</span>(<span class='no'>ctx</span>,
+  <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>4</span>,                    <span class='co'># number of shifts</span>
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>46</span>, <span class='fl'>52</span>, <span class='fl'>73</span>),     <span class='co'># n_2, ..., n_{K+1}: shift nodes</span>
+  <span class='kw'>l</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0.4</span>, <span class='fl'>0.1</span>, <span class='fl'>0.05</span>), <span class='co'># l_2, ..., l_{K+1}: offsets of the shift points</span>
+                            <span class='co'># relative to the beginnings of shift branches in</span>
+                            <span class='co'># tip-ward direction.</span>
+  <span class='kw'>r</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>46</span>, <span class='fl'>52</span>, <span class='fl'>41</span>),     <span class='co'># r_2,...,r_{K+1}: regime indices corresponding</span>
+                            <span class='co'># to the shifts. The regime of the part starting</span>
+                            <span class='co'># at the root node (41) is set to 41 (not</span>
+                            <span class='co'># included in the list). The regime for the part</span>
+                            <span class='co'># 73 is again 41, meaning that this regime is</span>
+                            <span class='co'># lumped with the root regime. So the number of</span>
+                            <span class='co'># regimes is R=4, although there are 5 different</span>
+                            <span class='co'># parts in the tree.</span>
+  <span class='kw'>m</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>, <span class='fl'>2</span>, <span class='fl'>3</span>)         <span class='co'># model type mapping for the R regimes.</span>
+                            <span class='co'># Note that these correspond to</span>
+                            <span class='co'># sort(unique(c(N+1L, r_2, ..., r_{K+1}))).</span>
+                            <span class='co'># Hence, model type 1 corresponds to the</span>
+                            <span class='co'># single-branch regime (ending at tip 2), model</span>
+                            <span class='co'># type 5 correspods to the root regime (41),</span>
+                            <span class='co'># model type 2 corresponds to 46 and model type 3</span>
+                            <span class='co'># corresponds to 52.</span>
+  )
+
+
+<span class='no'>mgpm</span>$<span class='no'>n</span></div><div class='output co'>#&gt; [1]  2 46 52 73</div><div class='input'>
+<span class='co'># the names correspond to the shift nodes.</span>
+<span class='no'>mgpm</span>$<span class='no'>l</span></div><div class='output co'>#&gt;    2   46   52   73 
+#&gt; 0.00 0.40 0.10 0.05 </div><div class='input'><span class='no'>mgpm</span>$<span class='no'>r</span></div><div class='output co'>#&gt;  2 46 52 73 
+#&gt;  2 46 52 41 </div><div class='input'>
+<span class='co'># The names of mgpm$m denote the regimes, while the values denote the model</span>
+<span class='co'># types:</span>
+<span class='no'>mgpm</span>$<span class='no'>m</span></div><div class='output co'>#&gt;  2 41 46 52 
+#&gt;  1  5  2  3 </div><div class='input'>
+<span class='no'>mgpmVec</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='as.MGPMVector.html'>as.MGPMVector</a></span>(<span class='no'>mgpm</span>)
+<span class='no'>mgpmVec</span>[<span class='fu'><a href='MGPMPosK.html'>MGPMPosv</a></span>(<span class='no'>mgpm</span>)] <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>mgpm</span>$<span class='no'>model</span>)
+
+<span class='no'>mgpm2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='as.MGPM.html'>as.MGPM</a></span>(<span class='no'>mgpmVec</span>, <span class='no'>mgpm</span>$<span class='no'>ctx</span>)
+
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>n</span>, <span class='no'>mgpm2</span>$<span class='no'>n</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>l</span>, <span class='no'>mgpm2</span>$<span class='no'>l</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>r</span>, <span class='no'>mgpm2</span>$<span class='no'>r</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>m</span>, <span class='no'>mgpm2</span>$<span class='no'>m</span>))
+
+<span class='co'># These two should be different values but same length:</span>
+<span class='no'>mgpm</span>$<span class='no'>v</span></div><div class='output co'>#&gt;  [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</div><div class='input'><span class='no'>mgpm2</span>$<span class='no'>v</span></div><div class='output co'>#&gt;  [1] -8.38499725  6.68666075  6.00760886  1.57208442  0.07399441 -0.67213005
+#&gt;  [7]  4.97777389 -4.20465511  4.65763974  7.72521511  7.49201322  1.74940627
+#&gt; [13]  0.34241333 -3.59228538  4.02328238  1.95669835  4.03538117 -8.72677085
+#&gt; [19] -2.22597374  9.75547835  2.89892295</div><div class='input'>
+<span class='no'>mgpm3</span> <span class='kw'>&lt;-</span> <span class='fu'>MGPM</span>(<span class='no'>ctx</span>,
+  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>4</span>, <span class='fl'>2</span>, <span class='fl'>46</span>, <span class='fl'>52</span>, <span class='fl'>73</span>, <span class='fl'>0</span>, <span class='fl'>0.4</span>, <span class='fl'>0.1</span>, <span class='fl'>0.05</span>, <span class='fl'>2</span>, <span class='fl'>46</span>, <span class='fl'>52</span>, <span class='fl'>41</span>, <span class='fl'>1</span>, <span class='fl'>5</span>, <span class='fl'>2</span>, <span class='fl'>3</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>n</span>, <span class='no'>mgpm3</span>$<span class='no'>n</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>l</span>, <span class='no'>mgpm3</span>$<span class='no'>l</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>r</span>, <span class='no'>mgpm3</span>$<span class='no'>r</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/identical'>identical</a></span>(<span class='no'>mgpm</span>$<span class='no'>m</span>, <span class='no'>mgpm3</span>$<span class='no'>m</span>))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

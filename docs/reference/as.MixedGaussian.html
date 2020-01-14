@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Context of a MGPM — MGPMContext • PCMBase</title>
+<title>Convert a <code>GaussianPCM</code> model object to a <code>MixedGaussian</code> model object — as.MixedGaussian • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Context of a MGPM — MGPMContext" />
+<meta property="og:title" content="Convert a <code>GaussianPCM</code> model object to a <code>MixedGaussian</code> model object — as.MixedGaussian" />
 
-<meta property="og:description" content="Context of a MGPM" />
+<meta property="og:description" content="Convert a GaussianPCM model object to a MixedGaussian model object" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -128,61 +128,54 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Context of a MGPM</h1>
+    <h1>Convert a <code>GaussianPCM</code> model object to a <code>MixedGaussian</code> model object</h1>
     
-    <div class="hidden name"><code>MGPMContext.Rd</code></div>
+    <div class="hidden name"><code>as.MixedGaussian.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Context of a MGPM</p>
+    <p>Convert a <code>GaussianPCM</code> model object to a <code>MixedGaussian</code> model object</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>MGPMContext</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
-  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>tipModelType</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>as.MixedGaussian</span>(<span class='no'>o</span>, <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>X</th>
-      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-These two values have are treated differently when calculating
-likelihoods: see <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>.</p></td>
+      <th>o</th>
+      <td><p>an R object: either a <code>GaussianPCM</code> or a <code>MixedGaussian</code>.</p></td>
     </tr>
     <tr>
-      <th>tree</th>
-      <td><p>a phylo object with N tips.</p></td>
-    </tr>
-    <tr>
-      <th>model</th>
-      <td><p>a MixedGaussian model used as a template to build MixedGaussian
-model objects.</p></td>
-    </tr>
-    <tr>
-      <th>SE</th>
-      <td><p>a k x N matrix specifying the standard error for each measurement in
-X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>tipModelType</th>
-      <td><p>NULL or a character string indicating a member of
-<code>model</code>. This argument allows to set a specific regime for all terminal
-branches, such as a white noise model.</p></td>
+      <th>modelTypes</th>
+      <td><p>NULL (the default) or a (possibly named) character string
+vector. Each such string denotes a mixed Gaussian regime model class, e.g.
+the result of calling <code><a href='PCMDefaultModelTypes.html'>MGPMDefaultModelTypes()</a></code>. If specified, an
+attempt is made to match the deduced Gaussian regime model type from <code>o</code>
+with the elements of <code>modelTypes</code> and an error is raised if the match
+fails. If the match succeeds the converted MixedGaussian object will have the
+specified <code>modelTypes</code> parameter as an attribute <code>"modelTypes"</code>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an object of S3 class 'MGPMContext'.</p>
+    <p>a <code>MixedGaussian</code> object.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>mg</span> <span class='kw'>&lt;-</span> <span class='fu'>as.MixedGaussian</span>(<span class='no'>PCMBaseTestObjects</span>$<span class='no'>model.ab.123.bSigmae_x</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stopifnot'>stopifnot</a></span>(
+  <span class='fu'><a href='PCMLik.html'>PCMLik</a></span>(
+    <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>PCMBaseTestObjects</span>$<span class='no'>traits.ab.123</span>,
+    <span class='no'>PCMBaseTestObjects</span>$<span class='no'>tree.ab</span>,
+    <span class='no'>PCMBaseTestObjects</span>$<span class='no'>model.ab.123.bSigmae_x</span>) <span class='kw'>==</span>
+  <span class='fu'><a href='PCMLik.html'>PCMLik</a></span>(
+    <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>PCMBaseTestObjects</span>$<span class='no'>traits.ab.123</span>,
+    <span class='no'>PCMBaseTestObjects</span>$<span class='no'>tree.ab</span>,
+    <span class='no'>mg</span>))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -190,7 +183,9 @@ branches, such as a white noise model.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

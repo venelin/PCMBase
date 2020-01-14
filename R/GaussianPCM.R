@@ -20,6 +20,15 @@ PCMParentClasses.GaussianPCM <- function(model) {
   "PCM"
 }
 
+#' Check if an object is a `GaussianPCM`
+#' @param x any object
+#' @return TRUE if x inherits from the S3 class `GaussianPCM`, FALSE otherwise.
+#'
+#' @export
+is.GaussianPCM <- function(x) {
+  inherits(x, "GaussianPCM")
+}
+
 #' @inherit PCMCond
 #' @return For GaussianPCM models, a named list with the following members:
 #' \item{omega}{d}
@@ -462,11 +471,17 @@ PCMLik.GaussianPCM <- function(
       X0[k0] <- model$X0[k0]
     }
 
-    loglik <- try(X0[k0] %*% L0[k0,k0,drop=FALSE] %*% X0[k0] + m0[k0] %*% X0[k0] + r0, silent = TRUE)
+    loglik <- try(
+      X0[k0] %*% L0[k0,k0,drop=FALSE] %*% X0[k0] + m0[k0] %*% X0[k0] + r0,
+      silent = TRUE)
+
     if(inherits(loglik, "try-error")) {
       err <- paste0(
-        "PCMLik.GaussianPCM:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ", "X0=", toString(X0), "L0=", toString(L0), "; m0=", toString(m0), "; r0=", r0,
-        ". Error message from call to X0 %*% L0 %*% X0 + m0 %*% X0 + r0:", loglik, "\n")
+        "PCMLik.GaussianPCM:: There was a problem calculating loglik from X0 and the coefficients L,m,r. ",
+        "X0=", toString(X0), "L0=", toString(L0), "; m0=", toString(m0),
+        "; r0=", r0,
+        ". Error message from call to X0 %*% L0 %*% X0 + m0 %*% X0 + r0:",
+        loglik, "\n")
 
       errL <- PCMParseErrorMessage(err)
       if(getOption("PCMBase.Raise.Lik.Errors", TRUE)) {
@@ -488,7 +503,11 @@ PCMLik.GaussianPCM <- function(
 
     if(inherits(value, "try-error")) {
       err <- paste0(
-        "PCMLik.GaussianPCM:: There was a problem calculating value from loglik=", toString(loglik), ". Error message from call to as.vector(if(log) loglik else exp(loglik)):", value, "; print(model):",
+        "PCMLik.GaussianPCM:: There was a problem calculating value from loglik=",
+        toString(loglik),
+        ". Error message from call to as.vector(if(log) loglik else exp(loglik)):",
+        value,
+        "; print(model):",
         do.call(paste, c(as.list(capture.output(print(model))), list(sep="\n"))))
 
       errL <- PCMParseErrorMessage(err)
@@ -1048,7 +1067,9 @@ PCMLmr.default <- function(
         r[i] <- with(AbCdEf, t(X[ki,i]) %*% A[ki,ki,i] %*% X[ki,i] +
                        t(X[ki,i]) %*% b[ki,i] + f[i])
 
-        m[kj,i] <- with(AbCdEf, d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
+        m[kj,i] <- with(
+          AbCdEf,
+          d[kj,i] + matrix(E[kj,ki,i], sum(kj), sum(ki)) %*% X[ki,i])
       }
     } else {
       # edge pointing to internal nodes, for which all children

@@ -15,19 +15,38 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 
-#' Construct a MGPM object from a vector
+#' Construct a MGPM object
 #'
 #' MGPM stays for Mixed Gaussian Phylogenetic Model. A MGPM object represents a
 #' list of all variables that are subject to change during a probabilistic
 #' inference of such a model for a given tree and trait data (see Details). This
-#' is unlike a \code{\link{MGPMContext}} object that contains the necessary
+#' is unlike a \code{\link{MGPMContext}} environment that contains the necessary
 #' data and meta-information that remains constant (e.g. model types) or changes
 #' rarely (e.g. metaI objects) during the inference.
 #'
-#' @param s a real (double) vector representing a MGPM. Some of the
-#'  entries in this vector are coerced to integers denoting nodes in the
-#'  tree, regimes or model types (see example and \code{\link{MGPMVector}}).
-#' @param ctx a MGPMContext object.
+#' @param ctx a \code{\link{MGPMContext}} object.
+#' @param K a single non-negative integer number denoting the number of shifts
+#' in the model. Alternatively, this can be a double vector equal to the
+#' concatenation of the double-converted arguments \code{K, n, l, r, m, v}. In
+#' this case, the arguments \code{n, l, r, m, v} will be ignored. To check that
+#' this is the case, the length of the argument K is checked for being bigger
+#' than 1. This makes sense because the shortest possible concatenation of
+#' \code{K, n, l, r, m, v} is of length 2. Default: \code{0L}. See also
+#' Details for details on the definition of \code{K, n, l, r, m, v}.
+#' @param n an integer vector of length \code{K} containing ids of nodes in
+#' \code{ctx$tree}. Ignored if \code{length(K) > 1}. Default value:
+#' \code{integer(0)}. See also Details.
+#' @param l a non-negative double vector of length \code{K}. Ignored if
+#' \code{length(K) > 1}. Default value: \code{integer(0)}. See also Details.
+#' @param r an integer vector of length \code{K} containing regime ids. Ignored
+#' if \code{length(K) > 1}. Default value: \code{integer(0)}. See also Details.
+#' @param m an integer vector of length R, where R is the number of unique
+#' regimes, specifying model type mapping for each regime. Ignored if
+#' \code{length(K) > 1}. Default: \code{1L}. See also Details.
+#' @param v a double vector of length P where P is the number of variable
+#' parameters of the MixedGaussian model corresponding to this MGPM object.
+#' Ignored if \code{length(K) > 1}. By default this is set to
+#' \code{double(P))}. See also Details.
 #'
 #' @details
 #' A MGPM can be encoded as a numerical vector:
@@ -36,20 +55,20 @@
 #' vector elements are described as follows:
 #' \describe{
 #' \item{\eqn{K}: }{number of shifts;}
-#' \item{\eqn{(n_2,...,n_{K+1})^T}: }{shift nodes - the shifts in the model occur
-#' at points within the branches leading to the shift nodes in tip-ward
+#' \item{\eqn{(n_2,...,n_{K+1})^T}: }{shift nodes - the shifts in the model
+#' occur at points within the branches leading to the shift nodes in tip-ward
 #' direction. The corresponding locations of these points are specified by
-#' \eqn{(l_2,...,l_{K+1})^T}. The nodes \eqn{(n_2,...,n_{K+1})^T} should be ordered
-#' according to \code{\link{PCMTreePreorder}(ctx$tree)}.}
-#' \item{\eqn{(l_2,...,l_{K+1})^T}: }{offset of the shift points measured as
+#' \eqn{(l_2,...,l_{K+1})^T}. The nodes \eqn{(n_2,...,n_{K+1})^T} should be
+#' ordered in increasing order.}
+#' \item{\eqn{(l_2,...,l_{K+1})^T}: }{offsets of the shift points measured as
 #' distances from the beginnings of the branches leading to shift nodes in
-#' tip-ward direction.}
+#' tip-ward direction. }
 #' \item{\eqn{(r_2,...,r_{K+1})^T}: }{regime index vector. This is an integer
-#' vector with elements among \eqn{(N+1,n_2,...,n_{K+1})^T}, indicating the regime
-#' associated with each part in the tree. The regimes are named as the shift
-#' nodes, with N+1 corresponding to the part (and regime) originating at the
-#' root. The regime \eqn{r_1 = N+1} is always the same and therefore omitted.
-#' It is possible to have lumped regimes, that is, different parts
+#' vector with elements among \eqn{(N+1,n_2,...,n_{K+1})^T}, indicating the
+#' regime associated with each part in the tree. The regimes are named as the
+#' shift nodes, with N+1 corresponding to the part (and regime) originating at
+#' the root. The regime \eqn{r_1 = N+1} is always present and, therefore,
+#' omitted. It is possible to have lumped regimes, that is, different parts
 #' of the tree having the same regime. This regime-lumping must obey the
 #' following rules:
 #' \enumerate{
@@ -58,13 +77,12 @@
 #' are separated solely by \eqn{n_i} or by \eqn{n_j};
 #' \item to resolve the conflict between the shift nodes of the different parts
 #' covered by a lumped regime, it is established that the name of a lumped
-#' regime must equal the shift-node that appears first, according to
-#' \code{\link{PCMTreePreorder}(ctx$tree)}.
-#' }}
+#' regime must equal the smallest of the lumped shift-nodes}.
+#' }
 #' \item{\eqn{(m_1,...,m_R)^T}: }{model type assignment to the unique regimes.
 #' This is an integer vector with elements between 1 and M, M denoting the
 #' total number of model types possible. Each element corresponds to an
-#' element in \code{unique(c(N+1,r_2,...,r_{K+1}))}}
+#' element in \code{sort(unique(c(N+1,r_2,...,r_{K+1})))}}
 #' \item{\eqn{(v_1,...,v_P)^T}: }{real numbers passed to
 #' \code{\link{PCMParamLoadOrStore}}. This is a vectorized form of the model
 #' parameters.}
@@ -73,7 +91,7 @@
 #' @return an object of S3 class 'MGPM'.
 #' @examples
 #' # The PCMBase package comes with a collection of simulated objects, which we
-#' # can use as example.
+#' # can use for the example.
 #'
 #' tree <- PCMBaseTestObjects$tree.ab
 #' model <-
@@ -89,135 +107,241 @@
 #'     mapping = structure(1:6, names = LETTERS[1:6]),
 #'     Sigmae_x = Args_MixedGaussian_MGPMDefaultModelTypes()$Sigmae_x))
 #'
-#' state <- MGPM(s = c(
-#'   3,              # K: number of shifts
-#'   52, 46, 73,     # n_2, ..., n_{K+1}: shift nodes
-#'   0.1, 0.4, 0.3,  # l_2, ..., l_{K+1}: offsets of the shift points relative
-#'                   # to the beginnings of shift branches in tip-ward direction.
-#'   52, 46, 41,     # r_2,...,r_{K+1}: regime indices corresponding to the shifts.
-#'                   # The regime of the part starting at the root node (41) is
-#'                   # set to 41 (not included in the list). The regime for the
-#'                   # part 73 is again 41, meaning that this regime is lumped with
-#'                   # the root regime. So the number of regimes is R=3.
-#'   5, 2, 2         # model type mapping for the three regimes.
-#'   ), ctx)
+#' mgpmDefault <- MGPM(ctx)
+#'
+#' mgpm <- MGPM(ctx,
+#'   K = 4,                    # number of shifts
+#'   n = c(2, 46, 52, 73),     # n_2, ..., n_{K+1}: shift nodes
+#'   l = c(0, 0.4, 0.1, 0.05), # l_2, ..., l_{K+1}: offsets of the shift points
+#'                             # relative to the beginnings of shift branches in
+#'                             # tip-ward direction.
+#'   r = c(2, 46, 52, 41),     # r_2,...,r_{K+1}: regime indices corresponding
+#'                             # to the shifts. The regime of the part starting
+#'                             # at the root node (41) is set to 41 (not
+#'                             # included in the list). The regime for the part
+#'                             # 73 is again 41, meaning that this regime is
+#'                             # lumped with the root regime. So the number of
+#'                             # regimes is R=4, although there are 5 different
+#'                             # parts in the tree.
+#'   m = c(1, 5, 2, 3)         # model type mapping for the R regimes.
+#'                             # Note that these correspond to
+#'                             # sort(unique(c(N+1L, r_2, ..., r_{K+1}))).
+#'                             # Hence, model type 1 corresponds to the
+#'                             # single-branch regime (ending at tip 2), model
+#'                             # type 5 correspods to the root regime (41),
+#'                             # model type 2 corresponds to 46 and model type 3
+#'                             # corresponds to 52.
+#'   )
+#'
+#'
+#' mgpm$n
+#'
+#' # the names correspond to the shift nodes.
+#' mgpm$l
+#' mgpm$r
+#'
+#' # The names of mgpm$m denote the regimes, while the values denote the model
+#' # types:
+#' mgpm$m
+#'
+#' mgpmVec <- as.MGPMVector(mgpm)
+#' mgpmVec[MGPMPosv(mgpm)] <- PCMParamRandomVecParams(mgpm$model)
+#'
+#' mgpm2 <- as.MGPM(mgpmVec, mgpm$ctx)
+#'
+#' stopifnot(identical(mgpm$n, mgpm2$n))
+#' stopifnot(identical(mgpm$l, mgpm2$l))
+#' stopifnot(identical(mgpm$r, mgpm2$r))
+#' stopifnot(identical(mgpm$m, mgpm2$m))
+#'
+#' # These two should be different values but same length:
+#' mgpm$v
+#' mgpm2$v
+#'
+#' mgpm3 <- MGPM(ctx,
+#'   c(4, 2, 46, 52, 73, 0, 0.4, 0.1, 0.05, 2, 46, 52, 41, 1, 5, 2, 3))
+#' stopifnot(identical(mgpm$n, mgpm3$n))
+#' stopifnot(identical(mgpm$l, mgpm3$l))
+#' stopifnot(identical(mgpm$r, mgpm3$r))
+#' stopifnot(identical(mgpm$m, mgpm3$m))
 #'
 #' @seealso \code{\link{MGPMVector}} \code{\link{MGPMContext}}
 #' \code{\link{MGPMPosK}} \code{\link{MixedGaussian}}
 #' @export
-MGPM <- function(s, ctx) {
-  # number of tips
-  N <- PCMTreeNumTips(ctx$tree)
+MGPM <- function(
+  ctx,
+  K = 0L, n = integer(0L), l = double(0L), r = integer(0L), m = 1L, v = NULL) {
 
-  # Initialize default values:
-  K <- 0L
-  n <- integer(0L)
-  l <- double(0L)
-  r <- N+1L
-  m <- 1L
-  v <- NULL
+  if(length(K) > 1L) {
+    s <- as.double(K)
+  } else {
+    s <- NULL
+  }
+
+  # number of tips in the tree
+  N <- PCMTreeNumTips(ctx$tree)
 
   R <- 1L
   P <- NA_integer_
 
   model <- NULL
+
   # The node labels in ctx$tree must be 1,2,...,M, with N+1 being the root and
   # 1,...,N being the tips.
   tree <- ctx$tree
 
-  if(length(s) >= 1L) {
-    # number of shifts
+  if(is.null(s)) {
+    # do nothing
+  } else {
+    # the first element is the number of shifts
     K <- as.integer(s[1L])
-    if(K > 0L && !(length(s) >= 1L + K + K + K)) {
-      stop(paste0("MGPM:: The vector s is wrong length, given that K=", K,
-                  ". It should have at least ", 1L + K + K + K, " elements."))
+  }
+
+
+  if(is.null(s)) {
+    if(!(length(n) == K && length(l) == K && length(r) == K)) {
+      stop(
+        paste0("MGPM:: Some of n, l, r are of length different than K(", K, ")."))
+    }
+    nlr <- data.table(
+      n = c(N + 1L, as.integer(n)),
+      l = as.double(c(0.0, l)),
+      r = c(N + 1L, as.integer(r)))
+  } else {
+    nlr <- data.table(
+      n = c(N + 1L, as.integer(s[1L + seq_len(K)])),
+      l = as.double(c(0.0, s[1L + K + seq_len(K)])),
+      r = c(N + 1L, as.integer(s[1L + K + K + seq_len(K)])))
+  }
+
+  # avoid "no visible binding NOTE":
+  i <- .I <- r2 <- NULL
+  setkey(nlr, n)
+  nlr[, i:=.I]
+
+  # Row index in nlr corresponding to the root.
+  iRoot <- nlr[n == N+1L, i]
+
+  # n, l and r should be ordered in the increasing order of n
+  ordern <- nlr[-iRoot, order(n)]
+  if(!identical(ordern, seq_len(K))) {
+    stop("MGPM:: the shift nodes should be ordered in increasing order.")
+  }
+
+
+  # Check that lumped regimes and set their names to the smallest shift-node
+  nlr[, r2:=min(n), by=r]
+  if(!nlr[, identical(r, r2)]) {
+    print(nlr)
+    stop(paste0(
+      "MGPM:: each regime lumping several parts of the tree should be named ",
+      "as the smallest shift-node among the shift-nodes for the lumped parts."))
+  }
+  if(length(nlr[, unique(c(n, r))]) != K+1L) {
+    print(nlr)
+    stop(paste0(
+      "MGPM:: There are duplicated root or shift-nodes or some of the ",
+      "regime names may not be among the root and the shift-nodes. \n",
+      "root node and shift nodes: ", toString(nlr[, n]), "\n",
+      "regimes: ", toString(nlr[, r]), "."))
+  }
+
+  # unique regime names
+  regimeNames <- nlr[, unique(r)]
+
+  # Number of unique regimes
+  R <- length(regimeNames)
+
+  minSingletonBranchLength <-
+    getOption("PCMBayes.minSingletonBranchLength", 0.1)
+
+  # Insert singleton nodes wherever needed
+  needASingleton <- (nlr[, l] >= minSingletonBranchLength)
+
+  if(sum(needASingleton) > 0L) {
+    # ids of rows in tree$edge and tree$edge.length
+    branchesNeedingSingletons <- nlr[, match(n[needASingleton], tree$edge[, 2L])]
+    # Offsets of the singletons in root-ward direction
+    posSingletons <-
+      tree$edge.length[branchesNeedingSingletons] - nlr[, l[needASingleton]]
+
+    if(sum(posSingletons > minSingletonBranchLength) > 0L)
+      tree <- PCMTreeInsertSingletons(
+        tree,
+        nlr[, n[needASingleton][posSingletons >= minSingletonBranchLength]],
+        posSingletons[posSingletons >= minSingletonBranchLength])
+  }
+
+  # After possible insertion of singleton nodes, the node indices are not
+  # anymore the same, so we use the node labels to set the partition
+  part.names <- nlr[, as.character(n)]
+  part.regime <- structure(nlr[, as.character(r)], names = part.names)
+  PCMTreeSetPartRegimes(tree, part.regime, setPartition = TRUE)
+
+  if(is.null(s)) {
+    if(length(m) != R) {
+      stop(paste0(
+        "MGPM:: the length of m (", length(m),
+        ") should equal the number of unique regimes (", R, ")"))
+    }
+    m <- as.integer(m)
+  } else {
+    # model types associated with the regimes
+    if(length(s) >= 1L + K + K + K + R) {
+      m <- as.integer(s[1L + K + K + K + seq_len(R)])
     } else {
-      # shift nodes
-      n <- as.integer(s[1L + seq_len(K)])
+      stop(
+        paste0("MGPM:: not enough model types supplied in input (s); using",
+               "default model mapping 1 for all regimes."))
+    }
+  }
+  names(m) <- regimeNames
 
-      # shift locations on the branches leading to the shift nodes
-      l <- s[1L + K + seq_len(K)]
+  namesModelTypes <-
+    names(ctx$modelTemplate)[sapply(ctx$modelTemplate, is.PCM)]
 
-      # regimes: these are integers among n
-      r <- as.integer(s[1L + K + K + seq_len(K)])
+  # Create the model (MixedGaussian)
+  model <- do.call(
+    MixedGaussian,
+    c(list(k = ctx$k,
+           modelTypes = ctx$modelTemplate[namesModelTypes],
+           mapping = m),
+      attr(ctx$modelTemplate, "spec")[
+        setdiff(names(attr(ctx$modelTemplate, "spec")), namesModelTypes)]))
 
-      # order n, l and r according to PCMTreePreorder
-      ordern <- order(match(n, ctx$tree$edge[ctx$preorderNodes, 2]))
+  # Load the parameter values into the model (the number of parameters is
+  # stored in P)
+  P <- as.integer(attr(model, "p"))
 
-      n <- n[ordern]
-      l <- l[ordern]
-      r <- r[ordern]
-
-      regimeNames <- unique(c(N+1L, r))
-
-      # Number of different regimes
-      R <- length(regimeNames)
-
-      minSingletonBranchLength <-
-        getOption("PCMBayes.minSingletonBranchLength", 0.1)
-
-      # Insert singleton nodes wherever needed
-      needASingleton <- (l >= minSingletonBranchLength)
-
-      if(sum(needASingleton) > 0L) {
-        # ids of rows in tree$edge and tree$edge.length
-        branchesNeedingSingletons <- match(n[needASingleton], tree$edge[, 2L])
-        # Offsets of the singletons in root-ward direction
-        posSingletons <-
-          tree$edge.length[branchesNeedingSingletons] - l[needASingleton]
-
-        if(sum(posSingletons > minSingletonBranchLength) > 0L)
-          tree <- PCMTreeInsertSingletons(
-            tree,
-            n[needASingleton][posSingletons >= minSingletonBranchLength],
-            posSingletons[posSingletons >= minSingletonBranchLength])
-      }
-
-      # After possible insertion of singleton nodes, the node indices are not
-      # anymore the same, so we use the node labels to set the partition
-      part.names <- as.character(c(N+1L, n))
-      part.regime <- structure(character(length(part.names)), names = part.names)
-      part.regime[] <- as.character(c(N+1L, r))
-      PCMTreeSetPartRegimes(tree, part.regime, setPartition = TRUE)
-
-      m <- rep(1L, R)
-      # model types associated with the regimes
-      if(length(s) >= 1L + K + K + K + R) {
-        m <- as.integer(s[1L + K + K + K + seq_len(R)])
-      }
-      names(m) <- regimeNames
-
-      namesModelTypes <-
-        names(ctx$modelTemplate)[sapply(ctx$modelTemplate, is.PCM)]
-
-      # Create the model (MixedGaussian)
-      model <- do.call(
-        MixedGaussian,
-        c(list(k = ctx$k,
-               modelTypes = ctx$modelTemplate[namesModelTypes],
-               mapping = m),
-          attr(ctx$modelTemplate, "spec")[
-            setdiff(names(attr(ctx$modelTemplate, "spec")), namesModelTypes)]))
-
-      # Load the parameter values into the model (the number of parameters is
-      # stored in P)
-      P <- as.integer(attr(model, "p"))
+  if(is.null(s)) {
+    if(!is.null(v) && length(v) != P) {
+      stop(paste0(
+        "MGPM:: if v is specified, the length of v (", length(v),
+        ") should equal the number of variable parameters of the model (", P, ")"))
+    } else {
       v <- double(P)
-      if(length(s) >= 1L + K + K + K + R + P) {
-        v <- s[-seq_len(1L + K + K + K + R)]
-      }
-      P1 <- PCMParamLoadOrStore(model, v, offset = 0, k = ctx$k, R = R,load = TRUE)
-      if(P != P1) {
-        stop(paste0(
-          "MGPM:: something is wrong with the attribute p of the model",
-          " and the number of parameters returned by PCMParamLoadOrStore."))
-      }
+    }
+  } else {
+    v <- double(P)
+    if(length(s) >= 1L + K + K + K + R + P) {
+      v <- s[-seq_len(1L + K + K + K + R)]
+    }
+    P1 <- PCMParamLoadOrStore(model, v, offset = 0, k = ctx$k, R = R,load = TRUE)
+    if(P != P1) {
+      stop(paste0(
+        "MGPM:: something is wrong with the attribute p of the model ",
+        "and the number of parameters returned by PCMParamLoadOrStore. ",
+        "This could be a bug."))
     }
   }
 
   structure(list(
-    K = K, R = R, P = P, n = n, l = l, r = r, m = m,
-    v = v, model = model, tree = tree),
+    K = K, R = R, P = P,
+    n = nlr[-iRoot, n],
+    l = structure(nlr[-iRoot, l], names = nlr[-iRoot, n]),
+    r = structure(nlr[-iRoot, r], names = nlr[-iRoot, n]),
+    m = m,
+    v = v, model = model, tree = tree, ctx = ctx),
     class = "MGPM")
 }
 
@@ -231,29 +355,39 @@ is.MGPM <- function(o) {
 }
 
 #' If necessary, convert an object to an MGPM object.
-#' @param s a \code{\link{MGPM}} or a \code{\link{MGPMVector}}
-#' object.
-#' @param ctx a \code{\link{MGPMContext}} object. This is needed only if
-#'  \code{s} is \code{\link{MGPMVector}} object.
+#' This is an S3 generic function.
+#' @param o an object.
+#' @param ctx a \code{\link{MGPMContext}} object. Default \code{NULL}.
 #'
-#' @return an MGPM object corresponding to \code{s}. If \code{s} is already
+#' @return an MGPM object corresponding to \code{o}. If \code{o} is already
 #' a \code{\link{MGPM}} object, it is returned as is. Otherwise, a
-#' \code{\link{MGPM}} object is constructed from \code{s} and \code{ctx}.
+#' \code{\link{MGPM}} object is constructed from \code{o} and,
+#' optionally \code{ctx}.
 #' @export
-as.MGPM <- function(s, ctx = NULL) {
-  if(is.MGPM(s)) {
-    s
-  } else if(is.MGPMVector(s)) {
-    if(!is.MGPMContext(ctx)) {
-      stop(paste0(
-        "as.MGPM: ctx must be a MGPMContext object if s is a ",
-        "MGPMVector."))
-    }
-    s <- MGPM(s, ctx)
-  } else {
-    stop("as.MGPM: s be a MGPM or a MGPMVector object.")
-  }
+as.MGPM <- function(o, ctx = NULL) {
+  UseMethod("as.MGPM", o)
 }
+
+#' @export
+as.MGPM.default <- function(o, ctx = NULL) {
+  stop(paste0("as.MGPM: no method defined for class ", toString(class(o)), "." ))
+}
+
+#' @export
+as.MGPM.MGPM <- function(o, ctx = NULL) {
+  o
+}
+
+#' @export
+as.MGPM.MGPMVector <- function(o, ctx = NULL) {
+  if(!is.MGPMContext(ctx)) {
+    stop(paste0(
+      "as.MGPM: ctx must be a MGPMContext object if o is a ",
+      "MGPMVector."))
+  }
+  MGPM(ctx, o)
+}
+
 
 #' Construct a MGPM vector.
 #'
@@ -297,7 +431,7 @@ is.MGPMVector <- function(o) {
 as.MGPMVector <- function(o) {
   if(is.MGPMVector(o)) {
     o
-  } else if(isMGPM(o)) {
+  } else if(is.MGPM(o)) {
     MGPMVector(o$K, o$n, o$l, o$r, o$m, o$v)
   } else {
     stop("as.MGPMVector: o must be a MGPM object.")
@@ -307,37 +441,45 @@ as.MGPMVector <- function(o) {
 
 #' Context of a MGPM
 #' @inheritParams PCMLik
-#' @param model a template used to build MixedGaussian model objects.
-#' @param K,n,l,r,m,v default (or initial) variables for the number of
-#' shifts, the shift nodes, the shift-offsets, the regimes, the mapped model
-#' types and the parameter values (see \code{\link{MGPM}}).
-#' By default, these are
-#' \code{K = 0L, n = integer(0), l = double(0), r = integer(0),
-#' m = 1L, v = double(P)}.
-#' Here, N is the number of tips in the tree, and P is the number of numerical
-#' parameters in a MixedGaussian with a single regime mapped to model type 1.
+#' @param model a MixedGaussian model used as a template to build MixedGaussian
+#' model objects.
+#' @param tipModelType NULL or a character string indicating a member of
+#' \code{model}. This argument allows to set a specific regime for all terminal
+#' branches, such as a white noise model.
 #'
 #' @return an object of S3 class 'MGPMContext'.
 #' @export
 MGPMContext <- function(
   X, tree, model, SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
-  K = 0L, n = integer(0L), l = double(0L), r = integer(0),
-  m = 1L, v = NULL) {
+  tipModelType = NULL) {
 
-  ctx <- list(
+  ctx <- list2env(list(
     k = nrow(X),
     X = X,
     SE = SE,
+    tipModelType = tipModelType,
     modelTemplate = model,
     treeOriginal = tree,
-    tree = PCMTree(tree))
+    tree = PCMTree(tree)))
+
   PCMTreeSetLabels(ctx$tree)
 
   class(ctx) <- "MGPMContext"
 
-  ctx$MGPMTemplate <- MGPM(MGPMVector(K, n, l, r, m, v), ctx)
+  ctx$MGPMTemplate <- MGPM(
+    ctx,
+    MGPMVector(
+      K = 0L, n = integer(0L), l = double(0L), r = integer(0L), m = 1L, v = NULL))
 
   ctx
+}
+
+#' Check if an object is of S3 class 'MGPMContext'
+#' @param o an object.
+#' @return a logical.
+#' @export
+is.MGPMContext <- function(o) {
+  inherits(o, "MGPMContext")
 }
 
 #' @title Indices of different parts of an MGPM in an MGPMVector
@@ -410,3 +552,4 @@ MGPMPosv <- function(s, ctx = NULL) {
   s <- as.MGPM(s, ctx)
   1L + s$K + s$K + s$K + s$R + seq_len(s$P)
 }
+

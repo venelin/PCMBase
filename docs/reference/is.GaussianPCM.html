@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Context of a MGPM — MGPMContext • PCMBase</title>
+<title>Check if an object is a `GaussianPCM` — is.GaussianPCM • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Context of a MGPM — MGPMContext" />
+<meta property="og:title" content="Check if an object is a `GaussianPCM` — is.GaussianPCM" />
 
-<meta property="og:description" content="Context of a MGPM" />
+<meta property="og:description" content="Check if an object is a `GaussianPCM`" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -128,59 +128,31 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Context of a MGPM</h1>
+    <h1>Check if an object is a `GaussianPCM`</h1>
     
-    <div class="hidden name"><code>MGPMContext.Rd</code></div>
+    <div class="hidden name"><code>is.GaussianPCM.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Context of a MGPM</p>
+    <p>Check if an object is a `GaussianPCM`</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>MGPMContext</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
-  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>tipModelType</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>is.GaussianPCM</span>(<span class='no'>x</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>X</th>
-      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-These two values have are treated differently when calculating
-likelihoods: see <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>tree</th>
-      <td><p>a phylo object with N tips.</p></td>
-    </tr>
-    <tr>
-      <th>model</th>
-      <td><p>a MixedGaussian model used as a template to build MixedGaussian
-model objects.</p></td>
-    </tr>
-    <tr>
-      <th>SE</th>
-      <td><p>a k x N matrix specifying the standard error for each measurement in
-X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>tipModelType</th>
-      <td><p>NULL or a character string indicating a member of
-<code>model</code>. This argument allows to set a specific regime for all terminal
-branches, such as a white noise model.</p></td>
+      <th>x</th>
+      <td><p>any object</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an object of S3 class 'MGPMContext'.</p>
+    <p>TRUE if x inherits from the S3 class `GaussianPCM`, FALSE otherwise.</p>
     
 
   </div>

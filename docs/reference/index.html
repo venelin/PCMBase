@@ -179,7 +179,7 @@ a MGPM model with some of the default MGPM model types.</p></td>
         <td>
           <p><code><a href="MGPM.html">MGPM()</a></code> </p>
         </td>
-        <td><p>Construct a MGPM object from a vector</p></td>
+        <td><p>Construct a MGPM object</p></td>
       </tr><tr>
         
         <td>
@@ -222,6 +222,12 @@ a MGPM model with some of the default MGPM model types.</p></td>
           <p><code><a href="MixedGaussian.html">MixedGaussian()</a></code> </p>
         </td>
         <td><p>Create a multi-regime Gaussian model (MixedGaussian)</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="MixedGaussianTemplate.html">MixedGaussianTemplate()</a></code> </p>
+        </td>
+        <td><p>Create a template MixedGaussian object containing a regime for each model type</p></td>
       </tr><tr>
         
         <td>
@@ -936,7 +942,8 @@ between its lower and upper bounds.</p></td>
         <td>
           <p><code><a href="as.MGPM.html">as.MGPM()</a></code> </p>
         </td>
-        <td><p>If necessary, convert an object to an MGPM object.</p></td>
+        <td><p>If necessary, convert an object to an MGPM object.
+This is an S3 generic function.</p></td>
       </tr><tr>
         
         <td>
@@ -946,15 +953,33 @@ between its lower and upper bounds.</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="as.MixedGaussian.html">as.MixedGaussian()</a></code> </p>
+        </td>
+        <td><p>Convert a <code>GaussianPCM</code> model object to a <code>MixedGaussian</code> model object</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="dataFig3.html">dataFig3</a></code> </p>
         </td>
         <td><p>Data for Fig3 in the TPB manuscript</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="is.GaussianPCM.html">is.GaussianPCM()</a></code> </p>
+        </td>
+        <td><p>Check if an object is a `GaussianPCM`</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="is.MGPM.html">is.MGPM()</a></code> </p>
         </td>
         <td><p>Check if an object is of S3 class 'MGPM'</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="is.MGPMContext.html">is.MGPMContext()</a></code> </p>
+        </td>
+        <td><p>Check if an object is of S3 class 'MGPMContext'</p></td>
       </tr><tr>
         
         <td>

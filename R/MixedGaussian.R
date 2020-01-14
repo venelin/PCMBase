@@ -20,12 +20,7 @@ PCMModelTypes.MixedGaussian <- function(obj) {
   attr(obj, "modelTypes", exact = TRUE)
 }
 
-#' Check if an object is a `MixedGaussian` PCM
-#' @param x any object
-#' @return TRUE if x inherits from the S3 class `MixedGaussian`, FALSE otherwise.
-#'
-#' @export
-is.MixedGaussian <- function(x) inherits(x, "MixedGaussian")
+
 
 #' @export
 PCMParentClasses.MixedGaussian <- function(model) {
@@ -42,7 +37,7 @@ PCMCond.MixedGaussian <- function(
   tree, model, r=1,
   metaI = PCMInfo(NULL, tree, model, verbose = verbose), verbose=FALSE) {
   if(! is.MixedGaussian(model) ) {
-    stop("ERR:02501:PCMBase:MixedGaussian.R:PCMCond.MixedGaussian:: model should inherit from S3 class 'MixedGaussian'.")
+    stop("MixedGaussian.R:PCMCond.MixedGaussian:: model should inherit from S3 class 'MixedGaussian'.")
   }
   if(!is.character(r)) {
     # integer regime number must be mapped to a character regime because
@@ -133,7 +128,7 @@ PCMExtractRegimes.MixedGaussian <- function(obj, regimes = seq_len(PCMNumRegimes
 #' combinations are possible as explained below:
 #' \itemize{
 #' \item \code{modelTypes} is a (possibly named) character string vector. Each
-#' such string denotes a MGPM model class, e.g. the result of calling
+#' such string denotes a mixed Gaussian regime model class, e.g. the result of calling
 #' \code{MGPMDefaultModelTypes()}. In that case \code{mapping} can be either
 #' an integer vector with values corresponding to indices in \code{modelTypes}
 #' or a character string vector. If \code{mapping} is a character string vector,
@@ -250,6 +245,175 @@ MixedGaussian <- function(
   res
 }
 
+#' Check if an object is a `MixedGaussian` PCM
+#' @param x any object
+#' @return TRUE if x inherits from the S3 class `MixedGaussian`, FALSE otherwise.
+#'
+#' @export
+is.MixedGaussian <- function(x) {
+  inherits(x, "MixedGaussian")
+}
+
+#' Convert a \code{GaussianPCM} model object to a \code{MixedGaussian} model object
+#' @param o an R object: either a \code{GaussianPCM} or a \code{MixedGaussian}.
+#' @param modelTypes NULL (the default) or a (possibly named) character string
+#' vector. Each such string denotes a mixed Gaussian regime model class, e.g.
+#' the result of calling \code{MGPMDefaultModelTypes()}. If specified, an
+#' attempt is made to match the deduced Gaussian regime model type from \code{o}
+#' with the elements of \code{modelTypes} and an error is raised if the match
+#' fails. If the match succeeds the converted MixedGaussian object will have the
+#' specified \code{modelTypes} parameter as an attribute \code{"modelTypes"}.
+#' @return a \code{MixedGaussian} object.
+#' @examples
+#' mg <- as.MixedGaussian(PCMBaseTestObjects$model.ab.123.bSigmae_x)
+#' stopifnot(
+#'   PCMLik(
+#'     X = PCMBaseTestObjects$traits.ab.123,
+#'     PCMBaseTestObjects$tree.ab,
+#'     PCMBaseTestObjects$model.ab.123.bSigmae_x) ==
+#'   PCMLik(
+#'     X = PCMBaseTestObjects$traits.ab.123,
+#'     PCMBaseTestObjects$tree.ab,
+#'     mg))
+#'
+#' @export
+as.MixedGaussian <- function(o, modelTypes = NULL) {
+  if(is.MixedGaussian(o)) {
+    if(!is.null(modelTypes)) {
+      modelTypeso <- PCMModelTypes(o)
+      m <- match(modelTypeso, modelTypes)
+      if(isTRUE(any(is.na(m)))) {
+        stop(paste0("as.MixedGaussian:: some of the modelTypes in o could not",
+                    "be matched against the supplied modelTypes."))
+      }
+      if(!identical(modelTypeso, modelTypes)) {
+        # remap regimes to new modelTypes
+        mappingo <- attr(o, "mapping")
+        for(r in seq_len(PCMNumRegimes(o))) {
+          mappingo[r] <- m[mappingo[r]]
+        }
+        attr(o, "mapping") <- mappingo
+        attr(o, "modelTypes") <- modelTypes
+      }
+    }
+    o
+  } else if(is.GaussianPCM(o)) {
+    # We need to discover the corresponding MGPM model type.
+    pcmModelType <- class(o)[1L]
+    typeParams <- strsplit(pcmModelType, split = "__", fixed = TRUE)[[1L]]
+    modelType <- typeParams[1L]
+
+    spec <- attr(o, "spec")
+    paramNames <- names(spec)
+    globalParams <- list()
+
+    for(param in paramNames) {
+      if(param == "X0" && !is.Global(spec[[param]])) {
+        stop("as.MixedGaussian:: The parameter X0 should be global for all regimes.")
+      }
+      if(param == "Sigmae_x" && !is.Global(spec[[param]])) {
+        globalParams[["Sigmae_x"]] <- structure(
+          0.0,
+          class = c("MatrixParameter", "_Omitted", "_Global"),
+          description = "Global upper triangular factor of the non-phylogenetic variance-covariance")
+      }
+      if(is.Global(spec[[param]])) {
+        globalParams[[param]] <- spec[[param]]
+        modelType <- paste0(modelType, "__Omitted_", param)
+      } else if(is.Omitted(spec[[param]])) {
+        modelType <- paste0(modelType, "__Omitted_", param)
+      } else {
+        paramType <- do.call(paste0, as.list(class(spec[[param]])[-1L]))
+        modelType <- paste0(modelType, "_", paramType, "_", param)
+      }
+    }
+
+    regimes <- PCMRegimes(o)
+    mapping <- rep(1L, length(regimes))
+    names(mapping) <- as.character(regimes)
+
+    if(!is.null(modelTypes)) {
+      m <- match(modelType, modelTypes)
+      if(is.na(m)) {
+        stop(paste0("as.MixedGaussian:: ",
+                    "The deduced Gaussian model type for the regimes (",
+                    modelType, ") should match an element from modelTypes."))
+      } else {
+        mapping[] <- m
+      }
+    } else {
+      modelTypes <- modelType
+    }
+
+    mg <- do.call(
+      MixedGaussian,
+      c(list(k = PCMNumTraits(o), modelTypes = modelTypes, mapping = mapping),
+        globalParams))
+
+    for(param in paramNames) {
+      if(is.Global(spec[[param]]) && !is.Omitted(spec[[param]])) {
+        mg[[param]][] <- o[[param]][]
+      } else {
+        for(regime in regimes) {
+          if(is.ScalarParameter(spec[[param]])) {
+            mg[[as.character(regime)]][[param]][] <- o[[param]][regime]
+          } else if(is.VectorParameter(spec[[param]])) {
+            mg[[as.character(regime)]][[param]][, 1L] <- o[[param]][, regime]
+          } else if(is.MatrixParameter(spec[[param]])) {
+            mg[[as.character(regime)]][[param]][,, 1L] <- o[[param]][,, regime]
+          }
+        }
+      }
+    }
+
+    mg
+  } else {
+    stop(paste0(
+      "as.MixedGaussian:: ",
+      "This type of conversion is only possible if o is a GaussianPCM."))
+  }
+}
+
+#' Create a template MixedGaussian object containing a regime for each model type
+#'
+#' @param mg a MixedGaussian object or an object that can be converted to such
+#' via \code{\link{as.MixedGaussian}}.
+#' @param modelTypes a (possibly named) character string
+#' vector. Each such string denotes a mixed Gaussian regime model class, e.g.
+#' the result of calling \code{MGPMDefaultModelTypes()}. If specified, an
+#' attempt is made to match \code{PCMModelTypes(as.MixedGaussian(mg))}
+#' with the elements of \code{modelTypes} and an error is raised if the match
+#' fails. If not named, the model
+#' types and regimes in the resulting MixedGaussian object are named by the
+#' capital latin letters A,B,C,.... Default: \code{NULL}, which is interpreted
+#' as \code{PCMModelTypes(as.MixedGaussian(mg, NULL))}.
+#' @return a MixedGaussian with the same global parameter settings as for mg,
+#' the same modelTypes as \code{modelTypes}, and with a regime for each model type.
+#' The function will stop with an error if \code{mg} is not convertible to
+#' a MixedGaussian object or if there is a mismatch between the model types in
+#' \code{mg} and \code{modelTypes}.
+#' @examples
+#' mg <- MixedGaussianTemplate(PCMBaseTestObjects$model.ab.123.bSigmae_x)
+#' mgTemplBMOU <- MixedGaussianTemplate(PCMBaseTestObjects$model.OU.BM)
+#' @export
+MixedGaussianTemplate <- function(mg, modelTypes = NULL) {
+  mg <- as.MixedGaussian(mg, modelTypes = modelTypes)
+  if(is.null(modelTypes)) {
+    modelTypes <- PCMModelTypes(mg)
+    if(is.null(names(modelTypes))) {
+      names(modelTypes) <- LETTERS[seq_along(modelTypes)]
+    }
+  }
+  k <- PCMNumTraits(mg)
+  mapping <- structure(seq_along(modelTypes), names = names(modelTypes))
+
+  spec <- attr(mg, "spec")
+  globalParams <- spec[setdiff(names(spec), PCMRegimes(mg))]
+
+  do.call(
+    MixedGaussian,
+    c(list(k = k, modelTypes = modelTypes, mapping = mapping), globalParams))
+}
 
 #' @export
 PCMMapModelTypesToRegimes.MixedGaussian <- function(model, tree, ...) {

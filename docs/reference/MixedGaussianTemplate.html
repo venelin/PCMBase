@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Context of a MGPM — MGPMContext • PCMBase</title>
+<title>Create a template MixedGaussian object containing a regime for each model type — MixedGaussianTemplate • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Context of a MGPM — MGPMContext" />
+<meta property="og:title" content="Create a template MixedGaussian object containing a regime for each model type — MixedGaussianTemplate" />
 
-<meta property="og:description" content="Context of a MGPM" />
+<meta property="og:description" content="Create a template MixedGaussian object containing a regime for each model type" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -128,61 +128,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Context of a MGPM</h1>
+    <h1>Create a template MixedGaussian object containing a regime for each model type</h1>
     
-    <div class="hidden name"><code>MGPMContext.Rd</code></div>
+    <div class="hidden name"><code>MixedGaussianTemplate.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Context of a MGPM</p>
+    <p>Create a template MixedGaussian object containing a regime for each model type</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>MGPMContext</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
-  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>tipModelType</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>MixedGaussianTemplate</span>(<span class='no'>mg</span>, <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>X</th>
-      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-These two values have are treated differently when calculating
-likelihoods: see <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>.</p></td>
+      <th>mg</th>
+      <td><p>a MixedGaussian object or an object that can be converted to such
+via <code><a href='as.MixedGaussian.html'>as.MixedGaussian</a></code>.</p></td>
     </tr>
     <tr>
-      <th>tree</th>
-      <td><p>a phylo object with N tips.</p></td>
-    </tr>
-    <tr>
-      <th>model</th>
-      <td><p>a MixedGaussian model used as a template to build MixedGaussian
-model objects.</p></td>
-    </tr>
-    <tr>
-      <th>SE</th>
-      <td><p>a k x N matrix specifying the standard error for each measurement in
-X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>tipModelType</th>
-      <td><p>NULL or a character string indicating a member of
-<code>model</code>. This argument allows to set a specific regime for all terminal
-branches, such as a white noise model.</p></td>
+      <th>modelTypes</th>
+      <td><p>a (possibly named) character string
+vector. Each such string denotes a mixed Gaussian regime model class, e.g.
+the result of calling <code><a href='PCMDefaultModelTypes.html'>MGPMDefaultModelTypes()</a></code>. If specified, an
+attempt is made to match <code><a href='PCMModelTypes.html'>PCMModelTypes(as.MixedGaussian(mg))</a></code>
+with the elements of <code>modelTypes</code> and an error is raised if the match
+fails. If not named, the model
+types and regimes in the resulting MixedGaussian object are named by the
+capital latin letters A,B,C,.... Default: <code>NULL</code>, which is interpreted
+as <code><a href='PCMModelTypes.html'>PCMModelTypes(as.MixedGaussian(mg, NULL))</a></code>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an object of S3 class 'MGPMContext'.</p>
+    <p>a MixedGaussian with the same global parameter settings as for mg,
+the same modelTypes as <code>modelTypes</code>, and with a regime for each model type.
+The function will stop with an error if <code>mg</code> is not convertible to
+a MixedGaussian object or if there is a mismatch between the model types in
+<code>mg</code> and <code>modelTypes</code>.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>mg</span> <span class='kw'>&lt;-</span> <span class='fu'>MixedGaussianTemplate</span>(<span class='no'>PCMBaseTestObjects</span>$<span class='no'>model.ab.123.bSigmae_x</span>)
+<span class='no'>mgTemplBMOU</span> <span class='kw'>&lt;-</span> <span class='fu'>MixedGaussianTemplate</span>(<span class='no'>PCMBaseTestObjects</span>$<span class='no'>model.OU.BM</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -190,7 +182,9 @@ branches, such as a white noise model.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

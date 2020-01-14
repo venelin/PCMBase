@@ -91,7 +91,7 @@
       <h1>Getting Started with the PCMBase R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-12-31</h4>
+            <h4 class="date">2020-01-13</h4>
       
       
       <div class="hidden name"><code>PCMBase.Rmd</code></div>
@@ -228,7 +228,7 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 ##   }
 ##   list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x7f8d8bc9be40&gt;
+## &lt;bytecode: 0x7f9d168800a8&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># R-code by typing :</span></a>
@@ -329,9 +329,9 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <a class="sourceLine" id="cb21-2" data-line-number="2">param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/jitter">jitter</a></span>(param)</a>
 <a class="sourceLine" id="cb21-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(param2)</a></code></pre></div>
-<pre><code>##  [1]  5.005120663  2.006305337  1.590363618  0.003854815  2.390466123
-##  [6]  1.602526675  0.796701750  2.385888554  0.118598215 -0.014325552
-## [11]  0.418799978  0.080302675 -0.013494310  0.418382919</code></pre>
+<pre><code>##  [1]  4.982074379  2.007439793  1.591112186  0.005804781  2.406183878
+##  [6]  1.583795053  0.798816552  2.406084573  0.089508998 -0.011482853
+## [11]  0.413607374  0.101893999  0.016985506  0.410646823</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># set the new parameter vector</span></a>
 <a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -339,32 +339,32 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.005121 2.006305
+## [1] 4.982074 2.007440
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
 ##          [,1]        [,2]
-## [1,] 1.590364 0.003854815
-## [2,] 0.000000 2.390466123
+## [1,] 1.591112 0.005804781
+## [2,] 0.000000 2.406183878
 ## 
 ## , , b
 ## 
 ##          [,1]      [,2]
-## [1,] 1.602527 0.7967018
-## [2,] 0.800000 2.3858886
+## [1,] 1.583795 0.7988166
+## [2,] 0.800000 2.4060846
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]        [,2]
-## [1,] 0.1185982 -0.01432555
-## [2,] 0.0000000  0.41879998
+##          [,1]        [,2]
+## [1,] 0.089509 -0.01148285
+## [2,] 0.000000  0.41360737
 ## 
 ## , , b
 ## 
-##            [,1]        [,2]
-## [1,] 0.08030268 -0.01349431
-## [2,] 0.00000000  0.41838292
+##          [,1]       [,2]
+## [1,] 0.101894 0.01698551
+## [2,] 0.000000 0.41064682
 ## 
 ## </code></pre>
 </div>
@@ -394,7 +394,7 @@ regime
 :global:
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 5.01 \\ 2.01 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 4.98 \\ 2.01 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 </td>
@@ -408,10 +408,10 @@ a
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.53 &amp; 0.01 \\ 0.01 &amp; 5.71 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.53 &amp; 0.01 \\ 0.01 &amp; 5.79 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.01 \\ -0.01 &amp; 0.18 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.00 \\ -0.00 &amp; 0.17 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -421,10 +421,10 @@ b
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 3.20 &amp; 3.18 \\ 3.18 &amp; 6.33 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 3.15 &amp; 3.19 \\ 3.19 &amp; 6.43 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.01 \\ -0.01 &amp; 0.18 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.01 \\ 0.01 &amp; 0.17 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 </table>
@@ -592,7 +592,7 @@ BM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</a></code></pre></div>
-<pre><code>## [1] -414
+<pre><code>## [1] -413
 ## attr(,"X0")
 ## [1] 5 2</code></pre>
 <p>For faster and repeated likelihood evaluation, I recommend creating a likelihood function for a given data, tree and model object. Passing this function object to <code>optim</code> would save the need for pre-processing the data and tree at every likelihood evaluation.</p>
@@ -600,7 +600,7 @@ BM
 <a class="sourceLine" id="cb35-2" data-line-number="2">likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)</a>
 <a class="sourceLine" id="cb35-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb35-4" data-line-number="4"><span class="kw">likFun</span>(param2)</a></code></pre></div>
-<pre><code>## [1] -414
+<pre><code>## [1] -413
 ## attr(,"X0")
 ## [1] 5 2</code></pre>
 </div>

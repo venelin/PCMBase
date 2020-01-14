@@ -5,8 +5,7 @@
 \title{Context of a MGPM}
 \usage{
 MGPMContext(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), K = 0L, n = integer(0L), l = double(0L),
-  r = integer(0), m = 1L, v = NULL)
+  PCMTreeNumTips(tree)), tipModelType = NULL)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
@@ -17,7 +16,8 @@ likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 
 \item{tree}{a phylo object with N tips.}
 
-\item{model}{a template used to build MixedGaussian model objects.}
+\item{model}{a MixedGaussian model used as a template to build MixedGaussian
+model objects.}
 
 \item{SE}{a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
@@ -25,14 +25,9 @@ factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
-\item{K, n, l, r, m, v}{default (or initial) variables for the number of
-shifts, the shift nodes, the shift-offsets, the regimes, the mapped model
-types and the parameter values (see \code{\link{MGPM}}).
-By default, these are
-\code{K = 0L, n = integer(0), l = double(0), r = integer(0),
-m = 1L, v = double(P)}.
-Here, N is the number of tips in the tree, and P is the number of numerical
-parameters in a MixedGaussian with a single regime mapped to model type 1.}
+\item{tipModelType}{NULL or a character string indicating a member of
+\code{model}. This argument allows to set a specific regime for all terminal
+branches, such as a white noise model.}
 }
 \value{
 an object of S3 class 'MGPMContext'.

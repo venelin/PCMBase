@@ -2,22 +2,23 @@
 % Please edit documentation in R/MGPM.R
 \name{as.MGPM}
 \alias{as.MGPM}
-\title{If necessary, convert an object to an MGPM object.}
+\title{If necessary, convert an object to an MGPM object.
+This is an S3 generic function.}
 \usage{
-as.MGPM(s, ctx = NULL)
+as.MGPM(o, ctx = NULL)
 }
 \arguments{
-\item{s}{a \code{\link{MGPM}} or a \code{\link{MGPMVector}}
-object.}
+\item{o}{an object.}
 
-\item{ctx}{a \code{\link{MGPMContext}} object. This is needed only if
-\code{s} is \code{\link{MGPMVector}} object.}
+\item{ctx}{a \code{\link{MGPMContext}} object. Default \code{NULL}.}
 }
 \value{
-an MGPM object corresponding to \code{s}. If \code{s} is already
+an MGPM object corresponding to \code{o}. If \code{o} is already
 a \code{\link{MGPM}} object, it is returned as is. Otherwise, a
-\code{\link{MGPM}} object is constructed from \code{s} and \code{ctx}.
+\code{\link{MGPM}} object is constructed from \code{o} and,
+optionally \code{ctx}.
 }
 \description{
 If necessary, convert an object to an MGPM object.
+This is an S3 generic function.
 }

@@ -305,32 +305,30 @@ found. When called this constructor raises an error message.</p></li>
 <span class='co'># We do this in two steps:</span>
 <span class='co'># 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)</span>
 <span class='no'>randomParams</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>))
-<span class='no'>randomParams</span></div><div class='output co'>#&gt;           [,1]     [,2]     [,3]      [,4]       [,5]     [,6]        [,7]
-#&gt; [1,] -8.384997 6.686661 6.007609 -6.855831 0.07399441 4.663935 -0.04445223
-#&gt;          [,8]
-#&gt; [1,] 2.897672</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
+<span class='no'>randomParams</span></div><div class='output co'>#&gt;          [,1]     [,2]     [,3]     [,4]     [,5]      [,6]      [,7]     [,8]
+#&gt; [1,] 3.567609 4.706392 1.959567 9.610793 7.415215 0.5144628 0.6042493 6.958239</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
 <span class='fu'><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM</span>, <span class='no'>randomParams</span>, <span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>), <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; Brownian motion model
 #&gt; S3 class: BM, GaussianPCM, PCM; k=2; p=8; regimes: 1. Parameters/sub-models:
 #&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):
-#&gt; [1] -8.384997  6.686661
+#&gt; [1] 3.567609 4.706392
 #&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 #&gt; , , 1
 #&gt; 
-#&gt;          [,1]        [,2]
-#&gt; [1,] 6.007609 -6.85583117
-#&gt; [2,] 0.000000  0.07399441
+#&gt;          [,1]     [,2]
+#&gt; [1,] 1.959567 9.610793
+#&gt; [2,] 0.000000 7.415215
 #&gt; 
 #&gt; Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 #&gt; , , 1
 #&gt; 
-#&gt;          [,1]        [,2]
-#&gt; [1,] 4.663935 -0.04445223
-#&gt; [2,] 0.000000  2.89767245
+#&gt;           [,1]      [,2]
+#&gt; [1,] 0.5144628 0.6042493
+#&gt; [2,] 0.0000000 6.9582388
 #&gt; 
 #&gt;  </div><div class='input'>
-<span class='fu'><a href='PCMParamGetShortVector.html'>PCMParamGetShortVector</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] -8.38499725  6.68666075  6.00760886 -6.85583117  0.07399441  4.66393497
-#&gt; [7] -0.04445223  2.89767245</div><div class='input'>
+<span class='fu'><a href='PCMParamGetShortVector.html'>PCMParamGetShortVector</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] 3.5676085 4.7063920 1.9595673 9.6107935 7.4152153 0.5144628 0.6042493
+#&gt; [8] 6.9582388</div><div class='input'>
 <span class='co'># generate a random phylogenetic tree of 10 tips</span>
 <span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>10</span>)
 
@@ -338,16 +336,16 @@ found. When called this constructor raises an error message.</p></li>
 <span class='no'>traitValues</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMSim.html'>PCMSim</a></span>(<span class='no'>tree</span>, <span class='no'>modelBM</span>, <span class='kw'>X0</span> <span class='kw'>=</span> <span class='no'>modelBM</span>$<span class='no'>X0</span>)
 
 <span class='co'># calculate the likelihood for the model parameters, given the tree and the trait values</span>
-<span class='fu'><a href='PCMLik.html'>PCMLik</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] -63.06549
+<span class='fu'><a href='PCMLik.html'>PCMLik</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)</div><div class='output co'>#&gt; [1] -71.08865
 #&gt; attr(,"X0")
-#&gt; [1] -8.384997  6.686661</div><div class='input'>
+#&gt; [1] 3.567609 4.706392</div><div class='input'>
 <span class='co'># create a likelihood function for faster processing for this specific model.</span>
 <span class='co'># This function is convenient for calling in optim because it recieves and parameter</span>
 <span class='co'># vector instead of a model object.</span>
 <span class='no'>likFun</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMCreateLikelihood.html'>PCMCreateLikelihood</a></span>(<span class='no'>traitValues</span>, <span class='no'>tree</span>, <span class='no'>modelBM</span>)
-<span class='fu'>likFun</span>(<span class='no'>randomParams</span>)</div><div class='output co'>#&gt; [1] -63.06549
+<span class='fu'>likFun</span>(<span class='no'>randomParams</span>)</div><div class='output co'>#&gt; [1] -71.08865
 #&gt; attr(,"X0")
-#&gt; [1] -8.384997  6.686661</div></pre>
+#&gt; [1] 3.567609 4.706392</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
