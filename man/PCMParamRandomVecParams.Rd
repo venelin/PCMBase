@@ -22,8 +22,7 @@ arguments passed to
 \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}.}
 }
 \value{
-if n = 1, a numeric vector of length \code{PCMParamCount(o)};
-if n > 1, a numeric matrix of dimension n x \code{PCMParamCount(o)}.
+a numeric matrix of dimension \code{n} x \code{PCMParamCount(o)}.
 }
 \description{
 Generate a random parameter vector for a model using uniform distribution

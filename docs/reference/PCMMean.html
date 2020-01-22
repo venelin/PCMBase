@@ -209,8 +209,8 @@ at tip i, conditioned on <code>X0</code> and the tree. Otherwise, a k x M matrix
 <span class='co'># We do this in two steps:</span>
 <span class='co'># 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)</span>
 <span class='no'>randomParams</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>))
-<span class='no'>randomParams</span></div><div class='output co'>#&gt; [1]  5.401628  3.805251  6.504771 -8.506881  9.025807  1.329396 -5.783479
-#&gt; [8]  1.551604</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
+<span class='no'>randomParams</span></div><div class='output co'>#&gt;          [,1]     [,2]     [,3]      [,4]     [,5]     [,6]      [,7]     [,8]
+#&gt; [1,] 5.401628 3.805251 6.504771 -8.506881 9.025807 1.329396 -5.783479 1.551604</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
 <span class='fu'><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM</span>, <span class='no'>randomParams</span>, <span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>), <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
 <span class='co'># create a random tree of 10 tips</span>
 <span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>10</span>)

@@ -305,8 +305,10 @@ found. When called this constructor raises an error message.</p></li>
 <span class='co'># We do this in two steps:</span>
 <span class='co'># 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)</span>
 <span class='no'>randomParams</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>))
-<span class='no'>randomParams</span></div><div class='output co'>#&gt; [1] -8.38499725  6.68666075  6.00760886 -6.85583117  0.07399441  4.66393497
-#&gt; [7] -0.04445223  2.89767245</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
+<span class='no'>randomParams</span></div><div class='output co'>#&gt;           [,1]     [,2]     [,3]      [,4]       [,5]     [,6]        [,7]
+#&gt; [1,] -8.384997 6.686661 6.007609 -6.855831 0.07399441 4.663935 -0.04445223
+#&gt;          [,8]
+#&gt; [1,] 2.897672</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
 <span class='fu'><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM</span>, <span class='no'>randomParams</span>, <span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>), <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>modelBM</span>)</div><div class='output co'>#&gt; Brownian motion model
 #&gt; S3 class: BM, GaussianPCM, PCM; k=2; p=8; regimes: 1. Parameters/sub-models:

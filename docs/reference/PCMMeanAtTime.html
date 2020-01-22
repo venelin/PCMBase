@@ -201,8 +201,8 @@ first regime in the model.</p></td>
 <span class='co'># We do this in two steps:</span>
 <span class='co'># 1. First we generate a random vector. Note the length of the vector equals PCMParamCount(modelBM)</span>
 <span class='no'>randomParams</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>))
-<span class='no'>randomParams</span></div><div class='output co'>#&gt; [1]  6.6517775  4.2108870  0.3345316  3.0826775  5.5288802  3.4893133 -6.9858421
-#&gt; [8]  4.5462286</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
+<span class='no'>randomParams</span></div><div class='output co'>#&gt;          [,1]     [,2]      [,3]     [,4]    [,5]     [,6]      [,7]     [,8]
+#&gt; [1,] 6.651777 4.210887 0.3345316 3.082677 5.52888 3.489313 -6.985842 4.546229</div><div class='input'><span class='co'># 2. Then we load this random vector into the model.</span>
 <span class='fu'><a href='PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM</span>, <span class='no'>randomParams</span>, <span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>modelBM</span>), <span class='fu'><a href='PCMNumRegimes.html'>PCMNumRegimes</a></span>(<span class='no'>modelBM</span>), <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'>
 <span class='co'># PCMMeanAtTime(1, modelBM)</span>
 
