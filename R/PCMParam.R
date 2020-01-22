@@ -1268,8 +1268,7 @@ PCMParamUpperLimit.default <- function(o, k, R,  ...) {
 #' @param argsPCMParamLowerLimit,argsPCMParamUpperLimit named lists of
 #' arguments passed to
 #' \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}.
-#' @return if n = 1, a numeric vector of length \code{PCMParamCount(o)};
-#' if n > 1, a numeric matrix of dimension n x \code{PCMParamCount(o)}.
+#' @return a numeric matrix of dimension \code{n} x \code{PCMParamCount(o)}.
 #' @seealso PCMParamLimits PCMParamGetShortVector
 #' @export
 PCMParamRandomVecParams <- function(o, k, R, n = 1L,
@@ -1302,12 +1301,7 @@ PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
     runif(n, lowerVecParams[i], upperVecParams[i])
   }))
 
-  if(n == 1L) {
-    res[1L,]
-  } else {
-    res
-  }
-
+  res
 }
 
 #' @export
