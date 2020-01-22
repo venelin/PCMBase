@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get a vector of the tip and node labels in a tree — PCMTreeGetLabels • PCMBase</title>
+<title>Node labels of a tree — PCMTreeGetLabels • PCMBase</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="Get a vector of the tip and node labels in a tree — PCMTreeGetLabels" />
+<meta property="og:title" content="Node labels of a tree — PCMTreeGetLabels" />
 
-<meta property="og:description" content="Get a vector of the tip and node labels in a tree" />
+<meta property="og:description" content="Get the character labels of the tips, root and internal nodes in the tree
+(see Functions below)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -128,18 +129,25 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get a vector of the tip and node labels in a tree</h1>
+    <h1>Node labels of a tree</h1>
     
     <div class="hidden name"><code>PCMTreeGetLabels.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Get a vector of the tip and node labels in a tree</p>
+    <p>Get the character labels of the tips, root and internal nodes in the tree
+(see Functions below).</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMTreeGetLabels</span>(<span class='no'>tree</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMTreeGetLabels</span>(<span class='no'>tree</span>)
+
+<span class='fu'>PCMTreeGetRootLabel</span>(<span class='no'>tree</span>)
+
+<span class='fu'>PCMTreeGetNodeLabels</span>(<span class='no'>tree</span>)
+
+<span class='fu'>PCMTreeGetTipLabels</span>(<span class='no'>tree</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -154,6 +162,15 @@
 
     <p>a character vector</p>
     
+    <h2 class="hasAnchor" id="functions"><a class="anchor" href="#functions"></a>Functions</h2>
+
+    <ul>
+<li><p><code>PCMTreeGetLabels</code>: Get all labels in the order (tips,root,internal).</p></li>
+<li><p><code>PCMTreeGetRootLabel</code>: Get the root label</p></li>
+<li><p><code>PCMTreeGetNodeLabels</code>: Get the internal node labels</p></li>
+<li><p><code>PCMTreeGetTipLabels</code>: Get the tip labels</p></li>
+</ul>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -162,6 +179,8 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#functions">Functions</a></li>
           </ul>
 
   </div>

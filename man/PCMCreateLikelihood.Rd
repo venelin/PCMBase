@@ -24,7 +24,19 @@ calculated (see also Details).}
 \item{SE}{a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
+for each tip \code{i=1, ..., N}. When \code{SE} is a matrix, the k x k
+measurement error variance matrix for a tip \code{i} is calculated as
+\code{VE[, , i] <- diag(SE[, i] * SE[, i], nrow = k)}. When \code{SE} is a
+cube, the way how the measurement variance matrix for a tip \code{i} is
+calculated depends on the runtime option \code{PCMBase.Transpose.Sigma_x}
+as follows:
+\describe{
+\item{if \code{getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE} (default): }{VE[, , i] <- SE[, , i] \%*\% t(SE[, , i])}
+\item{if \code{getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE}: }{VE[, , i] <- t(SE[, , i]) \%*\% SE[, , i]}
+}
+Note that the above behavior is consistent with the treatment of the model
+parameters \code{Sigma_x}, \code{Sigmae_x} and \code{Sigmaj_x}, which are
+also specified as upper triangular factors.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},

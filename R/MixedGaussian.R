@@ -298,7 +298,7 @@ as.MixedGaussian <- function(o, modelTypes = NULL) {
     }
     o
   } else if(is.GaussianPCM(o)) {
-    # We need to discover the corresponding MGPM model type.
+    # We need to discover the corresponding MixedGaussian model type.
     pcmModelType <- class(o)[1L]
     typeParams <- strsplit(pcmModelType, split = "__", fixed = TRUE)[[1L]]
     modelType <- typeParams[1L]

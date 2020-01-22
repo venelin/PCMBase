@@ -173,7 +173,17 @@ calculated (see also Details).</p></td>
       <td><p>a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
+for each tip <code>i=1, ..., N</code>. When <code>SE</code> is a matrix, the k x k
+measurement error variance matrix for a tip <code>i</code> is calculated as
+<code>VE[, , i] &lt;- diag(SE[, i] * SE[, i], nrow = k)</code>. When <code>SE</code> is a
+cube, the way how the measurement variance matrix for a tip <code>i</code> is
+calculated depends on the runtime option <code>PCMBase.Transpose.Sigma_x</code>
+as follows:</p><dl class='dl-horizontal'>
+<dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE</code> (default): </dt><dd><p>VE[, , i] &lt;- SE[, , i] %*% t(SE[, , i])</p></dd>
+<dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE</code>: </dt><dd><p>VE[, , i] &lt;- t(SE[, , i]) %*% SE[, , i]</p></dd>
+</dl><p>Note that the above behavior is consistent with the treatment of the model
+parameters <code>Sigma_x</code>, <code>Sigmae_x</code> and <code>Sigmaj_x</code>, which are
+also specified as upper triangular factors.
 Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>

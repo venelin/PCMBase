@@ -2,9 +2,18 @@
 % Please edit documentation in R/PCMTree.R
 \name{PCMTreeGetLabels}
 \alias{PCMTreeGetLabels}
-\title{Get a vector of the tip and node labels in a tree}
+\alias{PCMTreeGetRootLabel}
+\alias{PCMTreeGetNodeLabels}
+\alias{PCMTreeGetTipLabels}
+\title{Node labels of a tree}
 \usage{
 PCMTreeGetLabels(tree)
+
+PCMTreeGetRootLabel(tree)
+
+PCMTreeGetNodeLabels(tree)
+
+PCMTreeGetTipLabels(tree)
 }
 \arguments{
 \item{tree}{a phylo object}
@@ -13,5 +22,17 @@ PCMTreeGetLabels(tree)
 a character vector
 }
 \description{
-Get a vector of the tip and node labels in a tree
+Get the character labels of the tips, root and internal nodes in the tree
+(see Functions below).
 }
+\section{Functions}{
+\itemize{
+\item \code{PCMTreeGetLabels}: Get all labels in the order (tips,root,internal).
+
+\item \code{PCMTreeGetRootLabel}: Get the root label
+
+\item \code{PCMTreeGetNodeLabels}: Get the internal node labels
+
+\item \code{PCMTreeGetTipLabels}: Get the tip labels
+}}
+

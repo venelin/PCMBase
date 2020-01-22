@@ -1,12 +1,11 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "31 December, 2019"
+date: "16 January, 2019"
 output: html_document
 ---
 
 # PCMBase 1.2.12 
-- Added MGPM, MGPMContext and MGPMVector S3 classes.
 - Minor documentation improvements.
 
 # PCMBase 1.2.11

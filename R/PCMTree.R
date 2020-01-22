@@ -313,19 +313,55 @@ PCMTreeSetLabels <- function(
   }
 }
 
-#' Get a vector of the tip and node labels in a tree
+#' Node labels of a tree
+#'
+#' Get the character labels of the tips, root and internal nodes in the tree
+#' (see Functions below).
+#'
+#' @describeIn PCMTreeGetLabels Get all labels in the order (tips,root,internal).
+#'
 #' @param tree a phylo object
 #' @return a character vector
 #' @export
 PCMTreeGetLabels <- function(tree) {
   if(!inherits(tree, "phylo")) {
     stop(
-      "ERR:02650:PCMBase:PCMTree.R:PCMTreeGetLabels:: argument tree should be a phylo.")
+      "PCMTreeGetLabels:: argument tree should be a phylo.")
   }
   if(is.null(tree$node.label)) {
-    stop("ERR:02651:PCMBase:PCMTree.R:PCMTreeGetLabels:: the tree has no node.label member assigned.")
+    stop("PCMTreeGetLabels:: the tree has no node.label member assigned.")
   }
   c(tree$tip.label, tree$node.label)
+}
+
+#' @describeIn PCMTreeGetLabels Get the root label
+#' @export
+PCMTreeGetRootLabel <- function(tree) {
+  if(is.null(tree$node.label)) {
+    stop("PCMTreeGetRootLabel:: the tree has no node.label member assigned.")
+  } else {
+    tree$node.label[1L]
+  }
+}
+
+#' @describeIn PCMTreeGetLabels Get the internal node labels
+#' @export
+PCMTreeGetNodeLabels <- function(tree) {
+  if(is.null(tree$node.label)) {
+    stop("PCMTreeGetNodeLabels:: the tree has no node.label member assigned.")
+  } else {
+    tree$node.label[-1L]
+  }
+}
+
+#' @describeIn PCMTreeGetLabels Get the tip labels
+#' @export
+PCMTreeGetTipLabels <- function(tree) {
+  if(is.null(tree$tip.label)) {
+    stop("PCMTreeGetTipLabels:: the tree has no tip.label member assigned.")
+  } else {
+    tree$tip.label
+  }
 }
 
 #' Get the node numbers associated with tip- or node-labels in a tree
@@ -1936,7 +1972,9 @@ PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NU
 PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL, returnList = !is.null(X), errorOnMissing = FALSE) {
   if(is.character(cladeRootNode)) {
     if(!is.character(tree$node.label)) {
-      stop(paste0("ERR:02630:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode is a character string but tree$node.label is missing or not a character vector."))
+      stop(paste0("PCMTreeDropClade:", cladeRootNode,
+                  ": cladeRootNode is a character string but tree$node.label ",
+                  "is missing or not a character vector."))
     } else {
       whichNode <- which(tree$node.label == cladeRootNode)
       whichTip <- which(tree$tip.label == cladeRootNode)
@@ -1963,12 +2001,15 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
   if(is.na(cladeRootNodeNumber)) {
     skipSplit <- TRUE
     if(errorOnMissing) {
-      err <- paste0("ERR:02631:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode of character-type was not found in tree$node.label")
+      err <- paste0("PCMTreeDropClade::", cladeRootNode,
+                    ": cladeRootNode of character-type was not found in tree$node.label")
     }
   } else if(cladeRootNodeNumber <= 0 || cladeRootNodeNumber > PCMTreeNumNodes(tree)) {
     skipSplit <- TRUE
     if(errorOnMissing) {
-      err <- paste0("ERR:02632:PCMBase:PCMTree.R:PCMTreeClade:", cladeRootNode, ": cladeRootNode of integer should be between 1 and M=", PCMTreeNumNodes(tree), " (the number of nodes in the tree).")
+      err <- paste0("PCMTreeDropClade::", cladeRootNode,
+                    ": cladeRootNode of integer should be between 1 and M=",
+                    PCMTreeNumNodes(tree), " (the number of nodes in the tree).")
     }
   }
 

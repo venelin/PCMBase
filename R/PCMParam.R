@@ -1302,7 +1302,12 @@ PCMParamRandomVecParams.default <- function(o, k, R, n = 1L,
     runif(n, lowerVecParams[i], upperVecParams[i])
   }))
 
-  res
+  if(n == 1L) {
+    res[1L,]
+  } else {
+    res
+  }
+
 }
 
 #' @export
