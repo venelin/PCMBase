@@ -9,11 +9,13 @@ PCMLik(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   model, SE = SE, verbose = verbose), log = TRUE, verbose = FALSE)
 }
 \arguments{
-\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
-These two values have are treated differently when calculating
-likelihoods: see \code{\link{PCMPresentCoordinates}}.}
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and
+\code{NaN} entries. For \code{i=1,..., N}, the column \code{i} of X contains
+the measured trait values for species \code{i} (the tip with integer
+identifier equal to \code{i} in \code{tree}). Missing values can be either
+not-available (\code{NA}) or not existing (\code{NaN}). These two values are
+treated differently when calculating likelihoods (see
+\code{\link{PCMPresentCoordinates}}).}
 
 \item{tree}{a phylo object with N tips.}
 

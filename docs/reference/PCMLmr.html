@@ -149,11 +149,13 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>X</th>
-      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-These two values have are treated differently when calculating
-likelihoods: see <code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>.</p></td>
+      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and
+<code>NaN</code> entries. For <code>i=1,..., N</code>, the column <code>i</code> of X contains
+the measured trait values for species <code>i</code> (the tip with integer
+identifier equal to <code>i</code> in <code>tree</code>). Missing values can be either
+not-available (<code>NA</code>) or not existing (<code>NaN</code>). These two values are
+treated differently when calculating likelihoods (see
+<code><a href='PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>).</p></td>
     </tr>
     <tr>
       <th>tree</th>

@@ -1687,11 +1687,13 @@ PCMSim <- function(
 #'   Below we denote by N the number of tips, by M the total number of nodes in the
 #'   tree including tips, internal and root node, and by k - the number of traits.
 #'
-#' @param X a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
-#'   column of X contains the measured trait values for one species (tip in tree).
-#'   Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
-#'   These two values have are treated differently when calculating
-#'   likelihoods: see \code{\link{PCMPresentCoordinates}}.
+#' @param X a \code{k x N} numerical matrix with possible \code{NA} and
+#' \code{NaN} entries. For \code{i=1,..., N}, the column \code{i} of X contains
+#' the measured trait values for species \code{i} (the tip with integer
+#' identifier equal to \code{i} in \code{tree}). Missing values can be either
+#' not-available (\code{NA}) or not existing (\code{NaN}). These two values are
+#' treated differently when calculating likelihoods (see
+#' \code{\link{PCMPresentCoordinates}}).
 #' @param tree a phylo object with N tips.
 #' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
 #'   well as the concrete model parameter values at which the likelihood is to be
