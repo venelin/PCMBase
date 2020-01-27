@@ -1,0 +1,4 @@
+The posterior quantile tests use a parallel version of the BayesValidate package.
+This is available from github and should be installed using:
+
+devtools::install_github("venelin/BayesValidate")
