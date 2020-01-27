@@ -372,9 +372,18 @@ PCMLik.GaussianPCM <- function(
     model <- PCMApplyTransformation(model)
   }
 
-  if(is.function(metaI)) {
-    metaI <- metaI(
-      X = X, tree = tree, model = model, SE = SE, verbose = verbose)
+  metaI <- if(is.character(metaI)) {
+    metaIFun <- try(eval(parse(text = metaI)), silent = TRUE)
+    if(!is.function(metaIFun)) {
+      warning(paste0("PCMLik.GaussianPCM:: Could not find function ", metaI,
+                     ". Using PCMBase::PCMInfo."))
+      metaIFun <- PCMInfo
+    }
+    metaI <- metaIFun(X = X, tree = tree, model = model, SE = SE)
+  } else if(is.function(metaI)) {
+    metaI(X = X, tree = tree, model = model, SE = SE)
+  } else {
+    metaI
   }
 
   # will change this value if there is no error

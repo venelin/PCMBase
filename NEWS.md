@@ -6,7 +6,17 @@ output: html_document
 ---
 
 # PCMBase 1.2.12 
-- Minor documentation improvements.
+- Added possibility to specify metaI as a character string (function name) rather.
+So far, it was only possible to specify this as a function object or as the list
+resulting from calling the function on the tree, data and PCM model.
+- Added an operator + for PCMTree objects. This is analogical to the operator +
+for phylo objects but maintains the edge.part and part. regime members 
+(experimental). 
+- Removed argument parametrizations from PCMGenerateModelTypes. Now it's possible
+to specify the type of parametrization (all/default) separately for each model 
+type.
+- Added automatic generation of White noise model types. 
+- Improved man pages.
 
 # PCMBase 1.2.11
 - Updated package citation pointing to the recently published article: Mitov et al. 2019. Fast likelihood calculation for multivariate Gaussian phylogenetic models with shifts. Theoretical Population Biology. https://doi.org/10.1016/j.tpb.2019.11.005.

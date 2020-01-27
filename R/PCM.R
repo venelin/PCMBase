@@ -661,12 +661,12 @@ PCMGenerateParameterizations <- function(
 #' @description This function calls `PCMListParameterizations` or
 #' `PCMListDefaultParameterizations` and generates the corresponding
 #' `PCMParentClasses` and `PCMSpecify` methods in the global environment.
-#' @param baseTypes a character vector specifying base S3-class names for which
-#' the default parametrizations (sub-classes) will be generated. Defaults to
-#' `c("BM", "OU")`.
-#' @param parametrizations a character string specifying which one of
-#' `PCMListParameterizations` or `PCMListDefaultParameterizations` should be used.
-#' This argument should be one of:
+#' @param baseTypes a named list with character string elements among
+#' \code{c("default", "all")} and names specifying base S3-class names for which
+#' the parametrizations (sub-classes) will be generated. Defaults to
+#' \code{list(BM="default", OU = "default", White = "all")}. The element value
+#' specifies which one of `PCMListParameterizations` or
+#' `PCMListDefaultParameterizations` should be used:
 #' \itemize{
 #' \item{"all"}{for calling `PCMListParameterizations`}
 #' \item{"default"}{for calling `PCMListDefaultParameterizations`}
@@ -679,9 +679,16 @@ PCMGenerateParameterizations <- function(
 #' @seealso PCMListDefaultParameterizations
 #' @export
 PCMGenerateModelTypes <- function(
-  baseTypes = c("BM", "OU"),
-  parametrizations = c("default", "all"),
+  baseTypes = list(BM="default", OU = "default", White = "all"),
   sourceFile = NULL) {
+
+  if(!is.list(baseTypes)) {
+    stop(paste0(
+      "PCMGenerateModelTypes:: baseTypes should be a list with ",
+      'with character string elements among c("default", "all") and names ',
+      'specifying base S3-class names for which the parametrizations ',
+      '(sub-classes) will be generated.'))
+  }
 
   if( !is.null(sourceFile) ) {
     write(paste0(
@@ -691,11 +698,11 @@ PCMGenerateModelTypes <- function(
       file = sourceFile)
   }
 
-  for(bt in baseTypes) {
+  for(bt in names(baseTypes)) {
     o <- structure(0.0, class=bt)
     PCMGenerateParameterizations(
       o,
-      listParameterizations = if(parametrizations[[1]] == "all") {
+      listParameterizations = if(baseTypes[[bt]] == "all") {
         PCMListParameterizations(o)
       } else {
         PCMListDefaultParameterizations(o)
@@ -1717,8 +1724,9 @@ PCMSim <- function(
 #' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
 #' @param metaI a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 #'   containing meta-data such as N, M and k. Alternatively, this can be a
-#'   function object that returns such a list, e.g. the function\code{PCMInfo}
-#'   or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.
+#'   character string naming a function or a function object that returns such
+#'   a list, e.g. the function\code{PCMInfo} or the function \code{PCMInfoCpp}
+#'   from the \code{PCMBaseCpp} package.
 #' @param log logical indicating whether a log-likelehood should be calculated. Default
 #'  is TRUE.
 #' @param verbose logical indicating if some debug-messages should printed.
@@ -1999,7 +2007,7 @@ PCMInfo.PCM <- function(
     }
 
   } else {
-    stop("SE should be a k x N matrix or a k x k x N array.")
+    stop("PCMInfo:: SE should be a k x N matrix or a k x k x N array.")
   }
 
   res <- list(
@@ -2055,9 +2063,20 @@ PCMCreateLikelihood <- function(
   metaI = PCMInfo(X, tree, model, SE),
   positiveValueGuard = Inf) {
 
-  if(is.function(metaI)) {
-    metaI <- metaI(X, tree, model, SE)
+  metaI <- if(is.character(metaI)) {
+    metaIFun <- try(eval(parse(text = metaI)), silent = TRUE)
+    if(!is.function(metaIFun)) {
+      warning(paste0("PCMCreateLikelihood:: Could not find function ", metaI,
+                     ". Using PCMBase::PCMInfo."))
+      metaIFun <- PCMInfo
+    }
+    metaI <- metaIFun(X = X, tree = tree, model = model, SE = SE)
+  } else if(is.function(metaI)) {
+    metaI(X = X, tree = tree, model = model, SE = SE)
+  } else {
+    metaI
   }
+
   value.NA <- PCMOptions()$PCMBase.Value.NA
 
   function(p, log = TRUE) {

@@ -49,4 +49,22 @@ PCMTreePlot(
   bluePart2, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
+greenPart <- PCMTreeEvalNestedEDxOnTree("E(tree,28)", tree)
+
+bgParts <- bluePart+greenPart
+
+\donttest{
+PCMTreePlot(
+  greenPart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  bluePart + greenPart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  greenPart + bluePart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+PCMTreePlot(
+  bgParts, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+  ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+}
 }

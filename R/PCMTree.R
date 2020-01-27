@@ -123,7 +123,16 @@ PCMTree <- function(tree) {
     class(tree) <- c("PCMTree", class(tree))
 
     if(is.null(tree$node.label)) {
-      PCMTreeSetLabels(tree)
+      if(!is.null(tree$tip.label)) {
+        PCMTreeSetLabels(
+          tree, labels = c(as.character(tree$tip.label),
+                           as.character(seq(PCMTreeNumTips(tree) + 1L,
+                                            PCMTreeNumNodes(tree), by = 1L))))
+      } else {
+        # set tip and node labels to 1:M
+        PCMTreeSetLabels(tree)
+      }
+
     } else if(length(unique(tree$node.label)) != length(tree$node.label)) {
       stop(
         paste(
@@ -375,8 +384,8 @@ PCMTreeGetTipLabels <- function(tree) {
 #'
 #' @examples
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
-#' PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("1", "15", "21", "39"))
-#' PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("1", "45"), stopIfNotFound = FALSE)
+#' PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("t1", "t15", "21", "39"))
+#' PCMTreeMatchLabels(PCMTree(ape::rtree(20)), c("t1", "45"), stopIfNotFound = FALSE)
 #' @export
 PCMTreeMatchLabels <- function(tree, labels, stopIfNotFound = TRUE) {
   allLabels <- PCMTreeGetLabels(tree)
@@ -2031,6 +2040,25 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
   res
 }
 
+#' @importFrom ape bind.tree
+#' @export
+`+.PCMTree` <- function(x, y) {
+  if( !is.PCMTree(y) ) {
+    if( !inherits(y, "phylo") ) {
+      stop("+.PCMTree:: y should be a PCMTree or a phylo object.")
+    } else {
+      y <- PCMTree(y)
+    }
+  }
+
+  z <- bind.tree(x, y, position = if(is.null(x$root.edge)) 0 else x$root.edge)
+
+  z.part.regime <- c(PCMTreeGetPartRegimes(x), PCMTreeGetPartRegimes(y))
+  z.part.regime <- z.part.regime[
+    intersect(PCMTreeGetLabels(z), names(z.part.regime))]
+  PCMTreeSetPartRegimes(z, z.part.regime, setPartition = TRUE, inplace = TRUE)
+  z
+}
 
 #' Perfrorm nested extractions or drops of clades from a tree
 #' @param tree a phylo object with named tips and internal nodes
@@ -2069,15 +2097,38 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
 #'   bluePart2, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 #' }
+#' greenPart <- PCMTreeEvalNestedEDxOnTree("E(tree,28)", tree)
+#'
+#' bgParts <- bluePart+greenPart
+#'
+#' \donttest{
+#' PCMTreePlot(
+#'   greenPart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+#'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+#' PCMTreePlot(
+#'   bluePart + greenPart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+#'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+#' PCMTreePlot(
+#'   greenPart + bluePart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+#'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+#' PCMTreePlot(
+#'   bgParts, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
+#'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
+#' }
 #' @export
 PCMTreeEvalNestedEDxOnTree <- function(expr, tree) {
 
   tableAncestors <- PCMTreeTableAncestors(tree)
   env <- new.env()
 
+  env$A <- function(...) {
+
+  }
+  # Extract the clade in x rooted at node
   env$E <- function(x,node) {
     PCMTreeExtractClade(tree = x, cladeRootNode = as.character(node), tableAncestors = tableAncestors)
   }
+  # Drop the clade in x rooted at node
   env$D <- function(x,node) {
     PCMTreeDropClade(tree = x, cladeRootNode = as.character(node), tableAncestors = tableAncestors)
   }

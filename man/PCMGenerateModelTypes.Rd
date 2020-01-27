@@ -4,17 +4,16 @@
 \alias{PCMGenerateModelTypes}
 \title{Generate default model types for given PCM base-classes}
 \usage{
-PCMGenerateModelTypes(baseTypes = c("BM", "OU"),
-  parametrizations = c("default", "all"), sourceFile = NULL)
+PCMGenerateModelTypes(baseTypes = list(BM = "default", OU = "default",
+  White = "all"), sourceFile = NULL)
 }
 \arguments{
-\item{baseTypes}{a character vector specifying base S3-class names for which
-the default parametrizations (sub-classes) will be generated. Defaults to
-`c("BM", "OU")`.}
-
-\item{parametrizations}{a character string specifying which one of
-`PCMListParameterizations` or `PCMListDefaultParameterizations` should be used.
-This argument should be one of:
+\item{baseTypes}{a named list with character string elements among
+\code{c("default", "all")} and names specifying base S3-class names for which
+the parametrizations (sub-classes) will be generated. Defaults to
+\code{list(BM="default", OU = "default", White = "all")}. The element value
+specifies which one of `PCMListParameterizations` or
+`PCMListDefaultParameterizations` should be used:
 \itemize{
 \item{"all"}{for calling `PCMListParameterizations`}
 \item{"default"}{for calling `PCMListDefaultParameterizations`}
