@@ -1508,41 +1508,49 @@ PCMTreePreorder <- function(tree) {
   # number of tips
   N <- length(tree$tip.label)
 
-  # total number of nodes in the tree is the number of edges + 1 for the root
-  M <- dim(tree$edge)[1]+1
+  if(dim(tree$edge)[1L]) {
+    # a proper tree with at least one edge
 
-  ordFrom <- order(tree$edge[,1])
+    # total number of nodes in the tree is the number of edges + 1 for the root
+    M <- dim(tree$edge)[1L]+1L
 
-  # we need the ordered edges in order to easily traverse all edges starting
-  # from a given node
-  iFrom <- match(seq_len(M), tree$edge[ordFrom, 1])
+    ordFrom <- order(tree$edge[, 1L])
 
-  # the result is a vector of edge indices in the breadth-first search order
-  res <- vector(mode='integer', length = M-1)
+    # we need the ordered edges in order to easily traverse all edges starting
+    # from a given node
+    iFrom <- match(seq_len(M), tree$edge[ordFrom, 1])
 
-  # node-indices at the current level (start from the root)
-  cn <- N+1
-  j <- 1
-  while(length(cn)>0) {
-    cnNext <- c()
-    for(n in cn) {
-      # if not a tip
-      if(n > N) {
-        # indices in ordFrom of edges starting from the current node
-        if(n < M) {
-          es <- iFrom[n]:(iFrom[n+1]-1)
-        } else {
-          es <- iFrom[n]:(M-1)
+    # the result is a vector of edge indices in the breadth-first search order
+    res <- vector(mode='integer', length = M-1)
+
+    # node-indices at the current level (start from the root)
+    cn <- N+1
+    j <- 1
+    while(length(cn)>0) {
+      cnNext <- c()
+      for(n in cn) {
+        # if not a tip
+        if(n > N) {
+          # indices in ordFrom of edges starting from the current node
+          if(n < M) {
+            es <- iFrom[n]:(iFrom[n+1]-1)
+          } else {
+            es <- iFrom[n]:(M-1)
+          }
+          jNext <- j+length(es)
+          res[j:(jNext-1)] <- ordFrom[es]
+          j <- jNext
+          cnNext <- c(cnNext, tree$edge[ordFrom[es], 2])
         }
-        jNext <- j+length(es)
-        res[j:(jNext-1)] <- ordFrom[es]
-        j <- jNext
-        cnNext <- c(cnNext, tree$edge[ordFrom[es], 2])
       }
+      cn <- cnNext
     }
-    cn <- cnNext
+    res
+  } else {
+    # a tree with no edges (i.e. a single tip-tree)
+    integer(0L)
   }
-  res
+
 }
 
 #' Post-order tree traversal
@@ -1830,12 +1838,17 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
     if( !(nodeLab %in% names(partRegimesClade)) ) {
       partRegimesClade <- c(regimeSplitNode, partRegimesClade)
     }
-    PCMTreeSetPartRegimes(clade, partRegimesClade, setPartition = TRUE)
+    if(nrow(clade$edge) > 0L) {
+      PCMTreeSetPartRegimes(clade, partRegimesClade, setPartition = TRUE)
+    }
 
     rest <- PCMTree(rest)
     partRegimesRest <-
       partRegimes[intersect(names(partRegimes), PCMTreeGetLabels(rest))]
-    PCMTreeSetPartRegimes(rest, partRegimesRest, setPartition = TRUE)
+    if(nrow(rest$edge) > 0L) {
+      PCMTreeSetPartRegimes(rest, partRegimesRest, setPartition = TRUE)
+    }
+
 
     if(!is.null(X)) {
       Xclade <- X[, clade$tip.label, drop = FALSE]
@@ -2051,7 +2064,18 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
     }
   }
 
-  z <- bind.tree(x, y, position = if(is.null(x$root.edge)) 0 else x$root.edge)
+  if(PCMTreeNumNodes(y) > 1L) {
+    z <- bind.tree(x, y, position = if(is.null(x$root.edge)) 0 else x$root.edge)
+  } else {
+    tipy <- PCMTree(structure(
+      list(
+        edge = rbind(c(2, 1)),
+        tip.label = y$tip.label,
+        edge.length = if(is.null(y$root.edge)) 0.0 else y$root.edge,
+        Nnode=1L),
+      class="phylo"))
+    z <- bind.tree(x, tipy, position = if(is.null(x$root.edge)) 0 else x$root.edge)
+  }
 
   z.part.regime <- c(PCMTreeGetPartRegimes(x), PCMTreeGetPartRegimes(y))
   z.part.regime <- z.part.regime[
@@ -2125,12 +2149,24 @@ PCMTreeEvalNestedEDxOnTree <- function(expr, tree) {
 
   }
   # Extract the clade in x rooted at node
-  env$E <- function(x,node) {
-    PCMTreeExtractClade(tree = x, cladeRootNode = as.character(node), tableAncestors = tableAncestors)
+  env$E <- function(x,node,l=0.0) {
+    res <- PCMTreeExtractClade(
+      tree = x, cladeRootNode = as.character(node),
+      tableAncestors = tableAncestors)
+    if(l > 0.0) {
+      res$root.edge <- l
+    }
+    res
   }
   # Drop the clade in x rooted at node
-  env$D <- function(x,node) {
-    PCMTreeDropClade(tree = x, cladeRootNode = as.character(node), tableAncestors = tableAncestors)
+  env$D <- function(x,node,l=0.0) {
+    res <- PCMTreeDropClade(
+      tree = x, cladeRootNode = as.character(node),
+      tableAncestors = tableAncestors)
+    if(l>0.0) {
+      res$root.edge <- l
+    }
+    res
   }
   env$x <- tree
   eval(parse(text=expr), envir = env)

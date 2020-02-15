@@ -73,12 +73,12 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' \code{PCMBase.Threshold.EV } or when the ratio min(svdV)/max(svdV) is below
 #' PCMBase.Threshold.SV. Default is 1e-6. Treatment
 #' of branches with singular V matrix is defined by the option \code{PCMBase.Skip.Singular}.}
-#' \item{\code{PCMBase.Threshold.Skip.Singular }}{A double indicating if a branch of shorter
+#' \item{\code{PCMBase.Threshold.Skip.Singular }}{A double indicating if an internal branch of shorter
 #' length with singular matrix V should be skipped during likelihood calculation. Setting this
 #' option to a higher value, together with a TRUE value for the option PCMBase.Skip.Singular
 #' will result in tolerating some parameter values resulting in singular variance covariance
 #' matrix of the transition distribution. Default 1e-4.}
-#' \item{\code{PCMBase.Skip.Singular }}{A logical value indicating whether branches with
+#' \item{\code{PCMBase.Skip.Singular }}{A logical value indicating whether internal branches with
 #' singular matrix V and shorter than \code{getOption("PCMBase.Threshold.Singular.Skip")}
 #'  should be skipped during likelihood calculation, adding their children
 #' L,m,r values to their parent node. Default TRUE. Note, that setting this option to FALSE
@@ -174,17 +174,17 @@ PCMOptions <- function() {
 #' is called on the created object of class \code{model}.
 #' @param ... additional parameters intended for use by sub-classes of the PCM
 #' class.
-#' @return an object of S3 class as defined by the argument model.
+#' @return an object of S3 class as defined by the argument \code{model}.
 #'
 #' @details This is an S3 generic. The PCMBase package defines three methods for
 #' it:
 #' \itemize{
-#' \item{PCM.PCM:}{A default constructor for any object with a class inheriting
+#' \item{PCM.PCM: }{A default constructor for any object with a class inheriting
 #' from "PCM".}
-#' \item{PCM.character:}{A default PCM constructor from a character string
+#' \item{PCM.character: }{A default PCM constructor from a character string
 #' specifying the type of model.}
-#' \item{PCM.default:}{A default constructor called when no other constructor is
-#' found. When called this constructor raises an error message.}
+#' \item{PCM.default: }{A default constructor called when no other constructor
+#' is found. When called this constructor raises an error message.}
 #' }
 #' @seealso \code{\link{MixedGaussian}}
 #'
@@ -262,7 +262,8 @@ PCM.default <- function(
   model, modelTypes = class(model)[1], k = 1L, regimes = 1L,
   params = NULL, vecParams = NULL, offset = 0L,
   spec = NULL, ...) {
-  stop(paste0("ERR:02091:PCMBase:PCM.R:PCM.default:: You should provide a PCM object, but provided a ", class(model)[1]))
+  stop(paste0("PCM.default:: The type of the model argument is not supported: ",
+              toString(class(model))))
 }
 
 #' @export
@@ -1833,9 +1834,22 @@ logLik.PCM <- function(object, ...) {
     stop("logLik.PCM:: When calling logLik.PCM on a model object should have an attribute called 'tree' of class phylo.")
   }
 
-  if(is.function(attr(object, "PCMInfoFun", exact = TRUE)) ) {
+  if( is.character(attr(object, "PCMInfoFun", exact = TRUE)) ) {
+    metaIFun <- try(
+      eval(parse(text = attr(object, "PCMInfoFun", exact = TRUE))),
+      silent = TRUE)
+    if(!is.function(metaIFun)) {
+      warning(paste0("logLik.PCM:: The expression ",
+                     attr(object, "PCMInfoFun", exact = TRUE),
+                     " does not evaluate to a function. Using PCMInfo"))
+      metaIFun <- PCMInfo
+    }
     value <- PCMLik(
-      X, tree, object, SE, metaI = attr(object, "PCMInfoFun", exact = TRUE)(X, tree, object, SE), log = TRUE)
+      X, tree, object, SE, metaI = metaIFun(X, tree, object, SE), log = TRUE)
+  } else if(is.function(attr(object, "PCMInfoFun", exact = TRUE)) ) {
+    value <- PCMLik(
+      X, tree, object, SE, metaI = attr(object, "PCMInfoFun", exact = TRUE)(
+        X, tree, object, SE), log = TRUE)
   } else if(is.list(attr(object, "PCMInfoFun", exact = TRUE))) {
     # In this case, it is assumed that attr(object, "PCMInfoFun", exact = TRUE) is
     # the result from calling the PCMInfoFun on the model (object) X, tree and data.
@@ -2066,8 +2080,8 @@ PCMCreateLikelihood <- function(
   metaI <- if(is.character(metaI)) {
     metaIFun <- try(eval(parse(text = metaI)), silent = TRUE)
     if(!is.function(metaIFun)) {
-      warning(paste0("PCMCreateLikelihood:: Could not find function ", metaI,
-                     ". Using PCMBase::PCMInfo."))
+      warning(paste0("PCMCreateLikelihood:: The expression ", metaI,
+                     " does not evaluate to a function. Using PCMInfo."))
       metaIFun <- PCMInfo
     }
     metaI <- metaIFun(X = X, tree = tree, model = model, SE = SE)

@@ -42,7 +42,7 @@ is called on the created object of class \code{model}.}
 class.}
 }
 \value{
-an object of S3 class as defined by the argument model.
+an object of S3 class as defined by the argument \code{model}.
 }
 \description{
 This is the entry-point function for creating model objects
@@ -55,12 +55,12 @@ use the \code{\link{MixedGaussian}} function.
 This is an S3 generic. The PCMBase package defines three methods for
 it:
 \itemize{
-\item{PCM.PCM:}{A default constructor for any object with a class inheriting
+\item{PCM.PCM: }{A default constructor for any object with a class inheriting
 from "PCM".}
-\item{PCM.character:}{A default PCM constructor from a character string
+\item{PCM.character: }{A default PCM constructor from a character string
 specifying the type of model.}
-\item{PCM.default:}{A default constructor called when no other constructor is
-found. When called this constructor raises an error message.}
+\item{PCM.default: }{A default constructor called when no other constructor
+is found. When called this constructor raises an error message.}
 }
 }
 \examples{
