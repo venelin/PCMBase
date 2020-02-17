@@ -594,7 +594,7 @@ PCMLikTrace.GaussianPCM <- function(
         trace[[name]]
       } else if(is.array(trace[[name]]) && length(dim(trace[[name]])) == 3) {
         lapply(seq_len(dim(trace[[name]])[3]), function(i) {
-          trace[[name]][,,i]
+          as.matrix(trace[[name]][,,i])
         })
       } else if(is.array(trace[[name]]) && length(dim(trace[[name]])) == 2) {
         lapply(seq_len(dim(trace[[name]])[2]), function(i) {
@@ -648,7 +648,7 @@ PCMLikTrace.GaussianPCM <- function(
       }
       x
     }
-    x <- as.character(x)
+    x <- as.character(round(x, digits = getOption("digits", default = 2)))
     mat <- xtable(
       as.matrix(x), align=rep("", ncol(as.matrix(x)) + 1),
       digits = getOption("digits", default = 2))
@@ -780,19 +780,6 @@ PCMLikTrace.GaussianPCM <- function(
   traceTable[, `\\hat{X}_i`:=lapply(seq_len(.N), function(nodeId) {
     if(nodeId <= metaI$N) {
       "ND"
-    # } else if(nodeId == metaI$N+1) {
-    #   if(is.null(model$X0) || isTRUE(all(is.na(model$X0)))) {
-    #     # set the root value to the one that maximizes the likelihood
-    #     X0 <- try(solve(
-    #       a=L_i[[nodeId]] + t(L_i[[nodeId]]),
-    #       b = -m_i[[nodeId]]), silent = TRUE)
-    #     if(inherits(X0, "try-error")) {
-    #       X0 <- rep(NA_real_, PCMNumTraits(model))
-    #     }
-    #     X0
-    #   } else {
-    #     model$X0
-    #   }
     } else {
       x <- rep(NaN, PCMNumTraits(model))
       if(any(is.finite(k_i[[nodeId]]))) {
@@ -819,29 +806,20 @@ PCMLikTrace.GaussianPCM <- function(
     } else {
       X0 <- `\\hat{X}_i`[[nodeId]]
 
-      # if(nodeId == metaI$N+1) {
-      #   # root node
-      #   ll <- try(X0 %*% L_i[[nodeId]] %*% X0 + m_i[[nodeId]] %*% X0 + r_i[[nodeId]], silent = TRUE)
-      #   if(inherits(ll, "try-error")) {
-      #     ll <- NA_real_
-      #   }
-      #   ll
-      # } else {
-        # internal node
-        ll <- try(
-          X0[k_i[[nodeId]]] %*%
-            L_i[[nodeId]][k_i[[nodeId]],k_i[[nodeId]], drop=FALSE] %*%
-            X0[k_i[[nodeId]]] +
+      # internal node
+      ll <- try(
+        X0[k_i[[nodeId]]] %*%
+          L_i[[nodeId]][k_i[[nodeId]],k_i[[nodeId]], drop=FALSE] %*%
+          X0[k_i[[nodeId]]] +
 
           m_i[[nodeId]][k_i[[nodeId]]] %*% X0[k_i[[nodeId]]] +
 
           r_i[[nodeId]],
-          silent = TRUE)
-        if(inherits(ll, "try-error")) {
-          ll <- NA_real_
-        }
-        ll
-      #}
+        silent = TRUE)
+      if(inherits(ll, "try-error")) {
+        ll <- NA_real_
+      }
+      ll
     }
   })]
 
