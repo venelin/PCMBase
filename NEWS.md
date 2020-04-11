@@ -10,7 +10,7 @@ output: html_document
 So far, it was only possible to specify this as a function object or as the list
 resulting from calling the function on the tree, data and PCM model.
 - Added an operator + for PCMTree objects. This is analogical to the operator +
-for phylo objects but maintains the edge.part and part. regime members 
+for phylo objects but maintains the edge.part and part.regime members 
 (experimental). 
 - Removed argument parametrizations from PCMGenerateModelTypes. Now it's possible
 to specify the type of parametrization (all/default) separately for each model 
