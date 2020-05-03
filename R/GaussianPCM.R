@@ -308,7 +308,8 @@ PCMSim.GaussianPCM <- function(
     stop(paste('GaussianPCM.R:PCMSim:: X0 must be of length', metaI$k, '.'))
   }
 
-  values <- matrix(0, nrow=metaI$k, ncol=dim(tree$edge)[1]+1)
+  values <- matrix(0, nrow = metaI$k, ncol = dim(tree$edge)[1]+1,
+                   dimnames = list(NULL, PCMTreeGetLabels(tree)))
   values[, metaI$N + 1] <- X0
 
   preord <- metaI$preorder
