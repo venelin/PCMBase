@@ -300,6 +300,8 @@ PCMSim.GaussianPCM <- function(
     X = NULL, tree = tree, model = model, SE = SE, verbose = verbose),
   verbose = FALSE) {
 
+  tree <- PCMTree(tree)
+
   if(is.Transformable(model)) {
     model <- PCMApplyTransformation(model)
   }
