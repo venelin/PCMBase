@@ -4,9 +4,15 @@
 \alias{PCMLikDmvNorm}
 \title{Calculate the likelihood of a model using the standard formula for multivariate pdf}
 \usage{
-PCMLikDmvNorm(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE, verbose =
-  verbose), log = TRUE, verbose = FALSE)
+PCMLikDmvNorm(
+  X,
+  tree,
+  model,
+  SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE, verbose = verbose),
+  log = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and

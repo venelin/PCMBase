@@ -4,9 +4,11 @@
 \name{dataFig3}
 \alias{dataFig3}
 \title{Data for Fig3 in the TPB manuscript}
-\format{This is a list containing the following named elements representing
+\format{
+This is a list containing the following named elements representing
 simulation parameters, a simulated tree and PCM objects, used in Fig. 3. For
-details on all these objects, read the file data-raw/Fig3.Rmd.}
+details on all these objects, read the file data-raw/Fig3.Rmd.
+}
 \usage{
 dataFig3
 }

@@ -4,11 +4,14 @@
 \alias{PCMGenerateParameterizations}
 \title{Generate possible parameterizations for a given type of model}
 \usage{
-PCMGenerateParameterizations(model,
+PCMGenerateParameterizations(
+  model,
   listParameterizations = PCMListParameterizations(model),
-  tableParameterizations = PCMTableParameterizations(model,
-  listParameterizations), env = .GlobalEnv,
-  useModelClassNameForFirstRow = FALSE, sourceFile = NULL)
+  tableParameterizations = PCMTableParameterizations(model, listParameterizations),
+  env = .GlobalEnv,
+  useModelClassNameForFirstRow = FALSE,
+  sourceFile = NULL
+)
 }
 \arguments{
 \item{model}{a PCM object.}

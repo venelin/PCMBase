@@ -2216,7 +2216,7 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
   list(nodes = nodes, positions = positions)
 }
 
-#' Insert singleton nodes on chosen edges
+#' Insert tips or singleton nodes on chosen edges
 #'
 #' @param tree a phylo object
 #' @param nodes an integer vector denoting the terminating nodes of the edges
@@ -2226,7 +2226,21 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #'  function several times with the longest position first and so on .
 #' @param positions a positive numeric vector of the same length as nodes
 #'  denoting the root-ward distances from nodes at which the singleton nodes
-#'  should be inserted.
+#'  should be inserted. For PCMTreeInsertTipsOrSingletons this can contains 0's and
+#'  is set by default to rep(0, length(nodes)).
+#' @param singleton (PCMTreeInsertTipsOrSingletons only) a logical indicating if a
+#' singleton node should be inserted and no tip node should be inserted.
+#' @param tipBranchLengths (PCMTreeInsertTipsOrSingletons only) positive numeric vector of the
+#' length of \code{nodes}, denoting the lengths of the new edges leading to tips.
+#' @param nodeLabels (PCMTreeInsertSingletons and PCMTreeInsertTipsOrSingletons) a
+#' character vector of the same length as \code{nodes}, indicating the names of
+#' the newly inserted nodes. These names are ignored where \code{positions} is 0. This
+#' argument is optional and default node labels will be assigned if this is not specified or set
+#' to NULL. If specified, then it should not contain node-labels already present in the tree.
+#' @param tipLabels (PCMTreeInsertTipsOrSingletons only) a character vector of the same length as
+#' \code{nodes} of the new tip-labels. This
+#' argument is optional and default tip labels will be assigned if this is not specified or set
+#' to NULL. If specified, then it should not contain tip-labels already present in the tree.
 #' @param epoch a numeric indicating a distance from the root at which a
 #' singleton node should be inserted in all lineages that are alive at that
 #' time.
@@ -2236,8 +2250,8 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #' that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.
 #'
 #' @importFrom ape bind.tree drop.tip
-#' @return a modified version of tree with inserted singleton nodes at the
-#'  specified locations
+#' @return a modified copy of tree.
+#'
 #' @seealso \code{\link{PCMTreeEdgeTimes}} \code{\link{PCMTreeLocateEpochOnBranches}} \code{\link{PCMTreeLocateMidpointsOnBranches}}
 #' @examples
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
@@ -2301,89 +2315,7 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #' }
 #' @export
 PCMTreeInsertSingletons <- function(tree, nodes, positions) {
-
-  tree <- PCMTree(tree)
-
-  M <- PCMTreeNumNodes(tree)
-  N <- PCMTreeNumTips(tree)
-  originalLabels <- PCMTreeGetLabels(tree)
-
-  if(is.character(nodes)) {
-    nodes <- match(nodes, originalLabels)
-  }
-  if(any(is.na(nodes)) ||
-     max(nodes, na.rm = TRUE) > PCMTreeNumNodes(tree) ||
-     min(nodes, na.rm = TRUE) < 1L) {
-    stop(paste0(
-      "PCMTreeInsertSingletons:: Some of the nodes were NA or they could not",
-      "be matched against nodes in tree."))
-  }
-
-  PCMTreeSetLabels(tree, paste0("x_", PCMTreeGetLabels(tree)))
-
-  names(originalLabels) <- PCMTreeGetLabels(tree)
-  partRegimeWithXLabels <- PCMTreeGetPartRegimes(tree)
-
-  edgeNames <- PCMTreeGetLabels(tree)[tree$edge[, 2]]
-
-  edgeTimes <- PCMTreeEdgeTimes(tree)
-  rownames(edgeTimes) <- edgeNames
-
-  # which edges should be processed
-  names(nodes) <- names(positions) <- PCMTreeGetLabels(tree)[nodes]
-  edgesToCut <- tree$edge[, 2] %in% nodes
-  edgesToCutNames <- edgeNames[edgesToCut]
-
-  tipTree <- list(edge = matrix(c(2, 1), nrow = 1, ncol = 2),
-                  tip.label = "y_1",
-                  node.label = "y_2",
-                  edge.length = c(1.0),
-                  Nnode = 1)
-  class(tipTree) <- "phylo"
-
-  for(edgeName in edgesToCutNames) {
-    # find the number of the ending node for the edge. DON'T USE CASHED LABELS
-    # HERE, but use PCMTreeGetLabels(tree)!
-    node <- match(edgeName, PCMTreeGetLabels(tree))
-
-    # find the position (root-ward offset from node) where to cut
-
-    # add, then drop the tipTree using ape's functions
-    tree <- bind.tree(tree, tipTree, node, positions[edgeName])
-    tree <- drop.tip(tree, "y_1", collapse.singles = FALSE)
-
-    # inserted edge
-    edgeNameNew <- paste0(
-      "i_",
-      round(edgeTimes[edgeName, 2] - positions[edgeName], 2), "_", edgeName)
-
-    tree$node.label[is.na(tree$node.label)] <- edgeNameNew
-
-    # The edge leading to the new internal node take the same part as ITS
-    # DAUGHTER edge.
-    # If the edge we just cut was leading to a partition node, then this
-    # node is no more a partition node, because the newly inserted node is
-    # its parent and it has to becomes the partition node.
-    # Also the part should be renamed. The regime for the (now renamed) part is
-    # preserved.
-    idxPartNodeInPartRegimes <- match(edgeName, names(partRegimeWithXLabels))
-    if(!is.na(idxPartNodeInPartRegimes)) {
-      names(partRegimeWithXLabels)[idxPartNodeInPartRegimes] <- edgeNameNew
-    }
-  }
-
-  PCMTreeSetPartRegimes(
-    tree, part.regime = partRegimeWithXLabels, setPartition = TRUE)
-
-  # restore original node labels
-  restoredOriginalLabels <- PCMTreeGetLabels(tree)
-  m <- match(restoredOriginalLabels, names(originalLabels))
-  restoredOriginalLabels[!is.na(m)] <- originalLabels[m[!is.na(m)]]
-
-  # restore original node-names for all old nodes
-  PCMTreeSetLabels(tree, labels = unname(restoredOriginalLabels))
-
-  tree
+  PCMTreeInsertTipsOrSingletons(tree, nodes, positions, singleton = TRUE)
 }
 
 #' @describeIn PCMTreeInsertSingletons
@@ -2420,6 +2352,154 @@ PCMTreeInsertSingletonsAtEpoch <- function(tree, epoch, minLength = 0.1) {
   }
 
 }
+
+#' @describeIn PCMTreeInsertSingletons
+#'
+#' @export
+PCMTreeInsertTipsOrSingletons <- function(
+  tree, nodes, positions = rep(0, length(nodes)),
+  singleton = FALSE, tipBranchLengths = 0.01, nodeLabels = NULL, tipLabels = NULL) {
+
+  tree <- PCMTree(tree)
+
+  M <- PCMTreeNumNodes(tree)
+  N <- PCMTreeNumTips(tree)
+  originalLabels <- PCMTreeGetLabels(tree)
+
+  if(is.character(nodes)) {
+    nodes <- match(nodes, originalLabels)
+  }
+  if(any(is.na(nodes)) ||
+     max(nodes, na.rm = TRUE) > PCMTreeNumNodes(tree) ||
+     min(nodes, na.rm = TRUE) < 1L) {
+    stop(paste0(
+      "PCMTreeInsertTipsOrSingletons:: Some of the nodes were NA or they could not",
+      "be matched against nodes in tree."))
+  }
+
+  if(!is.null(nodeLabels)) {
+    if(!(is.character(nodeLabels) && length(nodeLabels) == length(nodes))) {
+      stop(paste0(
+        "PCMTreeInsertTipsOrSingletons:: nodeLabels should be NULL or a character ",
+        "vector of the same length as nodes"))
+    }
+    if(length(intersect(nodeLabels, originalLabels)) > 0) {
+      stop(paste0(
+        "PCMTreeInsertTipsOrSingletons:: some labels in nodeLabels are already used as labels in the tree."))
+    }
+  }
+
+  if(!is.null(tipLabels)) {
+    if(!(is.character(tipLabels) && length(tipLabels) == length(nodes))) {
+      stop(paste0(
+        "PCMTreeInsertTipsOrSingletons:: tipLabels should be NULL or a character ",
+        "vector of the same length as nodes"))
+    }
+    if(length(intersect(tipLabels, originalLabels)) > 0) {
+      stop(paste0(
+        "PCMTreeInsertTipsOrSingletons:: some labels in tipLabels are already used as labels in the tree."))
+    }
+  }
+
+  if(!is.numeric(tipBranchLengths)) {
+    stop("PCMTreeInsertTipsOrSingletons:: tipBranchLengths should be positive numeric of length 1 or equal to the length of nodes.")
+  }
+
+  if(length(tipBranchLengths) == 1) {
+    tipBranchLengths <- rep(tipBranchLengths, length(nodes))
+  } else if(length(tipBranchLengths) != length(nodes)) {
+    stop("PCMTreeInsertTipsOrSingletons:: tipBranchLengths should be positive numeric of length 1 or equal to the length of nodes.")
+  } else if(isTRUE(any(tipBranchLengths) < 0)) {
+    stop("PCMTreeInsertTipsOrSingletons:: all entries in tipBranchLengths should be non-negative.")
+  }
+
+  PCMTreeSetLabels(tree, paste0("x_", PCMTreeGetLabels(tree)))
+
+  names(originalLabels) <- PCMTreeGetLabels(tree)
+  partRegimeWithXLabels <- PCMTreeGetPartRegimes(tree)
+
+  edgeNames <- PCMTreeGetLabels(tree)[tree$edge[, 2]]
+
+  edgeTimes <- PCMTreeEdgeTimes(tree)
+  rownames(edgeTimes) <- edgeNames
+
+  names(nodes) <- names(positions) <- PCMTreeGetLabels(tree)[nodes]
+
+  # which edges should be processed in order of nodes
+  edgesToCutNames <- edgeNames[match(nodes, tree$edge[, 2])]
+
+
+  for(i in seq_along(edgesToCutNames)) {
+    edgeName <- edgesToCutNames[i]
+
+    if(singleton && positions[edgeName] == 0) {
+      warning("PCMTreeInsertTipsOrSingletons:: Skipping ", edgeName, " since position is 0 and singleton is set to TRUE.")
+      next
+    } else {
+      # find the number of the ending node for the edge. DON'T USE CASHED LABELS
+      # HERE, but use PCMTreeGetLabels(tree)!
+      node <- match(edgeName, PCMTreeGetLabels(tree))
+
+      # inserted edge
+      edgeNameNew <- if(!is.null(nodeLabels)) {
+        nodeLabels[i]
+      } else {
+        paste0(
+          "i_",
+          round(edgeTimes[edgeName, 2] - positions[edgeName], 2), "_", edgeName)
+      }
+
+      tipLabelNew <- if(!is.null(tipLabels)) {
+        tipLabels[i]
+      } else {
+        paste0("t", "_", edgeNameNew)
+      }
+
+      tipTree <- structure(
+        list(edge = matrix(c(2, 1), nrow = 1, ncol = 2),
+             tip.label = tipLabelNew,
+             edge.length = tipBranchLengths[i],
+             Nnode = 1),
+        class = "phylo")
+
+      # bind the tipTree
+      tree <- bind.tree(tree, tipTree, node, positions[edgeName])
+      if(singleton) {
+        # drop the tip, without removing its singleton parent node
+        tree <- drop.tip(tree, tipLabelNew, collapse.singles = FALSE)
+      }
+
+      tree$node.label[is.na(tree$node.label)] <- edgeNameNew
+
+      # The edge leading to the new internal node take the same part as ITS
+      # DAUGHTER edge.
+      # If the edge we just cut was leading to a partition node, then this
+      # node is no more a partition node, because the newly inserted node is
+      # its parent and it has to becomes the partition node.
+      # Also the part should be renamed. The regime for the (now renamed) part is
+      # preserved.
+      idxPartNodeInPartRegimes <- match(edgeName, names(partRegimeWithXLabels))
+      if(!is.na(idxPartNodeInPartRegimes)) {
+        names(partRegimeWithXLabels)[idxPartNodeInPartRegimes] <- edgeNameNew
+      }
+    }
+
+  }
+
+  PCMTreeSetPartRegimes(
+    tree, part.regime = partRegimeWithXLabels, setPartition = TRUE)
+
+  # restore original node labels
+  restoredOriginalLabels <- PCMTreeGetLabels(tree)
+  m <- match(restoredOriginalLabels, names(originalLabels))
+  restoredOriginalLabels[!is.na(m)] <- originalLabels[m[!is.na(m)]]
+
+  # restore original node-names for all old nodes
+  PCMTreeSetLabels(tree, labels = unname(restoredOriginalLabels))
+
+  tree
+}
+
 
 #' Find the nearest node to a given time from the root (epoch) on each lineage crossing this epoch
 #' @param tree a phylo
@@ -2532,7 +2612,17 @@ PCMTreePlot <- function(
         node = N+1L,
         regime = tree$part.regime[PCMTreeGetPartsForNodes(tree, N+1L)]))
 
-    plotTree <- ggtree::`%<+%`(ggtree::ggtree(tree, ...), data)
+    # Try to prevent plotting errors due to bugs in the function ladderize in ape package
+    # only changing default values here.
+    listParams <- c(list(tr = tree), list(...))
+    if(!"ladderize" %in% names(listParams)) {
+      listParams[["ladderize"]] <- FALSE
+    }
+    if(!"right" %in% names(listParams)) {
+      listParams[["right"]] <- TRUE
+    }
+
+    plotTree <- ggtree::`%<+%`(do.call(ggtree::ggtree, listParams), data)
 
     plotTree + aes(color = regime) +
       scale_color_manual(name = "regime", values = palette)

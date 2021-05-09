@@ -4,8 +4,14 @@
 \alias{PCMMean}
 \title{Expected mean vector at each tip conditioned on a trait-value vector at the root}
 \usage{
-PCMMean(tree, model, X0 = model$X0, metaI = PCMInfo(NULL, tree, model,
-  verbose = verbose), internal = FALSE, verbose = FALSE)
+PCMMean(
+  tree,
+  model,
+  X0 = model$X0,
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  internal = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}

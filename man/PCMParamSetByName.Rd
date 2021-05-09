@@ -4,9 +4,15 @@
 \alias{PCMParamSetByName}
 \title{Set model parameters from a named list}
 \usage{
-PCMParamSetByName(model, params, inplace = TRUE,
-  replaceWholeParameters = FALSE, deepCopySubPCMs = FALSE,
-  failIfNamesInParamsDontExist = TRUE, ...)
+PCMParamSetByName(
+  model,
+  params,
+  inplace = TRUE,
+  replaceWholeParameters = FALSE,
+  deepCopySubPCMs = FALSE,
+  failIfNamesInParamsDontExist = TRUE,
+  ...
+)
 }
 \arguments{
 \item{model}{a PCM model object}

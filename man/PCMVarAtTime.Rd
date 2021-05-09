@@ -4,10 +4,14 @@
 \alias{PCMVarAtTime}
 \title{Calculate the variance covariance k x k matrix at time t, under a PCM model}
 \usage{
-PCMVarAtTime(t, model, W0 = matrix(0, PCMNumTraits(model),
-  PCMNumTraits(model)), SE = matrix(0, PCMNumTraits(model),
-  PCMNumTraits(model)), regime = PCMRegimes(model)[1L],
-  verbose = FALSE)
+PCMVarAtTime(
+  t,
+  model,
+  W0 = matrix(0, PCMNumTraits(model), PCMNumTraits(model)),
+  SE = matrix(0, PCMNumTraits(model), PCMNumTraits(model)),
+  regime = PCMRegimes(model)[1L],
+  verbose = FALSE
+)
 }
 \arguments{
 \item{t}{positive numeric denoting time}

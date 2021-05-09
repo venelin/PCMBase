@@ -4,8 +4,16 @@
 \alias{PCMAddToListAttribute}
 \title{Add a value to a list-valued attribute of a member or members matching a pattern}
 \usage{
-PCMAddToListAttribute(name, value, object, member = "", enclos = "?",
-  spec = TRUE, inplace = TRUE, ...)
+PCMAddToListAttribute(
+  name,
+  value,
+  object,
+  member = "",
+  enclos = "?",
+  spec = TRUE,
+  inplace = TRUE,
+  ...
+)
 }
 \arguments{
 \item{name}{a character string denoting the attribute name.}

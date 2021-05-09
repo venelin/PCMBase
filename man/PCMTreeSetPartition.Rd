@@ -4,8 +4,7 @@
 \alias{PCMTreeSetPartition}
 \title{Set a partition of a tree by specifying the partition nodes}
 \usage{
-PCMTreeSetPartition(tree, nodes = c(PCMTreeNumTips(tree) + 1L),
-  inplace = TRUE)
+PCMTreeSetPartition(tree, nodes = c(PCMTreeNumTips(tree) + 1L), inplace = TRUE)
 }
 \arguments{
 \item{tree}{a PCMTree object.}

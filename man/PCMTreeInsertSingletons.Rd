@@ -3,11 +3,22 @@
 \name{PCMTreeInsertSingletons}
 \alias{PCMTreeInsertSingletons}
 \alias{PCMTreeInsertSingletonsAtEpoch}
-\title{Insert singleton nodes on chosen edges}
+\alias{PCMTreeInsertTipsOrSingletons}
+\title{Insert tips or singleton nodes on chosen edges}
 \usage{
 PCMTreeInsertSingletons(tree, nodes, positions)
 
 PCMTreeInsertSingletonsAtEpoch(tree, epoch, minLength = 0.1)
+
+PCMTreeInsertTipsOrSingletons(
+  tree,
+  nodes,
+  positions = rep(0, length(nodes)),
+  singleton = FALSE,
+  tipBranchLengths = 0.01,
+  nodeLabels = NULL,
+  tipLabels = NULL
+)
 }
 \arguments{
 \item{tree}{a phylo object}
@@ -20,7 +31,8 @@ function several times with the longest position first and so on .}
 
 \item{positions}{a positive numeric vector of the same length as nodes
 denoting the root-ward distances from nodes at which the singleton nodes
-should be inserted.}
+should be inserted. For PCMTreeInsertTipsOrSingletons this can contains 0's and
+is set by default to rep(0, length(nodes)).}
 
 \item{epoch}{a numeric indicating a distance from the root at which a
 singleton node should be inserted in all lineages that are alive at that
@@ -30,17 +42,35 @@ time.}
 after dividing a branch by insertion of a singleton nodes. No singleton node
 is inserted if this would result in a branch shorter than `minLength`. Note
 that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.}
+
+\item{singleton}{(PCMTreeInsertTipsOrSingletons only) a logical indicating if a
+singleton node should be inserted and no tip node should be inserted.}
+
+\item{tipBranchLengths}{(PCMTreeInsertTipsOrSingletons only) positive numeric vector of the
+length of \code{nodes}, denoting the lengths of the new edges leading to tips.}
+
+\item{nodeLabels}{(PCMTreeInsertSingletons and PCMTreeInsertTipsOrSingletons) a
+character vector of the same length as \code{nodes}, indicating the names of
+the newly inserted nodes. These names are ignored where \code{positions} is 0. This
+argument is optional and default node labels will be assigned if this is not specified or set
+to NULL. If specified, then it should not contain node-labels already present in the tree.}
+
+\item{tipLabels}{(PCMTreeInsertTipsOrSingletons only) a character vector of the same length as
+\code{nodes} of the new tip-labels. This
+argument is optional and default tip labels will be assigned if this is not specified or set
+to NULL. If specified, then it should not contain tip-labels already present in the tree.}
 }
 \value{
-a modified version of tree with inserted singleton nodes at the
- specified locations
+a modified copy of tree.
 }
 \description{
-Insert singleton nodes on chosen edges
+Insert tips or singleton nodes on chosen edges
 }
 \section{Functions}{
 \itemize{
 \item \code{PCMTreeInsertSingletonsAtEpoch}: 
+
+\item \code{PCMTreeInsertTipsOrSingletons}: 
 }}
 
 \examples{

@@ -5,8 +5,10 @@
 \title{Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
 for every element lambda_{ij} of the input matrix Lambda_ij.}
 \usage{
-PCMPExpxMeanExp(Lambda_ij,
-  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-08))
+PCMPExpxMeanExp(
+  Lambda_ij,
+  threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-08)
+)
 }
 \arguments{
 \item{Lambda_ij}{a squared numerical matrix of dimension k x k}

@@ -4,8 +4,13 @@
 \alias{PCMTreeListAllPartitions}
 \title{A list of all possible (including recursive) partitions of a tree}
 \usage{
-PCMTreeListAllPartitions(tree, minCladeSize, skipNodes = character(),
-  tableAncestors = NULL, verbose = FALSE)
+PCMTreeListAllPartitions(
+  tree,
+  minCladeSize,
+  skipNodes = character(),
+  tableAncestors = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object with set labels for the internal nodes}

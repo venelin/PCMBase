@@ -4,8 +4,17 @@
 \alias{PCM}
 \title{Create a phylogenetic comparative model object}
 \usage{
-PCM(model, modelTypes = class(model)[1], k = 1L, regimes = 1L,
-  params = NULL, vecParams = NULL, offset = 0L, spec = NULL, ...)
+PCM(
+  model,
+  modelTypes = class(model)[1],
+  k = 1L,
+  regimes = 1L,
+  params = NULL,
+  vecParams = NULL,
+  offset = 0L,
+  spec = NULL,
+  ...
+)
 }
 \arguments{
 \item{model}{This argument can take one of the following forms:

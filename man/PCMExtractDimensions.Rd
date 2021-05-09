@@ -5,8 +5,7 @@
 \title{Given a PCM or a parameter object, extract an analogical object for a subset
 of the dimensions (traits) in the original object.}
 \usage{
-PCMExtractDimensions(obj, dims = seq_len(PCMNumTraits(obj)),
-  nRepBlocks = 1L)
+PCMExtractDimensions(obj, dims = seq_len(PCMNumTraits(obj)), nRepBlocks = 1L)
 }
 \arguments{
 \item{obj}{a PCM or a parameter object.}

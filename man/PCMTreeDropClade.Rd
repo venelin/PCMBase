@@ -4,8 +4,14 @@
 \alias{PCMTreeDropClade}
 \title{Drop a clade from a phylogenetic tree}
 \usage{
-PCMTreeDropClade(tree, cladeRootNode, tableAncestors = NULL, X = NULL,
-  returnList = !is.null(X), errorOnMissing = FALSE)
+PCMTreeDropClade(
+  tree,
+  cladeRootNode,
+  tableAncestors = NULL,
+  X = NULL,
+  returnList = !is.null(X),
+  errorOnMissing = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object}

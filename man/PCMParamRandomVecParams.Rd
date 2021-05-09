@@ -5,8 +5,14 @@
 \title{Generate a random parameter vector for a model using uniform distribution
 between its lower and upper bounds.}
 \usage{
-PCMParamRandomVecParams(o, k, R, n = 1L, argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL)
+PCMParamRandomVecParams(
+  o,
+  k,
+  R,
+  n = 1L,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL
+)
 }
 \arguments{
 \item{o}{a PCM model object or a parameter}

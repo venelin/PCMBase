@@ -4,8 +4,15 @@
 \alias{PCMSetAttribute}
 \title{Set an attribute of a named member in a PCM or other named list object}
 \usage{
-PCMSetAttribute(name, value, object, member = "", spec = TRUE,
-  inplace = TRUE, ...)
+PCMSetAttribute(
+  name,
+  value,
+  object,
+  member = "",
+  spec = TRUE,
+  inplace = TRUE,
+  ...
+)
 }
 \arguments{
 \item{name}{a character string denoting the attribute name.}

@@ -4,8 +4,11 @@
 \alias{PCMListMembers}
 \title{A vector of access-code strings to all members of a named list}
 \usage{
-PCMListMembers(l, recursive = TRUE, format = c("$", "$'", "$\\"", "$`",
-  "[['", "[[\\"", "[[`"))
+PCMListMembers(
+  l,
+  recursive = TRUE,
+  format = c("$", "$'", "$\\"", "$`", "[['", "[[\\"", "[[`")
+)
 }
 \arguments{
 \item{l}{a named list object.}

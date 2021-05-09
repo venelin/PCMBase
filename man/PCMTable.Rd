@@ -4,8 +4,12 @@
 \alias{PCMTable}
 \title{A data.table representation of a PCM object}
 \usage{
-PCMTable(model, skipGlobalRegime = FALSE, addTransformed = TRUE,
-  removeUntransformed = TRUE)
+PCMTable(
+  model,
+  skipGlobalRegime = FALSE,
+  addTransformed = TRUE,
+  removeUntransformed = TRUE
+)
 }
 \arguments{
 \item{model}{a PCM object.}

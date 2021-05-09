@@ -4,8 +4,13 @@
 \alias{PCMCond.GaussianPCM}
 \title{Conditional distribution of a daughter node given its parent node}
 \usage{
-\method{PCMCond}{GaussianPCM}(tree, model, r = 1, metaI = PCMInfo(NULL,
-  tree, model, verbose = verbose), verbose = FALSE)
+\method{PCMCond}{GaussianPCM}(
+  tree,
+  model,
+  r = 1,
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}

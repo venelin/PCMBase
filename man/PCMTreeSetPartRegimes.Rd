@@ -4,8 +4,7 @@
 \alias{PCMTreeSetPartRegimes}
 \title{Set regimes for the parts in a tree}
 \usage{
-PCMTreeSetPartRegimes(tree, part.regime, setPartition = FALSE,
-  inplace = TRUE)
+PCMTreeSetPartRegimes(tree, part.regime, setPartition = FALSE, inplace = TRUE)
 }
 \arguments{
 \item{tree}{a PCMTree object.}

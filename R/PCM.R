@@ -79,7 +79,7 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #' will result in tolerating some parameter values resulting in singular variance covariance
 #' matrix of the transition distribution. Default 1e-4.}
 #' \item{\code{PCMBase.Skip.Singular }}{A logical value indicating whether internal branches with
-#' singular matrix V and shorter than \code{getOption("PCMBase.Threshold.Singular.Skip")}
+#' singular matrix V and shorter than \code{getOption("PCMBase.Threshold.Skip.Singular")}
 #'  should be skipped during likelihood calculation, adding their children
 #' L,m,r values to their parent node. Default TRUE. Note, that setting this option to FALSE
 #' may cause some models to stop working, e.g. the White model. Setting this option to FALSE

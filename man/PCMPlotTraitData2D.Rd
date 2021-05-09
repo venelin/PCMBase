@@ -4,12 +4,20 @@
 \alias{PCMPlotTraitData2D}
 \title{Scatter plot of 2-dimensional data}
 \usage{
-PCMPlotTraitData2D(X, tree, sizePoints = 2, alphaPoints = 1,
-  labeledTips = NULL, sizeLabels = 8, nudgeLabels = c(0, 0),
+PCMPlotTraitData2D(
+  X,
+  tree,
+  sizePoints = 2,
+  alphaPoints = 1,
+  labeledTips = NULL,
+  sizeLabels = 8,
+  nudgeLabels = c(0, 0),
   palette = PCMColorPalette(PCMNumRegimes(tree), PCMRegimes(tree)),
-  scaleSizeWithTime = !is.ultrametric(tree), numTimeFacets = if
-  (is.ultrametric(tree) || scaleSizeWithTime) 1L else 3L,
-  nrowTimeFacets = 1L, ncolTimeFacets = numTimeFacets)
+  scaleSizeWithTime = !is.ultrametric(tree),
+  numTimeFacets = if (is.ultrametric(tree) || scaleSizeWithTime) 1L else 3L,
+  nrowTimeFacets = 1L,
+  ncolTimeFacets = numTimeFacets
+)
 }
 \arguments{
 \item{X}{a k x N matrix}

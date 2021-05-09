@@ -4,8 +4,11 @@
 \alias{PCMTableParameterizations}
 \title{Cartesian product of possible parameterizations for the different parameters of a model}
 \usage{
-PCMTableParameterizations(model,
-  listParameterizations = PCMListParameterizations(model, ...), ...)
+PCMTableParameterizations(
+  model,
+  listParameterizations = PCMListParameterizations(model, ...),
+  ...
+)
 }
 \arguments{
 \item{model}{a PCM object.}

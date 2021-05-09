@@ -4,8 +4,13 @@
 \alias{PCMMeanAtTime}
 \title{Calculate the mean at time t, given X0, under a PCM model}
 \usage{
-PCMMeanAtTime(t, model, X0 = model$X0, regime = PCMRegimes(model)[1L],
-  verbose = FALSE)
+PCMMeanAtTime(
+  t,
+  model,
+  X0 = model$X0,
+  regime = PCMRegimes(model)[1L],
+  verbose = FALSE
+)
 }
 \arguments{
 \item{t}{positive numeric denoting time}

@@ -4,8 +4,15 @@
 \alias{PCMParamCount}
 \title{Count the number of free parameters associated with a PCM or a PCM-parameter}
 \usage{
-PCMParamCount(o, countRegimeChanges = FALSE, countModelTypes = FALSE,
-  offset = 0L, k = 1L, R = 1L, parentModel = NULL)
+PCMParamCount(
+  o,
+  countRegimeChanges = FALSE,
+  countModelTypes = FALSE,
+  offset = 0L,
+  k = 1L,
+  R = 1L,
+  parentModel = NULL
+)
 }
 \arguments{
 \item{o}{a PCM model object or a parameter of a PCM object}

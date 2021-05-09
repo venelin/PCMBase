@@ -4,8 +4,11 @@
 \alias{PCMTreeSetLabels}
 \title{Set tip and internal node labels in a tree}
 \usage{
-PCMTreeSetLabels(tree, labels = as.character(1:PCMTreeNumNodes(tree)),
-  inplace = TRUE)
+PCMTreeSetLabels(
+  tree,
+  labels = as.character(1:PCMTreeNumNodes(tree)),
+  inplace = TRUE
+)
 }
 \arguments{
 \item{tree}{a phylo object or a PCMTree object. If this is a PCMTree object,

@@ -4,8 +4,10 @@
 \alias{PCMGenerateModelTypes}
 \title{Generate default model types for given PCM base-classes}
 \usage{
-PCMGenerateModelTypes(baseTypes = list(BM = "default", OU = "default",
-  White = "all"), sourceFile = NULL)
+PCMGenerateModelTypes(
+  baseTypes = list(BM = "default", OU = "default", White = "all"),
+  sourceFile = NULL
+)
 }
 \arguments{
 \item{baseTypes}{a named list with character string elements among

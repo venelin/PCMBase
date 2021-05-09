@@ -4,8 +4,13 @@
 \alias{PCMCond}
 \title{Conditional distribution of a daughter node given its parent node}
 \usage{
-PCMCond(tree, model, r = 1, metaI = PCMInfo(NULL, tree, model, verbose
-  = verbose), verbose = FALSE)
+PCMCond(
+  tree,
+  model,
+  r = 1,
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}

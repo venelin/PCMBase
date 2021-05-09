@@ -4,9 +4,15 @@
 \alias{PCMTreeListCladePartitions}
 \title{A list of all possible clade partitions of a tree with a number of splitting nodes}
 \usage{
-PCMTreeListCladePartitions(tree, nNodes, minCladeSize = 0,
-  skipNodes = character(0), tableAncestors = NULL, countOnly = FALSE,
-  verbose = FALSE)
+PCMTreeListCladePartitions(
+  tree,
+  nNodes,
+  minCladeSize = 0,
+  skipNodes = character(0),
+  tableAncestors = NULL,
+  countOnly = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object}

@@ -4,7 +4,8 @@
 \name{PCMBaseTestObjects}
 \alias{PCMBaseTestObjects}
 \title{Test objects for the PCMBase package}
-\format{This is a list containing the following named elements representing
+\format{
+This is a list containing the following named elements representing
  parameters of BM, OU and MixedGaussian models with up to three traits and
  up to two regimes, model objects, simulated trees with partition of their
  nodes in up to two parts (corresponding to the two regimes), and trait data
@@ -42,7 +43,8 @@
   \item{tree }{a tree of 5 tips used for examples.}
   \item{X }{3-trait data for 5 tips used together with tree for examples. }
   \item{model.OU.BM }{a mixed Gaussian phylogenetic model for 3 traits and an OU and BM regime used in examples. }
-}}
+}
+}
 \usage{
 PCMBaseTestObjects
 }

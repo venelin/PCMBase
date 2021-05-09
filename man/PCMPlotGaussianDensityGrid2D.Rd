@@ -4,8 +4,15 @@
 \alias{PCMPlotGaussianDensityGrid2D}
 \title{A 2D Gaussian distribution density grid in the form of a ggplot object}
 \usage{
-PCMPlotGaussianDensityGrid2D(mu, Sigma, xlim, ylim, xNumPoints = 100,
-  yNumPoints = 100, ...)
+PCMPlotGaussianDensityGrid2D(
+  mu,
+  Sigma,
+  xlim,
+  ylim,
+  xNumPoints = 100,
+  yNumPoints = 100,
+  ...
+)
 }
 \arguments{
 \item{mu}{numerical mean vector of length 2}

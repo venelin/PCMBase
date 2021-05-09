@@ -5,13 +5,19 @@
 \alias{PCMTreeMatrixNodesInSameRegime}
 \title{Which couples from a given set of nodes in a tree belong to the same part?}
 \usage{
-PCMTreeMatrixNodesInSamePart(tree,
-  nodes = seq_len(PCMTreeNumNodes(tree)), upperTriangle = TRUE,
-  returnVector = TRUE)
+PCMTreeMatrixNodesInSamePart(
+  tree,
+  nodes = seq_len(PCMTreeNumNodes(tree)),
+  upperTriangle = TRUE,
+  returnVector = TRUE
+)
 
-PCMTreeMatrixNodesInSameRegime(tree,
-  nodes = seq_len(PCMTreeNumNodes(tree)), upperTriangle = TRUE,
-  returnVector = TRUE)
+PCMTreeMatrixNodesInSameRegime(
+  tree,
+  nodes = seq_len(PCMTreeNumNodes(tree)),
+  upperTriangle = TRUE,
+  returnVector = TRUE
+)
 }
 \arguments{
 \item{tree}{a PCMTree object or a phylo object.}

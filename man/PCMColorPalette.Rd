@@ -4,8 +4,12 @@
 \alias{PCMColorPalette}
 \title{A fixed palette of n colors}
 \usage{
-PCMColorPalette(n, names, colors = structure(hcl(h = seq(15, 375, length
-  = n + 1), l = 65, c = 100)[seq_len(n)], names = names))
+PCMColorPalette(
+  n,
+  names,
+  colors = structure(hcl(h = seq(15, 375, length = n + 1), l = 65, c =
+    100)[seq_len(n)], names = names)
+)
 }
 \arguments{
 \item{n}{an integer defining the number of colors in the resulting palette.}

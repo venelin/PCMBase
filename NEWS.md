@@ -1,11 +1,12 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "16 January, 2019"
+date: "9 May, 2021"
 output: html_document
 ---
 
 # PCMBase 1.2.12 
+- Added function PCMTreeInsertTipsOrSingletons.
 - Added possibility to specify metaI as a character string (function name) rather.
 So far, it was only possible to specify this as a function object or as the list
 resulting from calling the function on the tree, data and PCM model.

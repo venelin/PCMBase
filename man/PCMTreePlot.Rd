@@ -4,8 +4,11 @@
 \alias{PCMTreePlot}
 \title{Plot a tree with parts and regimes assigned to these parts}
 \usage{
-PCMTreePlot(tree, palette = PCMColorPalette(PCMNumRegimes(tree),
-  PCMRegimes(tree)), ...)
+PCMTreePlot(
+  tree,
+  palette = PCMColorPalette(PCMNumRegimes(tree), PCMRegimes(tree)),
+  ...
+)
 }
 \arguments{
 \item{tree}{a PCMTree or a phylo object.}

@@ -4,11 +4,18 @@
 \alias{PCMTrajectory}
 \title{Generate a trajectory for the mean in one regime of a PCM}
 \usage{
-PCMTrajectory(model, regime = PCMRegimes(model)[1], X0 = rep(0,
-  PCMNumTraits(model)), W0 = matrix(0, nrow = PCMNumTraits(model), ncol =
-  PCMNumTraits(model)), tX = seq(0, 100, by = 1), tVar = tX[seq(0,
-  length(tX), length.out = 4)], dims = seq_len(PCMNumTraits(model)),
-  sizeSamp = 100, doPlot2D = FALSE, plot = NULL)
+PCMTrajectory(
+  model,
+  regime = PCMRegimes(model)[1],
+  X0 = rep(0, PCMNumTraits(model)),
+  W0 = matrix(0, nrow = PCMNumTraits(model), ncol = PCMNumTraits(model)),
+  tX = seq(0, 100, by = 1),
+  tVar = tX[seq(0, length(tX), length.out = 4)],
+  dims = seq_len(PCMNumTraits(model)),
+  sizeSamp = 100,
+  doPlot2D = FALSE,
+  plot = NULL
+)
 }
 \arguments{
 \item{model}{a PCM object.}

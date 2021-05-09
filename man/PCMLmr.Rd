@@ -4,10 +4,15 @@
 \alias{PCMLmr}
 \title{Quadratic polynomial parameters L, m, r}
 \usage{
-PCMLmr(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), metaI = PCMInfo(X = X, tree = tree, model =
-  model, SE = SE, verbose = verbose), root.only = TRUE,
-  verbose = FALSE)
+PCMLmr(
+  X,
+  tree,
+  model,
+  SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X = X, tree = tree, model = model, SE = SE, verbose = verbose),
+  root.only = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and

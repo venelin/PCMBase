@@ -4,9 +4,15 @@
 \alias{PCMLikTrace}
 \title{Tracing the log-likelihood calculation of a model over each node of the tree}
 \usage{
-PCMLikTrace(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), metaI = PCMInfo(X = X, tree = tree, model =
-  model, SE = SE, verbose = verbose), log = TRUE, verbose = FALSE)
+PCMLikTrace(
+  X,
+  tree,
+  model,
+  SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X = X, tree = tree, model = model, SE = SE, verbose = verbose),
+  log = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and

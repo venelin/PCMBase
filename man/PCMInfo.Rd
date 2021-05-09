@@ -4,8 +4,15 @@
 \alias{PCMInfo}
 \title{Meta-information about a tree and trait data associated with a PCM}
 \usage{
-PCMInfo(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), verbose = FALSE, preorder = NULL, ...)
+PCMInfo(
+  X,
+  tree,
+  model,
+  SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  verbose = FALSE,
+  preorder = NULL,
+  ...
+)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and

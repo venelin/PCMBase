@@ -4,14 +4,18 @@
 \alias{MixedGaussian}
 \title{Create a multi-regime Gaussian model (MixedGaussian)}
 \usage{
-MixedGaussian(k, modelTypes, mapping,
-  className = paste0("MixedGaussian_", do.call(paste0,
-  as.list(mapping))), X0 = structure(0, class = c("VectorParameter",
-  "_Global"), description = "trait values at the root"), ...,
-  Sigmae_x = structure(0, class = c("MatrixParameter",
-  "_UpperTriangularWithDiagonal", "_WithNonNegativeDiagonal", "_Global"),
-  description =
-  "Upper triangular factor of the non-phylogenetic variance-covariance"))
+MixedGaussian(
+  k,
+  modelTypes,
+  mapping,
+  className = paste0("MixedGaussian_", do.call(paste0, as.list(mapping))),
+  X0 = structure(0, class = c("VectorParameter", "_Global"), description =
+    "trait values at the root"),
+  ...,
+  Sigmae_x = structure(0, class = c("MatrixParameter", "_UpperTriangularWithDiagonal",
+    "_WithNonNegativeDiagonal", "_Global"), description =
+    "Upper triangular factor of the non-phylogenetic variance-covariance")
+)
 }
 \arguments{
 \item{k}{integer specifying the number of traits.}

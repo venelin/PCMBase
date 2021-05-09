@@ -4,9 +4,13 @@
 \alias{PCMAbCdEf}
 \title{Quadratic polynomial parameters A, b, C, d, E, f for each node}
 \usage{
-PCMAbCdEf(tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), metaI = PCMInfo(NULL, tree, model, verbose =
-  verbose), verbose = FALSE)
+PCMAbCdEf(
+  tree,
+  model,
+  SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(NULL, tree, model, verbose = verbose),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object with N tips.}

@@ -4,9 +4,14 @@
 \alias{PCMSim}
 \title{Simulation of a phylogenetic comparative model on a tree}
 \usage{
-PCMSim(tree, model, X0, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), metaI = PCMInfo(X = NULL, tree = tree, model =
-  model, SE = SE, verbose = verbose), verbose = FALSE)
+PCMSim(
+  tree,
+  model,
+  X0,
+  SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X = NULL, tree = tree, model = model, SE = SE, verbose = verbose),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree}{a phylo object specifying a rooted tree.}
