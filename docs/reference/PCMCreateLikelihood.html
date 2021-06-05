@@ -8,21 +8,25 @@
 
 <title>Create a likelihood function of a numerical vector parameter — PCMCreateLikelihood • PCMBase</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +34,11 @@
 
 
 
-<meta property="og:title" content="Create a likelihood function of a numerical vector parameter — PCMCreateLikelihood" />
 
+<meta property="og:title" content="Create a likelihood function of a numerical vector parameter — PCMCreateLikelihood" />
 <meta property="og:description" content="Create a likelihood function of a numerical vector parameter" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -56,6 +61,7 @@
 
   gtag('config', 'UA-129563006-3');
 </script>
+
 
   </head>
 
@@ -113,7 +119,6 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -123,6 +128,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -134,15 +140,18 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Create a likelihood function of a numerical vector parameter</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>PCMCreateLikelihood</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>),
-  <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>metaI</span> <span class='kw'>=</span> <span class='fu'><a href='PCMInfo.html'>PCMInfo</a></span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>),
-  <span class='kw'>positiveValueGuard</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>PCMCreateLikelihood</span>(
+  <span class='no'>X</span>,
+  <span class='no'>tree</span>,
+  <span class='no'>model</span>,
+  <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='PCMNumTraits.html'>PCMNumTraits</a></span>(<span class='no'>model</span>), <span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)),
+  <span class='kw'>metaI</span> <span class='kw'>=</span> <span class='fu'><a href='PCMInfo.html'>PCMInfo</a></span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>),
+  <span class='kw'>positiveValueGuard</span> <span class='kw'>=</span> <span class='fl'>Inf</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -179,17 +188,19 @@ calculated depends on the runtime option <code>PCMBase.Transpose.Sigma_x</code>
 as follows:</p><dl class='dl-horizontal'>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE</code> (default): </dt><dd><p>VE[, , i] &lt;- SE[, , i] %*% t(SE[, , i])</p></dd>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE</code>: </dt><dd><p>VE[, , i] &lt;- t(SE[, , i]) %*% SE[, , i]</p></dd>
+
 </dl><p>Note that the above behavior is consistent with the treatment of the model
 parameters <code>Sigma_x</code>, <code>Sigmae_x</code> and <code>Sigmaj_x</code>, which are
 also specified as upper triangular factors.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
+Default: <code><a href='https://rdrr.io/r/base/matrix.html'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>
       <th>metaI</th>
       <td><p>a list returned from a call to <code><a href='PCMInfo.html'>PCMInfo(X, tree, model, SE)</a></code>,
 containing meta-data such as N, M and k. Alternatively, this can be a
-function object that returns such a list, e.g. the function<code>PCMInfo</code>
-or the function <code>PCMInfoCpp</code> from the <code>PCMBaseCpp</code> package.</p></td>
+character string naming a function or a function object that returns such
+a list, e.g. the function<code>PCMInfo</code> or the function <code>PCMInfoCpp</code>
+from the <code>PCMBaseCpp</code> package.</p></td>
     </tr>
     <tr>
       <th>positiveValueGuard</th>
@@ -199,33 +210,30 @@ this positiveGuard are most likely due to numerical error and
 PCMOptions()$PCMBase.Value.NA is returned instead.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a function of a numerical vector parameter called p returning the
 likelihood of X given the tree and the model with parameter values specified
 by p.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>It is possible to specify a function for the argument metaI. This
 function should have three parameters (X, tree, model) and should return a
 metaInfo object. (see <code><a href='PCMInfo.html'>PCMInfo</a></code>).</p>
-    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-          </ul>
+    </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -233,13 +241,16 @@ metaInfo object. (see <code><a href='PCMInfo.html'>PCMInfo</a></code>).</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

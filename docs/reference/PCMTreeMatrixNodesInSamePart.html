@@ -8,21 +8,25 @@
 
 <title>Which couples from a given set of nodes in a tree belong to the same part? — PCMTreeMatrixNodesInSamePart • PCMBase</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,11 +34,12 @@
 
 
 
-<meta property="og:title" content="Which couples from a given set of nodes in a tree belong to the same part? — PCMTreeMatrixNodesInSamePart" />
 
+<meta property="og:title" content="Which couples from a given set of nodes in a tree belong to the same part? — PCMTreeMatrixNodesInSamePart" />
 <meta property="og:description" content="Which couples from a given set of nodes in a tree belong to the same part?
 Which couples from a given set of nodes in a tree belong to the same regime?" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -57,6 +62,7 @@ Which couples from a given set of nodes in a tree belong to the same regime?" />
 
   gtag('config', 'UA-129563006-3');
 </script>
+
 
   </head>
 
@@ -114,7 +120,6 @@ Which couples from a given set of nodes in a tree belong to the same regime?" />
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -124,6 +129,7 @@ Which couples from a given set of nodes in a tree belong to the same regime?" />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -135,20 +141,24 @@ Which couples from a given set of nodes in a tree belong to the same regime?" />
     </div>
 
     <div class="ref-description">
-    
     <p>Which couples from a given set of nodes in a tree belong to the same part?</p>
 <p>Which couples from a given set of nodes in a tree belong to the same regime?</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>,
-  <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumNodes.html'>PCMTreeNumNodes</a></span>(<span class='no'>tree</span>)), <span class='kw'>upperTriangle</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+    <pre class="usage"><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(
+  <span class='no'>tree</span>,
+  <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumNodes.html'>PCMTreeNumNodes</a></span>(<span class='no'>tree</span>)),
+  <span class='kw'>upperTriangle</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)
 
-<span class='fu'>PCMTreeMatrixNodesInSameRegime</span>(<span class='no'>tree</span>,
-  <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumNodes.html'>PCMTreeNumNodes</a></span>(<span class='no'>tree</span>)), <span class='kw'>upperTriangle</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
-    
+<span class='fu'>PCMTreeMatrixNodesInSameRegime</span>(
+  <span class='no'>tree</span>,
+  <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumNodes.html'>PCMTreeNumNodes</a></span>(<span class='no'>tree</span>)),
+  <span class='kw'>upperTriangle</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -174,7 +184,7 @@ diagonal entries should be set to NA (by default TRUE).</p></td>
 NAs). Default: TRUE</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a L x L logical matrix with TRUE on the diagonal and for each couple
@@ -183,20 +193,19 @@ of tips that belong to the same part or regime. If returnVector is TRUE
 <p>a L x L logical matrix with TRUE on the diagonal and for each couple
 of tips that belong to the same part or regime. If returnVector is TRUE (default)
 only a vector of the non-NA entries will be returned.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>8</span>))
-<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;     1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
-#&gt; 1  NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 2  NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 3  NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 4  NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 5  NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 6  NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 7  NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 8  NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ape/man/rtree.html'>rtree</a></span>(<span class='fl'>8</span>))
+<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    t5   t7   t3   t2   t6   t4   t1   t8    9   10   11   12   13   14   15
+#&gt; t5 NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t7 NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t3 NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t2 NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t6 NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t4 NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t1 NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t8 NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE
 #&gt; 9  NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE
 #&gt; 10 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE
 #&gt; 11 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE
@@ -204,16 +213,16 @@ only a vector of the non-NA entries will be returned.</p>
 #&gt; 13 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE
 #&gt; 14 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE
 #&gt; 15 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA</div><div class='input'>
-<span class='fu'><a href='PCMTreeSetPartition.html'>PCMTreeSetPartition</a></span>(<span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>12</span>))
-<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;     1     2     3     4     5     6     7     8     9    10    11    12    13
-#&gt; 1  NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
-#&gt; 2  NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; 3  NA    NA    NA  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; 4  NA    NA    NA    NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; 5  NA    NA    NA    NA    NA  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-#&gt; 6  NA    NA    NA    NA    NA    NA  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-#&gt; 7  NA    NA    NA    NA    NA    NA    NA  TRUE FALSE  TRUE  TRUE FALSE FALSE
-#&gt; 8  NA    NA    NA    NA    NA    NA    NA    NA FALSE  TRUE  TRUE FALSE FALSE
+<span class='fu'><a href='PCMTreeSetPartition.html'>PCMTreeSetPartition</a></span>(<span class='no'>tree</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>12</span>))
+<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    t5    t7    t3    t2    t6    t4    t1    t8     9    10    11    12    13
+#&gt; t5 NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
+#&gt; t7 NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+#&gt; t3 NA    NA    NA  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+#&gt; t2 NA    NA    NA    NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+#&gt; t6 NA    NA    NA    NA    NA  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
+#&gt; t4 NA    NA    NA    NA    NA    NA  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
+#&gt; t1 NA    NA    NA    NA    NA    NA    NA  TRUE FALSE  TRUE  TRUE FALSE FALSE
+#&gt; t8 NA    NA    NA    NA    NA    NA    NA    NA FALSE  TRUE  TRUE FALSE FALSE
 #&gt; 9  NA    NA    NA    NA    NA    NA    NA    NA    NA FALSE FALSE FALSE FALSE
 #&gt; 10 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA  TRUE FALSE FALSE
 #&gt; 11 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA FALSE FALSE
@@ -222,14 +231,14 @@ only a vector of the non-NA entries will be returned.</p>
 #&gt; 14 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
 #&gt; 15 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
 #&gt;       14    15
-#&gt; 1  FALSE FALSE
-#&gt; 2  FALSE FALSE
-#&gt; 3  FALSE FALSE
-#&gt; 4  FALSE FALSE
-#&gt; 5   TRUE  TRUE
-#&gt; 6   TRUE  TRUE
-#&gt; 7   TRUE  TRUE
-#&gt; 8   TRUE  TRUE
+#&gt; t5 FALSE FALSE
+#&gt; t7 FALSE FALSE
+#&gt; t3 FALSE FALSE
+#&gt; t2 FALSE FALSE
+#&gt; t6  TRUE  TRUE
+#&gt; t4  TRUE  TRUE
+#&gt; t1  TRUE  TRUE
+#&gt; t8  TRUE  TRUE
 #&gt; 9  FALSE FALSE
 #&gt; 10  TRUE  TRUE
 #&gt; 11  TRUE  TRUE
@@ -245,29 +254,29 @@ only a vector of the non-NA entries will be returned.</p>
 #&gt;  [61] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE
 #&gt;  [73] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE
 #&gt;  [85]  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
-#&gt;  [97]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE</div><div class='input'><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)))</div><div class='output co'>#&gt;  [1] FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+#&gt;  [97]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE</div><div class='input'><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)))</div><div class='output co'>#&gt;  [1] FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
 #&gt; [13] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE
 #&gt; [25] FALSE  TRUE  TRUE  TRUE</div><div class='input'><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(
-  <span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    1     2     3     4     5     6     7     8
-#&gt; 1 NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE
-#&gt; 2 NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE
-#&gt; 3 NA    NA    NA  TRUE FALSE FALSE FALSE FALSE
-#&gt; 4 NA    NA    NA    NA FALSE FALSE FALSE FALSE
-#&gt; 5 NA    NA    NA    NA    NA  TRUE  TRUE  TRUE
-#&gt; 6 NA    NA    NA    NA    NA    NA  TRUE  TRUE
-#&gt; 7 NA    NA    NA    NA    NA    NA    NA  TRUE
-#&gt; 8 NA    NA    NA    NA    NA    NA    NA    NA</div><div class='input'>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>8</span>))
-<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;     1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
-#&gt; 1  NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 2  NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 3  NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 4  NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 5  NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 6  NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 7  NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-#&gt; 8  NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+  <span class='no'>tree</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    t5    t7    t3    t2    t6    t4    t1    t8
+#&gt; t5 NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#&gt; t7 NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE
+#&gt; t3 NA    NA    NA  TRUE FALSE FALSE FALSE FALSE
+#&gt; t2 NA    NA    NA    NA FALSE FALSE FALSE FALSE
+#&gt; t6 NA    NA    NA    NA    NA  TRUE  TRUE  TRUE
+#&gt; t4 NA    NA    NA    NA    NA    NA  TRUE  TRUE
+#&gt; t1 NA    NA    NA    NA    NA    NA    NA  TRUE
+#&gt; t8 NA    NA    NA    NA    NA    NA    NA    NA</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ape/man/rtree.html'>rtree</a></span>(<span class='fl'>8</span>))
+<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    t5   t7   t3   t2   t6   t4   t1   t8    9   10   11   12   13   14   15
+#&gt; t5 NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t7 NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t3 NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t2 NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t6 NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t4 NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t1 NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+#&gt; t8 NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE TRUE
 #&gt; 9  NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE TRUE
 #&gt; 10 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE TRUE
 #&gt; 11 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE TRUE TRUE
@@ -275,16 +284,16 @@ only a vector of the non-NA entries will be returned.</p>
 #&gt; 13 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE TRUE
 #&gt; 14 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA TRUE
 #&gt; 15 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA</div><div class='input'>
-<span class='fu'><a href='PCMTreeSetPartition.html'>PCMTreeSetPartition</a></span>(<span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>12</span>))
-<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;     1     2     3     4     5     6     7     8     9    10    11    12    13
-#&gt; 1  NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
-#&gt; 2  NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; 3  NA    NA    NA  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; 4  NA    NA    NA    NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; 5  NA    NA    NA    NA    NA  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-#&gt; 6  NA    NA    NA    NA    NA    NA  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-#&gt; 7  NA    NA    NA    NA    NA    NA    NA  TRUE FALSE  TRUE  TRUE FALSE FALSE
-#&gt; 8  NA    NA    NA    NA    NA    NA    NA    NA FALSE  TRUE  TRUE FALSE FALSE
+<span class='fu'><a href='PCMTreeSetPartition.html'>PCMTreeSetPartition</a></span>(<span class='no'>tree</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>12</span>))
+<span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    t5    t7    t3    t2    t6    t4    t1    t8     9    10    11    12    13
+#&gt; t5 NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
+#&gt; t7 NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+#&gt; t3 NA    NA    NA  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+#&gt; t2 NA    NA    NA    NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
+#&gt; t6 NA    NA    NA    NA    NA  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
+#&gt; t4 NA    NA    NA    NA    NA    NA  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE
+#&gt; t1 NA    NA    NA    NA    NA    NA    NA  TRUE FALSE  TRUE  TRUE FALSE FALSE
+#&gt; t8 NA    NA    NA    NA    NA    NA    NA    NA FALSE  TRUE  TRUE FALSE FALSE
 #&gt; 9  NA    NA    NA    NA    NA    NA    NA    NA    NA FALSE FALSE FALSE FALSE
 #&gt; 10 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA  TRUE FALSE FALSE
 #&gt; 11 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA FALSE FALSE
@@ -293,14 +302,14 @@ only a vector of the non-NA entries will be returned.</p>
 #&gt; 14 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
 #&gt; 15 NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
 #&gt;       14    15
-#&gt; 1  FALSE FALSE
-#&gt; 2  FALSE FALSE
-#&gt; 3  FALSE FALSE
-#&gt; 4  FALSE FALSE
-#&gt; 5   TRUE  TRUE
-#&gt; 6   TRUE  TRUE
-#&gt; 7   TRUE  TRUE
-#&gt; 8   TRUE  TRUE
+#&gt; t5 FALSE FALSE
+#&gt; t7 FALSE FALSE
+#&gt; t3 FALSE FALSE
+#&gt; t2 FALSE FALSE
+#&gt; t6  TRUE  TRUE
+#&gt; t4  TRUE  TRUE
+#&gt; t1  TRUE  TRUE
+#&gt; t8  TRUE  TRUE
 #&gt; 9  FALSE FALSE
 #&gt; 10  TRUE  TRUE
 #&gt; 11  TRUE  TRUE
@@ -316,32 +325,31 @@ only a vector of the non-NA entries will be returned.</p>
 #&gt;  [61] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE
 #&gt;  [73] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE
 #&gt;  [85]  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
-#&gt;  [97]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE</div><div class='input'><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)))</div><div class='output co'>#&gt;  [1] FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+#&gt;  [97]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE</div><div class='input'><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(<span class='no'>tree</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)))</div><div class='output co'>#&gt;  [1] FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
 #&gt; [13] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE
 #&gt; [25] FALSE  TRUE  TRUE  TRUE</div><div class='input'><span class='fu'>PCMTreeMatrixNodesInSamePart</span>(
-  <span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    1     2     3     4     5     6     7     8
-#&gt; 1 NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE
-#&gt; 2 NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE
-#&gt; 3 NA    NA    NA  TRUE FALSE FALSE FALSE FALSE
-#&gt; 4 NA    NA    NA    NA FALSE FALSE FALSE FALSE
-#&gt; 5 NA    NA    NA    NA    NA  TRUE  TRUE  TRUE
-#&gt; 6 NA    NA    NA    NA    NA    NA  TRUE  TRUE
-#&gt; 7 NA    NA    NA    NA    NA    NA    NA  TRUE
-#&gt; 8 NA    NA    NA    NA    NA    NA    NA    NA</div><div class='input'>
+  <span class='no'>tree</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='PCMTreeNumTips.html'>PCMTreeNumTips</a></span>(<span class='no'>tree</span>)), <span class='kw'>returnVector</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt;    t5    t7    t3    t2    t6    t4    t1    t8
+#&gt; t5 NA FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#&gt; t7 NA    NA  TRUE  TRUE FALSE FALSE FALSE FALSE
+#&gt; t3 NA    NA    NA  TRUE FALSE FALSE FALSE FALSE
+#&gt; t2 NA    NA    NA    NA FALSE FALSE FALSE FALSE
+#&gt; t6 NA    NA    NA    NA    NA  TRUE  TRUE  TRUE
+#&gt; t4 NA    NA    NA    NA    NA    NA  TRUE  TRUE
+#&gt; t1 NA    NA    NA    NA    NA    NA    NA  TRUE
+#&gt; t8 NA    NA    NA    NA    NA    NA    NA    NA</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -349,13 +357,16 @@ only a vector of the non-NA entries will be returned.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

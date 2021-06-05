@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The PCMBase Parametrization API • PCMBase</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="The PCMBase Parametrization API">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -85,13 +86,14 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>The PCMBase Parametrization API</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2020-01-22</h4>
+            <h4 class="date">2021-06-05</h4>
       
       
       <div class="hidden name"><code>PCMParam.Rmd</code></div>
@@ -118,9 +120,9 @@
 # You should have received a copy of the GNU General Public License
 # along with PCMBase.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(abind)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(abind)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(PCMBase)</span></code></pre></div>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
@@ -158,17 +160,17 @@
 <h2 class="hasAnchor">
 <a href="#main-type" class="anchor"></a>Main type</h2>
 <p>The main type specifies the mathematical character of the parameter, i.e. as what does the parameter enter in the equations defining the model. The main type S3 class is mandatory and can be one of the following: “ScalarParameter”, “VectorParameter” and “MatrixParameter”. Here’s an example:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">OU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"OU"</span>, <span class="dt">k =</span> <span class="dv">3</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU<span class="op">$</span>X0)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>OU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"OU"</span>, <span class="dt">k =</span> <span class="dv">3</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU<span class="op">$</span>X0)</span></code></pre></div>
 <pre><code>## [1] "VectorParameter" "_Global"         "numeric"</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU<span class="op">$</span>H)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU<span class="op">$</span>H)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter"</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU<span class="op">$</span>Theta)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU<span class="op">$</span>Theta)</span></code></pre></div>
 <pre><code>## [1] "VectorParameter" "matrix"</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU<span class="op">$</span>Sigma_x)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU<span class="op">$</span>Sigma_x)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
 ## [3] "_WithNonNegativeDiagonal"</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU<span class="op">$</span>Sigmae_x)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU<span class="op">$</span>Sigmae_x)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
 ## [3] "_WithNonNegativeDiagonal"</code></pre>
 </div>
@@ -176,26 +178,26 @@
 <h2 class="hasAnchor">
 <a href="#scope" class="anchor"></a>Scope</h2>
 <p>Every parameter can be global, i.e. having the same value for each regime in a model, or local, i.e. having a different value for each regime. A parameter is assumed to be local scope, unless its class attribute includes the class "_Global". For instance, in the above code example, the root trait value <code>X0</code> has a global scope. Another example would be an OU model with a global selection strength, drift and non-heritable variance matrices:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">OU2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">    <span class="st">"OU_"</span>, </a>
-<a class="sourceLine" id="cb12-4" data-line-number="4">    <span class="st">"_Global_X0_"</span>,</a>
-<a class="sourceLine" id="cb12-5" data-line-number="5">    <span class="st">"_Global_H_"</span>,</a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">    <span class="st">"_Theta_"</span>,</a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">    <span class="st">"_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x_"</span>,</a>
-<a class="sourceLine" id="cb12-8" data-line-number="8">    <span class="st">"_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigmae_x"</span>), </a>
-<a class="sourceLine" id="cb12-9" data-line-number="9">  <span class="dt">k =</span> <span class="dv">3</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</a>
-<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU2<span class="op">$</span>X0)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>OU2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(</span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="st">"OU_"</span>, </span>
+<span id="cb12-4"><a href="#cb12-4"></a>    <span class="st">"_Global_X0_"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5"></a>    <span class="st">"_Global_H_"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6"></a>    <span class="st">"_Theta_"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="st">"_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigma_x_"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="st">"_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigmae_x"</span>), </span>
+<span id="cb12-9"><a href="#cb12-9"></a>  <span class="dt">k =</span> <span class="dv">3</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</span>
+<span id="cb12-10"><a href="#cb12-10"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU2<span class="op">$</span>X0)</span></code></pre></div>
 <pre><code>## [1] "VectorParameter" "_Global"         "numeric"</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU2<span class="op">$</span>H)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU2<span class="op">$</span>H)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter" "_Global"         "matrix"</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU2<span class="op">$</span>Theta)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU2<span class="op">$</span>Theta)</span></code></pre></div>
 <pre><code>## [1] "VectorParameter" "matrix"</code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU2<span class="op">$</span>Sigma_x)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU2<span class="op">$</span>Sigma_x)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
 ## [3] "_WithNonNegativeDiagonal"     "_Global"                     
 ## [5] "matrix"</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(OU2<span class="op">$</span>Sigmae_x)</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(OU2<span class="op">$</span>Sigmae_x)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
 ## [3] "_WithNonNegativeDiagonal"     "_Global"                     
 ## [5] "matrix"</code></pre>
@@ -204,61 +206,61 @@
 <h2 class="hasAnchor">
 <a href="#omission" class="anchor"></a>Omission</h2>
 <p>In some cases, a parameter has to be omitted, i.e. not present in a model. For example, if a mixed Gaussian model has a global parameter <span class="math inline">\(\Sigma_{e}\)</span>, then having a local scope parameter <span class="math inline">\(\Sigma_{e}\)</span> for each regime represents a non-identifiable case, i.e. infinitely many different combinations of values for the global and local scope <span class="math inline">\(\Sigma_{e}\)</span> parameters would fit equally well to the data. To prevent this, it is possible to specify that the local parameter <span class="math inline">\(\Sigma_{e}\)</span> should be omitted from each regime. This is done by including "_Omitted" in the class attribute of the parameter. Here is an example:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">BMOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(</a>
-<a class="sourceLine" id="cb22-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">3</span>, </a>
-<a class="sourceLine" id="cb22-3" data-line-number="3">  <span class="dt">modelTypes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4">    <span class="st">"BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>,</a>
-<a class="sourceLine" id="cb22-5" data-line-number="5">    <span class="st">"OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>),</a>
-<a class="sourceLine" id="cb22-6" data-line-number="6">  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">a =</span> <span class="dv">1</span>, <span class="dt">b =</span> <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb22-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb22-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(BMOU<span class="op">$</span>X0)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>BMOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(</span>
+<span id="cb22-2"><a href="#cb22-2"></a>  <span class="dt">k =</span> <span class="dv">3</span>, </span>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="dt">modelTypes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(</span>
+<span id="cb22-4"><a href="#cb22-4"></a>    <span class="st">"BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>,</span>
+<span id="cb22-5"><a href="#cb22-5"></a>    <span class="st">"OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>),</span>
+<span id="cb22-6"><a href="#cb22-6"></a>  <span class="dt">mapping =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">a =</span> <span class="dv">1</span>, <span class="dt">b =</span> <span class="dv">2</span>))</span>
+<span id="cb22-7"><a href="#cb22-7"></a></span>
+<span id="cb22-8"><a href="#cb22-8"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(BMOU<span class="op">$</span>X0)</span></code></pre></div>
 <pre><code>## [1] "VectorParameter" "_Global"         "numeric"</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(BMOU<span class="op">$</span>Sigmae_x)</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(BMOU<span class="op">$</span>Sigmae_x)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
 ## [3] "_WithNonNegativeDiagonal"     "_Global"                     
 ## [5] "matrix"</code></pre>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="co"># There are no X0 and Sigmae_x parameters for the regimes because they are omitted:</span></a>
-<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(BMOU<span class="op">$</span>a)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># There are no X0 and Sigmae_x parameters for the regimes because they are omitted:</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(BMOU<span class="op">$</span>a)</span></code></pre></div>
 <pre><code>## [1] "Sigma_x"</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(BMOU<span class="op">$</span>b)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(BMOU<span class="op">$</span>b)</span></code></pre></div>
 <pre><code>## [1] "H"       "Theta"   "Sigma_x"</code></pre>
 </div>
 <div id="constancy" class="section level2">
 <h2 class="hasAnchor">
 <a href="#constancy" class="anchor"></a>Constancy</h2>
 <p>In some cases, a parameter will have a known and fixed value. Constant classes include: "_Fixed“,”_Ones“,”_Zeros“,”_Identity". For example, in a mixed Gaussian model, we can specify a fixed value for the global parameter <code>Sigmae_x</code>:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1">BMOU2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(</a>
-<a class="sourceLine" id="cb30-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">3</span>, </a>
-<a class="sourceLine" id="cb30-3" data-line-number="3">  <span class="dt">modelTypes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
-<a class="sourceLine" id="cb30-4" data-line-number="4">    <span class="st">"BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>,</a>
-<a class="sourceLine" id="cb30-5" data-line-number="5">    <span class="st">"OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>),</a>
-<a class="sourceLine" id="cb30-6" data-line-number="6">  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">a =</span> <span class="dv">1</span>, <span class="dt">b =</span> <span class="dv">2</span>), </a>
-<a class="sourceLine" id="cb30-7" data-line-number="7">  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="dv">0</span>, </a>
-<a class="sourceLine" id="cb30-8" data-line-number="8">    <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>,</a>
-<a class="sourceLine" id="cb30-9" data-line-number="9">              <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Fixed"</span>, <span class="st">"_Global"</span>),</a>
-<a class="sourceLine" id="cb30-10" data-line-number="10">    <span class="dt">description =</span></a>
-<a class="sourceLine" id="cb30-11" data-line-number="11">      <span class="st">"A fixed upper triangular factor of the non-phylogenetic variance-covariance"</span>))</a>
-<a class="sourceLine" id="cb30-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb30-13" data-line-number="13">BMOU2<span class="op">$</span>Sigmae_x[] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(</a>
-<a class="sourceLine" id="cb30-14" data-line-number="14">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.5</span>, <span class="fl">0.02</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb30-15" data-line-number="15">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="fl">0.01</span>),</a>
-<a class="sourceLine" id="cb30-16" data-line-number="16">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.1</span>))</a>
-<a class="sourceLine" id="cb30-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb30-18" data-line-number="18"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(BMOU2<span class="op">$</span>X0)</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>BMOU2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MixedGaussian.html">MixedGaussian</a></span>(</span>
+<span id="cb30-2"><a href="#cb30-2"></a>  <span class="dt">k =</span> <span class="dv">3</span>, </span>
+<span id="cb30-3"><a href="#cb30-3"></a>  <span class="dt">modelTypes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(</span>
+<span id="cb30-4"><a href="#cb30-4"></a>    <span class="st">"BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>,</span>
+<span id="cb30-5"><a href="#cb30-5"></a>    <span class="st">"OU__Omitted_X0__H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span>),</span>
+<span id="cb30-6"><a href="#cb30-6"></a>  <span class="dt">mapping =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">a =</span> <span class="dv">1</span>, <span class="dt">b =</span> <span class="dv">2</span>), </span>
+<span id="cb30-7"><a href="#cb30-7"></a>  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(<span class="dv">0</span>, </span>
+<span id="cb30-8"><a href="#cb30-8"></a>    <span class="dt">class =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MatrixParameter"</span>,</span>
+<span id="cb30-9"><a href="#cb30-9"></a>              <span class="st">"_UpperTriangularWithDiagonal"</span>, <span class="st">"_WithNonNegativeDiagonal"</span>, <span class="st">"_Fixed"</span>, <span class="st">"_Global"</span>),</span>
+<span id="cb30-10"><a href="#cb30-10"></a>    <span class="dt">description =</span></span>
+<span id="cb30-11"><a href="#cb30-11"></a>      <span class="st">"A fixed upper triangular factor of the non-phylogenetic variance-covariance"</span>))</span>
+<span id="cb30-12"><a href="#cb30-12"></a></span>
+<span id="cb30-13"><a href="#cb30-13"></a>BMOU2<span class="op">$</span>Sigmae_x[] &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(</span>
+<span id="cb30-14"><a href="#cb30-14"></a>    <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>, <span class="fl">0.02</span>, <span class="dv">0</span>),</span>
+<span id="cb30-15"><a href="#cb30-15"></a>    <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="fl">0.01</span>),</span>
+<span id="cb30-16"><a href="#cb30-16"></a>    <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.1</span>))</span>
+<span id="cb30-17"><a href="#cb30-17"></a></span>
+<span id="cb30-18"><a href="#cb30-18"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(BMOU2<span class="op">$</span>X0)</span></code></pre></div>
 <pre><code>## [1] "VectorParameter" "_Global"         "numeric"</code></pre>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(BMOU2<span class="op">$</span>Sigmae_x)</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(BMOU2<span class="op">$</span>Sigmae_x)</span></code></pre></div>
 <pre><code>## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
 ## [3] "_WithNonNegativeDiagonal"     "_Fixed"                      
 ## [5] "_Global"                      "matrix"</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="co"># There are no X0 and Sigmae_x parameters for the regimes because they are omitted:</span></a>
-<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(BMOU2<span class="op">$</span>a)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># There are no X0 and Sigmae_x parameters for the regimes because they are omitted:</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(BMOU2<span class="op">$</span>a)</span></code></pre></div>
 <pre><code>## [1] "Sigma_x"</code></pre>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(BMOU2<span class="op">$</span>b)</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(BMOU2<span class="op">$</span>b)</span></code></pre></div>
 <pre><code>## [1] "H"       "Theta"   "Sigma_x"</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="co"># Notice that the BMOU model created in the previous example has more parameters than BMOU2:</span></a>
-<a class="sourceLine" id="cb38-2" data-line-number="2"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(BMOU)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="co"># Notice that the BMOU model created in the previous example has more parameters than BMOU2:</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(BMOU)</span></code></pre></div>
 <pre><code>## [1] 33</code></pre>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(BMOU2)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(BMOU2)</span></code></pre></div>
 <pre><code>## [1] 27</code></pre>
 </div>
 <div id="transformation" class="section level2">
@@ -271,14 +273,14 @@
 <h3 class="hasAnchor">
 <a href="#choleskyfactor" class="anchor"></a>_CholeskyFactor</h3>
 <p>If a matrix parameter <span class="math inline">\(\mathbf{S}\)</span> has the classes "_CholeskyFactor" and "_Transformable“, it will be transformed as <span class="math inline">\(\mathbf{S}^{T}\mathbf{S}\)</span>. Note that this is analogical but not equivalent to the transformation <span class="math inline">\(\mathbf{S}\mathbf{S}^T\)</span>, which is the default for the parameters <code>Sigma_x</code> (see above). The transformed parameter will have classes”_SemiPositiveDefinite" and "_Transformed":</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1">M &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
-<a class="sourceLine" id="cb42-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>),</a>
-<a class="sourceLine" id="cb42-3" data-line-number="3">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>),</a>
-<a class="sourceLine" id="cb42-4" data-line-number="4">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">1.02</span>)),</a>
-<a class="sourceLine" id="cb42-5" data-line-number="5">  <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_CholeskyFactor"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</a>
-<a class="sourceLine" id="cb42-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb42-7" data-line-number="7">Mtransf &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(M)</a>
-<a class="sourceLine" id="cb42-8" data-line-number="8">Mtransf</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>M &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(</span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>),</span>
+<span id="cb42-3"><a href="#cb42-3"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>),</span>
+<span id="cb42-4"><a href="#cb42-4"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">1.02</span>)),</span>
+<span id="cb42-5"><a href="#cb42-5"></a>  <span class="dt">class =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_CholeskyFactor"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</span>
+<span id="cb42-6"><a href="#cb42-6"></a></span>
+<span id="cb42-7"><a href="#cb42-7"></a>Mtransf &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(M)</span>
+<span id="cb42-8"><a href="#cb42-8"></a>Mtransf</span></code></pre></div>
 <pre><code>##      [,1]  [,2]   [,3]
 ## [1,] 0.04 0.100 0.2400
 ## [2,] 0.10 0.260 0.6020
@@ -298,51 +300,51 @@
 <p>Then, <span class="math inline">\(\mathbf{H}\)</span> is obtained from <span class="math inline">\(\mathbf{Q}\)</span> and <span class="math inline">\(\mathbf{T}\)</span> as follows <span class="citation">(Clavel, Escarguel, and Merceron 2015)</span>: <span class="math display">\[
 \mathbf{H}=\mathbf{Q}\mathbf{T}^{T}\mathbf{Q}^{T}
 \]</span> The matrix <span class="math inline">\(\mathbf{H}\)</span> calculated in this way has all of its eigenvalues equal to the elements on the diagonal of <span class="math inline">\(\mathbf{H}_{S}\)</span> <span class="citation">(Clavel, Escarguel, and Merceron 2015)</span>. Thus, by restricting the diagonal of <span class="math inline">\(\mathbf{H}_{S}\)</span> to non-negative or strictly positive values, we guarantee that <span class="math inline">\(\mathbf{H}\)</span> will have all of its eigenvalues non-negative or strictly positive (hence, guaranteeing semi- or strict positive definiteness). Further, if <span class="math inline">\(\mathbf{H}_{S}\)</span> is diagonal, then so is the matrix <span class="math inline">\(\mathbf{H}\)</span>; if <span class="math inline">\(\mathbf{H}_{S}\)</span> is upper triangular, then <span class="math inline">\(\mathbf{T}\)</span> is diagonal and the resulting matrix <span class="math inline">\(\mathbf{H}\)</span> is symmetric. Finally, if <span class="math inline">\(\mathbf{H}_{S}\)</span> is neither diagonal nor triangular, then the resulting matrix <span class="math inline">\(\mathbf{H}\)</span> is asymmetric. Here is an example:</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="co"># Diagonal</span></a>
-<a class="sourceLine" id="cb44-2" data-line-number="2">Hs1 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
-<a class="sourceLine" id="cb44-3" data-line-number="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.2</span>, <span class="dv">0</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb44-4" data-line-number="4">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb44-5" data-line-number="5">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">1.02</span>)),</a>
-<a class="sourceLine" id="cb44-6" data-line-number="6">  <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Schur"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</a>
-<a class="sourceLine" id="cb44-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb44-8" data-line-number="8"><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs1)</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="co"># Diagonal</span></span>
+<span id="cb44-2"><a href="#cb44-2"></a>Hs1 &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(</span>
+<span id="cb44-3"><a href="#cb44-3"></a>  <span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.2</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb44-4"><a href="#cb44-4"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb44-5"><a href="#cb44-5"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">1.02</span>)),</span>
+<span id="cb44-6"><a href="#cb44-6"></a>  <span class="dt">class =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Schur"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</span>
+<span id="cb44-7"><a href="#cb44-7"></a></span>
+<span id="cb44-8"><a href="#cb44-8"></a><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs1)</span></code></pre></div>
 <pre><code>##      [,1] [,2] [,3]
 ## [1,]  0.2    0 0.00
 ## [2,]  0.0    0 0.00
 ## [3,]  0.0    0 1.02
 ## attr(,"class")
 ## [1] "MatrixParameter" "_Global"         "_Transformed"    "matrix"</code></pre>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="co"># Symmetric positive definite with eigenvalues 1.02, 0.1 and 0.02</span></a>
-<a class="sourceLine" id="cb46-2" data-line-number="2">Hs2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
-<a class="sourceLine" id="cb46-3" data-line-number="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>),</a>
-<a class="sourceLine" id="cb46-4" data-line-number="4">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>),</a>
-<a class="sourceLine" id="cb46-5" data-line-number="5">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.02</span>)),</a>
-<a class="sourceLine" id="cb46-6" data-line-number="6">  <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Schur"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</a>
-<a class="sourceLine" id="cb46-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb46-8" data-line-number="8"><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs2)</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="co"># Symmetric positive definite with eigenvalues 1.02, 0.1 and 0.02</span></span>
+<span id="cb46-2"><a href="#cb46-2"></a>Hs2 &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(</span>
+<span id="cb46-3"><a href="#cb46-3"></a>  <span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>),</span>
+<span id="cb46-4"><a href="#cb46-4"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>),</span>
+<span id="cb46-5"><a href="#cb46-5"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.02</span>)),</span>
+<span id="cb46-6"><a href="#cb46-6"></a>  <span class="dt">class =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Schur"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</span>
+<span id="cb46-7"><a href="#cb46-7"></a></span>
+<span id="cb46-8"><a href="#cb46-8"></a><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs2)</span></code></pre></div>
 <pre><code>##             [,1]        [,2]       [,3]
 ## [1,]  0.34835909 -0.08866649 -0.4527552
 ## [2,] -0.08866649  0.13163579  0.1593944
 ## [3,] -0.45275522  0.15939438  0.6600051
 ## attr(,"class")
 ## [1] "MatrixParameter" "_Global"         "_Transformed"    "matrix"</code></pre>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eigen">eigen</a></span>(<span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs2))<span class="op">$</span>values</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="kw"><a href="https://rdrr.io/r/base/eigen.html">eigen</a></span>(<span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs2))<span class="op">$</span>values</span></code></pre></div>
 <pre><code>## [1] 1.02 0.10 0.02</code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="co"># Asymmetric positive definite with eigenvalues 1.02, 0.1 and 0.02</span></a>
-<a class="sourceLine" id="cb50-2" data-line-number="2">Hs3 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
-<a class="sourceLine" id="cb50-3" data-line-number="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>),</a>
-<a class="sourceLine" id="cb50-4" data-line-number="4">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>),</a>
-<a class="sourceLine" id="cb50-5" data-line-number="5">        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>)),</a>
-<a class="sourceLine" id="cb50-6" data-line-number="6">  <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Schur"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</a>
-<a class="sourceLine" id="cb50-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb50-8" data-line-number="8"><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs3)</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="co"># Asymmetric positive definite with eigenvalues 1.02, 0.1 and 0.02</span></span>
+<span id="cb50-2"><a href="#cb50-2"></a>Hs3 &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(</span>
+<span id="cb50-3"><a href="#cb50-3"></a>  <span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>),</span>
+<span id="cb50-4"><a href="#cb50-4"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>),</span>
+<span id="cb50-5"><a href="#cb50-5"></a>        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.1</span>, <span class="fl">0.02</span>)),</span>
+<span id="cb50-6"><a href="#cb50-6"></a>  <span class="dt">class =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Schur"</span>, <span class="st">"_Transformable"</span>, <span class="st">"_Global"</span>))</span>
+<span id="cb50-7"><a href="#cb50-7"></a></span>
+<span id="cb50-8"><a href="#cb50-8"></a><span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs3)</span></code></pre></div>
 <pre><code>##            [,1]       [,2]       [,3]
 ## [1,]  0.7527670 -0.1047998 -0.1627623
 ## [2,] -0.1511891  0.1103937  0.1204947
 ## [3,] -0.9906014  0.1707989  0.2768393
 ## attr(,"class")
 ## [1] "MatrixParameter" "_Global"         "_Transformed"    "matrix"</code></pre>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eigen">eigen</a></span>(<span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs3))<span class="op">$</span>values</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="kw"><a href="https://rdrr.io/r/base/eigen.html">eigen</a></span>(<span class="kw"><a href="../reference/PCMApplyTransformation.html">PCMApplyTransformation</a></span>(Hs3))<span class="op">$</span>values</span></code></pre></div>
 <pre><code>## [1] 1.02 0.10 0.02</code></pre>
 </div>
 </div>
@@ -356,13 +358,13 @@
 <h1 class="hasAnchor">
 <a href="#generating-model-parametrizations" class="anchor"></a>Generating model parametrizations</h1>
 <p>It can be helpful to examine the structure of a 3-regime bivariate BM model:</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1">modelObject &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM"</span>, <span class="dt">k =</span> 2L, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>))</a>
-<a class="sourceLine" id="cb54-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb54-3" data-line-number="3"><span class="co"># let's assign some values to the model parameters:</span></a>
-<a class="sourceLine" id="cb54-4" data-line-number="4">vec &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject))</a>
-<a class="sourceLine" id="cb54-5" data-line-number="5"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObject, vec, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>modelObject &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(<span class="st">"BM"</span>, <span class="dt">k =</span> 2L, <span class="dt">regimes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>))</span>
+<span id="cb54-2"><a href="#cb54-2"></a></span>
+<span id="cb54-3"><a href="#cb54-3"></a><span class="co"># let's assign some values to the model parameters:</span></span>
+<span id="cb54-4"><a href="#cb54-4"></a>vec &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject))</span>
+<span id="cb54-5"><a href="#cb54-5"></a><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObject, vec, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>## [1] 20</code></pre>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(modelObject)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(modelObject)</span></code></pre></div>
 <pre><code>## List of 3
 ##  $ X0      : 'VectorParameter' num [1:2] 1 2
 ##   ..- attr(*, "description")= chr "trait values at the root"
@@ -395,10 +397,10 @@
 ##  - attr(*, "modelTypes")= chr "BM"
 ##  - attr(*, "mapping")= int 1</code></pre>
 <p>Now let’s print the model parameters as a table:</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">digits =</span> <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb58-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(</a>
-<a class="sourceLine" id="cb58-3" data-line-number="3">  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(modelObject, <span class="dt">addTransformed =</span> <span class="ot">FALSE</span>, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), </a>
-<a class="sourceLine" id="cb58-4" data-line-number="4">  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">'html'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">digits =</span> <span class="dv">1</span>)</span>
+<span id="cb58-2"><a href="#cb58-2"></a><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(</span>
+<span id="cb58-3"><a href="#cb58-3"></a>  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(modelObject, <span class="dt">addTransformed =</span> <span class="ot">FALSE</span>, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), </span>
+<span id="cb58-4"><a href="#cb58-4"></a>  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">'html'</span>)</span></code></pre></div>
 <table class="table">
 <tr>
 <th>
@@ -419,7 +421,7 @@ regime
 :global:
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.0 \\ 2.0 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 </td>
@@ -433,10 +435,10 @@ a
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 3 &amp; 4 \\ 0 &amp; 5 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 3.0 &amp; 4.0 \\ 0.0 &amp; 5.0 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 12 &amp; 13 \\ 0 &amp; 14 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 12.0 &amp; 13.0 \\ 0.0 &amp; 14.0 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -446,10 +448,10 @@ b
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 6 &amp; 7 \\ 0 &amp; 8 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 6.0 &amp; 7.0 \\ 0.0 &amp; 8.0 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 15 &amp; 16 \\ 0 &amp; 17 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 15.0 &amp; 16.0 \\ 0.0 &amp; 17.0 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -459,15 +461,15 @@ c
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 9 &amp; 10 \\ 0 &amp; 11 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 9.0 &amp; 10.0 \\ 0.0 &amp; 11.0 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 18 &amp; 19 \\ 0 &amp; 20 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 18.0 &amp; 19.0 \\ 0.0 &amp; 20.0 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 </table>
 <p>We notice that the parameter <span class="math inline">\(\Sigma_{e,x}\)</span> is local for each regime in the model. In the context of a biological application, it can be more appropriate to assume that this parameter is shared by all regimes. Moreover, in many cases, e.g. when testing hypotheses about the presence of correlation between the traits, it can be necessary to assume that the matrices <span class="math inline">\(\Sigma_{x}\)</span> and <span class="math inline">\(\Sigma_{e,x}\)</span> are diagonal, meaning that the model assumes trait independence. Biologically, that would mean that any correlation between the traits originates from genetic (not environmental) factors. To specify such a scenario, first, we look at the list of available BM model types.</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="kw"><a href="../reference/PCMModels.html">PCMModels</a></span>(<span class="dt">parentClass =</span> <span class="st">"BM"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="kw"><a href="../reference/PCMModels.html">PCMModels</a></span>(<span class="dt">parentClass =</span> <span class="st">"BM"</span>)</span></code></pre></div>
 <pre><code>##  [1] "BM"                                                                                                                                              
 ##  [2] "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"                                                                       
 ##  [3] "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                    
@@ -488,7 +490,7 @@ c
 ## [18] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigmae_x"
 ## [19] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigmae_x"</code></pre>
 <p>We notice that the above list does not contain a BM model type with a global diagonal parameter <code>Sigmae_x</code>. This means that the S3 methods for such a model parametrization have not yet been generated and loaded. The function <code>PCMListParameterizations</code> returns a named list, where each named element is a list of the possible S3 class assignments for the corresponding parameter. So, let’s see what are the available S3 classes for the parameter <code>Sigmae_x</code> of a BM model:</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" data-line-number="1"><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>))<span class="op">$</span>Sigmae_x</a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>))<span class="op">$</span>Sigmae_x</span></code></pre></div>
 <pre><code>## [[1]]
 ## [1] "MatrixParameter"              "_UpperTriangularWithDiagonal"
 ## [3] "_WithNonNegativeDiagonal"    
@@ -516,16 +518,16 @@ c
 ## [[7]]
 ## [1] "MatrixParameter" "_Omitted"</code></pre>
 <p>We notice that, for <code>Sigmae_x</code>, the 5th element above contains "_Diagonal" and "_Global" in the list of S3-classes. We proceed to generate all BM parametrizations with this S3-class assignment for the parameter <code>Sigmae_x</code>.</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1"><span class="co"># 1. Filter the list of parametrizations to avoid generating too many S3 methods.</span></a>
-<a class="sourceLine" id="cb63-2" data-line-number="2"><span class="co"># (note that we could do the same type of filtering for the other parameters).</span></a>
-<a class="sourceLine" id="cb63-3" data-line-number="3">listParameterizationsBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>))</a>
-<a class="sourceLine" id="cb63-4" data-line-number="4">listParameterizationsBM<span class="op">$</span>Sigmae_x &lt;-<span class="st"> </span>listParameterizationsBM<span class="op">$</span>Sigmae_x[<span class="dv">5</span>]</a>
-<a class="sourceLine" id="cb63-5" data-line-number="5">  </a>
-<a class="sourceLine" id="cb63-6" data-line-number="6"><span class="co"># 2. Generate a table of parametrizations for this list:</span></a>
-<a class="sourceLine" id="cb63-7" data-line-number="7">dtParameterizations &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTableParameterizations.html">PCMTableParameterizations</a></span>(</a>
-<a class="sourceLine" id="cb63-8" data-line-number="8">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>), <span class="dt">listParameterizations =</span> listParameterizationsBM)</a>
-<a class="sourceLine" id="cb63-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb63-10" data-line-number="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(dtParameterizations)</a></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="co"># 1. Filter the list of parametrizations to avoid generating too many S3 methods.</span></span>
+<span id="cb63-2"><a href="#cb63-2"></a><span class="co"># (note that we could do the same type of filtering for the other parameters).</span></span>
+<span id="cb63-3"><a href="#cb63-3"></a>listParameterizationsBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMListParameterizations.html">PCMListParameterizations</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>))</span>
+<span id="cb63-4"><a href="#cb63-4"></a>listParameterizationsBM<span class="op">$</span>Sigmae_x &lt;-<span class="st"> </span>listParameterizationsBM<span class="op">$</span>Sigmae_x[<span class="dv">5</span>]</span>
+<span id="cb63-5"><a href="#cb63-5"></a>  </span>
+<span id="cb63-6"><a href="#cb63-6"></a><span class="co"># 2. Generate a table of parametrizations for this list:</span></span>
+<span id="cb63-7"><a href="#cb63-7"></a>dtParameterizations &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMTableParameterizations.html">PCMTableParameterizations</a></span>(</span>
+<span id="cb63-8"><a href="#cb63-8"></a>  <span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>), <span class="dt">listParameterizations =</span> listParameterizationsBM)</span>
+<span id="cb63-9"><a href="#cb63-9"></a></span>
+<span id="cb63-10"><a href="#cb63-10"></a><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(dtParameterizations)</span></code></pre></div>
 <pre><code>##                                    X0
 ##  1:           VectorParameter,_Global
 ##  2:    VectorParameter,_Fixed,_Global
@@ -565,12 +567,12 @@ c
 ## 10: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
 ## 11: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global
 ## 12: MatrixParameter,_Diagonal,_WithNonNegativeDiagonal,_Global</code></pre>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1"><span class="co"># 3. Generate the parametrizations (optionally, we could select a subset of the</span></a>
-<a class="sourceLine" id="cb65-2" data-line-number="2"><span class="co"># rows in the data.table)</span></a>
-<a class="sourceLine" id="cb65-3" data-line-number="3"><span class="kw"><a href="../reference/PCMGenerateParameterizations.html">PCMGenerateParameterizations</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>), </a>
-<a class="sourceLine" id="cb65-4" data-line-number="4">                             <span class="dt">tableParameterizations =</span> dtParameterizations[])</a></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="co"># 3. Generate the parametrizations (optionally, we could select a subset of the</span></span>
+<span id="cb65-2"><a href="#cb65-2"></a><span class="co"># rows in the data.table)</span></span>
+<span id="cb65-3"><a href="#cb65-3"></a><span class="kw"><a href="../reference/PCMGenerateParameterizations.html">PCMGenerateParameterizations</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/structure.html">structure</a></span>(<span class="fl">0.0</span>, <span class="dt">class=</span><span class="st">"BM"</span>), </span>
+<span id="cb65-4"><a href="#cb65-4"></a>                             <span class="dt">tableParameterizations =</span> dtParameterizations[])</span></code></pre></div>
 <p>Now the list of BM-models contains the generated model types with a diagonal <code>Sigma_x</code> and a global diagonal <code>Sigmae_x</code>:</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" data-line-number="1"><span class="kw"><a href="../reference/PCMModels.html">PCMModels</a></span>(<span class="st">"BM"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a><span class="kw"><a href="../reference/PCMModels.html">PCMModels</a></span>(<span class="st">"BM"</span>)</span></code></pre></div>
 <pre><code>##  [1] "BM"                                                                                                                                              
 ##  [2] "BM__AllEqual_Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                              
 ##  [3] "BM__AllEqual_Global_X0__ScalarDiagonal_WithNonNegativeDiagonal_Sigma_x__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"                        
@@ -603,19 +605,19 @@ c
 ## [30] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Global_Sigmae_x"
 ## [31] "BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigmae_x"       
 ## [32] "BM_drift"</code></pre>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" data-line-number="1">BMModelGlobalSigmae &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(</a>
-<a class="sourceLine" id="cb68-2" data-line-number="2">  <span class="st">"BM"</span> , </a>
-<a class="sourceLine" id="cb68-3" data-line-number="3">  <span class="st">"__Global_X0"</span>, </a>
-<a class="sourceLine" id="cb68-4" data-line-number="4">  <span class="st">"__Diagonal_WithNonNegativeDiagonal_Sigma_x"</span>, </a>
-<a class="sourceLine" id="cb68-5" data-line-number="5">  <span class="st">"__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"</span>)</a>
-<a class="sourceLine" id="cb68-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb68-7" data-line-number="7">modelObject2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(BMModelGlobalSigmae, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>))</a>
-<a class="sourceLine" id="cb68-8" data-line-number="8">vec &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject2))</a>
-<a class="sourceLine" id="cb68-9" data-line-number="9"><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObject2, vec, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</a></code></pre></div>
-<p>[1]10</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(</a>
-<a class="sourceLine" id="cb69-2" data-line-number="2">  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(modelObject2, <span class="dt">addTransformed =</span> <span class="ot">FALSE</span>, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), </a>
-<a class="sourceLine" id="cb69-3" data-line-number="3">  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">'html'</span>)                 </a></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>BMModelGlobalSigmae &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(</span>
+<span id="cb68-2"><a href="#cb68-2"></a>  <span class="st">"BM"</span> , </span>
+<span id="cb68-3"><a href="#cb68-3"></a>  <span class="st">"__Global_X0"</span>, </span>
+<span id="cb68-4"><a href="#cb68-4"></a>  <span class="st">"__Diagonal_WithNonNegativeDiagonal_Sigma_x"</span>, </span>
+<span id="cb68-5"><a href="#cb68-5"></a>  <span class="st">"__Diagonal_WithNonNegativeDiagonal_Global_Sigmae_x"</span>)</span>
+<span id="cb68-6"><a href="#cb68-6"></a></span>
+<span id="cb68-7"><a href="#cb68-7"></a>modelObject2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCM.html">PCM</a></span>(BMModelGlobalSigmae, <span class="dt">k =</span> <span class="dv">2</span>, <span class="dt">regimes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>))</span>
+<span id="cb68-8"><a href="#cb68-8"></a>vec &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(<span class="kw"><a href="../reference/PCMParamCount.html">PCMParamCount</a></span>(modelObject2))</span>
+<span id="cb68-9"><a href="#cb68-9"></a><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelObject2, vec, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+<p>[1] 10</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(</span>
+<span id="cb69-2"><a href="#cb69-2"></a>  <span class="kw"><a href="../reference/PCMTable.html">PCMTable</a></span>(modelObject2, <span class="dt">addTransformed =</span> <span class="ot">FALSE</span>, <span class="dt">removeUntransformed =</span> <span class="ot">FALSE</span>), </span>
+<span id="cb69-3"><a href="#cb69-3"></a>  <span class="dt">xtable =</span> <span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">'html'</span>)                 </span></code></pre></div>
 <table class="table">
 <tr>
 <th>
@@ -636,10 +638,10 @@ regime
 :global:
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 1 \\ 2 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 1.0 \\ 2.0 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 9 &amp; 0 \\ 0 &amp; 10 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 9.0 &amp; 0.0 \\ 0.0 &amp; 10.0 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 </td>
@@ -653,7 +655,7 @@ a
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 3 &amp; 0 \\ 0 &amp; 4 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 3.0 &amp; 0.0 \\ 0.0 &amp; 4.0 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -665,7 +667,7 @@ b
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 5 &amp; 0 \\ 0 &amp; 6 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 5.0 &amp; 0.0 \\ 0.0 &amp; 6.0 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -677,7 +679,7 @@ c
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 7 &amp; 0 \\ 0 &amp; 8 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 7.0 &amp; 0.0 \\ 0.0 &amp; 8.0 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 </table>
@@ -700,6 +702,7 @@ c
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -725,17 +728,20 @@ c
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Venelin Mitov.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

@@ -13,19 +13,37 @@
     <loc>http://venelin.github.io/PCMBase/reference/Args_MixedGaussian_MGPMSurfaceOUType.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/as.MixedGaussian.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/dataFig3.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/FormatCellAsLatex.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/FormatTableAsLatex.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/is.GaussianPCM.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/is.MixedGaussian.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/is.PCM.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/is.PCMTree.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/MatchListMembers.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/MGPMScalarOUType.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/MGPMSurfaceOUType.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/MatchListMembers.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/MixedGaussian.html</loc>
@@ -136,10 +154,10 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMMeanAtTime.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMModelTypes.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMModels.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMModels.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMModelTypes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMNumRegimes.html</loc>
@@ -149,12 +167,6 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMOptions.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMPExpxMeanExp.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMPLambdaP_1.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMPairSums.html</loc>
@@ -194,6 +206,12 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMParseErrorMessage.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMPExpxMeanExp.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMPLambdaP_1.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMPlotGaussianDensityGrid2D.html</loc>
@@ -265,13 +283,13 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetParent.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartition.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartNames.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartRegimes.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartition.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeGetPartsForNodes.html</loc>
@@ -346,10 +364,10 @@
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetLabels.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetPartition.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetPartition.html</loc>
+    <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/PCMTreeSetRegimesForEdges.html</loc>
@@ -383,24 +401,6 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/reference/White.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/as.MixedGaussian.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/dataFig3.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/is.GaussianPCM.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/is.MixedGaussian.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/is.PCM.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMBase/reference/is.PCMTree.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMBase/articles/PCMBase.html</loc>

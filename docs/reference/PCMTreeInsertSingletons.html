@@ -6,23 +6,27 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Insert singleton nodes on chosen edges — PCMTreeInsertSingletons • PCMBase</title>
+<title>Insert tips or singleton nodes on chosen edges — PCMTreeInsertSingletons • PCMBase</title>
+
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +34,11 @@
 
 
 
-<meta property="og:title" content="Insert singleton nodes on chosen edges — PCMTreeInsertSingletons" />
 
-<meta property="og:description" content="Insert singleton nodes on chosen edges" />
+<meta property="og:title" content="Insert tips or singleton nodes on chosen edges — PCMTreeInsertSingletons" />
+<meta property="og:description" content="Insert tips or singleton nodes on chosen edges" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -56,6 +61,7 @@
 
   gtag('config', 'UA-129563006-3');
 </script>
+
 
   </head>
 
@@ -113,7 +119,6 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -123,26 +128,35 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Insert singleton nodes on chosen edges</h1>
+    <h1>Insert tips or singleton nodes on chosen edges</h1>
     
     <div class="hidden name"><code>PCMTreeInsertSingletons.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
-    <p>Insert singleton nodes on chosen edges</p>
-    
+    <p>Insert tips or singleton nodes on chosen edges</p>
     </div>
 
     <pre class="usage"><span class='fu'>PCMTreeInsertSingletons</span>(<span class='no'>tree</span>, <span class='no'>nodes</span>, <span class='no'>positions</span>)
 
-<span class='fu'>PCMTreeInsertSingletonsAtEpoch</span>(<span class='no'>tree</span>, <span class='no'>epoch</span>, <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.1</span>)</pre>
-    
+<span class='fu'>PCMTreeInsertSingletonsAtEpoch</span>(<span class='no'>tree</span>, <span class='no'>epoch</span>, <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.1</span>)
+
+<span class='fu'>PCMTreeInsertTipsOrSingletons</span>(
+  <span class='no'>tree</span>,
+  <span class='no'>nodes</span>,
+  <span class='kw'>positions</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>nodes</span>)),
+  <span class='kw'>singleton</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>tipBranchLengths</span> <span class='kw'>=</span> <span class='fl'>0.01</span>,
+  <span class='kw'>nodeLabels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>tipLabels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -162,7 +176,8 @@ function several times with the longest position first and so on .</p></td>
       <th>positions</th>
       <td><p>a positive numeric vector of the same length as nodes
 denoting the root-ward distances from nodes at which the singleton nodes
-should be inserted.</p></td>
+should be inserted. For PCMTreeInsertTipsOrSingletons this can contains 0's and
+is set by default to rep(0, length(nodes)).</p></td>
     </tr>
     <tr>
       <th>epoch</th>
@@ -177,32 +192,58 @@ after dividing a branch by insertion of a singleton nodes. No singleton node
 is inserted if this would result in a branch shorter than `minLength`. Note
 that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.</p></td>
     </tr>
+    <tr>
+      <th>singleton</th>
+      <td><p>(PCMTreeInsertTipsOrSingletons only) a logical indicating if a
+singleton node should be inserted and no tip node should be inserted.</p></td>
+    </tr>
+    <tr>
+      <th>tipBranchLengths</th>
+      <td><p>(PCMTreeInsertTipsOrSingletons only) positive numeric vector of the
+length of <code>nodes</code>, denoting the lengths of the new edges leading to tips.</p></td>
+    </tr>
+    <tr>
+      <th>nodeLabels</th>
+      <td><p>(PCMTreeInsertSingletons and PCMTreeInsertTipsOrSingletons) a
+character vector of the same length as <code>nodes</code>, indicating the names of
+the newly inserted nodes. These names are ignored where <code>positions</code> is 0. This
+argument is optional and default node labels will be assigned if this is not specified or set
+to NULL. If specified, then it should not contain node-labels already present in the tree.</p></td>
+    </tr>
+    <tr>
+      <th>tipLabels</th>
+      <td><p>(PCMTreeInsertTipsOrSingletons only) a character vector of the same length as
+<code>nodes</code> of the new tip-labels. This
+argument is optional and default tip labels will be assigned if this is not specified or set
+to NULL. If specified, then it should not contain tip-labels already present in the tree.</p></td>
+    </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a modified version of tree with inserted singleton nodes at the
- specified locations</p>
-    
+    <p>a modified copy of tree.</p>
     <h2 class="hasAnchor" id="functions"><a class="anchor" href="#functions"></a>Functions</h2>
 
-    <ul>
-<li><p><code>PCMTreeInsertSingletonsAtEpoch</code>:</p></li>
-</ul>
     
+<ul>
+<li><p><code>PCMTreeInsertSingletonsAtEpoch</code>:</p></li>
+<li><p><code>PCMTreeInsertTipsOrSingletons</code>:</p></li>
+</ul>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='PCMTreeEdgeTimes.html'>PCMTreeEdgeTimes</a></code> <code><a href='PCMTreeLocateEpochOnBranches.html'>PCMTreeLocateEpochOnBranches</a></code> <code><a href='PCMTreeLocateMidpointsOnBranches.html'>PCMTreeLocateMidpointsOnBranches</a></code></p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='fl'>25</span>))
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>1</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ape/man/rtree.html'>rtree</a></span>(<span class='fl'>25</span>))
 <span class='fu'><a href='PCMTreeSetPartRegimes.html'>PCMTreeSetPartRegimes</a></span>(
-  <span class='no'>tree</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>`26`</span><span class='kw'>=</span><span class='st'>"a"</span>, <span class='kw'>`28`</span><span class='kw'>=</span><span class='st'>"b"</span>, <span class='kw'>`45`</span><span class='kw'>=</span><span class='st'>"c"</span>, <span class='kw'>`47`</span><span class='kw'>=</span><span class='st'>"d"</span>), <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
+  <span class='no'>tree</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>`26`</span><span class='kw'>=</span><span class='st'>"a"</span>, <span class='kw'>`28`</span><span class='kw'>=</span><span class='st'>"b"</span>, <span class='kw'>`45`</span><span class='kw'>=</span><span class='st'>"c"</span>, <span class='kw'>`47`</span><span class='kw'>=</span><span class='st'>"d"</span>), <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='co'># \donttest{</span>
+<span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
   <span class='no'>tree</span>,
-  <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>cbind</a></span>(<span class='no'>tree</span>$<span class='no'>edge</span>, <span class='fu'><a href='PCMTreeEdgeTimes.html'>PCMTreeEdgeTimes</a></span>(<span class='no'>tree</span>))</div><div class='output co'>#&gt;       [,1] [,2]      [,3]      [,4]
+  <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
+  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_nodelab.html'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_tiplab.html'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+<span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span>(<span class='no'>tree</span>$<span class='no'>edge</span>, <span class='fu'><a href='PCMTreeEdgeTimes.html'>PCMTreeEdgeTimes</a></span>(<span class='no'>tree</span>))</div><div class='output co'>#&gt;       [,1] [,2]      [,3]      [,4]
 #&gt;  [1,]   26   27 0.0000000 0.8612095
 #&gt;  [2,]   27   28 0.8612095 1.2993066
 #&gt;  [3,]   28    1 1.2993066 1.5441039
@@ -255,47 +296,59 @@ that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.</p></td
 <span class='no'>length47</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='PCMTreeGetBranchLength.html'>PCMTreeGetBranchLength</a></span>(<span class='no'>tree</span>, <span class='no'>id47</span>)
 
 <span class='co'># insert a singleton at 0.55 (root-ward) from node 47</span>
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletons</span>(<span class='no'>tree</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='st'>"47"</span>, <span class='kw'>positions</span> <span class='kw'>=</span> (<span class='no'>length47</span>/<span class='fl'>2</span>))</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletons</span>(<span class='no'>tree</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='st'>"47"</span>, <span class='kw'>positions</span> <span class='kw'>=</span> (<span class='no'>length47</span>/<span class='fl'>2</span>))
+<span class='co'># \donttest{</span>
+<span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
   <span class='no'>tree</span>,
-  <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># this fails, because the branch leading to node "47" is shorter now (0.55).</span>
+  <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
+  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_nodelab.html'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_tiplab.html'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+<span class='co'># this fails, because the branch leading to node "47" is shorter now (0.55).</span>
 <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/should_stop.html'>should_stop</a></span>(
   <span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletons</span>(
     <span class='no'>tree</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='st'>"47"</span>, <span class='kw'>positions</span><span class='kw'>=</span> <span class='fl'>2</span>* <span class='no'>length47</span> / <span class='fl'>3</span>))
 
-<span class='co'># the tree is the same</span></div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
-  <span class='no'>tree</span>, <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># we can insert at a position within the edge:</span>
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletons</span>(<span class='no'>tree</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='st'>"47"</span>, <span class='kw'>positions</span> <span class='kw'>=</span> <span class='no'>length47</span>/<span class='fl'>3</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
-  <span class='no'>tree</span>, <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-4.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># the tree is the same</span>
+<span class='co'># \donttest{</span>
+<span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
+  <span class='no'>tree</span>, <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
+  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_nodelab.html'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_tiplab.html'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+<span class='co'># we can insert at a position within the edge:</span>
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletons</span>(<span class='no'>tree</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='st'>"47"</span>, <span class='kw'>positions</span> <span class='kw'>=</span> <span class='no'>length47</span>/<span class='fl'>3</span>)
+<span class='co'># \donttest{</span>
+<span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
+  <span class='no'>tree</span>, <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
+  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_nodelab.html'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_tiplab.html'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+
 <span class='co'># Insert singletons at all branches crossing a given epoch. This will skip</span>
 <span class='co'># inserting singleton nodes where the resulting branches would be shorter</span>
 <span class='co'># than 0.1.</span>
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletonsAtEpoch</span>(<span class='no'>tree</span>, <span class='fl'>2.3</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
-  <span class='no'>tree</span>, <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># Insert singletons at all branches crossing a given epoch</span>
-<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletonsAtEpoch</span>(<span class='no'>tree</span>, <span class='fl'>2.3</span>, <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)</div><div class='input'><span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletonsAtEpoch</span>(<span class='no'>tree</span>, <span class='fl'>2.3</span>)
+<span class='co'># \donttest{</span>
+<span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
+  <span class='no'>tree</span>, <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
+  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_nodelab.html'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_tiplab.html'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+<span class='co'># Insert singletons at all branches crossing a given epoch</span>
+<span class='no'>tree</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMTreeInsertSingletonsAtEpoch</span>(<span class='no'>tree</span>, <span class='fl'>2.3</span>, <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)
+<span class='co'># \donttest{</span>
+<span class='fu'><a href='PCMTreePlot.html'>PCMTreePlot</a></span>(
   <span class='no'>tree</span>,
-  <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
-  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-6.png' alt='' width='700' height='433' /></div></pre>
+  <span class='kw'>palette</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='st'>"green"</span>, <span class='kw'>c</span> <span class='kw'>=</span> <span class='st'>"blue"</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='st'>"magenta"</span>)) +
+  <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_nodelab.html'>geom_nodelab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>) + <span class='kw pkg'>ggtree</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ggtree/man/geom_tiplab.html'>geom_tiplab</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> <span class='fl'>45</span>)</div><div class='img'><img src='PCMTreeInsertSingletons-6.png' alt='' width='700' height='433' /></div><div class='input'># }
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#functions">Functions</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -303,13 +356,16 @@ that this condition is checked only in `PCMTreeInsertSingletonsAtEpoch`.</p></td
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

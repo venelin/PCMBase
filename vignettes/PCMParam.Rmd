@@ -225,7 +225,7 @@ str(modelObject)
 Now let's print the model parameters as a table:
 
 ```{r, results='asis'}
-options(digits = 0)
+options(digits = 1)
 print(
   PCMTable(modelObject, addTransformed = FALSE, removeUntransformed = FALSE), 
   xtable = TRUE, type='html')

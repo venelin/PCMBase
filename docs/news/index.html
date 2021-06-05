@@ -8,21 +8,25 @@
 
 <title>Changelog • PCMBase</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,7 +34,9 @@
 
 
 
+
 <meta property="og:title" content="Changelog" />
+
 
 
 
@@ -53,6 +59,7 @@
 
   gtag('config', 'UA-129563006-3');
 </script>
+
 
   </head>
 
@@ -110,7 +117,6 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -120,6 +126,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -129,17 +136,22 @@
       
     </div>
 
-    <div id="pcmbase-1-2-12" class="section level1">
+    <div id="pcmbase-1212" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-12" class="anchor"></a>PCMBase 1.2.12<small> Unreleased </small>
+<a href="#pcmbase-1212" class="anchor"></a>PCMBase 1.2.12<small> Unreleased </small>
 </h1>
 <ul>
-<li>Minor documentation improvements.</li>
+<li>Added function PCMTreeInsertTipsOrSingletons.</li>
+<li>Added possibility to specify metaI as a character string (function name) rather. So far, it was only possible to specify this as a function object or as the list resulting from calling the function on the tree, data and PCM model.</li>
+<li>Added an operator + for PCMTree objects. This is analogical to the operator + for phylo objects but maintains the edge.part and part.regime members (experimental).</li>
+<li>Removed argument parametrizations from PCMGenerateModelTypes. Now it’s possible to specify the type of parametrization (all/default) separately for each model type.</li>
+<li>Added automatic generation of White noise model types.</li>
+<li>Improved man pages.</li>
 </ul>
 </div>
-    <div id="pcmbase-1-2-11" class="section level1">
+    <div id="pcmbase-1211" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-11" class="anchor"></a>PCMBase 1.2.11<small> 2019-12-12 </small>
+<a href="#pcmbase-1211" class="anchor"></a>PCMBase 1.2.11<small> 2019-12-12 </small>
 </h1>
 <ul>
 <li>Updated package citation pointing to the recently published article: Mitov et al. 2019. Fast likelihood calculation for multivariate Gaussian phylogenetic models with shifts. Theoretical Population Biology. <a href="https://doi.org/10.1016/j.tpb.2019.11.005" class="uri">https://doi.org/10.1016/j.tpb.2019.11.005</a>.</li>
@@ -157,9 +169,9 @@
 <li>Additions to the documentation.</li>
 </ul>
 </div>
-    <div id="pcmbase-1-2-10" class="section level1">
+    <div id="pcmbase-1210" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-10" class="anchor"></a>PCMBase 1.2.10<small> 2019-09-11 </small>
+<a href="#pcmbase-1210" class="anchor"></a>PCMBase 1.2.10<small> 2019-09-11 </small>
 </h1>
 <ul>
 <li>Speedup of PCMApplyTransformation in the case of mixed Gaussian models.</li>
@@ -174,28 +186,28 @@
 <li>Several bugs were found and fixed.</li>
 </ul>
 </div>
-    <div id="pcmbase-1-2-9" class="section level1">
+    <div id="pcmbase-129" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-9" class="anchor"></a>PCMBase 1.2.9<small> 2019-03-15 </small>
+<a href="#pcmbase-129" class="anchor"></a>PCMBase 1.2.9<small> 2019-03-15 </small>
 </h1>
 <ul>
-<li>Important changes in the PCMTree module:</li>
+<li><p>Important changes in the PCMTree module:</p></li>
 <li><p>Renamed member ‘edge.regime’ in the phylo object to ‘edge.part’. The word ‘regime’ is reserved uniquely to identify a regime of an evolutionary model. An intuitive synonyme for ‘regime’ is ‘color’. The word ‘part’ stays for a monophyletic or a paraphyletic group of nodes (and the branches ending at these nodes) in a tree. It is possible to have several parts that evolve under the same model regime and, terefore, should be shown with with the same color.</p></li>
 <li><p>new model types are made available within the package namespace. Hence, there is no need to call PCMGenerateModelTypes() after loading the package. Call PCMModels() after loading the package to see which are these model types.</p></li>
 <li><p>Updated tests and examples due to a change in the default random generator type (see <a href="https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2019/02/28#n2019-02-28" class="uri">https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2019/02/28#n2019-02-28</a>).</p></li>
 </ul>
 </div>
-    <div id="pcmbase-1-2-8" class="section level1">
+    <div id="pcmbase-128" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-8" class="anchor"></a>PCMBase 1.2.8<small> Unreleased </small>
+<a href="#pcmbase-128" class="anchor"></a>PCMBase 1.2.8<small> Unreleased </small>
 </h1>
 <ul>
 <li>Added handling of standard error specified for each trait measurement. This is implemented as an additional matrix parameter called SE to the functions PCMLik, PCMSim, PCMVar, and PCMInfo.</li>
 </ul>
 </div>
-    <div id="pcmbase-1-2-7" class="section level1">
+    <div id="pcmbase-127" class="section level1">
 <h1 class="page-header">
-<a href="#pcmbase-1-2-7" class="anchor"></a>PCMBase 1.2.7<small> 2018-11-30 </small>
+<a href="#pcmbase-127" class="anchor"></a>PCMBase 1.2.7<small> 2018-11-30 </small>
 </h1>
 <ul>
 <li>First version of the package released on CRAN.</li>
@@ -207,17 +219,18 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#pcmbase-1-2-12">1.2.12</a></li>
-        <li><a href="#pcmbase-1-2-11">1.2.11</a></li>
-        <li><a href="#pcmbase-1-2-10">1.2.10</a></li>
-        <li><a href="#pcmbase-1-2-9">1.2.9</a></li>
-        <li><a href="#pcmbase-1-2-8">1.2.8</a></li>
-        <li><a href="#pcmbase-1-2-7">1.2.7</a></li>
+        <li><a href="#pcmbase-1212">1.2.12</a></li>
+        <li><a href="#pcmbase-1211">1.2.11</a></li>
+        <li><a href="#pcmbase-1210">1.2.10</a></li>
+        <li><a href="#pcmbase-129">1.2.9</a></li>
+        <li><a href="#pcmbase-128">1.2.8</a></li>
+        <li><a href="#pcmbase-127">1.2.7</a></li>
       </ul>
     </div>
   </div>
 
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -225,13 +238,16 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 
