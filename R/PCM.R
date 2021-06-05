@@ -1761,12 +1761,7 @@ PCMSim <- function(
 #' @seealso \code{\link{PCMInfo}} \code{\link{PCMAbCdEf}} \code{\link{PCMLmr}} \code{\link{PCMSim}} \code{\link{PCMCond}}
 #' @examples
 #' N <- 10
-#' L <- 100.0
-#' tr <- ape::stree(N)
-#' tr$edge.length <- rep(L, N)
-#' for(epoch in seq(1, L, by = 1.0)) {
-#'   tr <- PCMTreeInsertSingletonsAtEpoch(tr, epoch)
-#' }
+#' tr <- PCMTree(ape::rtree(N))
 #'
 #' model <- PCMBaseTestObjects$model_MixedGaussian_ab
 #'
