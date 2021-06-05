@@ -103,7 +103,7 @@
     
     
 <!--
-# Copyright 2016 Venelin Mitov
+# Copyright 2016-2021 Venelin Mitov
 #
 # This file is part of PCMBase.
 #
@@ -230,7 +230,7 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 ##     }
 ##     list(omega = omega, Phi = Phi, V = V)
 ## }
-## &lt;bytecode: 0x000000001bbcd1e8&gt;
+## &lt;bytecode: 0x000000001c404f80&gt;
 ## &lt;environment: namespace:PCMBase&gt;</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># The complex maths is implemented in the function PCMCondVOU. You can see its </span></span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="co"># R-code by typing :</span></span>
@@ -331,9 +331,9 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <span id="cb21-2"><a href="#cb21-2"></a>param2 &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/jitter.html">jitter</a></span>(param)</span>
 <span id="cb21-3"><a href="#cb21-3"></a></span>
 <span id="cb21-4"><a href="#cb21-4"></a><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(param2)</span></code></pre></div>
-<pre><code>##  [1]  5.014098553  2.009766958  1.611583371  0.006902485  2.386496363
-##  [6]  1.610370819  0.800847417  2.387010894  0.108279617 -0.009721295
-## [11]  0.390553021  0.080416350  0.018624728  0.414250327</code></pre>
+<pre><code>##  [1]  5.00101161  2.01234114  1.61942078 -0.01425912  2.41673385  1.60184032
+##  [7]  0.78359712  2.38490734  0.08715252  0.01114794  0.41690886  0.10027435
+## [13] -0.01860623  0.40978040</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># set the new parameter vector</span></span>
 <span id="cb23-2"><a href="#cb23-2"></a><span class="kw"><a href="../reference/PCMParamLoadOrStore.html">PCMParamLoadOrStore</a></span>(modelBM.ab, param2, <span class="dt">offset =</span> <span class="dv">0</span>, <span class="dt">load=</span><span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>## [1] 14</code></pre>
@@ -341,32 +341,32 @@ d\vec{X}(t)=\mathbf{H}\big(\vec{\theta}-\vec{X}(t)\big)dt+\mathbf{\mathbf{\Sigma
 <pre><code>## Brownian motion model
 ## S3 class: BM, GaussianPCM, PCM; k=2; p=14; regimes: a, b. Parameters/sub-models:
 ## X0 (VectorParameter, _Global, numeric; trait values at the root):
-## [1] 5.014099 2.009767
+## [1] 5.001012 2.012341
 ## Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):
 ## , , a
 ## 
 ##          [,1]        [,2]
-## [1,] 1.611583 0.006902485
-## [2,] 0.000000 2.386496363
+## [1,] 1.619421 -0.01425912
+## [2,] 0.000000  2.41673385
 ## 
 ## , , b
 ## 
-##          [,1]      [,2]
-## [1,] 1.610371 0.8008474
-## [2,] 0.800000 2.3870109
+##         [,1]      [,2]
+## [1,] 1.60184 0.7835971
+## [2,] 0.80000 2.3849073
 ## 
 ## Sigmae_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the non-heritable variance or the variance of the measurement error):
 ## , , a
 ## 
-##           [,1]         [,2]
-## [1,] 0.1082796 -0.009721295
-## [2,] 0.0000000  0.390553021
+##            [,1]       [,2]
+## [1,] 0.08715252 0.01114794
+## [2,] 0.00000000 0.41690886
 ## 
 ## , , b
 ## 
-##            [,1]       [,2]
-## [1,] 0.08041635 0.01862473
-## [2,] 0.00000000 0.41425033
+##           [,1]        [,2]
+## [1,] 0.1002743 -0.01860623
+## [2,] 0.0000000  0.40978040
 ## 
 ## </code></pre>
 </div>
@@ -396,7 +396,7 @@ regime
 :global:
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 5.01 \\ 2.01 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 5.00 \\ 2.01 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
 </td>
@@ -410,10 +410,10 @@ a
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 2.60 &amp; 0.02 \\ 0.02 &amp; 5.70 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 2.62 &amp; -0.03 \\ -0.03 &amp; 5.84 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.00 \\ -0.00 &amp; 0.15 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.00 \\ 0.00 &amp; 0.17 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 <br><tr>
@@ -423,10 +423,10 @@ b
 <td align="right">
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 3.23 &amp; 3.20 \\ 3.20 &amp; 6.34 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 3.18 &amp; 3.15 \\ 3.15 &amp; 6.33 \\ \end{bmatrix}\)</span>
 </td>
 <td align="right">
-<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; 0.01 \\ 0.01 &amp; 0.17 \\ \end{bmatrix}\)</span>
+<span class="math inline">\(\begin{bmatrix}{} 0.01 &amp; -0.01 \\ -0.01 &amp; 0.17 \\ \end{bmatrix}\)</span>
 </td>
 </tr>
 </table>
@@ -594,7 +594,7 @@ BM
 <a href="#calculating-likelihoods" class="anchor"></a>Calculating likelihoods</h1>
 <p>Calculating a model likelihood for a given tree and data is the other key functionality of the PCMBase package.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw"><a href="../reference/PCMLik.html">PCMLik</a></span>(traits, tree.ab, modelBM.ab)</span></code></pre></div>
-<pre><code>## [1] -414
+<pre><code>## [1] -415
 ## attr(,"X0")
 ## [1] 5 2</code></pre>
 <p>For faster and repeated likelihood evaluation, I recommend creating a likelihood function for a given data, tree and model object. Passing this function object to <code>optim</code> would save the need for pre-processing the data and tree at every likelihood evaluation.</p>
@@ -602,7 +602,7 @@ BM
 <span id="cb35-2"><a href="#cb35-2"></a>likFun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMCreateLikelihood.html">PCMCreateLikelihood</a></span>(traits, tree.ab, modelBM.ab)</span>
 <span id="cb35-3"><a href="#cb35-3"></a></span>
 <span id="cb35-4"><a href="#cb35-4"></a><span class="kw">likFun</span>(param2)</span></code></pre></div>
-<pre><code>## [1] -414
+<pre><code>## [1] -415
 ## attr(,"X0")
 ## [1] 5 2</code></pre>
 </div>

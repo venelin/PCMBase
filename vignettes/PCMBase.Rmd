@@ -15,7 +15,7 @@ bibliography: REFERENCES.bib
 ---
 
 <!--
-# Copyright 2016 Venelin Mitov
+# Copyright 2016-2021 Venelin Mitov
 #
 # This file is part of PCMBase.
 #

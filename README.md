@@ -118,20 +118,20 @@ with shifts. Theor. Popul. Biol.
 The PCMBase R-package uses the following 3rd party R-packages:
 
   - For tree processing in R: ape v5.3 (Paradis et al. 2018), data.table
-    v1.12.2 (Dowle and Srinivasan 2019);
+    v1.13.2 (Dowle and Srinivasan 2019);
   - For algebraic manipulation: expm v0.999.4 (Goulet et al. 2018),
-    mvtnorm v1.0.11 (Genz et al. 2018);
-  - For plotting: ggtree v1.15.3 (Yu and Lam 2019), ggplot2 v3.2.1
+    mvtnorm v1.1.0 (Genz et al. 2018);
+  - For plotting: ggtree v2.0.4 (Yu and Lam 2019), ggplot2 v3.3.0
     (Wickham et al. 2018);
-  - For unit-testing: testthat v2.1.1 (Wickham 2018), covr v3.2.1
+  - For unit-testing: testthat v2.3.2 (Wickham 2018), covr v3.5.0
     (Hester 2018);
-  - For documentation and web-site generation: roxygen2 v6.1.1 (Wickham,
-    Danenberg, and Eugster 2018), pkgdown v1.3.0 (Wickham and
+  - For documentation and web-site generation: roxygen2 v7.1.0 (Wickham,
+    Danenberg, and Eugster 2018), pkgdown v1.4.1 (Wickham and
     Hesselberth 2018);
 
 # Licence and copyright
 
-Copyright 2016-2019 Venelin Mitov
+Copyright 2016-2021 Venelin Mitov
 
 Source code to PCMBase is made available under the terms of the GNU
 General Public License as published by the Free Software Foundation,
