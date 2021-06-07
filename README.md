@@ -229,7 +229,7 @@ Documentation for a Package*.
 Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. *Ggtree: An R Package for
 Visualization and Annotation of Phylogenetic Trees with Their Covariates
 and Other Associated Data*.
-<https://guangchuangyu.github.io/software/ggtree>.
+<https://guangchuangyu.github.io/software/ggtree/>.
 
 </div>
 
