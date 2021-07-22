@@ -1178,6 +1178,27 @@ PCMParamLowerLimit.default <- function(o, k, R,  ...) {
 }
 
 #' @export
+PCMParamLowerLimit._NonNegative <- function(o, k, R, ...) {
+  vecParamsLowerLimit <- attr(o, "vecParamsLowerLimit", exact = TRUE)
+  if( !is.null(vecParamsLowerLimit) ) {
+    PCMParamLoadOrStore(
+      o, vecParams = vecParamsLowerLimit, offset = 0, k = k, R = R,
+      load = TRUE)
+  } else {
+    o2 <- PCMParamLowerLimit.default(o, k, R, ...)
+    valueLowerLimit <- getOption("PCMBase.ParamValue.LowerLimit.NonNegative", 0.0)
+    o2[] <- valueLowerLimit
+
+    # at this point there is a risk that we have overwritten some fixed values on the diagonal(s) in o2.
+    # We correct for this by taking the vecParams for o2 and loading it into o
+    o2VecParams <- PCMParamGetShortVector(o2, k, R)
+    PCMParamLoadOrStore(o, o2VecParams, 0L, k, R, TRUE)
+  }
+
+  o
+}
+
+#' @export
 PCMParamLowerLimit._WithNonNegativeDiagonal <- function(o, k, R, ...) {
   vecParamsLowerLimit <- attr(o, "vecParamsLowerLimit", exact = TRUE)
   if( !is.null(vecParamsLowerLimit) ) {
