@@ -1,8 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![Travis build
-status](https://travis-ci.com/venelin/PCMBase.svg?branch=master)](https://travis-ci.com/venelin/PCMBase)
 [![Coverage
 status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMBase?branch=master)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)

@@ -1,9 +1,12 @@
 ---
 title: "NEWS about the PCMBase R-package"
 author: "Venelin Mitov"
-date: "9 May, 2021"
+date: "17 Nov, 2021"
 output: html_document
 ---
+
+# PCMBase 1.2.13
+- Fixed CRAN check issues regarding ggtree code in vignettes signaled by Prof. Brian Ripley.
 
 # PCMBase 1.2.12 
 - Added function PCMTreeInsertTipsOrSingletons.
