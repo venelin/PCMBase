@@ -42,15 +42,18 @@ of the tree will be discarded and not present in the clade.
 set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
 }
 spl <- PCMTreeSplitAtNode(tree, 28)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(PCMTree(spl$clade)) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
 }
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(PCMTree(spl$rest)) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
 }

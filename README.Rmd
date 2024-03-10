@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-[![Coverage status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMBase?branch=master)
+[![Coverage status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://app.codecov.io/github/venelin/PCMBase?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
 [![Downloads](http://cranlogs.r-pkg.org/badges/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
 
@@ -37,7 +37,7 @@ code (if that does not work, check the
 ```{r install-ggtree, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("ggtree", version = "3.8")
+BiocManager::install("ggtree")
 ```
 
 ### Installing PCMBase from CRAN

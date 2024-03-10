@@ -68,17 +68,18 @@ Insert tips or singleton nodes on chosen edges
 }
 \section{Functions}{
 \itemize{
-\item \code{PCMTreeInsertSingletonsAtEpoch}: 
+\item \code{PCMTreeInsertSingletonsAtEpoch()}: 
 
-\item \code{PCMTreeInsertTipsOrSingletons}: 
+\item \code{PCMTreeInsertTipsOrSingletons()}: 
+
 }}
-
 \examples{
 set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 PCMTreeSetPartRegimes(
   tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(
   tree,
   palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
@@ -92,6 +93,7 @@ length47 <- PCMTreeGetBranchLength(tree, id47)
 # insert a singleton at 0.55 (root-ward) from node 47
 tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions = (length47/2))
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(
   tree,
   palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
@@ -104,6 +106,7 @@ ggplot2::should_stop(
 
 # the tree is the same
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(
   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
@@ -111,6 +114,7 @@ PCMTreePlot(
 # we can insert at a position within the edge:
 tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions = length47/3)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(
   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
@@ -121,6 +125,7 @@ PCMTreePlot(
 # than 0.1.
 tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(
   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
@@ -128,6 +133,7 @@ PCMTreePlot(
 # Insert singletons at all branches crossing a given epoch
 tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3, minLength = 0.001)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(
   tree,
   palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +

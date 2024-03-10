@@ -35,18 +35,13 @@ bibliography: REFERENCES.bib
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(abind)
+
 library(ape)
 library(PCMBase)
 
-if(!requireNamespace("ggtree")) {
-  message("Building the vignette requires ggtree R-package. Trying to install.")
-  try({
-    if (!requireNamespace("BiocManager", quietly = TRUE))
-      install.packages("BiocManager")
-    BiocManager::install("ggtree", version = "3.9")
-  }, silent = TRUE)
-}
+FLAGSuggestsAvailable <- PCMBase::RequireSuggestedPackages()
+
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 
@@ -320,9 +315,9 @@ Now that we have defined all the code necessary for the class let us demonstrate
 After running all the above code defining the "BM_drift" class we create a model instance.
 We do this for a two regimes model. 
 
-```{r}
+```{r eval=FLAGSuggestsAvailable}
 X0 <- c(5, 2, 1) ## root state
-  
+
 ## in regime a traits evolve independently
 a.Sigma_x <- rbind(c(1.6, 0.0, 0.0),c(0.0, 2.4, 0.0),c(0.0, 0.0, 2.0))
 ## no jumps at the end of a branch
@@ -335,20 +330,20 @@ b.Sigma_x <- rbind(c(1.6, 0.3, 0.3), c(0.0, 0.3, 0.4),c(0.0, 0.0, 2.0))
 b.Sigmae_x <- rbind(c(0.0, 0.0, 0.0),c(0.0, 0.0, 0.0),c(0.0, 0.0, 0.0))
 b.h_drift<-c(1, 2, 3)
 
-Sigma_x <- abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL,y=NULL,regime=c('a','b')))
-Sigmae_x <- abind(a.Sigmae_x,b.Sigmae_x,along=3,new.names=list(x=NULL,y=NULL,regime=c('a','b')))
-h_drift <- abind(a.h_drift, b.h_drift, along=2, new.names=list(xy=NULL, regime=c('a','b')))
+Sigma_x <- abind::abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL,y=NULL,regime=c('a','b')))
+Sigmae_x <- abind::abind(a.Sigmae_x,b.Sigmae_x,along=3,new.names=list(x=NULL,y=NULL,regime=c('a','b')))
+h_drift <- abind::abind(a.h_drift, b.h_drift, along=2, new.names=list(xy=NULL, regime=c('a','b')))
 
 PCMBase_model_BM_drift <- PCM("BM_drift", k = 3, regimes = c("a", "b"),
-params = list(X0 = X0,h_drift = h_drift[,,drop=FALSE],
-Sigma_x = Sigma_x[,,,drop=FALSE],Sigmae_x = Sigmae_x[,,,drop=FALSE]))
+                              params = list(X0 = X0,h_drift = h_drift[,,drop=FALSE],
+                                            Sigma_x = Sigma_x[,,,drop=FALSE],Sigmae_x = Sigmae_x[,,,drop=FALSE]))
 ```
 
 
 Now we simulate a random phylogeny using the same example code as in the
 [Getting started](https://venelin.github.io/PCMBase/articles/PCMBase.html) guide.
 
-```{r}
+```{r eval=FLAGSuggestsAvailable}
 # make results reproducible
 set.seed(2, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
@@ -387,7 +382,7 @@ plTree
 
 We simulate the traits using PCMBase's functionality.
 
-```{r}
+```{r, eval=FLAGSuggestsAvailable}
 mData<-PCMSim(tree.ab, PCMBase_model_BM_drift, X0)[,1:N] ## we only want the tip data
 ## NOTE that observations from different species are in the columns NOT in the rows as 
 ## in other software
@@ -395,7 +390,7 @@ mData<-PCMSim(tree.ab, PCMBase_model_BM_drift, X0)[,1:N] ## we only want the tip
 
 Finally we calculate the likelihood under the BM with drift model.
 
-```{r}
+```{r, eval=FLAGSuggestsAvailable}
 log_lik<- PCMLik(mData, tree.ab, PCMBase_model_BM_drift)
 print(log_lik[1]) ## we just want to print the log-likelihood without the attributes
 ```
@@ -407,7 +402,7 @@ function for a particular dataset through PCMCreateLikelihood. This will speed u
 as it avoids re-creating some internal data objects for the tree every time the likelihood 
 value is required. One just needs to update the parameters to obtain a new likelihood value.
 
-```{r}
+```{r, eval=FLAGSuggestsAvailable}
 ## create an vector of appropriate length to store the vectorized model parameters
 v_param <- double(PCMParamCount(PCMBase_model_BM_drift))
 

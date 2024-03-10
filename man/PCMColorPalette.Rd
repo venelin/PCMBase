@@ -7,8 +7,8 @@
 PCMColorPalette(
   n,
   names,
-  colors = structure(hcl(h = seq(15, 375, length = n + 1), l = 65, c =
-    100)[seq_len(n)], names = names)
+  colors = structure(hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[seq_len(n)],
+    names = names)
 )
 }
 \arguments{

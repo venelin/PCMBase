@@ -2,8 +2,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![Coverage
-status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMBase?branch=master)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
+status](https://codecov.io/gh/venelin/PCMBase/branch/master/graph/badge.svg)](https://app.codecov.io/github/venelin/PCMBase?branch=master)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
 [![Downloads](http://cranlogs.r-pkg.org/badges/PCMBase?color=blue)](https://cran.r-project.org/package=PCMBase)
 
 # PCMBase : Simulation and likelihood calculation of phylogenetic comparative methods
@@ -75,16 +75,16 @@ devtools::install_github("venelin/PCMBase")
 The user guides and technical reference for the library are available
 from the [PCMBase web-page](https://venelin.github.io/PCMBase/).
 
-  - The [Getting
+-   The [Getting
     started](https://venelin.github.io/PCMBase/articles/PCMBase.html)
     guide
-  - The [PCMBase
+-   The [PCMBase
     parameterizations](https://venelin.github.io/PCMBase/articles/PCMParam.html)
     guide
-  - The [Tracing the likelihood calculation of a Gaussian
+-   The [Tracing the likelihood calculation of a Gaussian
     mode](https://venelin.github.io/PCMBase/articles/PCMTracePruning.html)
     guide
-  - The [Creating a Custom Model in the PCMBase
+-   The [Creating a Custom Model in the PCMBase
     Framework](https://venelin.github.io/PCMBase/articles/PCMCreateModel.html)
     guide
 
@@ -115,16 +115,16 @@ with shifts. Theor. Popul. Biol.
 
 The PCMBase R-package uses the following 3rd party R-packages:
 
-  - For tree processing in R: ape v5.3 (Paradis et al. 2018), data.table
-    v1.13.2 (Dowle and Srinivasan 2019);
-  - For algebraic manipulation: expm v0.999.4 (Goulet et al. 2018),
-    mvtnorm v1.1.0 (Genz et al. 2018);
-  - For plotting: ggtree v2.0.4 (Yu and Lam 2019), ggplot2 v3.3.0
+-   For tree processing in R: ape v5.5 (Paradis et al. 2018), data.table
+    v1.14.2 (Dowle and Srinivasan 2019);
+-   For algebraic manipulation: expm v0.999.6 (Goulet et al. 2018),
+    mvtnorm v1.1.3 (Genz et al. 2018);
+-   For plotting: ggtree v3.2.1 (Yu and Lam 2019), ggplot2 v3.3.5
     (Wickham et al. 2018);
-  - For unit-testing: testthat v2.3.2 (Wickham 2018), covr v3.5.0
+-   For unit-testing: testthat v3.1.1 (Wickham 2018), covr v3.5.1
     (Hester 2018);
-  - For documentation and web-site generation: roxygen2 v7.1.0 (Wickham,
-    Danenberg, and Eugster 2018), pkgdown v1.4.1 (Wickham and
+-   For documentation and web-site generation: roxygen2 v7.1.2 (Wickham,
+    Danenberg, and Eugster 2018), pkgdown v2.0.1 (Wickham and
     Hesselberth 2018);
 
 # Licence and copyright
@@ -141,24 +141,24 @@ more details.
 
 # References
 
-<div id="refs" class="references">
+<div id="refs" class="references csl-bib-body hanging-indent">
 
-<div id="ref-R-data.table">
+<div id="ref-R-data.table" class="csl-entry">
 
 Dowle, Matt, and Arun Srinivasan. 2019. *Data.table: Extension of
 ‘Data.frame‘*. <https://CRAN.R-project.org/package=data.table>.
 
 </div>
 
-<div id="ref-R-mvtnorm">
+<div id="ref-R-mvtnorm" class="csl-entry">
 
 Genz, Alan, Frank Bretz, Tetsuhisa Miwa, Xuefei Mi, and Torsten Hothorn.
-2018. *Mvtnorm: Multivariate Normal and T Distributions*.
+2018. *Mvtnorm: Multivariate Normal and t Distributions*.
 <https://CRAN.R-project.org/package=mvtnorm>.
 
 </div>
 
-<div id="ref-R-expm">
+<div id="ref-R-expm" class="csl-entry">
 
 Goulet, Vincent, Christophe Dutang, Martin Maechler, David Firth, Marina
 Shapira, and Michael Stadelmann. 2018. *Expm: Matrix Exponential, Log,
@@ -166,23 +166,24 @@ Shapira, and Michael Stadelmann. 2018. *Expm: Matrix Exponential, Log,
 
 </div>
 
-<div id="ref-R-covr">
+<div id="ref-R-covr" class="csl-entry">
 
 Hester, Jim. 2018. *Covr: Test Coverage for Packages*.
 <https://CRAN.R-project.org/package=covr>.
 
 </div>
 
-<div id="ref-Mitov:2019ci">
+<div id="ref-Mitov:2019ci" class="csl-entry">
 
-Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “Automatic
-generation of evolutionary hypotheses using mixed Gaussian phylogenetic
-models.” *Proceedings of the National Academy of Sciences of the United
-States of America* 35 (August): 201813823.
+Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “<span
+class="nocase">Automatic generation of evolutionary hypotheses using
+mixed Gaussian phylogenetic models</span>.” *Proceedings of the National
+Academy of Sciences of the United States of America* 35 (August):
+201813823.
 
 </div>
 
-<div id="ref-R-ape">
+<div id="ref-R-ape" class="csl-entry">
 
 Paradis, Emmanuel, Simon Blomberg, Ben Bolker, Joseph Brown, Julien
 Claude, Hoa Sien Cuong, Richard Desper, et al. 2018. *Ape: Analyses of
@@ -190,14 +191,14 @@ Phylogenetics and Evolution*. <https://CRAN.R-project.org/package=ape>.
 
 </div>
 
-<div id="ref-R-testthat">
+<div id="ref-R-testthat" class="csl-entry">
 
-Wickham, Hadley. 2018. *Testthat: Unit Testing for R*.
+Wickham, Hadley. 2018. *Testthat: Unit Testing for r*.
 <https://CRAN.R-project.org/package=testthat>.
 
 </div>
 
-<div id="ref-R-ggplot2">
+<div id="ref-R-ggplot2" class="csl-entry">
 
 Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen,
 Kohske Takahashi, Claus Wilke, and Kara Woo. 2018. *Ggplot2: Create
@@ -206,25 +207,25 @@ Elegant Data Visualisations Using the Grammar of Graphics*.
 
 </div>
 
-<div id="ref-R-roxygen2">
+<div id="ref-R-roxygen2" class="csl-entry">
 
 Wickham, Hadley, Peter Danenberg, and Manuel Eugster. 2018. *Roxygen2:
-In-Line Documentation for R*.
+In-Line Documentation for r*.
 <https://CRAN.R-project.org/package=roxygen2>.
 
 </div>
 
-<div id="ref-R-pkgdown">
+<div id="ref-R-pkgdown" class="csl-entry">
 
-Wickham, Hadley, and Jay Hesselberth. 2018. *Pkgdown: Make Static Html
+Wickham, Hadley, and Jay Hesselberth. 2018. *Pkgdown: Make Static HTML
 Documentation for a Package*.
 <https://CRAN.R-project.org/package=pkgdown>.
 
 </div>
 
-<div id="ref-R-ggtree">
+<div id="ref-R-ggtree" class="csl-entry">
 
-Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. *Ggtree: An R Package for
+Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. *Ggtree: An r Package for
 Visualization and Annotation of Phylogenetic Trees with Their Covariates
 and Other Associated Data*.
 <https://guangchuangyu.github.io/software/ggtree/>.

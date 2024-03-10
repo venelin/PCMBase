@@ -1,8 +1,8 @@
 citHeader("To cite PCMBase in publications use one of the following articles:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Fast likelihood calculation for multivariate Gaussian phylogenetic models with shifts",
-  author       = personList(as.person("Venelin Mitov"),
+  author       = c(as.person("Venelin Mitov"),
                    as.person("Krzysztof Bartoszek"),
                    as.person("Georgios Asimomitis"),
                    as.person("Tanja Stadler")),
@@ -20,9 +20,9 @@ citEntry(entry = "Article",
         "URL https://doi.org/10.1016/j.tpb.2019.11.005")
 )
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models",
-  author       = personList(as.person("Venelin Mitov"),
+  author       = c(as.person("Venelin Mitov"),
                    as.person("Krzysztof Bartoszek"),
                    as.person("Tanja Stadler")),
   journal      = "Proceedings of the National Academy of Sciences of the United States of America",
@@ -40,9 +40,9 @@ citEntry(entry = "Article",
         "URL https://doi.org/10.1073/pnas.1813823116")
 )
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library",
-  author       = personList(as.person("Venelin Mitov"),
+  author       = c(as.person("Venelin Mitov"),
                    as.person("Tanja Stadler")),
   journal      = "Methods Ecol Evol.",
   year         = "2019",

@@ -2,8 +2,8 @@
 % Please edit documentation in R/GaussianPCM.R
 \name{PCMPExpxMeanExp}
 \alias{PCMPExpxMeanExp}
-\title{Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
-for every element lambda_{ij} of the input matrix Lambda_ij.}
+\title{Create a function of time that calculates \eqn{(1-exp(-lambda_{ij}*time))/lambda_{ij}}
+for every element \eqn{lambda_{ij}} of the input matrix \eqn{Lambda_{ij}}.}
 \usage{
 PCMPExpxMeanExp(
   Lambda_ij,
@@ -28,8 +28,8 @@ a function of time returning a matrix with entries formed from the
  above function or the limit, time, if |Lambda_{ij}|<=trehshold0.
 }
 \description{
-Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
-for every element lambda_{ij} of the input matrix Lambda_ij.
+Create a function of time that calculates \eqn{(1-exp(-lambda_{ij}*time))/lambda_{ij}}
+for every element \eqn{lambda_{ij}} of the input matrix \eqn{Lambda_{ij}}.
 }
 \details{
 the function (1-exp(-lambda_{ij}*time))/lambda_{ij} corresponds to the product

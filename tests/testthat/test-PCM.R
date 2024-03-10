@@ -17,9 +17,7 @@
 
 library(PCMBase)
 
-if(PCMBaseIsADevRelease()) {
-
-  library(abind)
+if(PCMBaseIsADevRelease() && require(abind, quietly = TRUE)) {
 
   # regimes
 

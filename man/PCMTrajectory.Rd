@@ -111,5 +111,7 @@ plb <- PCMTrajectory(
     axis.title.y = ggplot2::element_blank(),
     axis.text.y = ggplot2::element_blank(),
     axis.ticks.y = ggplot2::element_blank())
-cowplot::plot_grid(pla, plb)
+
+plot(pla)
+plot(plb)
 }

@@ -5,6 +5,10 @@ date: "17 Nov, 2021"
 output: html_document
 ---
 
+# PCMBase 1.2.14
+- Fixed CRAN check issues in inst/CITATION (replacing calls to personList with c; replacing citEntry with bibentry).
+- Fixed CRAN check issues regarding abind code in vignettes signaled by Prof. Brian Ripley.
+
 # PCMBase 1.2.13
 - Fixed CRAN check issues regarding ggtree code in vignettes signaled by Prof. Brian Ripley.
 

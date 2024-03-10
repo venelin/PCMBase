@@ -77,6 +77,7 @@ PCMTreeGetPartRegimes(tree.a)
 
 # let's see how the tree looks like
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 
@@ -89,6 +90,7 @@ PCMTreeGetPartRegimes(tree.a)
 
 
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 PCMTreeGetPartsForNodes(tree.a, c(11, 15, 12))
@@ -101,6 +103,7 @@ PCMTreeGetPartNames(tree.a)
 PCMTreeGetPartRegimes(tree.a)
 
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 }

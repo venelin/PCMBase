@@ -41,12 +41,14 @@ tree <- PCMTree(ape::rtree(25))
 PCMTreeSetPartRegimes(
   tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
 blueTree <- PCMTreeExtractClade(tree, 45)
 PCMTreeGetPartRegimes(blueTree)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(blueTree, palette=c(a = "red", b = "green", c = "blue")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }
@@ -54,6 +56,7 @@ PCMTreePlot(blueTree, palette=c(a = "red", b = "green", c = "blue")) +
 # id in redGreenTree:
 blueTree2 <- PCMTreeDropClade(blueTree, "48")
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(blueTree2, palette=c(a = "red", b = "green", c = "blue")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 }

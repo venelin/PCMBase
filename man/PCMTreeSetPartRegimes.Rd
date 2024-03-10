@@ -74,6 +74,7 @@ PCMTreeSetPartRegimes(
 
 
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 tree.ab <- tree.a
@@ -83,6 +84,7 @@ PCMTreeSetPartRegimes(
   setPartition = TRUE,
   inplace = TRUE)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree.ab) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 }

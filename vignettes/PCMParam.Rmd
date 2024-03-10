@@ -35,8 +35,10 @@ bibliography: REFERENCES.bib
 
 ```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
-library(abind)
+
 library(PCMBase)
+
+FLAGSuggestsAvailable <- PCMBase::RequireSuggestedPackages()
 ```
 
 # Introduction

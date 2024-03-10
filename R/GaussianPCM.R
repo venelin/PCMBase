@@ -1137,8 +1137,8 @@ PCMPLambdaP_1 <- function(H) {
 }
 
 
-#' Create a function of time that calculates (1-exp(-lambda_{ij}*time))/lambda_{ij}
-#' for every element lambda_{ij} of the input matrix Lambda_ij.
+#' Create a function of time that calculates \eqn{(1-exp(-lambda_{ij}*time))/lambda_{ij}}
+#' for every element \eqn{lambda_{ij}} of the input matrix \eqn{Lambda_{ij}}.
 #'
 #' @param Lambda_ij a squared numerical matrix of dimension k x k
 #' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i

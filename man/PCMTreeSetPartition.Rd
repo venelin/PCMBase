@@ -33,6 +33,7 @@ PCMTreeGetPartition(tree)
 PCMTreeGetPartNames(tree)
 PCMTreeGetPartRegimes(tree)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 tree <- PCMTreeSetPartition(tree, c(12, 14), inplace = FALSE)
@@ -40,6 +41,7 @@ PCMTreeGetPartition(tree)
 PCMTreeGetPartNames(tree)
 PCMTreeGetPartRegimes(tree)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 
@@ -50,6 +52,7 @@ PCMTreeGetPartition(tree)
 PCMTreeGetPartNames(tree)
 PCMTreeGetPartRegimes(tree)
 \donttest{
+if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
 }
 
