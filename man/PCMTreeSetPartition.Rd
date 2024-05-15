@@ -32,18 +32,17 @@ PCMTreeSetLabels(tree, paste0("x", PCMTreeGetLabels(tree)))
 PCMTreeGetPartition(tree)
 PCMTreeGetPartNames(tree)
 PCMTreeGetPartRegimes(tree)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-}
+
 tree <- PCMTreeSetPartition(tree, c(12, 14), inplace = FALSE)
 PCMTreeGetPartition(tree)
 PCMTreeGetPartNames(tree)
 PCMTreeGetPartRegimes(tree)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-}
 
 # reset the partition to a default one, where there is only one part:
 PCMTreeSetPartition(tree)
@@ -51,10 +50,9 @@ PCMTreeSetPartition(tree)
 PCMTreeGetPartition(tree)
 PCMTreeGetPartNames(tree)
 PCMTreeGetPartRegimes(tree)
-\donttest{
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-}
+
 
 # reset the labels to the default labels which are character representations
 # of the node ids

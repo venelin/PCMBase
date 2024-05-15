@@ -9,14 +9,14 @@ PCMOptions()
 \value{
 a named list with the currently set values of the following global
 options:
-\itemize{
+\describe{
 \item{\code{PCMBase.Value.NA }}{NA value for the likelihood; used in GaussianPCM to
 return this value in case of an error occurring
 during likelihood calculation. By default, this is set to \code{as.double(NA)}.}
 \item{\code{PCMBase.Errors.As.Warnings }}{a logical flag indicating if errors
 (occuring, e.g. during likelihood calculation) should be treated as warnings
 and added as an attribute "error" to attach to the likelihood values. Default TRUE.}
-\item{\item{PCMBase.Raise.Lik.Errors} }{Should numerical and other sort of
+\item{\code{PCMBase.Raise.Lik.Errors} }{Should numerical and other sort of
 errors occurring during likelihood calculation be raised either as errors or
 as warnings, depending on the option \code{PCMBase.Errors.As.Warnings}.
 Default TRUE. This option can be useful if too frequent warnings get raised

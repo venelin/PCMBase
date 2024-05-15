@@ -84,10 +84,8 @@
 #' PCMTreeGetPartRegimes(tree.a)
 #'
 #' # let's see how the tree looks like
-#' \donttest{
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
 #'
 #' # This is the recommended way to set a partition on the tree
 #' PCMTreeSetPartition(tree.a, c(10, 12))
@@ -97,10 +95,10 @@
 #' PCMTreeGetPartRegimes(tree.a)
 #'
 #'
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #' PCMTreeGetPartsForNodes(tree.a, c(11, 15, 12))
 #' PCMTreeGetPartsForNodes(tree.a, c("11", "15", "12"))
 #'
@@ -110,10 +108,9 @@
 #' PCMTreeGetPartNames(tree.a)
 #' PCMTreeGetPartRegimes(tree.a)
 #'
-#' \donttest{
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #' @export
 PCMTree <- function(tree) {
   if(is.PCMTree(tree)) {
@@ -475,18 +472,17 @@ PCMTreeGetPartition <- function(tree) {
 #' PCMTreeGetPartition(tree)
 #' PCMTreeGetPartNames(tree)
 #' PCMTreeGetPartRegimes(tree)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #' tree <- PCMTreeSetPartition(tree, c(12, 14), inplace = FALSE)
 #' PCMTreeGetPartition(tree)
 #' PCMTreeGetPartNames(tree)
 #' PCMTreeGetPartRegimes(tree)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
 #'
 #' # reset the partition to a default one, where there is only one part:
 #' PCMTreeSetPartition(tree)
@@ -494,10 +490,9 @@ PCMTreeGetPartition <- function(tree) {
 #' PCMTreeGetPartition(tree)
 #' PCMTreeGetPartNames(tree)
 #' PCMTreeGetPartRegimes(tree)
-#' \donttest{
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #'
 #' # reset the labels to the default labels which are character representations
 #' # of the node ids
@@ -651,20 +646,20 @@ PCMTreeGetPartRegimes <- function(tree) {
 #'   inplace = TRUE)
 #'
 #'
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #' tree.ab <- tree.a
 #' PCMTreeSetPartRegimes(
 #'   tree.ab,
 #'   part.regime = structure(c("a", "b"), names = as.character(c(N+1L, N+31L))),
 #'   setPartition = TRUE,
 #'   inplace = TRUE)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree.ab) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #' @export
 PCMTreeSetPartRegimes <- function(
   tree, part.regime, setPartition = FALSE, inplace = TRUE) {
@@ -736,10 +731,10 @@ PCMTreeGetPartsForNodes <- function(
 #' tree <- ape::rtree(10)
 #' regimes <- sample(letters[1:3], nrow(tree$edge), replace = TRUE)
 #' PCMTreeSetRegimesForEdges(tree, regimes)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #' part <- PCMTreeGetPartNames(tree)[1]
 #' PCMTreeGetTipsInPart(tree, part)
 #' print(part)
@@ -765,10 +760,10 @@ PCMTreeGetTipsInPart <- function(tree, part) {
 #' tree <- ape::rtree(10)
 #' regimes <- sample(letters[1:3], nrow(tree$edge), replace = TRUE)
 #' PCMTreeSetRegimesForEdges(tree, regimes)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
+#'
 #' regime <- PCMRegimes(tree)[1]
 #' PCMTreeGetTipsInRegime(tree, regime)
 #' print(regime)
@@ -806,10 +801,9 @@ PCMTreeGetRegimesForEdges <- function(tree) {
 #' tree <- ape::rtree(10)
 #' regimes <- sample(letters[1:3], nrow(tree$edge), replace = TRUE)
 #' PCMTreeSetRegimesForEdges(tree, regimes)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree)
-#' }
 #'
 #' @export
 PCMTreeSetRegimesForEdges <- function(tree, regimes, inplace = TRUE) {
@@ -1027,10 +1021,8 @@ PCMTreeListCladePartitions <- function(
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(10))
 #'
-#' \donttest{
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-#' }
 #'
 #' # list of all partitions into parts of at least 4 tips
 #' PCMTreeListAllPartitions(tree, 4)
@@ -1189,7 +1181,7 @@ PCMTreeListAllPartitionsInternal <- function(
 #' A data.table with time, part and regime information for the nodes in a tree
 #' @param tree a phylo object with node-labels and parts
 #' @return a data.table with a row for each node in tree and columns as follows:
-#' \itemize{
+#' \describe{
 #' \item{startNode }{the starting node of each edge or NA_integer_ for the root}
 #' \item{endNode }{the end node of each edge or the root id for the root}
 #' \item{startNodeLab }{the character label for the startNode}
@@ -1252,80 +1244,75 @@ PCMTreeDtNodes <- function(tree) {
 #' @examples
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' backb <-  PCMTreeBackbonePartition(tree)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
 #'
 #' tree2 <- PCMTreeSetPartRegimes(
 #'   tree, c(`26` = "a", `28` = "b"), setPartition = TRUE,
 #'   inplace = FALSE)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree2) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
 #'
 #' backb <-  PCMTreeBackbonePartition(tree2)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
 #'
 #' tree3 <- PCMTreeSetPartRegimes(
 #'   tree, c(`26` = "a", `28` = "b", `41` = "c"), setPartition = TRUE,
 #'   inplace = FALSE)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree3) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' backb <-  PCMTreeBackbonePartition(tree3)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' backb41 <-  PCMTreeBackbonePartition(tree3, partsToKeep = "41")
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(backb41) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
 #'
 #' backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
 #'    backb, epoch = 3.7, minLength = 0.001)
 #' PCMTreeGetPartRegimes(backbMoreNodes)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) +
 #'   ggtree::geom_tiplab(angle=45)
-#' }
+#'
 #' backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
 #'    backbMoreNodes, epoch = 0.2, minLength = 0.001)
 #' PCMTreeGetPartRegimes(backbMoreNodes)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) +
 #'   ggtree::geom_tiplab(angle=45)
-#' }
+#'
 #' backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
 #'    backbMoreNodes, epoch = 1.2, minLength = 0.001)
 #' PCMTreeGetPartRegimes(backbMoreNodes)
 #'
-#' \donttest{
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) +
 #'   ggtree::geom_tiplab(angle=45)
-#' }
+#'
 #' @export
 PCMTreeBackbonePartition <- function(tree, partsToKeep = PCMTreeGetPartNames(tree)) {
 
@@ -1717,7 +1704,7 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
 #' @param X an optional k x N matrix with trait value vectors for each tip in
 #'  tree.
 #' @return A list containing two named phylo objects:
-#' \itemize{
+#' \describe{
 #' \item{clade }{The subtree (clade) starting at \code{node}.}
 #' \item{Xclade }{The portion of X attributable to the tips in clade; NULL if X is NULL.}
 #' \item{rest }{The tree resulting after dropping all tips in the clade.}
@@ -1730,22 +1717,21 @@ PCMTreeListRootPaths <- function(tree, tableAncestors = PCMTreeTableAncestors(tr
 #' @examples
 #' set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 #' tree <- PCMTree(ape::rtree(25))
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' spl <- PCMTreeSplitAtNode(tree, 28)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(PCMTree(spl$clade)) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(PCMTree(spl$rest)) + ggtree::geom_nodelab(angle = 45) +
 #'   ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' @export
 PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestors(tree), X=NULL) {
 
@@ -1900,7 +1886,7 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
 #'  with the clade should be returned. Defaults to \code{!is.null(X)}
 #' @return If returnList is FALSE, a phylo object associated with the clade,
 #'  otherwise, a list with two named members :
-#' \itemize{
+#' \describe{
 #' \item{tree}{the phylo object associated with the clade}
 #' \item{X}{the submatrix of X with columns corresponding to the tips in the clade}
 #' }
@@ -1910,26 +1896,25 @@ PCMTreeSplitAtNode <- function(tree, node, tableAncestors = PCMTreeTableAncestor
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' blueTree <- PCMTreeExtractClade(tree, 45)
 #' PCMTreeGetPartRegimes(blueTree)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(blueTree, palette=c(a = "red", b = "green", c = "blue")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' # we need to use the label here, because the node 29 in tree is not the same
 #' # id in redGreenTree:
 #' blueTree2 <- PCMTreeDropClade(blueTree, "48")
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(blueTree2, palette=c(a = "red", b = "green", c = "blue")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
 #'
 #' @export
 PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL, returnList = !is.null(X)) {
@@ -1990,7 +1975,7 @@ PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NU
 #' returnList is TRUE) is/are returned unchanged.
 #' @return If returnList is FALSE, a phylo object associated with the remaining
 #' tree after dropping the clade, otherise, a list with two named members :
-#' \itemize{
+#' \describe{
 #' \item{tree}{the phylo object associated with the remaining tree after dropping the clade}
 #' \item{X}{the submatrix of X with columns corresponding to the tips in the remaining tree}
 #' }
@@ -2000,26 +1985,25 @@ PCMTreeExtractClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NU
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c"), setPartition = TRUE)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(tree, palette=c(a = "red", b = "green", c = "blue")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' redGreenTree <- PCMTreeDropClade(tree, 45)
 #' PCMTreeGetPartRegimes(redGreenTree)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(redGreenTree, palette=c(a = "red", b = "green", c = "blue")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' # we need to use the label here, because the node 29 in tree is not the same
 #' # id in redGreenTree:
 #' redGreenTree2 <- PCMTreeDropClade(redGreenTree, "29")
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(redGreenTree2, palette=c(a = "red", b = "green", c = "blue")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
 #'
 #' @export
 PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL, returnList = !is.null(X), errorOnMissing = FALSE) {
@@ -2131,35 +2115,34 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' bluePart <- PCMTreeEvalNestedEDxOnTree("D(E(tree,45),47)", tree)
 #' PCMTreeGetPartRegimes(bluePart)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   bluePart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
 #'
 #' # Swapping the D and E calls has the same result:
 #' bluePart2 <- PCMTreeEvalNestedEDxOnTree("E(D(tree,47),45)", tree)
 #' PCMTreeGetPartRegimes(bluePart2)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   bluePart2, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' greenPart <- PCMTreeEvalNestedEDxOnTree("E(tree,28)", tree)
 #'
 #' bgParts <- bluePart+greenPart
 #'
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree")) {
 #' PCMTreePlot(
 #'   greenPart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
@@ -2173,8 +2156,8 @@ PCMTreeDropClade <- function(tree, cladeRootNode, tableAncestors = NULL, X=NULL,
 #' PCMTreePlot(
 #'   bgParts, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#'   }
 #' }
+#'
 #' @export
 PCMTreeEvalNestedEDxOnTree <- function(expr, tree) {
 
@@ -2294,13 +2277,13 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #' tree <- PCMTree(ape::rtree(25))
 #' PCMTreeSetPartRegimes(
 #'   tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   tree,
 #'   palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' cbind(tree$edge, PCMTreeEdgeTimes(tree))
 #'
 #' id47 <- PCMTreeMatchLabels(tree, "47")
@@ -2308,53 +2291,53 @@ PCMTreeLocateMidpointsOnBranches <- function(tree, threshold = 0) {
 #'
 #' # insert a singleton at 0.55 (root-ward) from node 47
 #' tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions = (length47/2))
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   tree,
 #'   palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' # this fails, because the branch leading to node "47" is shorter now (0.55).
 #' ggplot2::should_stop(
 #'   tree <- PCMTreeInsertSingletons(
 #'     tree, nodes = "47", positions= 2* length47 / 3))
 #'
 #' # the tree is the same
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' # we can insert at a position within the edge:
 #' tree <- PCMTreeInsertSingletons(tree, nodes = "47", positions = length47/3)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #'
 #' # Insert singletons at all branches crossing a given epoch. This will skip
 #' # inserting singleton nodes where the resulting branches would be shorter
 #' # than 0.1.
 #' tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' # Insert singletons at all branches crossing a given epoch
 #' tree <- PCMTreeInsertSingletonsAtEpoch(tree, 2.3, minLength = 0.001)
-#' \donttest{
+#'
 #' if(requireNamespace("ggtree"))
 #' PCMTreePlot(
 #'   tree,
 #'   palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-#' }
+#'
 #' @export
 PCMTreeInsertSingletons <- function(tree, nodes, positions) {
   PCMTreeInsertTipsOrSingletons(tree, nodes, positions, singleton = TRUE)

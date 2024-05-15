@@ -66,6 +66,109 @@ NULL
 #' the function-name.
 NULL
 
+#' Bind named vectors or matrices into an array so that the names form the names of the last dimension.
+#'
+#' @param ... Any number of named vectors, or matrices. The dimensions of all the
+#' arrays must match. The names will be used for the names of the regimes.
+#'
+#' @return an array with dim attribute one longer than the number of dimensions of
+#' each argument, i.e. if there are 5 vector arguments of length 2, the returned
+#' value will be an array with dim c(2,5); if there are 5 matrix arguments of
+#' dim 2 x 2, the returned value will be an array with dim c(2,2,5).
+#' @importFrom abind abind
+#'
+#' @examples
+#' # regimes
+#'
+#' # in regime 'a' the three traits evolve according to three independent OU processes
+#' a.X0 <- c(5, 2, 1)
+#' a.H <- rbind(
+#'   c(0, 0, 0),
+#'   c(0, 2, 0),
+#'   c(0, 0, 3))
+#' a.Theta <- c(10, 6, 2)
+#' a.Sigma_x <- rbind(
+#'   c(1.6, 0.0, 0.0),
+#'   c(0.0, 2.4, 0.0),
+#'   c(0.0, 0.0, 2.0))
+#' a.Sigmae_x <- rbind(
+#'   c(0.0, 0.0, 0.0),
+#'   c(0.0, 0.0, 0.0),
+#'   c(0.0, 0.0, 0.0))
+#' a.h_drift<-c(0, 0, 0)
+#'
+#' # in regime 'b' there is correlation between the traits
+#' b.X0 <- c(12, 4, 3)
+#' b.H <- rbind(
+#'   c(2.0, 0.1, 0.2),
+#'   c(0.1, 0.6, 0.2),
+#'   c(0.2, 0.2, 0.3))
+#' b.Theta <- c(10, 6, 2)
+#' b.Sigma_x <- rbind(
+#'   c(1.6, 0.3, 0.3),
+#'   c(0.0, 0.3, 0.4),
+#'   c(0.0, 0.0, 2.0))
+#' b.Sigmae_x <- rbind(
+#'   c(0.2, 0.0, 0.0),
+#'   c(0.0, 0.3, 0.0),
+#'   c(0.0, 0.0, 0.4))
+#' b.h_drift<-c(1, 2, 3)
+#'
+#' H <- PCMParamBindRegimeParams(a = a.H, b = b.H)
+#' Theta <- PCMParamBindRegimeParams(a = a.Theta, b = b.Theta)
+#' Sigma_x <- PCMParamBindRegimeParams(a = a.Sigma_x, b = b.Sigma_x)
+#' Sigmae_x <- PCMParamBindRegimeParams(a = a.Sigmae_x, b = b.Sigmae_x)
+#' h_drift <- PCMParamBindRegimeParams(a = a.h_drift, b = b.h_drift)
+#'
+#' model.a.BM_drift.123 <- PCM("BM_drift", k = 3, regimes = "a",
+#' params = list(
+#'   X0 = a.X0,
+#'   h_drift = h_drift[,'a',drop=FALSE],
+#'   Sigma_x = Sigma_x[,,'a',drop=FALSE],
+#'   Sigmae_x = Sigmae_x[,,'a',drop=FALSE]))
+#'
+#' # regimes 'a' and 'b', traits 1, 2 and 3
+#' model.ab.123 <- PCM("OU", k = 3, regimes = c("a", "b"),
+#'                     params = list(
+#'                       X0 = a.X0,
+#'                       H = H[,,,drop=FALSE],
+#'                       Theta = Theta[,,drop=FALSE],
+#'                       Sigma_x = Sigma_x[,,,drop=FALSE],
+#'                       Sigmae_x = Sigmae_x[,,,drop=FALSE]))
+#'
+#' @export
+PCMParamBindRegimeParams <- function(...) {
+  args <- list(...)
+
+  if(length(args) == 0) {
+    stop("PCMBase::PCMParamBindRegimeParams: no arguments passed.")
+  }
+
+  # Check that arguments are named
+  if(is.null(names(args)) || isTRUE(any(is.na(names(args)))) || isTRUE(any(names(args) == ""))) {
+    stop("PCMBase::PCMParamBindRegimeParams: arguments should be named.")
+  }
+  if(is.vector(args[[1]])) {
+    # make sure that all arguments are vectors of the same length
+    l <- length(args[[1]])
+    check <- isTRUE(all(sapply(args, is.vector))) && isTRUE(all(sapply(args, length) == l))
+    if(!check) {
+      stop("PCMBase::PCMParamBindRegimeParams: if first argument is a vector, all subsequent arguments should be vectors of the same length.")
+    }
+    res <- do.call(abind, c(args, list(along = 2)))
+  } else if(is.matrix(args[[1]])) {
+    # make sure that all arguments are vectors of the same length
+    d <- dim(args[[1]])
+    check <- isTRUE(all(sapply(args, is.matrix))) && isTRUE(all(sapply(args, function(arg) identical(dim(arg), d))))
+    if(!check) {
+      stop("PCMBase::PCMParamBindRegimeParams: if first argument is a matrix, all subsequent arguments should be matrix of the same dim")
+    }
+    res <- do.call(abind, c(args, list(along = 3)))
+  }
+
+  res
+}
+
 #' @describeIn PCMParamType
 #'
 #' @export

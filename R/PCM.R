@@ -46,14 +46,14 @@ PCMModels <- function(pattern = NULL, parentClass = NULL, ...) {
 #'
 #' @return a named list with the currently set values of the following global
 #' options:
-#' \itemize{
+#' \describe{
 #' \item{\code{PCMBase.Value.NA }}{NA value for the likelihood; used in GaussianPCM to
 #' return this value in case of an error occurring
 #' during likelihood calculation. By default, this is set to \code{as.double(NA)}.}
 #' \item{\code{PCMBase.Errors.As.Warnings }}{a logical flag indicating if errors
 #' (occuring, e.g. during likelihood calculation) should be treated as warnings
 #' and added as an attribute "error" to attach to the likelihood values. Default TRUE.}
-#' \item{\item{PCMBase.Raise.Lik.Errors} }{Should numerical and other sort of
+#' \item{\code{PCMBase.Raise.Lik.Errors} }{Should numerical and other sort of
 #' errors occurring during likelihood calculation be raised either as errors or
 #' as warnings, depending on the option \code{PCMBase.Errors.As.Warnings}.
 #' Default TRUE. This option can be useful if too frequent warnings get raised
@@ -181,7 +181,7 @@ PCMOptions <- function() {
 #'
 #' @details This is an S3 generic. The PCMBase package defines three methods for
 #' it:
-#' \itemize{
+#' \describe{
 #' \item{PCM.PCM: }{A default constructor for any object with a class inheriting
 #' from "PCM".}
 #' \item{PCM.character: }{A default PCM constructor from a character string
@@ -671,7 +671,7 @@ PCMGenerateParameterizations <- function(
 #' \code{list(BM="default", OU = "default", White = "all")}. The element value
 #' specifies which one of `PCMListParameterizations` or
 #' `PCMListDefaultParameterizations` should be used:
-#' \itemize{
+#' \describe{
 #' \item{"all"}{for calling `PCMListParameterizations`}
 #' \item{"default"}{for calling `PCMListDefaultParameterizations`}
 #' }
@@ -1469,7 +1469,7 @@ PCMVarAtTime <- function(
 #'
 #' @return if doPlot2D is TRUE, returns a ggplot. Otherwise a named list of two
 #' elements:
-#' \itemize{
+#' \describe{
 #' \item{dt }{a data.table with columns 'regime', 't', 'X', 'V' and 'samp'. For
 #' each row corresponding to time in tVar, the column samp represents a list of
 #' sizeSamp k-vectors.}

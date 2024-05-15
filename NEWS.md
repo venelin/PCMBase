@@ -6,6 +6,8 @@ output: html_document
 ---
 
 # PCMBase 1.2.14
+- Added function PCMParamBindRegimeParams. 
+- Fixed CRAN check NOTES in Rd files.
 - Fixed CRAN check issues in inst/CITATION (replacing calls to personList with c; replacing citEntry with bibentry).
 - Fixed CRAN check issues regarding abind code in vignettes signaled by Prof. Brian Ripley.
 

@@ -17,7 +17,7 @@
 
 library(PCMBase)
 
-if(PCMBaseIsADevRelease() && require(abind, quietly = TRUE)) {
+if(PCMBaseIsADevRelease()) {
 
   # regimes
 
@@ -55,11 +55,11 @@ if(PCMBaseIsADevRelease() && require(abind, quietly = TRUE)) {
     c(0.0, 0.0, 0.4))
   b.h_drift<-c(1, 2, 3)
 
-  H <- abind(a.H, b.H, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-  Theta <- abind(a.Theta, b.Theta, along=2, new.names=list(xy=NULL, regime=c('a','b')))
-  Sigma_x <- abind(a.Sigma_x, b.Sigma_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-  Sigmae_x <- abind(a.Sigmae_x, b.Sigmae_x, along=3, new.names=list(x=NULL, y=NULL, regime=c('a','b')))
-  h_drift <- abind(a.h_drift, b.h_drift, along=2, new.names=list(xy=NULL, regime=c('a','b')))
+  H <- PCMParamBindRegimeParams(a = a.H, b = b.H)
+  Theta <- PCMParamBindRegimeParams(a = a.Theta, b = b.Theta)
+  Sigma_x <- PCMParamBindRegimeParams(a = a.Sigma_x, b = b.Sigma_x)
+  Sigmae_x <- PCMParamBindRegimeParams(a = a.Sigmae_x, b = b.Sigmae_x)
+  h_drift <- PCMParamBindRegimeParams(a = a.h_drift, b = b.h_drift)
 
   # regime 'a', trait 1
   model.a.1 <- PCM("OU", k = 1, regimes = "a",

@@ -2,8 +2,8 @@
 % Please edit documentation in R/GaussianPCM.R
 \name{PCMPExpxMeanExp}
 \alias{PCMPExpxMeanExp}
-\title{Create a function of time that calculates \eqn{(1-exp(-lambda_{ij}*time))/lambda_{ij}}
-for every element \eqn{lambda_{ij}} of the input matrix \eqn{Lambda_{ij}}.}
+\title{Create a function of time that calculates \eqn{(1-exp(-lambda_ij*time))/lambda_ij}
+for every element \eqn{lambda_ij} of the input matrix \eqn{Lambda_ij}.}
 \usage{
 PCMPExpxMeanExp(
   Lambda_ij,
@@ -25,13 +25,13 @@ take the limit time of the expression `(1-exp(-Lambda_ij*time))/Lambda_ij` as
 }
 \value{
 a function of time returning a matrix with entries formed from the
- above function or the limit, time, if |Lambda_{ij}|<=trehshold0.
+ above function or the limit, time, if \eqn{|Lambda_{ij}|<=trehshold0}.
 }
 \description{
-Create a function of time that calculates \eqn{(1-exp(-lambda_{ij}*time))/lambda_{ij}}
-for every element \eqn{lambda_{ij}} of the input matrix \eqn{Lambda_{ij}}.
+Create a function of time that calculates \eqn{(1-exp(-lambda_ij*time))/lambda_ij}
+for every element \eqn{lambda_ij} of the input matrix \eqn{Lambda_ij}.
 }
 \details{
-the function (1-exp(-lambda_{ij}*time))/lambda_{ij} corresponds to the product
-of the CDF of an exponential distribution with rate Lambda_{ij} multiplied by its mean value (mean waiting time).
+the function \eqn{(1-exp(-lambda_ij*time))/lambda_ij} corresponds to the product
+of the CDF of an exponential distribution with rate \eqn{Lambda_ij} multiplied by its mean value (mean waiting time).
 }

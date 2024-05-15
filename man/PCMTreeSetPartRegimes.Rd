@@ -73,20 +73,20 @@ PCMTreeSetPartRegimes(
   inplace = TRUE)
 
 
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree.a) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-}
+
 tree.ab <- tree.a
 PCMTreeSetPartRegimes(
   tree.ab,
   part.regime = structure(c("a", "b"), names = as.character(c(N+1L, N+31L))),
   setPartition = TRUE,
   inplace = TRUE)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree.ab) + ggtree::geom_nodelab() + ggtree::geom_tiplab()
-}
+
 }
 \seealso{
 \code{\link{PCMTree}}

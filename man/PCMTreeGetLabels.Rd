@@ -27,12 +27,12 @@ Get the character labels of the tips, root and internal nodes in the tree
 }
 \section{Functions}{
 \itemize{
-\item \code{PCMTreeGetLabels()}: Get all labels in the order (tips,root,internal).
+\item \code{PCMTreeGetLabels}: Get all labels in the order (tips,root,internal).
 
-\item \code{PCMTreeGetRootLabel()}: Get the root label
+\item \code{PCMTreeGetRootLabel}: Get the root label
 
-\item \code{PCMTreeGetNodeLabels()}: Get the internal node labels
+\item \code{PCMTreeGetNodeLabels}: Get the internal node labels
 
-\item \code{PCMTreeGetTipLabels()}: Get the tip labels
-
+\item \code{PCMTreeGetTipLabels}: Get the tip labels
 }}
+

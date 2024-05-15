@@ -77,28 +77,10 @@ FalsePositiveRate <- function(pred, true) {
 #' @importFrom utils install.packages
 #' @export
 RequireSuggestedPackages <- function() {
-
-  if(!requireNamespace("ggtree", quietly = TRUE)) {
-    message("Trying to install ggtree...")
-    try({
-      if (!requireNamespace("BiocManager", quietly = TRUE))
-        install.packages("BiocManager")
-      BiocManager::install("ggtree")
-    }, silent = TRUE)
-  }
-
-  if(!requireNamespace("abind", quietly = TRUE)) {
-    message("Trying to install abind...")
-    try({
-      install.packages("abind")
-    }, silent = TRUE)
-  }
-
   isAvailable <- c(
     testthat = requireNamespace("testthat", quietly = TRUE),
     knitr = requireNamespace("knitr", quietly = TRUE),
     rmarkdown = requireNamespace("rmarkdown", quietly = TRUE),
-    abind= requireNamespace("abind", quietly = TRUE),
     ggtree  = requireNamespace("ggtree", quietly = TRUE),
     cowplot = requireNamespace("cowplot", quietly = TRUE),
     covr = requireNamespace("covr", quietly = TRUE),

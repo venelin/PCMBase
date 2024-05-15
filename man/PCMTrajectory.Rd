@@ -55,7 +55,7 @@ Default: NULL}
 \value{
 if doPlot2D is TRUE, returns a ggplot. Otherwise a named list of two
 elements:
-\itemize{
+\describe{
 \item{dt }{a data.table with columns 'regime', 't', 'X', 'V' and 'samp'. For
 each row corresponding to time in tVar, the column samp represents a list of
 sizeSamp k-vectors.}

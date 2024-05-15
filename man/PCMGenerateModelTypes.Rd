@@ -16,7 +16,7 @@ the parametrizations (sub-classes) will be generated. Defaults to
 \code{list(BM="default", OU = "default", White = "all")}. The element value
 specifies which one of `PCMListParameterizations` or
 `PCMListDefaultParameterizations` should be used:
-\itemize{
+\describe{
 \item{"all"}{for calling `PCMListParameterizations`}
 \item{"default"}{for calling `PCMListDefaultParameterizations`}
 }}

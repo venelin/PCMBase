@@ -1137,8 +1137,8 @@ PCMPLambdaP_1 <- function(H) {
 }
 
 
-#' Create a function of time that calculates \eqn{(1-exp(-lambda_{ij}*time))/lambda_{ij}}
-#' for every element \eqn{lambda_{ij}} of the input matrix \eqn{Lambda_{ij}}.
+#' Create a function of time that calculates \eqn{(1-exp(-lambda_ij*time))/lambda_ij}
+#' for every element \eqn{lambda_ij} of the input matrix \eqn{Lambda_ij}.
 #'
 #' @param Lambda_ij a squared numerical matrix of dimension k x k
 #' @param threshold.Lambda_ij a 0-threshold for abs(Lambda_i + Lambda_j), where Lambda_i
@@ -1150,10 +1150,10 @@ PCMPLambdaP_1 <- function(H) {
 #'    lengths bigger than 1e-6. For smaller branch lengths, you may want to
 #'    increase the threshold value using, e.g.
 #'   `options(PCMBase.Threshold.Lambda_ij=1e-6)`.
-#' @details the function (1-exp(-lambda_{ij}*time))/lambda_{ij} corresponds to the product
-#' of the CDF of an exponential distribution with rate Lambda_{ij} multiplied by its mean value (mean waiting time).
+#' @details the function \eqn{(1-exp(-lambda_ij*time))/lambda_ij} corresponds to the product
+#' of the CDF of an exponential distribution with rate \eqn{Lambda_ij} multiplied by its mean value (mean waiting time).
 #' @return a function of time returning a matrix with entries formed from the
-#'  above function or the limit, time, if |Lambda_{ij}|<=trehshold0.
+#'  above function or the limit, time, if \eqn{|Lambda_{ij}|<=trehshold0}.
 PCMPExpxMeanExp <- function(
   Lambda_ij,
   threshold.Lambda_ij = getOption("PCMBase.Threshold.Lambda_ij", 1e-8) ) {

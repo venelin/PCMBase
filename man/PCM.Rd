@@ -63,7 +63,7 @@ use the \code{\link{MixedGaussian}} function.
 \details{
 This is an S3 generic. The PCMBase package defines three methods for
 it:
-\itemize{
+\describe{
 \item{PCM.PCM: }{A default constructor for any object with a class inheriting
 from "PCM".}
 \item{PCM.character: }{A default PCM constructor from a character string

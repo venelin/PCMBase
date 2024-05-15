@@ -29,9 +29,8 @@ set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- ape::rtree(10)
 regimes <- sample(letters[1:3], nrow(tree$edge), replace = TRUE)
 PCMTreeSetRegimesForEdges(tree, regimes)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree)
-}
 
 }

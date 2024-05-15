@@ -111,56 +111,56 @@ class attribute.}
 }
 \section{Functions}{
 \itemize{
-\item \code{is.Local()}: 
+\item \code{is.Local}: 
 
-\item \code{is.Global()}: 
+\item \code{is.Global}: 
 
-\item \code{is.ScalarParameter()}: 
+\item \code{is.ScalarParameter}: 
 
-\item \code{is.VectorParameter()}: 
+\item \code{is.VectorParameter}: 
 
-\item \code{is.MatrixParameter()}: 
+\item \code{is.MatrixParameter}: 
 
-\item \code{is.WithCustomVecParams()}: 
+\item \code{is.WithCustomVecParams}: 
 
-\item \code{is.Fixed()}: 
+\item \code{is.Fixed}: 
 
-\item \code{is.Zeros()}: 
+\item \code{is.Zeros}: 
 
-\item \code{is.Ones()}: 
+\item \code{is.Ones}: 
 
-\item \code{is.Identity()}: 
+\item \code{is.Identity}: 
 
-\item \code{is.AllEqual()}: 
+\item \code{is.AllEqual}: 
 
-\item \code{is.NonNegative()}: 
+\item \code{is.NonNegative}: 
 
-\item \code{is.Diagonal()}: 
+\item \code{is.Diagonal}: 
 
-\item \code{is.ScalarDiagonal()}: 
+\item \code{is.ScalarDiagonal}: 
 
-\item \code{is.Symmetric()}: 
+\item \code{is.Symmetric}: 
 
-\item \code{is.UpperTriangular()}: 
+\item \code{is.UpperTriangular}: 
 
-\item \code{is.UpperTriangularWithDiagonal()}: 
+\item \code{is.UpperTriangularWithDiagonal}: 
 
-\item \code{is.WithNonNegativeDiagonal()}: 
+\item \code{is.WithNonNegativeDiagonal}: 
 
-\item \code{is.LowerTriangular()}: 
+\item \code{is.LowerTriangular}: 
 
-\item \code{is.LowerTriangularWithDiagonal()}: 
+\item \code{is.LowerTriangularWithDiagonal}: 
 
-\item \code{is.Omitted()}: 
+\item \code{is.Omitted}: 
 
-\item \code{is.CholeskyFactor()}: 
+\item \code{is.CholeskyFactor}: 
 
-\item \code{is.Schur()}: 
+\item \code{is.Schur}: 
 
-\item \code{is.Transformable()}: 
+\item \code{is.Transformable}: 
 
-\item \code{is.Transformed()}: 
+\item \code{is.Transformed}: 
 
-\item \code{is.SemiPositiveDefinite()}: 
-
+\item \code{is.SemiPositiveDefinite}: 
 }}
+

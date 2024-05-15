@@ -11,7 +11,7 @@ PCMTreeDtNodes(tree)
 }
 \value{
 a data.table with a row for each node in tree and columns as follows:
-\itemize{
+\describe{
 \item{startNode }{the starting node of each edge or NA_integer_ for the root}
 \item{endNode }{the end node of each edge or the root id for the root}
 \item{startNodeLab }{the character label for the startNode}

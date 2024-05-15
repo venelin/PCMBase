@@ -21,80 +21,75 @@ Prune the tree leaving one tip for each or some of its parts
 \examples{
 set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
-}
+
 backb <-  PCMTreeBackbonePartition(tree)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
-}
 
 tree2 <- PCMTreeSetPartRegimes(
   tree, c(`26` = "a", `28` = "b"), setPartition = TRUE,
   inplace = FALSE)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree2) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
-}
 
 backb <-  PCMTreeBackbonePartition(tree2)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
-}
 
 tree3 <- PCMTreeSetPartRegimes(
   tree, c(`26` = "a", `28` = "b", `41` = "c"), setPartition = TRUE,
   inplace = FALSE)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(tree3) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
-}
+
 backb <-  PCMTreeBackbonePartition(tree3)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(backb) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
-}
+
 backb41 <-  PCMTreeBackbonePartition(tree3, partsToKeep = "41")
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(backb41) + ggtree::geom_nodelab(angle = 45) +
   ggtree::geom_tiplab(angle = 45)
-}
 
 backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
    backb, epoch = 3.7, minLength = 0.001)
 PCMTreeGetPartRegimes(backbMoreNodes)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) +
   ggtree::geom_tiplab(angle=45)
-}
+
 backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
    backbMoreNodes, epoch = 0.2, minLength = 0.001)
 PCMTreeGetPartRegimes(backbMoreNodes)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) +
   ggtree::geom_tiplab(angle=45)
-}
+
 backbMoreNodes <- PCMTreeInsertSingletonsAtEpoch(
    backbMoreNodes, epoch = 1.2, minLength = 0.001)
 PCMTreeGetPartRegimes(backbMoreNodes)
 
-\donttest{
 if(requireNamespace("ggtree"))
 PCMTreePlot(backbMoreNodes) + ggtree::geom_nodelab(angle=45) +
   ggtree::geom_tiplab(angle=45)
-}
+
 }
 \seealso{
 PCMTreeSetPartition

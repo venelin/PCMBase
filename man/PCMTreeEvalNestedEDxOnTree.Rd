@@ -28,35 +28,34 @@ set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion")
 tree <- PCMTree(ape::rtree(25))
 PCMTreeSetPartRegimes(
   tree, c(`26`="a", `28`="b", `45`="c", `47`="d"), setPartition = TRUE)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(
   tree, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-}
+
 bluePart <- PCMTreeEvalNestedEDxOnTree("D(E(tree,45),47)", tree)
 PCMTreeGetPartRegimes(bluePart)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(
   bluePart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-}
 
 # Swapping the D and E calls has the same result:
 bluePart2 <- PCMTreeEvalNestedEDxOnTree("E(D(tree,47),45)", tree)
 PCMTreeGetPartRegimes(bluePart2)
-\donttest{
+
 if(requireNamespace("ggtree"))
 PCMTreePlot(
   bluePart2, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-}
+
 greenPart <- PCMTreeEvalNestedEDxOnTree("E(tree,28)", tree)
 
 bgParts <- bluePart+greenPart
 
-\donttest{
+
 if(requireNamespace("ggtree")) {
 PCMTreePlot(
   greenPart, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
@@ -70,6 +69,6 @@ PCMTreePlot(
 PCMTreePlot(
   bgParts, palette=c(a = "red", b = "green", c = "blue", d = "magenta")) +
   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
-  }
 }
+
 }
