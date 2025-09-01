@@ -2658,7 +2658,7 @@ PCMTreePlot <- function(
 
 #' Phylogenetic Variance-covariance matrix
 #'
-#' This is a simplified wrapper for ape's \code{\link{vcv}} function. Setting
+#' This is a simplified wrapper for ape's \code{\link[ape]{vcv}} function. Setting
 #' the runtime option PCMBase.UsePCMVarForVCV to TRUE will switch to a
 #' computation of the matrix using the function \code{\link{PCMVar}}.
 #'
@@ -2666,7 +2666,7 @@ PCMTreePlot <- function(
 #' @return a N x N matrix. Assuming a BM model of evolution, this is a matrix
 #' in which element (i,j) is equal to the shared root-distance of the nodes i
 #' and j.
-#' @seealso \code{\link{vcv}} \code{\link{PCMVar}} \code{\link{PCMOptions}}
+#' @seealso \code{\link[ape]{vcv}} \code{\link{PCMVar}} \code{\link{PCMOptions}}
 #' @importFrom ape vcv
 #' @export
 PCMTreeVCV <- function(tree) {
